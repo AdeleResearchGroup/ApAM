@@ -447,12 +447,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
 	@Override
-	public Link getLink(String relName) {
-//		if (CST.isFinalRelation(relName)) {
-//			if (relName.equals(CST.REL_GROUP))
-//			//TODO
-//		}
-		
+	public Link getLink(String relName) {		
 		Component group = this; 
 		while (group != null) {
 			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
@@ -1063,7 +1058,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public boolean matchRelationConstraints(Relation dep) {
-		return dep.matchRelationConstraints(this.getAllProperties());
+		return dep.matchRelationConstraints(dep.getSourceKind(), this.getAllProperties());
 	}
 
 	@Override

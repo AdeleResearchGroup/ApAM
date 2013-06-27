@@ -252,7 +252,7 @@ public class ApamResolverImpl implements ApamResolver {
 				// source visibility control (null).
 				// Adds the manager constraints and compute filters
 				computeSelectionPath(source, dep);
-				resolved = dep.getResolved(resolved);
+				resolved = dep.getResolved(resolved, isPromotion);
 			}
 		}
 
@@ -426,7 +426,7 @@ public class ApamResolverImpl implements ApamResolver {
 		((RelationImpl)relation).computeFilters(source) ;
 
 		if (!relation.isRelation()) { // It is a find
-			logger.info("Looking for " + relation.getTarget().getName());
+			logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
 		} else
 			logger.info("Resolving " + relation);
 

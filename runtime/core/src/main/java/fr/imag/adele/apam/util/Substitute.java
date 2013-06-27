@@ -178,7 +178,7 @@ public class Substitute {
 			return false ;
 		}
 
-		if (sourceType.type==AttrType.ENUM && !sourceType.enumValues.equals(targetType.enumValues)) {
+		if (sourceType.type==AttrType.ENUM && !sourceType.enumValues.containsAll(targetType.enumValues)) {
 			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : Not the same enumeration set as attribute " 
 					+  sub.attr + " of type : " + targetType.typeString ) ;
 			return false ;

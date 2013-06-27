@@ -86,6 +86,10 @@ public abstract class TestUtils {
 
 	}
 
+	protected void auxListInstances(){
+		auxListInstances("\t");
+	}
+	
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
 				"%s------------ Instances (Total:%d) -------------", prefix,
@@ -100,6 +104,10 @@ public abstract class TestUtils {
 				"%s------------ /Instances -------------", prefix));
 	}
 
+	protected void auxListProperties(Component component){
+		this.auxListProperties("\t\t",component);
+	}
+	
 	protected void auxListProperties(String prefix, Component component) {
 		System.out.println(String.format(
 				"%s------------ Properties -------------", prefix));

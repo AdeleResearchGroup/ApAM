@@ -521,8 +521,7 @@ public class CheckObr {
 
 		if (spec == null)
 			return true;
-		ApamCapability cap = ApamCapability
-				.get(new SpecificationReference(spec));
+		ApamCapability cap = ApamCapability.get(new SpecificationReference(spec));
 		if (cap == null) {
 			return true;
 		}
@@ -737,8 +736,9 @@ public class CheckObr {
 	}
 
 	public static RelationDeclaration getRelationDefinition (ComponentDeclaration depComponent, String relName) {
-		// look for that relation declaration above
-		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		// look for that relation declaration 
+		//ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		ComponentDeclaration group = depComponent ;
 		RelationDeclaration relDef = null ;
 		while (group != null && (relDef == null)) {
 			relDef = group.getLocalRelation(relName) ;

@@ -28,6 +28,14 @@
   	<module>TestDependency</module>
   	<!-- <module>TestPromotion</module> -->
   	<module>TestCompile</module>
+  	<module>SpellCtxt</module>
+  	<module>SpellGui</module>
+  	<module>SpellChecker</module>
+  	<module>SpellDico</module>
+  	<module>SpellConsole</module>
+  	<module>SpellSimple</module>
+  	<module>SpellLocale</module>
+  	<module>SpellDicoFR</module>
   </modules>
 
 </project>

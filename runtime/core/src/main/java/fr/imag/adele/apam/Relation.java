@@ -18,7 +18,7 @@ public interface Relation  {
 	 * since component extends Map<String, Object>
 	 */
 	public boolean matchRelation (Component target) ;
-	public boolean matchRelationConstraints (Map <String, Object> properties) ;
+	public boolean matchRelationConstraints (ComponentKind candidateKind, Map<String, Object> properties)  ;
 	public boolean matchRelationConstraints (Component target) ;
 	public boolean matchRelationTarget (Component target) ;
 
@@ -127,9 +127,9 @@ public interface Relation  {
 	public boolean isExternal () ;
 
 	//Ex in Util
-	public Resolved<?> getResolved(Set<? extends Component> candidates) ;
+	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) ;
 	
-	public Resolved<?> getResolved(Resolved<?> candidates) ;
+	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion) ;
 	
 	public <T extends Component> T getPrefered (Set<T> candidates) ;
 
