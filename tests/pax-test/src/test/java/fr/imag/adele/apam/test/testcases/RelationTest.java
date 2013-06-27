@@ -21,12 +21,31 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter03;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter04;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter05;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter06;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter07;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter08;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class RelationTest extends ExtensionAbstract {
 
-	private static void checkSourceTargetValid(Component source,Component target,Class expectedSource,Class expectedTarget){
+	
+	private static void AssertCorrectSourceTargetTypes(Component component, Class expectedSource,Class expectedTarget){
+		
+		ComponentImpl ci=null;
+		
+		if(component instanceof Implementation && expectedSource==Specification.class){
+			ci=(ComponentImpl)((Implementation)component).getSpec();
+		}
+		
+		for(Link link:ci.getLocalLinks()){
+			
+			validateSourceTargetTypes(link.getSource(),link.getDestination(),expectedSource,expectedTarget);
+			
+		}
+		
+	}
+	
+	private static void validateSourceTargetTypes(Component source,Component target,Class expectedSource,Class expectedTarget){
 		
 		//Source
 		Assert.assertTrue(String.format("Source is not of the type %s",expectedSource.getSimpleName()),expectedSource.isInstance(source) );
@@ -57,7 +76,7 @@ public class RelationTest extends ExtensionAbstract {
 		
 		for(Link link:ci.getLocalLinks()){
 			
-			checkSourceTargetValid(link.getSource(),link.getDestination(),Implementation.class,Implementation.class);
+			validateSourceTargetTypes(link.getSource(),link.getDestination(),Implementation.class,Implementation.class);
 			
 		}
 		
@@ -90,7 +109,7 @@ public class RelationTest extends ExtensionAbstract {
 		
 		for(Link link:ci.getLocalLinks()){
 			
-			checkSourceTargetValid(link.getSource(),link.getDestination(),Implementation.class,Specification.class);
+			validateSourceTargetTypes(link.getSource(),link.getDestination(),Implementation.class,Specification.class);
 			
 		}
 		
@@ -128,7 +147,7 @@ public class RelationTest extends ExtensionAbstract {
 		
 		for(Link link:ci.getLocalLinks()){
 			
-			checkSourceTargetValid(link.getSource(),link.getDestination(),Implementation.class,Instance.class);
+			validateSourceTargetTypes(link.getSource(),link.getDestination(),Implementation.class,Instance.class);
 			
 		}
 		
@@ -208,9 +227,51 @@ public class RelationTest extends ExtensionAbstract {
 		//Force field injection
 		dependency.getInjected();
 		
-		Assert.assertTrue(ci.getLocalLinks().size()==1);
+		Assert.assertTrue("Using an relation with creation='lazy' should instantiate after the dependency is called, which didnt happened",ci.getLocalLinks().size()==1);
 		
-		Assert.assertTrue("Using an relation with creation='lazy' should instantiate after the dependency is called, which didnt happened",ci.getLocalLinks().size()>0);
+	}
+
+	@Test
+	public void RelationSourceSpecificationTargetInstance_tc103() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-07");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter07 dependency = (S07ImplementationImporter07) instance
+				.getServiceObject();
+		
+		dependency.getInjected();
+		
+		ComponentImpl ci=(ComponentImpl)implementation.getSpec();
+		
+		Assert.assertTrue(String.format("One link should have been created, but %s links were found",ci.getLocalLinks().size()),ci.getLocalLinks().size()==1);
+		
+		AssertCorrectSourceTargetTypes(implementation,Specification.class,Instance.class);
+		
+	}
+	
+	@Test
+	public void RelationSourceSpecificationTargetImplementation_tc104() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-08");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter08 dependency = (S07ImplementationImporter08) instance
+				.getServiceObject();
+		
+		dependency.getInjected();
+		
+		ComponentImpl ci=(ComponentImpl)implementation.getSpec();
+		
+		Assert.assertTrue(String.format("One link should have been created, but %s links were found",ci.getLocalLinks().size()),ci.getLocalLinks().size()==1);
+		
+		AssertCorrectSourceTargetTypes(implementation,Specification.class,Implementation.class);
 		
 	}
 	

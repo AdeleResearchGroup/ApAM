@@ -9,6 +9,15 @@
 	governing permissions and limitations under the License. -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
+    <specification name="S07-Dependency"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency">
+	</specification>
+    
+    <implementation name="S07-DependencyImpl"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
+		specification="S07-Dependency">
+	</implementation>
+    
 	<!-- CASE-01 -->
 
 	<specification name="S07-specification-01"
@@ -128,6 +137,7 @@
 		<property name="instance-property" value="ok" />
 	</apam-instance>
 	 -->
+	<!-- CASE-06 -->
 	 
 	 <specification name="S07-specification-06"
 		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface06">
@@ -145,7 +155,39 @@
 		<definition name="instance-property" type="string" />
 		<property name="implementation-property" value="ok" />
 	</implementation>
+	
+	<!-- CASE-07 -->
 	 
+	 <specification name="S07-specification-07"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface07">
+		<relation name="con" sourceKind="specification" targetKind="instance"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-07"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter07"
+		specification="S07-specification-07">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>
+	
+	
+	<!-- CASE-08 -->
+	 
+	 <specification name="S07-specification-08"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface08">
+		<relation name="con" sourceKind="specification" targetKind="implementation"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-08"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter08"
+		specification="S07-specification-08">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="implementation" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>
+	
+		
 	<!-- END OF CASES -->
 
 

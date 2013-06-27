@@ -374,7 +374,9 @@
 <node CREATED="1363617716993" ID="ID_1405486038" MODIFIED="1363625252847" TEXT="Single producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc083">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1363625239572" ID="ID_377460580" MODIFIED="1363625259439" TEXT="Multiple producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc084"/>
+<node CREATED="1363625239572" ID="ID_377460580" MODIFIED="1372342255539" TEXT="Multiple producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc084">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1363857826607" ID="ID_1640179078" MODIFIED="1363857829987" POSITION="right" TEXT="Distriman">
 <node CREATED="1363857837529" ID="ID_1570620168" MODIFIED="1363857853886" TEXT="provider">
