@@ -186,10 +186,52 @@
 		<relation id="con" field="injected" sourceKind="specification"
 			targetKind="implementation" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
 	</implementation>
+
 	
+	<!-- CASE-09 -->
+	 
+	 <specification name="S07-specification-09"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface09">
+		<relation name="con" sourceKind="specification" targetKind="specification"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-09"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter09"
+		specification="S07-specification-09">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="specification" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>	
 		
 	<!-- END OF CASES -->
 
 
+	<!-- CASE-10 -->
+	 
+	<specification name="S07-Dependency-NotInstantiable"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency" instantiable="false">
+	</specification>
+	
+    <!-- 
+    <implementation name="S07-DependencyImpl-NotInstantiable"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
+		specification="S07-Dependency-NotInstantiable">
+	</implementation>
+	 -->
+	 
+	 <specification name="S07-specification-10"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface10">
+		<relation name="con" sourceKind="specification" targetKind="implementation" fail="wait"
+			specification="S07-Dependency-NotInstantiable" />
+	</specification>
+
+	<implementation name="S07-implementation-10"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter10"
+		specification="S07-specification-10">
+		<relation id="con" field="injected" sourceKind="specification" fail="wait"
+			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
+	</implementation>	
+		
+	<!-- END OF CASES -->
 
 </apam>
