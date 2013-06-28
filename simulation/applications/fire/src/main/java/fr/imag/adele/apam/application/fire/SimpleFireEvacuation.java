@@ -31,36 +31,43 @@ public class SimpleFireEvacuation {
 	private List<Lock>		doors;
 
 	/**
-	 * Notification callback for a fire state change
-	 * 
-	 * It returns whether there is an emergency or not
+	 * This is the notification method used to signal a change in
+	 * the fire detection status
+	 */
+	private EmergencyEvent fireDetected(boolean fire) {
+		return new EmergencyEvent(fire);
+	}
+	
+	/**
+	 * Notification callback for a smoke detection message
 	 */
 	@SuppressWarnings("unused")
-	private EmergencyEvent smokeDetected(boolean smokeDetected) {
+	private void smokeDetected(boolean smokeDetected) {
 		
 		/*
 		 * calculate emergency state. 
 		 * 
 		 * In this toy example, simply use the smoke detection value
 		 */
-		EmergencyEvent event = new EmergencyEvent(smokeDetected);
 		
+		fireDetected(smokeDetected);
+
+		if (!smokeDetected)
+			return;
+
 		/*
 		 * Unlock doors to allow evacuation
 		 */
-		if (!smokeDetected)
-			return event;
 		
 		List<Lock> boundDoors = doors;
 		
 		if (boundDoors == null)
-			return event;
+			return;
 		
 		for(Lock lock:boundDoors){
 			lock.unlock();
 		}
 		
-		return event;
 	}
 
 

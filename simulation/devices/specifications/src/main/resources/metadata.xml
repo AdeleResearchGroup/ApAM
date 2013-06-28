@@ -40,7 +40,7 @@
 		<definition name="location" type="string" />
 	</specification>
 
-	<specification name="Door"
+	<specification name="Door" shared="false"
 		interfaces="fr.liglab.adele.apam.device.access.Lock">
 		<definition name="location" type="string" />
 		<definition name="access" type="true,false" />

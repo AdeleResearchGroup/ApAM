@@ -21,7 +21,7 @@
                           
     <implementation name="SimpleFireEvacuation" 
     				classname="fr.imag.adele.apam.application.fire.SimpleFireEvacuation"
-    				push="smokeDetected">
+    				push="fireDetected">
         
         <dependency field="doors" specification="Door">
             <constraints>
