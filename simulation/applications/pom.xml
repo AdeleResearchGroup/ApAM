@@ -13,5 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>lighten</module>
+        <module>lock</module>
+        <module>fire</module>
     </modules>
 </project>

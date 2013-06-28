@@ -157,7 +157,11 @@ public class ApamMan implements RelationManager {
 						specs.add(spec) ;
 					}
 				}
+<<<<<<< HEAD
 				return relation.getResolved(specs, false);
+=======
+				return relation.getResolved(specs,false);
+>>>>>>> fdb79ffa035a7b86f33937fb04bffc19e2b7551c
 			}
 			
 			/*
@@ -179,7 +183,11 @@ public class ApamMan implements RelationManager {
 
 		//If TargetKind is implem, select the good one(s)
 		if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+<<<<<<< HEAD
 			return relation.getResolved(impls, false);
+=======
+			return relation.getResolved(impls,false);
+>>>>>>> fdb79ffa035a7b86f33937fb04bffc19e2b7551c
 		}
 
 		/*

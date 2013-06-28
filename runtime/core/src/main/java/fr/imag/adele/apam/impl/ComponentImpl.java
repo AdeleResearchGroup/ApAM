@@ -516,7 +516,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		/*
 		 * if "to" is an instance in the unused pull, move it to the from composite.
 		 */
-		if (dep.isWire() && to instanceof Instance && !((Instance) to).isUsed()) 
+		if (dep.isWire() && this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
 				((InstanceImpl) to).setOwner(((Instance) this).getComposite());
 
 		//TODO What to do if it is a link towards an unused implem or spec ? Nothing ? 

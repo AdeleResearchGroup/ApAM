@@ -9,6 +9,15 @@
 	governing permissions and limitations under the License. -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
+    <specification name="S07-Dependency"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency">
+	</specification>
+    
+    <implementation name="S07-DependencyImpl"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
+		specification="S07-Dependency">
+	</implementation>
+    
 	<!-- CASE-01 -->
 
 	<specification name="S07-specification-01"
@@ -28,10 +37,11 @@
 		<property name="implementation-property" value="ok" />
 	</implementation>
 
+	<!-- 
 	<apam-instance name="S07-instance-01-fix" implementation="S07-implementation-01">
 		<property name="instance-property" value="ok" />
 	</apam-instance>
-
+ 	-->
 	<!-- CASE-02 -->
 
 	<specification name="S07-specification-02"
@@ -51,10 +61,11 @@
 		<property name="implementation-property" value="ok" />
 	</implementation>
 
+	<!-- 
 	<apam-instance name="S07-instance-02-fix" implementation="S07-implementation-02">
 		<property name="instance-property" value="ok" />
 	</apam-instance>
-
+ 	-->
 	<!-- CASE-03 -->
 
 	<specification name="S07-specification-03"
@@ -73,11 +84,13 @@
 		<definition name="instance-property" type="string" />
 		<property name="implementation-property" value="ok" />
 	</implementation>
-
+	 
+	<!-- 
 	<apam-instance name="S07-instance-03-fix" implementation="S07-implementation-03">
 		<property name="instance-property" value="ok" />
 	</apam-instance>
-
+ 	 -->
+ 	 
 	<!-- CASE-04 -->
 
 	<specification name="S07-specification-04"
@@ -95,16 +108,17 @@
 		<property name="implementation-property" value="ok" />
 	</implementation>
 
+	 <!-- 
 	<apam-instance name="S07-instance-04-fix" implementation="S07-implementation-04">
 		<property name="instance-property" value="ok" />
 	</apam-instance>
-	
+	 -->
 	<!-- CASE-05 -->
 
 	<specification name="S07-specification-05"
 		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface05">
 		<relation name="con" sourceKind="implementation" targetKind="instance"
-			interface="fr.imag.adele.apam.pax.test.implS7.S07Interface05" />
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Interface04" />
 		<definition name="implementation-property" type="string" />
 		<property name="specification-property" type="string" value="ok" />
 	</specification>
@@ -113,17 +127,111 @@
 		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter05"
 		specification="S07-specification-05">
 		<relation id="con" field="injected" sourceKind="implementation"
-			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Interface05" />
+			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Interface04" creation="eager" />
 		<definition name="instance-property" type="string" />
 		<property name="implementation-property" value="ok" />
 	</implementation>
 
+	<!-- 
 	<apam-instance name="S07-instance-05-fix" implementation="S07-implementation-05">
 		<property name="instance-property" value="ok" />
-	</apam-instance>	
+	</apam-instance>
+	 -->
+	<!-- CASE-06 -->
+	 
+	 <specification name="S07-specification-06"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface06">
+		<relation name="con" sourceKind="implementation" targetKind="instance"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Interface06" />
+		<definition name="implementation-property" type="string" />
+		<property name="specification-property" type="string" value="ok" />
+	</specification>
+
+	<implementation name="S07-implementation-06"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter06"
+		specification="S07-specification-06">
+		<relation id="con" field="injected" sourceKind="implementation"
+			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Interface06" creation="eager" />
+		<definition name="instance-property" type="string" />
+		<property name="implementation-property" value="ok" />
+	</implementation>
 	
+	<!-- CASE-07 -->
+	 
+	 <specification name="S07-specification-07"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface07">
+		<relation name="con" sourceKind="specification" targetKind="instance"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-07"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter07"
+		specification="S07-specification-07">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>
+	
+	
+	<!-- CASE-08 -->
+	 
+	 <specification name="S07-specification-08"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface08">
+		<relation name="con" sourceKind="specification" targetKind="implementation"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-08"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter08"
+		specification="S07-specification-08">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="implementation" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>
+
+	
+	<!-- CASE-09 -->
+	 
+	 <specification name="S07-specification-09"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface09">
+		<relation name="con" sourceKind="specification" targetKind="specification"
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-09"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter09"
+		specification="S07-specification-09">
+		<relation id="con" field="injected" sourceKind="specification"
+			targetKind="specification" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>	
+		
 	<!-- END OF CASES -->
 
 
+	<!-- CASE-10 -->
+	 
+	<specification name="S07-Dependency-NotInstantiable"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency" instantiable="false">
+	</specification>
+	
+    <!-- 
+    <implementation name="S07-DependencyImpl-NotInstantiable"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
+		specification="S07-Dependency-NotInstantiable">
+	</implementation>
+	 -->
+	 
+	 <specification name="S07-specification-10"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface10">
+		<relation name="con" sourceKind="specification" targetKind="implementation" fail="wait"
+			specification="S07-Dependency-NotInstantiable" />
+	</specification>
+
+	<implementation name="S07-implementation-10"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter10"
+		specification="S07-specification-10">
+		<relation id="con" field="injected" sourceKind="specification" fail="wait"
+			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
+	</implementation>	
+		
+	<!-- END OF CASES -->
 
 </apam>

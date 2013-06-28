@@ -11,6 +11,17 @@
 	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>security</artifactId>
 	<packaging>bundle</packaging>
+	
+	
+	<dependencies>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>device.specifications</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<name>ApAM iCasa security related domains</name>
+	<description>ApAM iCasa security related domains</description>
 	<build>
 		<plugins>
 			<plugin>
