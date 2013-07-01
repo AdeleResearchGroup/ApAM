@@ -71,6 +71,7 @@
 			<own specification="SmokeDetector"/>
 			
 			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" id=".*" specification="SmokeDetector" eager="true" />
 
 		</contentMngt>
 
