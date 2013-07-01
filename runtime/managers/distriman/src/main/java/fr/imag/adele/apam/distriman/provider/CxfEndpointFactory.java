@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.distriman.provider;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,8 +32,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
-import fr.imag.adele.apam.RelationManager;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.distriman.DistrimanConstant;
@@ -41,6 +44,7 @@ import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.impl.EndpointRegistrationImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
+import fr.imag.adele.apam.impl.RelationImpl;
 
 /**
  * User: barjo Date: 18/12/12 Time: 14:15
@@ -212,29 +216,36 @@ public class CxfEndpointFactory {
 
 		RemoteDependency remote=new RemoteDependency(dependency, null);
 		
-		Resolved resolved = apamMan.resolveDependency( client.getInst(),remote, true);
+		//((RelationImpl)client.getApamComponent().getRelation(dependency.getIdentifier()))
+		
+		RelationImpl rel=new RelationImpl(dependency);
+		rel.computeFilters(client.getApamComponent());
+		
+		Resolved resolved = apamMan.resolveRelation(client.getApamComponent(), rel);
+		
+		//resolveDependency( client.getServiceObject(),remote, true);
 
 		// No local instance matching the RemoteDependency
-		if (resolved==null||resolved.instances==null||resolved.instances.isEmpty()) {
+		if (resolved==null) {
 
 			logger.info("impossile to solve dependency, the number of instances was zero");
 
 			return null;
 		}
 
-		logger.info("solve dependency, {} instance(s) where found",
-				resolved.instances.size());
+//		logger.info("solve dependency, {} instance(s) where found",
+//				resolved.toInstantiate);
 
 		// Check if we already have an endpoint for the instances
 		synchronized (endpoints) {
 
-			Sets.SetView<Instance> alreadyExported = Sets.intersection(
-					resolved.instances, endpoints.keySet());
+			Sets.SetView<Component> alreadyExported = Sets.intersection(
+					Collections.singleton(resolved.singletonResolved), endpoints.keySet());
 
 			// Nope, create a new endpoint
 			if (alreadyExported.isEmpty()) {
-
-				neo = resolved.instances.iterator().next();
+				
+				neo = (Instance)resolved.singletonResolved; //instances.iterator().next();
 
 				logger.info(
 						"dependency {} was NOT exported before, preparing endpoint for instance {}",
@@ -255,7 +266,7 @@ public class CxfEndpointFactory {
 				
 			} else {
 
-				neo = alreadyExported.iterator().next();
+				neo = (Instance)alreadyExported.iterator().next();
 
 				logger.info(
 						"dependency {} was exported before, using instance {}",

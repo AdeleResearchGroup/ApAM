@@ -56,16 +56,8 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 			http.registerServlet(URL, this, null, null);
 			http.registerResources(RESOURCE, "/", null);
 			
-//			try {
-//				//service = new SampleService();
-//				service.start();
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
-			// throw new RuntimeException(e);
 		}
 	}
 
@@ -73,7 +65,6 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 	private void stop() {
 		http.unregister(URL);
 		http.unregister(RESOURCE);
-//		service.stop();
 	}
 
 	@Override

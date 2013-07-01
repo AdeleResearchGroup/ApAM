@@ -71,6 +71,9 @@ public class RemoteInstanceImpl implements ApformInstance {
 	public boolean remLink(Component destInst, String depName) {
 		return false;
 	}
+	
+	/**
+	
 	@Override
 	public void setInst(Instance asmInstImpl) {
 		this.apamInstance=asmInstImpl;
@@ -78,6 +81,19 @@ public class RemoteInstanceImpl implements ApformInstance {
 	@Override
 	public Instance getInst() {
 		return this.apamInstance;
+	}
+	
+	**/
+
+	@Override
+	public void setApamComponent(Component apamComponent) {
+		apamInstance=(Instance)apamComponent;
+	}
+
+	@Override
+	public Instance getApamComponent() {
+		// TODO Auto-generated method stub
+		return apamInstance;
 	}
 	
 }

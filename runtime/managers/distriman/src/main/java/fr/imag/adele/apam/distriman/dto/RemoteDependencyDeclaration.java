@@ -60,7 +60,10 @@ public class RemoteDependencyDeclaration extends RelationDeclaration {
     private String providerURL;
     
     public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String provider) {
-        super(component, id, isMultiple, resource);
+       
+    	//TODO check this, adding fix override  true
+    	//super(component, provider, isOverride, isMultiple, resource)    	
+		super(component, id, true, isMultiple, resource);
         this.providerURL=provider;
     }
 
@@ -70,8 +73,10 @@ public class RemoteDependencyDeclaration extends RelationDeclaration {
      */
     public RemoteDependencyDeclaration(RelationDeclaration dep,String provider) {
     	
-        super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
-      
+        //super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
+    	//TODO: check this using true for override
+    	super(dep.getComponent(), dep.getIdentifier(), true,dep.isMultiple(), dep.getTarget());
+    	
         this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
         this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
         this.getImplementationPreferences().addAll(dep.getImplementationPreferences());

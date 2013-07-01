@@ -49,12 +49,11 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.discovery.ApamMachineFactoryImpl;
@@ -179,7 +178,7 @@ public class RemoteMachine implements ApformInstance {
 
 			Set<Implementation> impl = Collections.emptySet();
 
-			return new Resolved(impl, singleton(instance));
+			return new Resolved(singleton(instance));
 
 		}
 
@@ -276,7 +275,7 @@ public class RemoteMachine implements ApformInstance {
 					logger.info("its not a InterfaceReference");
 				}
 				
-				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getIdentifier(),endpointUrl, this.getInst()
+				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getIdentifier(),endpointUrl, this.getApamComponent()
 						.getComposite(), proxyRaw);
 				
 				String implName = inst.getImplementation();
@@ -314,6 +313,7 @@ public class RemoteMachine implements ApformInstance {
 	private static class RemoteImplem implements ApformImplementation {
 		
 		private final ImplementationDeclaration declaration;
+		private Implementation implementation;
 		
 		public RemoteImplem(String name) {
 			
@@ -352,11 +352,6 @@ public class RemoteMachine implements ApformInstance {
 				throws InvalidConfiguration {
 		       throw new UnsupportedOperationException("RemoteImplem is not instantiable");
 		}
-
-		@Override
-		public ApformSpecification getSpecification() {
-			return null;
-		}
 		
 		@Override
 		public boolean setLink(Component destInst, String depName) {
@@ -366,6 +361,16 @@ public class RemoteMachine implements ApformInstance {
 		@Override
 		public boolean remLink(Component destInst, String depName) {
 			return false;
+		}
+
+		@Override
+		public void setApamComponent(Component apamComponent) {
+			implementation=(Implementation)apamComponent;
+		}
+
+		@Override
+		public Implementation getApamComponent() {
+			return implementation;
 		}
 		
 		
@@ -425,20 +430,18 @@ public class RemoteMachine implements ApformInstance {
 	public boolean remLink(Component destInst, String depName) {
 		return false;
 	}
-
-
-	@Override
-	public void setInst(Instance asmInstImpl) {
-		this.apamInstance = asmInstImpl;
-
-	}
-
-	@Override
-	public Instance getInst() {
-		return apamInstance;
-	}
 	
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public void setApamComponent(Component apamComponent) {
+		apamInstance=(Instance)apamComponent;
+	}
+
+	@Override
+	public Instance getApamComponent() {
+		return apamInstance;
 	}
 }
