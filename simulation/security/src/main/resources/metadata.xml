@@ -14,43 +14,91 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
+	<!--
+		This is the domain scope for applications that use security related devices in a controled way
+	-->
 	<composite name="SecurityDomain" singleton="true">
 		<contentMngt>
 
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
-
-			<own specification="Door"/>
-			<export instance="false"/>
+			<state implementation="SecurityStateManager" property="state"/>
 
 			<start implementation="FireManagementDomain" name="fireManagementDomain" />
 			<start implementation="BuildingAccessDomain" name="buildingAccessDomain" />
+
+			<own specification="Door">
+				<grant implementation="FireManagementDomain" dependency="emergencyDoors" when="fire"/>
+			</own>
+			
+			<export instance="false"/>
+			<exportApp instance="true"/>
+						
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+
 		</contentMngt>
 	</composite>
 
+	<!--
+		This is the component in charge of calculating the global security state that is used to arbitrate 
+		dynamic device access
+	-->
+	<implementation name="SecurityStateManager" classname="fr.imag.adele.apam.application.security.SecurityStateManager">
+		<callback onInit="start"/>
+		<definition name="state" type="normal,fire,intrusion" field="stateProperty" internal="true" />
+	</implementation>
+
+	<!--
+		This is the domain scope for fire management applications that are self contained, with a
+		fine graine control of the shared components
+	-->
 	<composite name="FireManagementDomain" singleton="true">
 
-		<dependency specification="Door" multiple="true">
+		<dependency  id="emergencyDoors" specification="Door" multiple="true">
 			<constraints>
 				<instance filter="(access=true)"/>
 			</constraints>
 		</dependency>
 
+		<definition name="emergency" type="emergency,normal"/>
+		
 		<contentMngt>
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
-			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
-
-			<import instance="false" />
+	
+			<state implementation="EmergencyDetection" property="emergency"/>
+			<dependency override="true" source="EmergencyState" id="emergencyEvents" eager="true" />
 			
-			<own specification="SmokeDetector"/>
+			<import instance="false" />
 			<export instance="false"/>
+
+			<own specification="SmokeDetector"/>
+			
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" id=".*" specification="SmokeDetector" eager="true" />
+
 		</contentMngt>
 
 	</composite>
 
+	<!--
+		This is the domain scope for building access applications that are willing to share components
+		with other applications in the security domain 
+	-->
 	<composite name="BuildingAccessDomain" singleton="true">
 		<contentMngt>
+		
+			<import instance="true" />
+			<export instance="true"/>
+
 			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
 		</contentMngt>
 	</composite>
 
+	<!--
+		This is the component in charge of calculating the current emergency state in the fire management
+		domain
+	-->
+	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
+		<callback onInit="start"/>
+		<definition name="emergency" type="emergency,normal" field="stateProperty" internal="true" />
+		<dependency id="emergencyEvents" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
+	</implementation>
+	
 </apam>

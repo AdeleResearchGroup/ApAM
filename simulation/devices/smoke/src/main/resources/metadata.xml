@@ -12,14 +12,14 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 	<implementation name="SimulatedSmokeDetector"
-		specification="SmokeDetector" instantiable="false"
-		classname="fr.imag.adele.apam.device.smoke.impl.SimulatedSmokeDetector"
-		push="fireStatusChanged">
+					specification="SmokeDetector" instantiable="false"
+					classname="fr.imag.adele.apam.device.smoke.impl.SimulatedSmokeDetector"
+					push="fireStatusChanged">
 
 		<ipojo:provides
 			specifications="{	
 							fr.liglab.adele.icasa.simulator.SimulatedDevice, 
-							fr.liglab.adele.icasa.device.GenericDevice,
+							fr.liglab.adele.icasa.device.GenericDevice
 						}">
 
 			<ipojo:property name="service.description" type="string" />
@@ -30,6 +30,9 @@
 				field="state" />
 
 		</ipojo:provides>
+
+		<ipojo:requires field="manager" />
+		<callback onInit="start" onRemove="stop" />
 
 		<definition name="location" type="string" field="location" internal="true" />
 

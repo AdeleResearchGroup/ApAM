@@ -22,10 +22,13 @@
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
         
         <dependency field="doors" specification="Door">
+            <constraints>
+            	<instance filter="(access=true)"/>
+            </constraints>
         </dependency>
         
         <dependency specification="Presence">
-            <message 	push="presenceChanged"/>
+            <message push="presenceChanged"/>
         </dependency>
         
     </implementation>

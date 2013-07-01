@@ -443,7 +443,7 @@ public class ApamCommand {
 		}
 
 		String compoName = args[0];
-		Composite compo = apam.getComposite(compoName);
+		Composite compo = compoName.equals("root")? CompositeImpl.getRootAllComposites(): apam.getComposite(compoName);
 		if (compo == null) {
 			out.println("No such composite : " + compoName);
 			return;

@@ -16,11 +16,11 @@
 	<composite name="Home" singleton="true">
 
 		<contentMngt>
-		
-			<own specification="Zone" />
-			
 			<start implementation="SecurityDomain" name="securityDomain"/>
 
+			<own specification="Zone" />
+
+			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
 			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
 
 		</contentMngt>

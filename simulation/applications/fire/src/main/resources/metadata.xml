@@ -19,22 +19,18 @@
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
                           
-    <implementation name="BasicLightAutomation" classname="fr.imag.adele.apam.application.ligthen.BasicLightAutomation">
+    <implementation name="SimpleFireEvacuation" 
+    				classname="fr.imag.adele.apam.application.fire.SimpleFireEvacuation"
+    				push="fireDetected">
         
-        <dependency field="lights" specification="Light" added="bindLight" removed="unBindLight">
+        <dependency field="doors" specification="Door">
             <constraints>
-            	<instance filter="(location=$$location)"/>
+            	<instance filter="(access=true)"/>
             </constraints>
         </dependency>
         
-        <dependency specification="Presence">
-        	
-        	<interface 	field="presenceSensor"/>
-            <message 	push="presenceChanged"/>
-            
-            <constraints>
-            	<instance filter="(location=$$location)"/>
-            </constraints>
+        <dependency specification="SmokeDetector">
+            <message push="smokeDetected"/>
         </dependency>
         
         <definition name="location" type="string"/>

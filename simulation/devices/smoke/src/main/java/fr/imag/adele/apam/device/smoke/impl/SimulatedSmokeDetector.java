@@ -19,15 +19,22 @@ import java.util.List;
 
 import fr.liglab.adele.apam.device.fire.SmokeDetector;
 import fr.liglab.adele.icasa.device.util.AbstractDevice;
+import fr.liglab.adele.icasa.location.LocatedDevice;
+import fr.liglab.adele.icasa.location.Position;
 import fr.liglab.adele.icasa.location.Zone;
+import fr.liglab.adele.icasa.simulator.Person;
 import fr.liglab.adele.icasa.simulator.SimulatedDevice;
+import fr.liglab.adele.icasa.simulator.SimulationManager;
+import fr.liglab.adele.icasa.simulator.listener.PersonListener;
 
 /**
  * Implementation of a simulated Oven device.
  *
  */
 
-public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetector, SimulatedDevice { 
+public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetector, SimulatedDevice, PersonListener { 
+
+	private SimulationManager manager;
 
 	private final static String FIRE_DETECTED_PROPERTY_NAME = "fire";
 	
@@ -48,7 +55,6 @@ public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetec
 		super.setPropertyValue(FIRE_DETECTED_PROPERTY_NAME, onFire);
     }
 
-	@SuppressWarnings("unused")
 	private boolean fireStatusChanged(boolean newState) {
 		onFire = newState;
 		super.setPropertyValue(FIRE_DETECTED_PROPERTY_NAME, onFire);
@@ -98,4 +104,41 @@ public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetec
     	location = zones.isEmpty() ? SimulatedDevice.LOCATION_UNKNOWN : zones.get(0).getId();
 
 	}
+
+	@Override
+	public void personAdded(Person person) {
+		if (person.getName().equals("smoke"))
+			fireStatusChanged(true);
+	}
+
+	@Override
+	public void personRemoved(Person person) {
+		if (person.getName().equals("smoke"))
+			fireStatusChanged(false);
+	}
+
+	@Override
+	public void personMoved(Person person, Position position) {
+	}
+
+	@Override
+	public void personDeviceAttached(Person person, LocatedDevice device) {
+	}
+
+	@Override
+	public void personDeviceDetached(Person person, LocatedDevice device) {
+	}
+
+	@SuppressWarnings("unused")
+	private void start() {
+		manager.addListener(this);
+	}
+	
+	@SuppressWarnings("unused")
+	private void stop() {
+		manager.removeListener(this);
+	}
+	
+
+
 }
