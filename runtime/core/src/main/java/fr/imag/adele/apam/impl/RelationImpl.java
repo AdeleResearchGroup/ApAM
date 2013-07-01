@@ -53,6 +53,8 @@ public class RelationImpl implements Relation {
 
 	// The actual source of this relation. Set just before a resolution
 	private Component linkSource;
+	
+	private RelationDeclaration declaration;
 
 	// // The reference to the associated component
 	// private final Component component;
@@ -172,6 +174,9 @@ public class RelationImpl implements Relation {
 	 */
 	public RelationImpl(RelationDeclaration dep) {
 		// Definition
+		
+		declaration=dep;
+		
 		// this.component = component;
 		this.targetDefinition = dep.getTarget();
 		this.identifier = dep.getIdentifier();
@@ -1060,6 +1065,10 @@ public class RelationImpl implements Relation {
 	public boolean isExternal() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public RelationDeclaration getDeclaration() {
+		return declaration;
 	}
 
 }

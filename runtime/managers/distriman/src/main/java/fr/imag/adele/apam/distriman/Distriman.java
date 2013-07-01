@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.distriman;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,12 +90,6 @@ public class Distriman implements RelationManager {
 		return CST.DISTRIMAN;
 	}
 
-//	@Override
-//	public void getSelectionPath(Instance client,
-//			RelationDeclaration dependency, List<RelationManager> selPath) {
-//		selPath.add(selPath.size(), this);
-//	}
-
 	@Override
 	public int getPriority() {
 		return DistrimanConstant.APAM_PRIORITY;
@@ -124,48 +119,6 @@ public class Distriman implements RelationManager {
 	 * @param needsInstances
 	 * @return The Resolved object if a proxy has been created, null otherwise.
 	 */
-	
-	/*
-	
-	@Override
-	public Resolved resolveDependency(Instance client,
-			Relation relation, boolean needsInstances) {
-		Resolved resolved = null;
-
-		if (!needsInstances) { // TODO distriman: should really just handle only
-								// instances?
-			return null;
-		}
-
-		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
-				.entrySet()) {
-
-			RemoteMachine machine = element.getValue();
-			String urlForResolution = element.getKey();
-
-			if(machine.isLocalhost()) continue;
-			
-			try {
-
-				logger.info("trying to resolve in machine key {} and url {}",
-						urlForResolution, urlForResolution);
-
-				resolved = machine.resolveRemote(client, relation);
-
-				if (resolved != null && resolved.instances != null
-						&& resolved.instances.size() > 0)
-					break;
-
-			} catch (IOException e) {
-				remotes.destroyRemoteMachine(urlForResolution, element
-						.getValue().getId());
-			}
-		}
-
-		return resolved;
-	}
-
-*/
 
 	@Validate
 	private void init() {
@@ -278,33 +231,31 @@ public class Distriman implements RelationManager {
 	public Resolved<?> resolveRelation(Component source, Relation relation) {
 		
 		Resolved resolved = null;
+		
+		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
+				.entrySet()) {
 
-//		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
-//				.entrySet()) {
-//
-//			RemoteMachine machine = element.getValue();
-//			String urlForResolution = element.getKey();
-//
-//			if(machine.isLocalhost()) continue;
-//			
-//			try {
-//
-//				logger.info("trying to resolve in machine key {} and url {}",
-//						urlForResolution, urlForResolution);
-//
-//				resolved = machine.resolveRemote(source.getApformComponent().getApamComponent(), relation);
-//
-//				if (resolved != null && resolved.instances != null
-//						&& resolved.instances.size() > 0)
-//					break;
-//
-//			} catch (IOException e) {
-//				remotes.destroyRemoteMachine(urlForResolution, element
-//						.getValue().getId());
-//			}
-//		}
-//
-//		System.out.println("distriman resolveRelation");
+			RemoteMachine machine = element.getValue();
+			String urlForResolution = element.getKey();
+
+			if(machine.isLocalhost()) continue;
+			
+			try {
+
+				logger.info("trying to resolve in machine key {} and url {}",
+						urlForResolution, urlForResolution);
+
+				resolved = machine.resolveRemote((Instance)source, relation.getDeclaration());
+
+				if (resolved != null && ( resolved.singletonResolved!= null ||  
+						 				  resolved.setResolved!=null)) 
+					break;
+
+			} catch (IOException e) {
+				remotes.destroyRemoteMachine(urlForResolution, element
+						.getValue().getId());
+			}
+		}
 		
 		return resolved;		
 		
@@ -314,14 +265,13 @@ public class Distriman implements RelationManager {
 	public void notifySelection(Component client, ResolvableReference resName,
 			String depName, Implementation impl, Instance inst,
 			Set<Instance> insts) {
-		System.out.println("distriman notifySelection");
-		
+		//Distriman dont care about it		
 	}
 
 	@Override
 	public ComponentBundle findBundle(CompositeType context,
 			String bundleSymbolicName, String componentName) {
-		System.out.println("distriman findBundle");
+		//Distriman dont care about it
 		return null;
 	}
 

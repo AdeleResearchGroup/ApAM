@@ -12,9 +12,4 @@ public class RemoteDependency extends RelationImpl {
 		super(dd);
 	}
 
-	@Override
-	public boolean isMultiple() {
-		return false;
-	}
-
 }

@@ -178,7 +178,7 @@ public class RemoteMachine implements ApformInstance {
 
 			Set<Implementation> impl = Collections.emptySet();
 
-			return new Resolved(singleton(instance));
+			return new Resolved(instance);
 
 		}
 
