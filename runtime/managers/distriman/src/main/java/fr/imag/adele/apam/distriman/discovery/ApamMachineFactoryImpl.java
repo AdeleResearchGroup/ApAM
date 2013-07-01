@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -53,10 +54,12 @@ import fr.imag.adele.apam.impl.ComponentImpl;
 @Component(name = "Apam::Distriman::MachineFactory")
 @Instantiate
 @Provides
-public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformCompositeType {
+public class ApamMachineFactoryImpl implements ApamMachineFactory, ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
+    
+    private CompositeType compositeType;
 
     static Logger logger = LoggerFactory.getLogger(ApamMachineFactoryImpl.class);
     
@@ -195,10 +198,10 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
     }
 
 
-    @Override
-    public ApformSpecification getSpecification() {
-        return null;
-    }
+//    @Override
+//    public ApformSpecification getSpecification() {
+//        return null;
+//    }
 
     @Override
     public void setProperty(String attr, String value) {
@@ -223,6 +226,28 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
 		}
 		
 		return null;
+	}
+
+	@Override
+	public void setApamComponent(fr.imag.adele.apam.Component apamComponent) {
+		compositeType=(CompositeType)apamComponent;
+	}
+
+	@Override
+	public boolean setLink(fr.imag.adele.apam.Component destInst, String depName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean remLink(fr.imag.adele.apam.Component destInst, String depName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public CompositeType getApamComponent() {
+		return compositeType;
 	}
 
 }
