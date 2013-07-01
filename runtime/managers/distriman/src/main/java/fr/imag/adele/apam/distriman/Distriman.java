@@ -245,7 +245,7 @@ public class Distriman implements RelationManager {
 				logger.info("trying to resolve in machine key {} and url {}",
 						urlForResolution, urlForResolution);
 
-				resolved = machine.resolveRemote((Instance)source, relation.getDeclaration());
+				resolved = machine.resolveRemote((Instance)source, relation);
 
 				if (resolved != null && ( resolved.singletonResolved!= null ||  
 						 				  resolved.setResolved!=null)) 

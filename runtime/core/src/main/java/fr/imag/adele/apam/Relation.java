@@ -136,7 +136,6 @@ public interface Relation  {
 
 	public boolean matchRelation(Instance compoInst, Relation compoDep) ;
 
-	public RelationDeclaration getDeclaration();
 }
 
 

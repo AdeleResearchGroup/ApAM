@@ -1067,8 +1067,4 @@ public class RelationImpl implements Relation {
 		return false;
 	}
 
-	public RelationDeclaration getDeclaration() {
-		return declaration;
-	}
-
 }

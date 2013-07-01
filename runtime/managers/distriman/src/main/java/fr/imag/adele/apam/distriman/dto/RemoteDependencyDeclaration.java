@@ -23,11 +23,13 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.type.TypeReference;
 
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 
@@ -71,11 +73,13 @@ public class RemoteDependencyDeclaration extends RelationDeclaration {
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependencyDeclaration(RelationDeclaration dep,String provider) {
+    public RemoteDependencyDeclaration(Relation dep,String provider) {
     	
         //super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
     	//TODO: check this using true for override
-    	super(dep.getComponent(), dep.getIdentifier(), true,dep.isMultiple(), dep.getTarget());
+    	//super(component, id, isOverride, isMultiple, resource)
+    	
+    	super(new ComponentReference<ComponentDeclaration>(dep.getLinkSource().getName()), dep.getIdentifier(), true,dep.isMultiple(), dep.getTarget());
     	
         this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
         this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
