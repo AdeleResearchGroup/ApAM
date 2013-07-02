@@ -212,7 +212,7 @@
 		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency" instantiable="false">
 	</specification>
 	
-    <!-- 
+    <!-- Commented to the instance cannot be resolved to test the fail cases
     <implementation name="S07-DependencyImpl-NotInstantiable"
 		classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
 		specification="S07-Dependency-NotInstantiable">
@@ -232,6 +232,45 @@
 			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
 	</implementation>	
 		
+	
+	<!-- CASE-11 -->
+	 
+	<specification name="S07-Dependency-NotInstantiable"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency" instantiable="false">
+	</specification>
+	 
+	 <specification name="S07-specification-11"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface11">
+		<relation name="con" sourceKind="specification" targetKind="implementation" fail="wait"
+			specification="S07-Dependency-NotInstantiable" />
+	</specification>
+
+	<implementation name="S07-implementation-11"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter11"
+		specification="S07-specification-11">
+		<relation id="con" field="injected" sourceKind="specification" fail="exception"
+			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
+	</implementation>		
+	
+	<!-- CASE-12 -->
+	 
+	<specification name="S07-Dependency-NotInstantiable"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency" instantiable="false">
+	</specification>
+	 
+	 <specification name="S07-specification-12"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface12">
+		<relation name="con" sourceKind="specification" targetKind="implementation" fail="wait"
+			specification="S07-Dependency-NotInstantiable" />
+	</specification>
+
+	<implementation name="S07-implementation-12"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter12"
+		specification="S07-specification-12">
+		<relation id="con" field="injected" sourceKind="specification" fail="exception" exception="fr.imag.adele.apam.pax.test.implS7.S07CustomException"
+			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
+	</implementation>	
+	
 	<!-- END OF CASES -->
 
 </apam>
