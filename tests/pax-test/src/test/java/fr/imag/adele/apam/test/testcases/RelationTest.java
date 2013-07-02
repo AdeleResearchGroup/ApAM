@@ -389,7 +389,6 @@ public class RelationTest extends ExtensionAbstract {
 		try{
 			//Force field injection
 			dependency.getInjected();
-			throw new Exception("foi");
 		}catch(Exception e){
 			//If arrive at this block, the test has passed
 			raised=e;
