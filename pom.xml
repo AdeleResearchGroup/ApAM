@@ -13,7 +13,7 @@
 	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>apam-project</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.2</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>ApAM Project</name>
 
 
@@ -252,7 +252,7 @@
 		<connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection>
 		<url>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</url>
 		<developerConnection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</developerConnection>
-		<tag>apam-project-0.0.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<developers>
