@@ -1,0 +1,116 @@
+<!--
+
+    Copyright 2011-2013 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+
+<!--  1° Devices : The Buttons -->
+ 	<specification name="Button"
+	   interfaces="fr.imag.adele.apam.tutorials.lights.devices.SimpleButton"
+	   messages="fr.imag.adele.apam.tutorials.lights.devices.ButtonPressed">	   
+ 	   <definition name="location" type="kitchen, living, bedroom" />
+	</specification>
+	
+	<implementation name="ButtonGUI"
+		specification="Button"
+		classname="fr.imag.adele.apam.tutorials.lights.button.SwingButtonImpl"
+		push="pressButton">
+		<definition name="location" type="kitchen, living, bedroom" field="myLocation"/>
+		<callback onInit="started" onRemove="stopped"/>
+	</implementation>
+	
+	<apam-instance implementation="ButtonGUI" name="buttonKitchen">
+		<property name="location" value="kitchen"/>
+	</apam-instance>
+
+	<apam-instance implementation="ButtonGUI" name="buttonLivingOne">
+		<property name="location" value="living"/>
+	</apam-instance>
+
+	<apam-instance implementation="ButtonGUI" name="buttonLivingTwo">
+		<property name="location" value="living"/>
+	</apam-instance>
+	
+	
+
+
+<!-- 2° Devices : The Lights -->
+ 	<specification name="Light"
+	   interfaces="fr.imag.adele.apam.tutorials.lights.devices.BinaryLight">	   
+ 	   <definition name="location" type="kitchen, living, bedroom" />
+	</specification>
+
+	<implementation name="BinaryLightImpl"
+		specification="Light"
+		classname="fr.imag.adele.apam.tutorials.lights.binarylight.SwingBinaryLightImpl">
+		<callback onInit="started" onRemove="stopped"/>
+		<definition name="location" type="kitchen, living, bedroom" field="myLocation"/>
+	</implementation>
+	
+	<apam-instance implementation="BinaryLightImpl" name="lightKitchen">
+		<property name="location" value="kitchen"/>
+	</apam-instance>
+
+	<apam-instance implementation="BinaryLightImpl" name="lightLivingOne">
+		<property name="location" value="living"/>
+	</apam-instance>
+
+	<apam-instance implementation="BinaryLightImpl" name="lightLivingTwo">
+		<property name="location" value="living"/>
+	</apam-instance>
+	
+<!--  3° Services : Light Application -->
+	<implementation name="LightApplication"
+		classname="fr.imag.adele.apam.tutorials.lights.services.LightingApplication">
+		<callback onInit="start" onRemove="stop"/>
+		<dependency specification="Light" field="theLights"/>
+		<dependency push="aButtonHasBeenPressed" multiple="true"/>
+	</implementation>
+	
+
+<!-- 4° Composite : Rooms -->
+	<composite name="Kitchen"
+		singleton="true">
+		<contentMngt>
+			<start implementation="LightApplication" name="myLightApplicationKitchen"/>
+			<own specification="Button"  property="location" value="kitchen" />
+			<own specification="Light"  property="location" value="kitchen"/>
+			<export instance="true"/>
+			<import instance="false"/>			
+		</contentMngt>
+	</composite>
+
+ 	<composite name="Living"
+		singleton="true">
+		<contentMngt>
+			<start implementation="LightApplication" name="myLightApplicationLiving"/>
+			<own specification="Button"  property="location" value="living" />
+			<own specification="Light"  property="location" value="living"/>
+			<export instance="true"/>
+			<import instance="false"/>			
+		</contentMngt>
+	</composite>
+	
+ 	<apam-instance implementation="Kitchen" name="myKitchen">
+	</apam-instance>
+	
+	<apam-instance implementation="Living" name="myLiving">
+	</apam-instance>
+
+<!-- 5° Composite : User that can shut down the light when outside -->
+	
+</apam>
