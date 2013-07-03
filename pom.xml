@@ -17,7 +17,18 @@
 	<version>0.0.2-SNAPSHOT</version>
 	<name>ApAM Project</name>
 
-
+	<scm>
+		<developerConnection>scm:git:https://github.com/AdeleResearchGroup/ApAM.git</developerConnection>
+	</scm>
+	
+	<!--
+	<scm>
+		<connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection>
+		<url>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</url>
+		<developerConnection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+	-->
 	
 	<properties>
 		<!-- apam version -->
@@ -31,7 +42,6 @@
 		<java.version>1.6</java.version>
 		<javadoc.plugin.version>2.9</javadoc.plugin.version>
 		<source.plugin.version>2.1.2</source.plugin.version>
-		<release.plugin.version>2.4</release.plugin.version>
 
 		<!-- slf4j version -->
 		<slf4j.version>1.6.6</slf4j.version>
@@ -94,62 +104,15 @@
 				<module>tests/pax-test</module>
 			</modules>
 		</profile>
-<!-- Profile used to build ApAM -->
-		<profile>
-			<id>minimal</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<!--<remoteOBR>true</remoteOBR> -->
-				<!--use it only if your server is well configured in settings : <server> 
-					<id>cloudbees-private-snapshot-repository</id> <username>repouser</username> 
-					<password>repopwd</password> </server> -->
-				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
-			</properties>
-			<modules>
-				<module>runtime</module>
-				<module>plugins</module>
-				<module>tools</module>
-				<module>distributions</module>
-			</modules>
-		</profile>
 		<profile>
 			<id>complete</id>
 			<properties>
-				<!--<remoteOBR>true</remoteOBR> -->
-				<!--use it only if your server is well configured in settings : <server> 
-					<id>cloudbees-private-snapshot-repository</id> <username>repouser</username> 
-					<password>repopwd</password> </server> -->
 				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
 			</properties>
 			<modules>
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
-				<module>distributions</module>
-			<!--	<module>simulation</module> -->
-				<module>tests</module>
-			</modules>
-		</profile>		
-
-
-		<!-- Profile used to build ApAM -->
-		<profile>
-			<id>snapshot</id>
-		
-			<properties>
-				<!--<remoteOBR>true</remoteOBR> -->
-				<!--use it only if your server is well configured in settings : <server> 
-					<id>cloudbees-private-snapshot-repository</id> <username>repouser</username> 
-					<password>repopwd</password> </server> -->
-				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
-			</properties>
-			<modules>
-				<module>runtime</module>
-				<module>plugins</module>
-				<module>tools</module>
-				<module>documentations/tutorials</module>
 				<module>distributions</module>
 				<module>tests</module>
 			</modules>
@@ -157,7 +120,10 @@
 
 		<!-- Profile used to build ApAM -->
 		<profile>
-			<id>test</id>
+			<id>release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<modules>
 				<module>runtime</module>
 				<module>plugins</module>
@@ -169,7 +135,7 @@
 
 		<!-- Profile used to release ApAM -->
 		<profile>
-			<id>release</id>
+			<id>release-obr</id>
 			<properties>
 				<remoteOBR>true</remoteOBR>
 				<!--use it only if your server is well configured in settings : <server> 
@@ -186,71 +152,13 @@
 			</modules>
 		</profile>
 
-		<!-- Profile used to build tutorials -->
-		<profile>
-			<id>tutorials</id>
-			<modules>
-				<module>documentations/tutorials</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build icasa component -->
-		<profile>
-			<id>icasa-simulation</id>
-			<modules>
-				<module>simulation</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build tools -->
-		<profile>
-			<id>tools</id>
-			<modules>
-				<module>tools</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build ApAM core bundles -->
-		<profile>
-			<id>runtime</id>
-
-			<modules>
-				<module>runtime</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build ApAM plugins -->
-		<profile>
-			<id>plugins</id>
-			<modules>
-				<module>plugins</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build ApAM distributions -->
-		<profile>
-			<id>distributions</id>
-			<modules>
-				<module>distributions</module>
-			</modules>
-		</profile>
-
-
-		<!-- Profile used in order to run the tests -->
-		<profile>
-			<id>run-tests</id>
-			<modules>
-				<module>tests</module>
-			</modules>
-		</profile>
 
 	</profiles>
 
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.html
-            </url>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
 			<distribution>manual</distribution>
 		</license>
 	</licenses>
@@ -260,13 +168,6 @@
 		<url>http://equipes-liglab.imag.fr/adele/
         </url>
 	</organization>
-
-	<scm>
-		<connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection>
-		<url>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</url>
-		<developerConnection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
 
 	<developers>
 		<developer>
@@ -312,7 +213,7 @@
 		<developer>
 			<id>Jander</id>
 			<name>Jander Nascimento</name>
-			<email>jbotnascimento@gmail.com</email>
+			<email>botelho@imag.fr</email>
 			<roles>
 				<role>Developer</role>
 				<role>Engineer</role>
@@ -420,7 +321,6 @@
 	</pluginRepositories>
 
 	<distributionManagement>
-
 		<repository>
 			<id>cloudbees-private-release-repository</id>
 			<name>Cloudbees Private Repository</name>
@@ -621,6 +521,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
+				<version>3.0.5</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<releaseProfiles>release</releaseProfiles>
+				</configuration>
+			</plugin>
+			<!--			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
 				<version>${release.plugin.version}</version>
 				<configuration>
 					<allowTimestampedSnapshots>true</allowTimestampedSnapshots>
@@ -628,6 +538,7 @@
 					<releaseProfiles>release</releaseProfiles>
 				</configuration>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
