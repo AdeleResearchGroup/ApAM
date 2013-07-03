@@ -271,6 +271,20 @@
 			targetKind="implementation" specification="S07-Dependency-NotInstantiable"  />
 	</implementation>	
 	
+	<!-- CASE-13 -->
+	 
+	 <specification name="S07-specification-13"
+		interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface13">
+		<relation name="con" 
+			interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+	</specification>
+
+	<implementation name="S07-implementation-13"
+		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter13"
+		specification="S07-specification-13">
+		<relation id="con" field="injected" interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"  />
+	</implementation>
+	
 	<!-- END OF CASES -->
 
 </apam>

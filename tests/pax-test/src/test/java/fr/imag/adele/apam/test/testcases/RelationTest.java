@@ -29,6 +29,7 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter09;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter10;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter11;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter12;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter13;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -41,6 +42,8 @@ public class RelationTest extends ExtensionAbstract {
 		
 		if(component instanceof Implementation && expectedSource==Specification.class){
 			ci=(ComponentImpl)((Implementation)component).getSpec();
+		}if(component instanceof Instance && expectedSource==Instance.class){
+			ci=(ComponentImpl) component;
 		}
 		
 		for(Link link:ci.getLocalLinks()){
@@ -399,6 +402,31 @@ public class RelationTest extends ExtensionAbstract {
 		String messageTemplate="Using tag <relation/> with exception='%s' did not raise this specific exception. It raised %s instead";
 		
 		Assert.assertTrue(String.format(messageTemplate, S07CustomException.class.getCanonicalName(),raised.getClass().getCanonicalName()), S07CustomException.class.isInstance(raised));
+		
+	}
+	
+	@Test
+	public void RelationSourceSpecificationTargetInstance_tc109() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-13");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter13 dependency = (S07ImplementationImporter13) instance
+				.getServiceObject();
+		
+		//Force field injection
+		dependency.getInjected();
+		
+		ComponentImpl ci=(ComponentImpl) instance;
+		
+		auxListInstances();
+		
+		Assert.assertTrue(String.format("One link should have been created, but %s links were found",ci.getLocalLinks().size()),ci.getLocalLinks().size()==1);
+		
+		AssertCorrectSourceTargetTypes(instance,Instance.class,Instance.class);
 		
 	}
 	
