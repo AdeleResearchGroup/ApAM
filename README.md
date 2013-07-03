@@ -29,11 +29,12 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 ## Changelog
 
-* ApAM 0.0.2 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) (currently under development) 
+* ApAM 0.0.3 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) (currently under development) 
 	* Relations
 	* Meta substitution
-
-* ApAM 0.0.1
+* ApAM 0.0.2
 	* Previous implementantation without relation optimization
+* ApAM 0.0.1
+	* Not anylonger supported version
 
 
