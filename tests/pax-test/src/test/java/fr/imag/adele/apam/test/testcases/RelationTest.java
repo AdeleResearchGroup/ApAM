@@ -1,11 +1,16 @@
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
+
 import java.util.Collections;
+import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
@@ -35,6 +40,13 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class RelationTest extends ExtensionAbstract {
 
+
+	@Override
+	public List<Option> config() {
+		List<Option> addon = super.config();
+		addon.add(0,packApamDynaMan());
+		return addon;
+	}
 	
 	private static void AssertCorrectSourceTargetTypes(Component component, Class expectedSource,Class expectedTarget){
 		
@@ -170,6 +182,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void RelationSourceImplementationTargetImplementationOverride_tc100() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
@@ -186,6 +199,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void RelationSourceImplementationTargetInstanceCreationEager_tc101() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
