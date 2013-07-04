@@ -208,17 +208,51 @@ public class Apform2Apam {
 
         synchronized (Apform2Apam.expectedComponents) {
         	
-        	Request current = getCurrent();
+        	/*
+        	 * Last verification before blocking. The expected component could have
+        	 * been added to APAM between the moment we checked and this method
+        	 * call.
+        	 * 
+        	 * NOTE notice that the check is inside the synchronized block to avoid
+        	 * race conditions with appearing components.
+        	 * 
+        	 * TODO perhaps this code should be refactored into the broker, so that
+        	 * validation and blocking can de done atomically
+        	 */
+        	if (CST.componentBroker.getComponent(componentName) != null)
+        		return;
         	
+        	Request current = getCurrent();
             Apform2Apam.expectedComponents.add(componentName);
-            try {
-                while (Apform2Apam.expectedComponents.contains(componentName)) {
-                	current.pending(componentName);
+           	current.pending(componentName);
+           	
+           	/*
+           	 * long startWaiting = System.currentTimeMillis();
+           	 */
+            
+           	try {
+                 while (Apform2Apam.expectedComponents.contains(componentName)) {
                     Apform2Apam.expectedComponents.wait(timeout);
-                    current.resumed();
-                }
+
+                    /*
+                     * NOTE current implementation actually waits forever, even if it
+                     * wakes up at the timeout expiration. However if we change this, most
+                     * of the time this cause errors because findByName return a null
+                     * component, and this is not systematically tested.
+                     * 
+                     * TODO Either remove timeout or check component after calling
+                     * finfByName.
+                     * 
+                    long elapsed = System.currentTimeMillis() - startWaiting;
+                    if (elapsed > timeout)
+                    	return;
+                    */
+                 }
             } catch (InterruptedException interrupted) {
                 interrupted.printStackTrace();
+            }
+            finally {
+            	current.resumed();
             }
             return;
         }
