@@ -3,8 +3,9 @@
   <groupId>fr.imag.adele.apam.tutorials.lights</groupId>
   <artifactId>LightingScenario</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
-  <packaging>bundle</packaging>
+
+
+    <packaging>bundle</packaging>
 
   
 <!-- Check Latest ApAM Version -->

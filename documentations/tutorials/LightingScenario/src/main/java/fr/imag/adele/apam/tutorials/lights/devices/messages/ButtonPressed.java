@@ -12,23 +12,14 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * SimpleButton.java - 2 juil. 2013
+ * ButtonPressedMessage.java - 2 juil. 2013
  */
-package fr.imag.adele.apam.tutorials.lights.devices;
-
-import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
+package fr.imag.adele.apam.tutorials.lights.devices.messages;
 
 /**
  * @author thibaud
- *
+ * Very simple message to indicate that button have been pressed
  */
-public interface SimpleButton extends Device {
-	
-	/**
-	 * This indicate that the button has been pressed,
-	 * this is a simple message producer
-	 * @return a simple ButtonPressed object (which is a message)
-	 */
-	public ButtonPressed pressButton();
-
+public class ButtonPressed {
 }
+

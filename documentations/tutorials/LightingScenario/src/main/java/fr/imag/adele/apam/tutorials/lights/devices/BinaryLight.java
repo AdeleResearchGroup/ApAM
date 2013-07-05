@@ -16,12 +16,15 @@
  */
 package fr.imag.adele.apam.tutorials.lights.devices;
 
+import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
+import fr.imag.adele.apam.tutorials.lights.devices.messages.LightStatusChanged;
+
 /**
  * @author thibaud
  * Very simple light that can be on or off
  * (freely inspired from the upnp device, but not compliant)
  */
-public interface BinaryLight {
+public interface BinaryLight  extends Device {
 	
 	/**
 	 * @return true if light is on
@@ -39,4 +42,13 @@ public interface BinaryLight {
 	 * Change the light status on <-> off depending on the previous status
 	 */
 	public void switchLightStatus();
+	
+	/**
+	 * This indicate that the light status has changed (on or off)
+	 * this is a simple message producer
+	 * @return a LightStatusChanged object (which is a message).
+	 * Use with the method isLightOn() on this object
+	 */
+	public LightStatusChanged fireLightStatus();
+	
 }

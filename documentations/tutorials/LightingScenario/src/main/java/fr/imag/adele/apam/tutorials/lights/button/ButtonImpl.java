@@ -16,16 +16,16 @@
  */
 package fr.imag.adele.apam.tutorials.lights.button;
 
-import java.awt.event.ActionListener;
-
 import fr.imag.adele.apam.tutorials.lights.devices.SimpleButton;
 import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
+
+import java.awt.event.ActionListener;
 
 /**
  * @author thibaud
  *
  */
-public class SwingButtonImpl implements ActionListener, SimpleButton {
+public class ButtonImpl implements SimpleButton {
 	
     private javax.swing.JFrame         frame;
     private javax.swing.JButton        btn;
@@ -35,36 +35,19 @@ public class SwingButtonImpl implements ActionListener, SimpleButton {
 
     public void started() {
     	System.out.println("A button named "+myName+" have been started in the "+myLocation);
-    	
-        frame = new javax.swing.JFrame(name);
-        initComponents();
-        frame.setVisible(true);
+
     }
 
     public void stopped() {
     	System.out.println("A button have been stopped in the "+myLocation);
-        if (frame != null) {
-            frame.dispose();
-            frame = null;
-        }
     }
 
-    private void initComponents() {
-        frame.setSize(200, 80);
-        btn = new javax.swing.JButton("Button "+myLocation);
-        btn.addActionListener(this);
-        frame.setLayout(new java.awt.BorderLayout());
-        frame.add(btn, java.awt.BorderLayout.CENTER);
-    }
-    
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-    	pressButton();
-    }
 
 	/* (non-Javadoc)
 	 * @see fr.imag.adele.apam.tutorials.lights.devices.SimpleButton#pressButton()
 	 */
 	public ButtonPressed pressButton() {
+        System.out.println("I am button : "+myName+" in "+myLocation+", and I have been pressed !");
 		return new ButtonPressed();
 	}
 

@@ -17,6 +17,7 @@
 package fr.imag.adele.apam.tutorials.lights.binarylight;
 
 import fr.imag.adele.apam.tutorials.lights.devices.BinaryLight;
+import fr.imag.adele.apam.tutorials.lights.devices.messages.LightStatusChanged;
 
 /**
  * @author thibaud
@@ -25,7 +26,8 @@ import fr.imag.adele.apam.tutorials.lights.devices.BinaryLight;
 public class BinaryLightImpl implements BinaryLight {
 	
 	protected boolean currentStatus;
-	
+    private String myLocation;
+    private String myName;
 	
 	/**
 	 * @param currentStatus
@@ -34,6 +36,14 @@ public class BinaryLightImpl implements BinaryLight {
 		super();
 		this.currentStatus = currentStatus;
 	}
+
+    public void started() {
+        System.out.println("A light named " + myName+" have been started in the "+myLocation);
+    }
+
+    public void stopped() {
+        System.out.println("The light named "+myName+" have been stopped in the "+myLocation);
+    }
 
 	/* (non-Javadoc)
 	 * @see fr.imag.adele.apam.tutorials.lights.devices.BinaryLight#isLightOn()
@@ -47,6 +57,7 @@ public class BinaryLightImpl implements BinaryLight {
 	 */
 	public void setLightStatus(boolean newStatus) {
 		currentStatus=newStatus;
+        fireLightStatus();
 	}
 
 	/* (non-Javadoc)
@@ -56,6 +67,23 @@ public class BinaryLightImpl implements BinaryLight {
 		if(currentStatus)
 			currentStatus=false;
 		else currentStatus=true;
+        fireLightStatus();
+		
 	}
 
+    @Override
+    public LightStatusChanged fireLightStatus() {
+        System.out.println("BinaryLightImpl.fireLightStatus()");
+        return new LightStatusChanged(currentStatus);
+    }
+
+    @Override
+    public String getName() {
+        return myName;
+    }
+
+    @Override
+    public String getLocation() {
+        return myLocation;
+    }
 }

@@ -21,27 +21,40 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!--  1° Devices : The Buttons -->
  	<specification name="Button"
 	   interfaces="fr.imag.adele.apam.tutorials.lights.devices.SimpleButton"
-	   messages="fr.imag.adele.apam.tutorials.lights.devices.ButtonPressed">	   
+	   messages="fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed">	   
  	   <definition name="location" type="kitchen, living, bedroom" />
+ 	   <definition name="name" type="string" />
 	</specification>
 	
 	<implementation name="ButtonGUI"
 		specification="Button"
 		classname="fr.imag.adele.apam.tutorials.lights.button.SwingButtonImpl"
 		push="pressButton">
+        <callback onInit="started" onRemove="stopped"/>
 		<definition name="location" type="kitchen, living, bedroom" field="myLocation"/>
-		<callback onInit="started" onRemove="stopped"/>
+        <!-- Use of predefined property of apam -->
+        <definition name="name" type="string" field="myName"/>
 	</implementation>
-	
+
+    <implementation name="ButtonNotGUI"
+                    specification="Button"
+                    classname="fr.imag.adele.apam.tutorials.lights.button.ButtonImpl"
+                    push="pressButton">
+        <callback onInit="started" onRemove="stopped"/>
+        <definition name="location" type="kitchen, living, bedroom" field="myLocation"/>
+        <!-- Use of predefined property of apam -->
+        <definition name="name" type="string" field="myName"/>
+    </implementation>
+
 	<apam-instance implementation="ButtonGUI" name="buttonKitchen">
 		<property name="location" value="kitchen"/>
 	</apam-instance>
 
-	<apam-instance implementation="ButtonGUI" name="buttonLivingOne">
+	<apam-instance implementation="ButtonNotGUI" name="buttonLivingOne">
 		<property name="location" value="living"/>
 	</apam-instance>
 
-	<apam-instance implementation="ButtonGUI" name="buttonLivingTwo">
+	<apam-instance implementation="ButtonNotGUI" name="buttonLivingTwo">
 		<property name="location" value="living"/>
 	</apam-instance>
 	
@@ -50,16 +63,22 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 <!-- 2° Devices : The Lights -->
  	<specification name="Light"
-	   interfaces="fr.imag.adele.apam.tutorials.lights.devices.BinaryLight">	   
+	   interfaces="fr.imag.adele.apam.tutorials.lights.devices.BinaryLight"
+	   messages="fr.imag.adele.apam.tutorials.lights.devices.messages.LightStatusChanged">
  	   <definition name="location" type="kitchen, living, bedroom" />
+ 	   <definition name="name" type="string" />
 	</specification>
 
 	<implementation name="BinaryLightImpl"
 		specification="Light"
-		classname="fr.imag.adele.apam.tutorials.lights.binarylight.SwingBinaryLightImpl">
+		classname="fr.imag.adele.apam.tutorials.lights.binarylight.BinaryLightImpl"
+		push="fireLightStatus">
 		<callback onInit="started" onRemove="stopped"/>
 		<definition name="location" type="kitchen, living, bedroom" field="myLocation"/>
-	</implementation>
+        <!-- Use of predefined property of apam -->
+        <definition name="name" type="string" field="myName"/>
+
+    </implementation>
 	
 	<apam-instance implementation="BinaryLightImpl" name="lightKitchen">
 		<property name="location" value="kitchen"/>
@@ -77,12 +96,25 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="LightApplication"
 		classname="fr.imag.adele.apam.tutorials.lights.services.LightingApplication">
 		<callback onInit="start" onRemove="stop"/>
-		<dependency specification="Light" field="theLights"/>
+		<dependency specification="Light" field="theLights" multiple="true" added="newLight"/>
 		<dependency push="aButtonHasBeenPressed" multiple="true"/>
 	</implementation>
+
+<!--  4° Services : Graphical Control Panel for the Devices -->
+	<implementation name="LightManagerPanel"
+		classname="fr.imag.adele.apam.tutorials.lights.panel.LightManagerPanel">
+		<callback onInit="started" onRemove="stopped"/>
+        <dependency specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton"/>
+		<dependency specification="Light" field="theLights" multiple="true" added="newLight" removed="removeLight">
+			<message push="aLightStatusHasChanged" />
+		</dependency>
+	</implementation>
+
+   <apam-instance implementation="LightManagerPanel" name="myPanel">
+    </apam-instance>
 	
 
-<!-- 4° Composite : Rooms -->
+<!-- 5° Composite : Rooms -->
 	<composite name="Kitchen"
 		singleton="true">
 		<contentMngt>
@@ -111,6 +143,4 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<apam-instance implementation="Living" name="myLiving">
 	</apam-instance>
 
-<!-- 5° Composite : User that can shut down the light when outside -->
-	
 </apam>

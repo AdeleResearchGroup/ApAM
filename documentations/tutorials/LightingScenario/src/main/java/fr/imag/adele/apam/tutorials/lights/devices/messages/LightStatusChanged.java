@@ -12,23 +12,33 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * SimpleButton.java - 2 juil. 2013
+ * lightStatusChanged.java - 4 juil. 2013
  */
-package fr.imag.adele.apam.tutorials.lights.devices;
-
-import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
+package fr.imag.adele.apam.tutorials.lights.devices.messages;
 
 /**
  * @author thibaud
  *
  */
-public interface SimpleButton extends Device {
+public class LightStatusChanged {
+	
+	private boolean lightOn;
 	
 	/**
-	 * This indicate that the button has been pressed,
-	 * this is a simple message producer
-	 * @return a simple ButtonPressed object (which is a message)
+	 * @param lightOn
 	 */
-	public ButtonPressed pressButton();
+	public LightStatusChanged(boolean lightOn) {
+		super();
+		this.lightOn = lightOn;
+	}
+
+	/**
+	 * @return the lightOn
+	 */
+	public boolean isLightOn() {
+		return lightOn;
+	}
+	
+	
 
 }

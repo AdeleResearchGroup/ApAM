@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import fr.imag.adele.apam.tutorials.lights.devices.BinaryLight;
-import fr.imag.adele.apam.tutorials.lights.devices.ButtonPressed;
+import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
 
 /**
  * @author thibaud
@@ -33,7 +33,7 @@ public class LightingApplication {
 	public void start() {
 		System.out.println("LightingApplication start");
 		//used to make the binding with already existing instances of lights
-		/*if(theLights!= null && theLights.size()>0)
+		/*if(theLights!=null && theLights.size()>0)
 			System.out.println("LightingApplication.start() : "
 					+theLights.size()+" lights have been found !");
 		else
@@ -54,5 +54,16 @@ public class LightingApplication {
 				it.next().switchLightStatus();			
 		}
 	}
+
+    public void newLight() {
+        System.out.println("LightingApplication.newLight() : there are "
+                +theLights.size()+" in this area");
+        if (theLights != null && theLights.size()>0) {
+            Iterator<BinaryLight> it=theLights.iterator();
+            while(it.hasNext())
+                System.out.println("-> "+it.next().getName());
+        }
+
+    }
 
 }

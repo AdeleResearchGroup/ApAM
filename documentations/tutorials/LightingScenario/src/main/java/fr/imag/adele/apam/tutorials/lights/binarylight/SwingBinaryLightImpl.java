@@ -20,7 +20,8 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import fr.imag.adele.apam.tutorials.lights.devices.BinaryLight;
-import fr.imag.adele.apam.tutorials.lights.devices.ButtonPressed;
+import fr.imag.adele.apam.tutorials.lights.devices.messages.ButtonPressed;
+import fr.imag.adele.apam.tutorials.lights.devices.messages.LightStatusChanged;
 
 /**
  * @author thibaud
@@ -30,8 +31,7 @@ public class SwingBinaryLightImpl extends BinaryLightImpl
 							implements BinaryLight {
 
 	/**
-	 * @param currentStatus
-	 */
+     */
 	public SwingBinaryLightImpl() {
 		super(false);
 	}
@@ -40,17 +40,18 @@ public class SwingBinaryLightImpl extends BinaryLightImpl
     private javax.swing.JLabel        light;
     private String name ="APAM Simple Binary Light";
     private String myLocation;
+    private String myName;
 
 
     public void started() {
-    	System.out.println("A light have been started in the "+myLocation);
+    	System.out.println("A light named " + myName+" have been started in the "+myLocation);
         frame = new javax.swing.JFrame(name);
         initComponents();
         frame.setVisible(true);
     }
 
     public void stopped() {
-    	System.out.println("A light have been stopped in the "+myLocation);
+    	System.out.println("The light named "+myName+" have been stopped in the "+myLocation);
         if (frame != null) {
             frame.dispose();
             frame = null;
@@ -86,6 +87,8 @@ public class SwingBinaryLightImpl extends BinaryLightImpl
 		if(currentStatus)
 			setLightOn();
 		else setLightOff();
+        fireLightStatus();
+
 	}
 
 	/* (non-Javadoc)
@@ -97,16 +100,21 @@ public class SwingBinaryLightImpl extends BinaryLightImpl
 		else currentStatus=true;
 		
 		this.setLightStatus(currentStatus);
+        fireLightStatus();
 	}
 
-	
-	
-	/*TODO: Remove all this when composite work
-	public void aButtonHasBeenPressed(ButtonPressed event) {
-		System.out.println("SwingBinaryLightImpl.aButtonHasBeenPressed(ButtonPressed event)");
-		// Change the lights status
-		switchLightStatus();
-	}*/
+    @Override
+    public LightStatusChanged fireLightStatus() {
+        return new LightStatusChanged(currentStatus);
+    }
 
-    
+    @Override
+    public String getName() {
+        return myName;
+    }
+
+    @Override
+    public String getLocation() {
+        return myLocation;
+    }
 }
