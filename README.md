@@ -25,14 +25,6 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 ...
 ```
 
-
-### Nighly build test results
-
-Unit test launched: 
-
-* Relations [report](https://apam.ci.cloudbees.com/job/ApamRelations/fr.imag.adele.apam.tests.services$apam-pax-test/lastBuild/testReport/) 
-* Master branch [report](https://apam.ci.cloudbees.com/job/APAMUnitTest/fr.imag.adele.apam.tests.services$apam-pax-test/lastBuild/testReport/) 
-
 # Release
 
 ## Changelog
