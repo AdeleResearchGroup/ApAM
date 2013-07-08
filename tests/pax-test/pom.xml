@@ -254,6 +254,11 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<artifactId>apam-universal-shell</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- Distriman -->
 		<dependency>
@@ -301,7 +306,7 @@
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
 		</dependency>
-
+		
 		<!-- Messages Tests -->
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
