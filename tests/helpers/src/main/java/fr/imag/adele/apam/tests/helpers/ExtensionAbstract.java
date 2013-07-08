@@ -166,7 +166,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 						
 				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject(),
 				
-				mavenBundle("fr.imag.adele.apam", "apam-universal-shell").version("0.0.2-SNAPSHOT"),
+				mavenBundle("fr.imag.adele.apam", "apam-universal-shell").versionAsInProject(),
 				
 				//OK-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/asm-all-4.0.jar"),
 				mavenBundle("org.ow2.asm", "asm-all").version("4.1"),
@@ -335,8 +335,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 	
 	protected CompositeOption packApamShell() {
 		CompositeOption logConfig = new DefaultCompositeOption(
-				mavenBundle("fr.imag.adele.apam", "apam-universal-shell")
-				.version("0.0.2-SNAPSHOT"),
+				mavenBundle("fr.imag.adele.apam", "apam-universal-shell").
+				versionAsInProject(),
 			mavenBundle("org.apache.felix",
 				"org.apache.felix.gogo.command").version("0.12.0"),
 			mavenBundle("org.apache.felix",

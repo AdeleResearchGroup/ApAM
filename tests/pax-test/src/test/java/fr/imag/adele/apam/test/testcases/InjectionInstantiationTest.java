@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -686,6 +687,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void AddedCallbackOnlyInvalidArgumentMethods_tc109() {
 
 		Implementation impl = CST.apamResolver
@@ -705,6 +707,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	@Ignore
 	public void RemovedCallbackOnlyInvalidArgumentMethods_tc110() {
 
 		Implementation impl = CST.apamResolver
