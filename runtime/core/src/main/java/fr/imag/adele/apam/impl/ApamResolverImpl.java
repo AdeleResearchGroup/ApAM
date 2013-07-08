@@ -52,10 +52,26 @@ public class ApamResolverImpl implements ApamResolver {
 	private APAMImpl apam;
 	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
 
+	private boolean apamReady = false;
+	
 	public ApamResolverImpl(APAMImpl theApam) {
 		this.apam = theApam;
 	}
 
+	public synchronized void setApamReady() {
+		apamReady = true;
+		this.notifyAll();
+	}
+	
+	private synchronized void checkApamReady() {
+		while (! apamReady) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	} 
 	/**
 	 * Only instance have a well-defined and unique enclosing composite (type
 	 * and instance). Promotion control will apply only on sources that are
@@ -69,7 +85,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * 
 	 * Note that is more than one composite relation matches the source
 	 * relation, one arbitrarily is selected. To closely control promotions, use
-	 * the tag “promotion” in the composite relation definition.
+	 * the tag "promotion" in the composite relation definition.
 	 * 
 	 * 
 	 * @param client
@@ -206,6 +222,9 @@ public class ApamResolverImpl implements ApamResolver {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Resolved<?> resolveLink(Component source2, Relation dep) {
+		
+		checkApamReady();
+		
 		if (source2 == null || dep == null){
 			logger.error("missing client or relation ");
 			return null;

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -61,9 +63,20 @@ public class APAMImpl implements Apam {
     private RelationManager	apamMan;
     private UpdateMan	updateMan;
 
+	/**
+	 * The list of expected managers
+	 */
+	private Set<String> expectedManagers = new ConcurrentSkipListSet<String>();
+	
+
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
         new CST(this);
+        
+        for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
+			expectedManagers.add(rootModel.getManagerName());
+		}
+        
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
         ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
@@ -75,6 +88,12 @@ public class APAMImpl implements Apam {
 		}
     }
 
+    public void managerRegistered(Manager manager) {
+    	expectedManagers.remove(manager.getName());
+    	if (expectedManagers.isEmpty())
+    		((ApamResolverImpl)CST.apamResolver).setApamReady();
+    }
+    
     @Override
     public Composite startAppli(CompositeType composite) {
         return (Composite) composite.createInstance(null, null);
