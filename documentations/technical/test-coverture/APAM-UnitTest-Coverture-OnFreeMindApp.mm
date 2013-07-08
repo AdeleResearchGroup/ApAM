@@ -208,6 +208,12 @@
 <node CREATED="1363702462031" ID="ID_772256253" MODIFIED="1363702552010" TEXT="in dependency tag, the method spec. (without parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc085">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1372952675291" ID="ID_386052917" MODIFIED="1372952740717" TEXT="added callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc109">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1372953108128" ID="ID_652392009" MODIFIED="1372953121115" TEXT="removed callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc110">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353316551326" TEXT="preference">
 <node CREATED="1353075782472" ID="ID_1933538834" MODIFIED="1354295267666" TEXT="injected instance should respect the preference (if its satisfiable)-tc024">
@@ -490,12 +496,12 @@
 </node>
 </node>
 <node CREATED="1372164263071" ID="ID_1036631998" MODIFIED="1372167224424" TEXT="link/dependency">
-<node CREATED="1372166663775" ID="ID_816538448" MODIFIED="1372166664971" TEXT="resolve">
+<node CREATED="1372166663775" ID="ID_816538448" MODIFIED="1372951297137" TEXT="resolve">
 <node CREATED="1372166667135" ID="ID_439462138" MODIFIED="1372166668907" TEXT="exist"/>
 <node CREATED="1372166670031" ID="ID_211662486" MODIFIED="1372166672101" TEXT="internal"/>
 <node CREATED="1372166673215" ID="ID_1193893964" MODIFIED="1372166675509" TEXT="external"/>
 </node>
-<node CREATED="1372166619503" ID="ID_1293205806" MODIFIED="1372343262584" TEXT="creation">
+<node CREATED="1372166619503" ID="ID_1293205806" MODIFIED="1372951295582" TEXT="creation">
 <icon BUILTIN="list"/>
 <node CREATED="1372166639551" ID="ID_255447516" MODIFIED="1372166641543" TEXT="lazy">
 <node CREATED="1372341114054" ID="ID_1624146757" MODIFIED="1372341119153" TEXT="tc102">
