@@ -922,14 +922,14 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * Get the optional missing policy
 		 */
-		MissingPolicy policy = parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, MissingPolicy.OPTIONAL);
+		MissingPolicy policy = parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, null);
 		relation.setMissingPolicy(policy);
 
 		/*
 		 * Get the optional missing exception specification
 		 */
 		String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
-		if (policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
+		if (policy != null && policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
 			relation.setMissingException(missingException);
 		}
 

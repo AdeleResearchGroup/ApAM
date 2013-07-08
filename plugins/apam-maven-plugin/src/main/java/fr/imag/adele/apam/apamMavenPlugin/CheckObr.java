@@ -1246,13 +1246,17 @@ public class CheckObr {
 		}
 	}
 
-	private static void checkGrant(CompositeDeclaration component,
-			OwnedComponentDeclaration own) {
+	private static void checkGrant(CompositeDeclaration component,	OwnedComponentDeclaration own) {
 		// Get state definition
 		Set<String> stateDefinition = checkState(component);
 		if (stateDefinition == null || stateDefinition.isEmpty()) { // No valid
 			// state declaration.
 			// No valid grants.
+			
+			if (! own.getGrants().isEmpty()) {
+				error("In Grant expression, state is not defined in component "+ component.getName());
+			}
+			
 			return;
 		}
 

@@ -42,7 +42,7 @@
 		<property name="rule" value="two" />
 </implementation>
 
-<!--   
+<!--     
 <apam-instance implementation="P2-singleinterface" name="P2-singleinterfaceStatic"/>
 
 <apam-instance implementation="P2-multipleinterface" name="P2-multipleinterfaceStatic"/> 

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.MissingPolicy;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.util.ApamFilter;
 

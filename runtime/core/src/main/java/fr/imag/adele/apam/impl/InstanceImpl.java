@@ -283,7 +283,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	@Override
 	public boolean isSharable() {
 		// return (!hasInvWires() || isShared());
-		return (getInvLinks() == null || isShared());
+		return (invlinks.isEmpty() || isShared());
 	}
 
 

@@ -19,9 +19,8 @@ import java.util.List;
 import fr.liglab.adele.apam.device.access.Lock;
 
 /**
- * This class implements a basic automatic lightning service. It  listen to
- * presence detection events in the room and automatically turn on/off all
- * lights in the room
+ * This class implements a simplistic test application that lock doors when people
+ * are detected in the home
  * 
  * @author vega
  *

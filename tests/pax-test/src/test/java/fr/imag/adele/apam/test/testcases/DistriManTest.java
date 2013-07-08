@@ -77,7 +77,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-	@Ignore
 	@Test
 	public void ProviderDependencyInterface_tc086()
 			throws MalformedURLException, IOException {
@@ -134,7 +133,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-	@Ignore
 	@Test
 	public void ProviderDependencySpecificationMultipleInterface_tc087()
 			throws MalformedURLException, IOException {
@@ -178,7 +176,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-	@Ignore
 	@Test
 	public void ProviderDependencySpecificationSingleInterface_tc088()
 			throws MalformedURLException, IOException {
@@ -221,7 +218,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-	@Ignore
 	@Test
 	public void ProviderDependencyConstraintRespected_tc096()
 			throws MalformedURLException, IOException {

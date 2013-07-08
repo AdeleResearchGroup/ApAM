@@ -211,7 +211,7 @@ public class ContentManager  {
 			 *
 			 * In case the main instance can be used to hold state we avoid creating additional objects.
 			 */
-			if (composite.getMainInst().getImpl().equals(implementation)) {
+			if (composite.getMainInst() != null && composite.getMainInst().getImpl().equals(implementation)) {
 				this.stateHolder 	= composite.getMainInst();
 			}
 			else
@@ -605,18 +605,42 @@ public class ContentManager  {
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			
 			/*
-			 * If the current grant is still valid there is nothing to do
+			 * Revoke previous grant
 			 */
-			GrantDeclaration previuos = granted.get(ownedDeclaration);
-			if (previuos != null && previuos.getStates().contains(this.state))
-				continue;
+			synchronized (granted) {
+				
+				/*
+				 * If the current grant is still valid there is nothing to do
+				 */
+				GrantDeclaration previuos = granted.get(ownedDeclaration);
+				if (previuos != null && previuos.getStates().contains(this.state))
+					continue;
+				
+				granted.remove(ownedDeclaration);
+
+			}
 			
+
 			/*
-			 * Check if another grant is activated
+			 * Set new grant according to new state
 			 */
 			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
 				if (grant.getStates().contains(this.state))
 					setCurrentGrant(ownedDeclaration,grant);
+			}
+			
+			/*
+			 * If there is no active grant, we remove all incoming links to owned
+			 * instances. The owned instances will be then be bound on first-come
+			 * first-served base 
+			 */
+			GrantDeclaration currentGrant = getCurrentGrant(ownedDeclaration);
+			if ( currentGrant == null && !ownedDeclaration.getGrants().isEmpty()) {
+				for (Instance ownedInstance : getOwned(ownedDeclaration)) {
+					for (Link incoming : ownedInstance.getInvLinks()) {
+						incoming.remove();
+					}
+				}
 			}
 			
 		}
@@ -772,8 +796,11 @@ public class ContentManager  {
 	private static boolean match(GrantDeclaration grant, Component candidate) {
 		ComponentReference<?> grantSource = grant.getRelation().getDeclaringComponent();
 		while (candidate != null) {
+			
 			if (candidate.getDeclaration().getReference().equals(grantSource))
 				return true;
+			
+			candidate = candidate.getGroup();
 		}
 		
 		return false;
@@ -814,14 +841,7 @@ public class ContentManager  {
 		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
 		if (grant == null)
 			return;
-		
-		/*
-		 * If there is no pending request waiting for the grant, nothing to do
-		 */
-		List<PendingRequest> grantedRequests = getPendingRequest(grant);
-		if (grantedRequests.isEmpty())
-			return;
-		
+
 		/*
 		 * revoke all non granted wires
 		 */
@@ -833,6 +853,7 @@ public class ContentManager  {
 		/*
 		 * try to resolve pending requests of this grant
 		 */
+		List<PendingRequest> grantedRequests = getPendingRequest(grant);
 		for (PendingRequest request : grantedRequests) {
 			if (request.isSatisfiedBy(ownedInstance))
 				request.resolve();

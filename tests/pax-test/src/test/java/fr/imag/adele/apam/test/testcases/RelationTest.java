@@ -1,11 +1,16 @@
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
+
 import java.util.Collections;
+import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
@@ -13,9 +18,10 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.ComponentImpl;
-import fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl;
+import fr.imag.adele.apam.pax.test.implS7.S07CustomException;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter01;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter02;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter03;
@@ -26,12 +32,21 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter07;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter08;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter09;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter10;
-import fr.imag.adele.apam.test.testcases.DynamanDependentTest.ThreadWrapper;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter11;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter12;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter13;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class RelationTest extends ExtensionAbstract {
 
+
+	@Override
+	public List<Option> config() {
+		List<Option> addon = super.config();
+		addon.add(0,packApamDynaMan());
+		return addon;
+	}
 	
 	private static void AssertCorrectSourceTargetTypes(Component component, Class expectedSource,Class expectedTarget){
 		
@@ -39,6 +54,8 @@ public class RelationTest extends ExtensionAbstract {
 		
 		if(component instanceof Implementation && expectedSource==Specification.class){
 			ci=(ComponentImpl)((Implementation)component).getSpec();
+		}if(component instanceof Instance && expectedSource==Instance.class){
+			ci=(ComponentImpl) component;
 		}
 		
 		for(Link link:ci.getLocalLinks()){
@@ -165,6 +182,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void RelationSourceImplementationTargetImplementationOverride_tc100() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
@@ -177,14 +195,11 @@ public class RelationTest extends ExtensionAbstract {
 				.getServiceObject();
 
 		Assert.assertTrue("Declaring a relation information on the apam specification tag, and just using the id in the apam implementation didnt work, so the dependency was not resolved",dependency.getInjected()!=null);
-
-		auxListProperties(dependency.getInjected());
-		
-		auxListInstances();
 		
 	}
 
 	@Test
+	@Ignore
 	public void RelationSourceImplementationTargetInstanceCreationEager_tc101() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
@@ -247,6 +262,7 @@ public class RelationTest extends ExtensionAbstract {
 		S07ImplementationImporter07 dependency = (S07ImplementationImporter07) instance
 				.getServiceObject();
 		
+		//Force field injection
 		dependency.getInjected();
 		
 		ComponentImpl ci=(ComponentImpl)implementation.getSpec();
@@ -269,6 +285,7 @@ public class RelationTest extends ExtensionAbstract {
 		S07ImplementationImporter08 dependency = (S07ImplementationImporter08) instance
 				.getServiceObject();
 		
+		//Force field injection
 		dependency.getInjected();
 		
 		ComponentImpl ci=(ComponentImpl)implementation.getSpec();
@@ -291,6 +308,7 @@ public class RelationTest extends ExtensionAbstract {
 		S07ImplementationImporter09 dependency = (S07ImplementationImporter09) instance
 				.getServiceObject();
 		
+		//Force field injection
 		dependency.getInjected();
 		
 		ComponentImpl ci=(ComponentImpl)implementation.getSpec();
@@ -325,7 +343,7 @@ public class RelationTest extends ExtensionAbstract {
 		
 	}
 	
-	// Require by the test CompositeContentMngtDependencyFailWait
+	// Require by the test RelationSourceSpecificationTargetImplementationFailWait_tc106
 	class ThreadWrapper extends Thread  {
 
 			final S07ImplementationImporter10 group;
@@ -340,6 +358,90 @@ public class RelationTest extends ExtensionAbstract {
 			}
 
 		}
+
+	@Test
+	public void RelationSourceSpecificationTargetImplementationFailExceptionGeneric_tc107() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-11");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter11 dependency = (S07ImplementationImporter11) instance
+				.getServiceObject();
+		
+		Exception raised=null;
+		
+		try{
+			//Force field injection
+			dependency.getInjected();
+		}catch(Exception e){
+			//If arrive at this block, the test has passed
+			raised=e;
+		}
+		
+		Assert.assertTrue("Using tag <relation/> with fail='exception' didnt not raise an exception as expected.", raised!=null);
+		
+		String messageTemplate="Using tag <relation/> with fail='exception' didnt not raise an exception of the type expected. Type raised was %s instead of %s";
+		
+		Assert.assertTrue(String.format(messageTemplate, raised.getClass().getCanonicalName(), ResolutionException.class.getCanonicalName()), ResolutionException.class.isInstance(raised));
+		
+	}
 	
+	@Test
+	public void RelationSourceSpecificationTargetImplementationFailExceptionCustom_tc108() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-12");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter12 dependency = (S07ImplementationImporter12) instance
+				.getServiceObject();
+		
+		Exception raised=null;
+		
+		try{
+			//Force field injection
+			dependency.getInjected();
+		}catch(Exception e){
+			//If arrive at this block, the test has passed
+			raised=e;
+		}
+		
+		Assert.assertTrue("Using tag <relation/> with fail='exception' didnt not raise an exception as expected.", raised!=null);
+		
+		String messageTemplate="Using tag <relation/> with exception='%s' did not raise this specific exception. It raised %s instead";
+		
+		Assert.assertTrue(String.format(messageTemplate, S07CustomException.class.getCanonicalName(),raised.getClass().getCanonicalName()), S07CustomException.class.isInstance(raised));
+		
+	}
+	
+	@Test
+	public void RelationSourceSpecificationTargetInstance_tc109() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-13");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07ImplementationImporter13 dependency = (S07ImplementationImporter13) instance
+				.getServiceObject();
+		
+		//Force field injection
+		dependency.getInjected();
+		
+		ComponentImpl ci=(ComponentImpl) instance;
+		
+		auxListInstances();
+		
+		Assert.assertTrue(String.format("One link should have been created, but %s links were found",ci.getLocalLinks().size()),ci.getLocalLinks().size()==1);
+		
+		AssertCorrectSourceTargetTypes(instance,Instance.class,Instance.class);
+		
+	}
 	
 }

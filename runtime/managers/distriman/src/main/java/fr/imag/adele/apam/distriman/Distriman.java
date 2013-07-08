@@ -34,14 +34,12 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
-import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
@@ -93,12 +91,6 @@ public class Distriman implements RelationManager {
 	}
 
 	@Override
-	public void getSelectionPath(Instance client,
-			RelationDeclaration dependency, List<RelationManager> selPath) {
-		selPath.add(selPath.size(), this);
-	}
-
-	@Override
 	public int getPriority() {
 		return DistrimanConstant.APAM_PRIORITY;
 	}
@@ -127,46 +119,10 @@ public class Distriman implements RelationManager {
 	 * @param needsInstances
 	 * @return The Resolved object if a proxy has been created, null otherwise.
 	 */
-	@Override
-	public Resolved resolveDependency(Instance client,
-			Relation relation, boolean needsInstances) {
-		Resolved resolved = null;
-
-		if (!needsInstances) { // TODO distriman: should really just handle only
-								// instances?
-			return null;
-		}
-
-		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
-				.entrySet()) {
-
-			RemoteMachine machine = element.getValue();
-			String urlForResolution = element.getKey();
-
-			if(machine.isLocalhost()) continue;
-			
-			try {
-
-				logger.info("trying to resolve in machine key {} and url {}",
-						urlForResolution, urlForResolution);
-
-				resolved = machine.resolveRemote(client, relation);
-
-				if (resolved != null && resolved.instances != null
-						&& resolved.instances.size() > 0)
-					break;
-
-			} catch (IOException e) {
-				remotes.destroyRemoteMachine(urlForResolution, element
-						.getValue().getId());
-			}
-		}
-
-		return resolved;
-	}
 
 	@Validate
 	private void init() {
+		
 		try {
 			logger.info("Starting...");
 
@@ -210,6 +166,10 @@ public class Distriman implements RelationManager {
 			stop();
 			
 		} 
+		
+		
+		ApamManagers.addRelationManager(this,getPriority());
+		
 	}
 
 	@Invalidate
@@ -262,55 +222,58 @@ public class Distriman implements RelationManager {
 	}
 
 	@Override
-	public Instance findInstByName(Instance client, String instName) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
+	public void getSelectionPath(Component source, Relation relation,
+			List<RelationManager> selPath) {
+		selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public Implementation findImplByName(Instance client, String implName) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
+	public Resolved<?> resolveRelation(Component source, Relation relation) {
+		
+		Resolved resolved = null;
+		
+		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
+				.entrySet()) {
+
+			RemoteMachine machine = element.getValue();
+			String urlForResolution = element.getKey();
+
+			if(machine.isLocalhost()) continue;
+			
+			try {
+
+				logger.info("trying to resolve in machine key {} and url {}",
+						urlForResolution, urlForResolution);
+
+				resolved = machine.resolveRemote((Instance)source, relation);
+
+				if (resolved != null && ( resolved.singletonResolved!= null ||  
+						 				  resolved.setResolved!=null)) 
+					break;
+
+			} catch (IOException e) {
+				remotes.destroyRemoteMachine(urlForResolution, element
+						.getValue().getId());
+			}
+		}
+		
+		return resolved;		
+		
 	}
 
 	@Override
-	public Specification findSpecByName(Instance client, String specName) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
-	}
-
-	@Override
-	public Component findComponentByName(Instance client, String compName) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
-	}
-
-	@Override
-	public Instance resolveImpl(Instance client, Implementation impl,  Relation dep) {
-//			Set<String> constraints, List<String> preferences) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Relation dep) {
-//			Set<String> constraints) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
-	}
-
-	@Override
-	public void notifySelection(Instance client, ResolvableReference resName,
+	public void notifySelection(Component client, ResolvableReference resName,
 			String depName, Implementation impl, Instance inst,
 			Set<Instance> insts) {
-		// To change body of implemented methods use File | Settings | File
-		// Templates.
+		//Distriman dont care about it		
 	}
 
 	@Override
 	public ComponentBundle findBundle(CompositeType context,
 			String bundleSymbolicName, String componentName) {
-		return null; // To change body of implemented methods use File |
-						// Settings | File Templates.
+		//Distriman dont care about it
+		return null;
 	}
+
+
 }

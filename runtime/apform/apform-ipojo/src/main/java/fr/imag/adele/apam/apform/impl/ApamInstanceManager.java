@@ -465,7 +465,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
             
             Object pojo = getServiceObject();
 	        if (pojo == null)
-	        	return false;
+	        	return true;
             
 	        fireCallbacks(RelationDeclaration.Event.UNBIND,depName,destination);
 
