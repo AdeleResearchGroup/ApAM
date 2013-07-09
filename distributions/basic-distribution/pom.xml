@@ -234,6 +234,7 @@
 									<fileset dir="${project.build.directory}/distrib-temp/">
 										<include name="*" />
 										<exclude name="*.txt" />
+										<exclude name="*.log" />
 										<exclude name="conf/*" />
 										<exclude name="log/*" />
 										<exclude name="assembly.xml" />
