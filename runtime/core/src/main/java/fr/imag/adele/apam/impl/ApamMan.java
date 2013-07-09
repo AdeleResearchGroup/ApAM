@@ -172,27 +172,6 @@ public class ApamMan implements RelationManager {
 				}
 			}
 		} 
-//		else {
-//			if (relation.getTarget() instanceof ImplementationReference) {
-//				Implementation impl = CST.componentBroker.getImpl(name);
-//				if (impl != null) {
-//					impls.add(impl) ;
-//				} 
-//			} 
-//		else if (relation.getTarget() instanceof ComponentReference<?>) {
-//				Component component = CST.componentBroker.getComponent(name);
-//				if (component != null) {
-//					if (component instanceof Implementation) {
-//						impls.add((Implementation) component);
-//					} else if (component instanceof Instance) {
-//						impls.add(((Instance) component).getImpl());
-//					} else if (component instanceof Specification) {
-//						impls.addAll(((Specification) component).getImpls());
-//					}
-//				}
-//			}
-//		}
-
 
 		//TargetKind is implem or instance, but no implem found.
 		if (impls == null || impls.isEmpty()) 
@@ -200,7 +179,7 @@ public class ApamMan implements RelationManager {
 
 		//If TargetKind is implem, select the good one(s)
 		if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
-			return relation.getResolved(impls,false);
+			return relation.getResolved(impls, false);
 		}
 
 		/*
@@ -220,42 +199,46 @@ public class ApamMan implements RelationManager {
 			}
 		}
 
+		if (!insts.isEmpty()) {
+			/*
+			 * If relation is singleton, select the best instance.
+			 */
+			if (relation.isMultiple())
+				return new Resolved<Instance> (insts) ;
+			return new Resolved<Instance>(relation.getPrefered(insts));
+		}
+		
 		//No instance available, return the preferred implementation, it will be instantiated.
-		if (insts == null  ||insts.isEmpty()) {
+//		if (insts == null  ||insts.isEmpty()) {
 			/*
 			 *  Keep only the implementations satisfying the constraints of the relation
-			 *  
-			 *  TODO NOTE We can not use relation.getResolved because it checks the target 
-			 *  kind, so we do filtering here. This must be refactored into RelationImpl
+//			 *  
+//			 *  TODO NOTE We can not use relation.getResolved because it checks the target 
+//			 *  kind, so we do filtering here. This must be refactored into RelationImpl
 			 */
-			
 			Set<Implementation> valid = new HashSet<Implementation> ();
 			for (Implementation impl : impls) {
-				
-				boolean matchAll = true;
-				for (ApamFilter constraint : relation.getAllImplementationConstraintFilters()) {
-					if (!constraint.match(impl.getAllProperties())) {
-						matchAll = false;
-						break;
-					}
-				}
-				
-				if (matchAll)
-					valid.add(impl);
+				if (relation.matchRelationConstraints(ComponentKind.IMPLEMENTATION, impl.getAllProperties()))
+					valid.add(impl) ;
 			}
-			
+//				boolean matchAll = true;
+//				for (ApamFilter constraint : relation.getAllImplementationConstraintFilters()) {
+//					if (!constraint.match(impl.getAllProperties())) {
+//						matchAll = false;
+//						break;
+//					}
+//				}
+//				
+//				if (matchAll)
+//					valid.add(impl);
+//			}
+//			
 			if (valid.isEmpty()) 
 				return null ;
 
 			return new Resolved <Instance> (relation.getPrefered(valid), true);
-		}
+//		}
 
-		/*
-		 * If relation is singleton, select the best instance.
-		 */
-		if (relation.isMultiple())
-			return new Resolved<Instance> (insts) ;
-		return new Resolved<Instance>(relation.getPrefered(insts));
 	}
 
 

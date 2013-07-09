@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class ApamManagers {
@@ -84,6 +85,8 @@ public class ApamManagers {
 		
 		//Managers without name are simple listeners.
 		if (manager.getName() != null) {
+			
+			((APAMImpl)CST.apam).managerRegistered(manager);
 			logger.info("[" + manager.getName() + "] registered an initialized") ;
 			ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
 			// the root model maybe null
