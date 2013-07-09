@@ -77,6 +77,14 @@ public class APAMImpl implements Apam {
 			expectedManagers.add(rootModel.getManagerName());
 		}
         
+        /*
+         * disable resolution temporarily, until all the required managers of the root composite
+         * are registered
+         */
+        if (! expectedManagers.isEmpty()) {
+        	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 5*000/*ms*/);
+        }
+        
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
         ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
@@ -91,7 +99,7 @@ public class APAMImpl implements Apam {
     public void managerRegistered(Manager manager) {
     	expectedManagers.remove(manager.getName());
     	if (expectedManagers.isEmpty())
-    		((ApamResolverImpl)CST.apamResolver).setApamReady();
+    		((ApamResolverImpl)CST.apamResolver).enable();
     }
     
     @Override
