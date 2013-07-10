@@ -659,7 +659,7 @@ public class CoreMetadataParser implements CoreParser {
 	 */
 	private LinkDeclaration parseLink(Element element, ComponentDeclaration component, boolean isContextual) {
 
-		String id 		= parseString(component.getName(), element, CoreMetadataParser.ATT_ID, true);
+		String id 		= parseString(component.getName(), element, CoreMetadataParser.ATT_NAME, true);
 		String source 	= parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, isContextual);
 		String target 	= parseString(component.getName(), element, CoreMetadataParser.ATT_TARGET, true);
 
@@ -766,7 +766,7 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * All dependencies have an optional identifier and multiplicity specification
 		 */
-		String id 			= parseString(component.getName(), element, CoreMetadataParser.ATT_ID, false);
+		String id 			= parseString(component.getName(), element, CoreMetadataParser.ATT_NAME, false);
 		boolean isOverride	= isContextual && parseBoolean(component.getName(),element, ATT_OVERRIDE, false, false);
 
 		boolean isMultiple	= parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, false);

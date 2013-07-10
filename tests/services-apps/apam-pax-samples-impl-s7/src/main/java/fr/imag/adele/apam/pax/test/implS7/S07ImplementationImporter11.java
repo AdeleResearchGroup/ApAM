@@ -6,7 +6,6 @@ public class S07ImplementationImporter11 implements S07Interface11 {
 
 	public Implementation injected;
 
-	@Override
 	public String whoami() {
 		return "";
 	}

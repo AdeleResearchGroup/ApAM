@@ -24,7 +24,7 @@
 	and limitations under the License. -->
 
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
 
 	<implementation name="S2Simple"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2"

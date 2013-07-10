@@ -34,7 +34,9 @@
 		<module>basic-distribution</module>
 		<module>histman-distribution</module>
 		<module>distriman-distribution</module>
+		<!--
  		<module>icasa-distribution</module>
+		-->
 	</modules>
   <build>
     <plugins>
