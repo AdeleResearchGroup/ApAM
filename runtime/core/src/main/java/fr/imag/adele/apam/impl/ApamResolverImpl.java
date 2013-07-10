@@ -118,6 +118,7 @@ public class ApamResolverImpl implements ApamResolver {
 					return;
 				}
 					
+				System.err.println("APAM RESOLVER waiting for: "+condition);
 				wait(this.maxDisableTime - currentTime);
 				
 				
