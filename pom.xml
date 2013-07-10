@@ -109,6 +109,9 @@
 			<properties>
 				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
 			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<modules>
 				<module>runtime</module>
 				<module>plugins</module>
@@ -121,9 +124,6 @@
 		<!-- Profile used to build ApAM -->
 		<profile>
 			<id>release</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<modules>
 				<module>runtime</module>
 				<module>plugins</module>
