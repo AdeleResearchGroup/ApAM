@@ -24,6 +24,29 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 		</repository>
 ...
 ```
+## Apam Metadata Validators
+
+### Lastest released version
+
+```xml
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://raw.github.com/AdeleResearchGroup/ApAM/relation/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+
+...
+
+</apam>
+```
+
+### Snapshot version
+
+```xml
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://raw.github.com/AdeleResearchGroup/ApAM/relation/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+
+...
+
+</apam>
+```
 
 
 ### Nighly build test results
