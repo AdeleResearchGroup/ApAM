@@ -28,7 +28,6 @@ app-store.xml
 # apam distribution
 #distributions/*-distribution/load
 distributions/distriman-distribution/conf
-distributions/histman-distribution/conf
 distributions/basic-distribution/conf
 distributions/*-distribution/apam
 distributions/*-distribution/bundle
