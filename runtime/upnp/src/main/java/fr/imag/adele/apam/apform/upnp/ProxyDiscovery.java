@@ -2,7 +2,6 @@ package fr.imag.adele.apam.apform.upnp;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -10,15 +9,11 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.apache.felix.ipojo.ComponentInstance;
-import org.apache.felix.ipojo.Factory;
-
+import org.apache.felix.ipojo.annotations.Bind;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Requires;
-import org.apache.felix.ipojo.annotations.Bind;
 import org.apache.felix.ipojo.annotations.Unbind;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.upnp.UPnPDevice;
 import org.osgi.service.upnp.UPnPEventListener;
@@ -28,7 +23,6 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
@@ -100,7 +94,7 @@ public class ProxyDiscovery  {
 	 * The list of created proxies for each service in the discovered devices
 	 * 
 	 */
-	private Map<UPnPDevice,List<Instance>> deviceMap = new HashMap<UPnPDevice, List<Instance>>() ;
+	private Map<UPnPDevice,List<ApformInstance>> deviceMap = new HashMap<UPnPDevice, List<ApformInstance>>() ;
 
 
 	/**
@@ -126,7 +120,7 @@ public class ProxyDiscovery  {
 		 * (bound/unbound) for each device
 		 */
 		synchronized (deviceMap) {
-			deviceMap.put(device,new ArrayList<Instance>());
+			deviceMap.put(device,new ArrayList<ApformInstance>());
 		}
 		
 		executor.execute(new DeviceDiscoveryRequest(device));
@@ -154,7 +148,7 @@ public class ProxyDiscovery  {
 		 * first we update synchronously the device table, so we can respect the order of events
 		 * (bound/unbound) for each device
 		 */
-		List<Instance> serviceProxies = null;
+		List<ApformInstance> serviceProxies = null;
 		synchronized (deviceMap) {
 			serviceProxies = deviceMap.remove(device);
 		}
@@ -243,13 +237,13 @@ public class ProxyDiscovery  {
 					configuration.put(UPnPEventListener.UPNP_FILTER, context.createFilter(serviceFilter));
 					configuration.put("requires.filters", new Hashtable<String,String>(Collections.singletonMap(UPnPDevice.ID,serviceFilter)) );
 
-					Instance proxy = implementation.getApformImpl().addDiscoveredInstance(configuration).getApamComponent();
+					ApformInstance proxy = implementation.getApformImpl().addDiscoveredInstance(configuration);
 					
 					/*
 					 * Ignore errors creating the proxy
 					 */
 					if (proxy == null) {
-						System.err.println("[UPnP Apam Discovery] Proxy could not instantiated  "+implementation.getName());
+						System.err.println("[UPnP Apam Discovery] Proxy could not be instantiated  "+implementation.getName());
 						continue;
 					}
 					
@@ -262,7 +256,8 @@ public class ProxyDiscovery  {
 						 * If the device is no longer available, just dispose the created proxy and abort processing 
 						 */
 						if (! deviceMap.containsKey(device)) {
-							((InstanceImpl)proxy).unregister();
+							if (proxy.getApamComponent() != null)
+								((InstanceImpl)proxy.getApamComponent()).unregister();
 							return;
 						}
 
@@ -297,9 +292,9 @@ public class ProxyDiscovery  {
     	/**
     	 * The proxies to dispose
     	 */
-    	private final List<Instance> proxies;
+    	private final List<ApformInstance> proxies;
     	
-    	public DeviceLostRequest(UPnPDevice device, List<Instance> proxies) {
+    	public DeviceLostRequest(UPnPDevice device, List<ApformInstance> proxies) {
     		this.device		= device;
 			this.proxies	= proxies;
 		}
@@ -315,8 +310,9 @@ public class ProxyDiscovery  {
 			if (proxies == null)
 				return;
 			
-			for (Instance proxy : proxies) {
-				((InstanceImpl)proxy).unregister();
+			for (ApformInstance proxy : proxies) {
+				if (proxy.getApamComponent() != null)
+					((InstanceImpl)proxy.getApamComponent()).unregister();
 			}
 		}
     	
