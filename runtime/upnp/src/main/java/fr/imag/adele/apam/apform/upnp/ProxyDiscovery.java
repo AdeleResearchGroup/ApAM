@@ -28,6 +28,9 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.impl.InstanceImpl;
 
 /**
  * This class listen for UPnPDevice service discovery events and creates the APAM deviceMap for all hosted
@@ -97,7 +100,7 @@ public class ProxyDiscovery  {
 	 * The list of created proxies for each service in the discovered devices
 	 * 
 	 */
-	private Map<UPnPDevice,List<ComponentInstance>> deviceMap = new HashMap<UPnPDevice, List<ComponentInstance>>() ;
+	private Map<UPnPDevice,List<Instance>> deviceMap = new HashMap<UPnPDevice, List<Instance>>() ;
 
 
 	/**
@@ -123,7 +126,7 @@ public class ProxyDiscovery  {
 		 * (bound/unbound) for each device
 		 */
 		synchronized (deviceMap) {
-			deviceMap.put(device,new ArrayList<ComponentInstance>());
+			deviceMap.put(device,new ArrayList<Instance>());
 		}
 		
 		executor.execute(new DeviceDiscoveryRequest(device));
@@ -151,7 +154,7 @@ public class ProxyDiscovery  {
 		 * first we update synchronously the device table, so we can respect the order of events
 		 * (bound/unbound) for each device
 		 */
-		List<ComponentInstance> serviceProxies = null;
+		List<Instance> serviceProxies = null;
 		synchronized (deviceMap) {
 			serviceProxies = deviceMap.remove(device);
 		}
@@ -164,9 +167,6 @@ public class ProxyDiscovery  {
      * The handler of the discovery request, It look for a proxy for each service and create the
      * appropriate instance.
 	 * 
-	 * TODO Note that we use the iPojo factory directly. This is because we need to pass iPojo 
-	 * property values that are not handled by {@link Implementation#createInstance Implementation.createInstance}
-	 *
      */
     private class DeviceDiscoveryRequest implements Runnable {
 
@@ -236,15 +236,14 @@ public class ProxyDiscovery  {
 					/*
 					 * Create an instance of the proxy, and configure it for the appropriate device and service
 					 */
-					Factory proxyFactory = (Factory)implementation.getApformImpl();
 
-					Dictionary<String,Object> configuration = new Hashtable<String,Object>();
+					Map<String,Object> configuration = new Hashtable<String,Object>();
 					configuration.put(UPnPDevice.ID,deviceId);
 					configuration.put(UPnPService.ID,service.getId());
 					configuration.put(UPnPEventListener.UPNP_FILTER, context.createFilter(serviceFilter));
 					configuration.put("requires.filters", new Hashtable<String,String>(Collections.singletonMap(UPnPDevice.ID,serviceFilter)) );
 
-					ComponentInstance proxy = proxyFactory.createComponentInstance(configuration);
+					Instance proxy = implementation.getApformImpl().addDiscoveredInstance(configuration).getApamComponent();
 					
 					/*
 					 * Ignore errors creating the proxy
@@ -263,7 +262,7 @@ public class ProxyDiscovery  {
 						 * If the device is no longer available, just dispose the created proxy and abort processing 
 						 */
 						if (! deviceMap.containsKey(device)) {
-							proxy.dispose();
+							((InstanceImpl)proxy).unregister();
 							return;
 						}
 
@@ -298,9 +297,9 @@ public class ProxyDiscovery  {
     	/**
     	 * The proxies to dispose
     	 */
-    	private final List<ComponentInstance> proxies;
+    	private final List<Instance> proxies;
     	
-    	public DeviceLostRequest(UPnPDevice device, List<ComponentInstance> proxies) {
+    	public DeviceLostRequest(UPnPDevice device, List<Instance> proxies) {
     		this.device		= device;
 			this.proxies	= proxies;
 		}
@@ -316,8 +315,8 @@ public class ProxyDiscovery  {
 			if (proxies == null)
 				return;
 			
-			for (ComponentInstance proxy : proxies) {
-				proxy.dispose();
+			for (Instance proxy : proxies) {
+				((InstanceImpl)proxy).unregister();
 			}
 		}
     	

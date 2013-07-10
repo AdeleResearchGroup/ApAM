@@ -44,6 +44,7 @@ import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.Util;
 
 public class APAMImpl implements Apam {
@@ -280,6 +281,11 @@ public class APAMImpl implements Apam {
 			numInstances ++;
 			String name = declaration.getName()+"-"+numInstances;
 			return new ApamOnlyComposite(declaration.getReference(),name,initialProperties);
+		}
+		
+		@Override
+		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+			throw new UnsupportedOperationException("method not available for appliation composite type");
 		}
 
     }

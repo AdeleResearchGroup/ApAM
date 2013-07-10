@@ -15,7 +15,6 @@
 package fr.imag.adele.apam.apform;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public interface ApformInstance  extends ApformComponent {

@@ -351,7 +351,12 @@ public class RemoteMachine implements ApformInstance {
 				throws InvalidConfiguration {
 		       throw new UnsupportedOperationException("RemoteImplem is not instantiable");
 		}
-		
+
+		@Override
+		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration,	UnsupportedOperationException {
+			throw new UnsupportedOperationException("RemoteImplem instances can only be created by resolution");
+		}
+
 		@Override
 		public boolean setLink(Component destInst, String depName) {
 			return false;

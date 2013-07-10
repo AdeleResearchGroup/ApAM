@@ -87,7 +87,5 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
     	configuration.put(attr,value);
     	ipojoInstance.reconfigure(configuration);
     }
-
-
     
 }

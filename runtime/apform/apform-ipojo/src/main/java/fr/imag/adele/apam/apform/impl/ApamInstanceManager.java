@@ -398,6 +398,12 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
                 }
 
                 fireCallbacks(AtomicImplementationDeclaration.Event.REMOVE,previousComponent);
+                
+                /*
+                 * dispose this instance
+                 */
+                ApamInstanceManager.this.dispose();
+                
                 return;
             } 
     	}
