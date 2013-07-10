@@ -414,12 +414,12 @@ public class RelationImpl implements Relation {
 		switch (candidateKind) {
 		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
-				if (!f.match0(properties))
+				if (!f.match(properties))
 					return false;
 			}
 		case IMPLEMENTATION:
 			for (ApamFilter f : mngImplementationConstraintFilters) {
-				if (!f.match0(properties))
+				if (!f.match(properties))
 					return false;
 			}
 		case SPECIFICATION:
