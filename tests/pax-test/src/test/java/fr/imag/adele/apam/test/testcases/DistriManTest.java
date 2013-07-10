@@ -20,7 +20,6 @@ import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,10 +29,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
@@ -57,8 +54,8 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(packOSGi());
 		config.add(packPax());
 		config.add(packApamCore());
-		config.add(packApamShell());
 		config.add(packApamObrMan());
+		config.add(packApamShell());
 		config.add(packLog());
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());

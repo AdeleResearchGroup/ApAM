@@ -172,7 +172,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	 */
 	@Override
 	public String getName() {
-		return "fr.imag.adele.dynaman";
+		return "DYNAMAN";
 	}
 	
 	/**

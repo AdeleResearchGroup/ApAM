@@ -411,12 +411,6 @@ public class RelationImpl implements Relation {
 		}
 
 		//Instance must match both implementation and instance constraints ???
-
-		/*
-		 *  TODO SUSPECTED BUG : in the case of instantiation of an implementation
-		 *  is the kind of the component matched
-		 */
-
 		switch (candidateKind) {
 		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
@@ -674,7 +668,7 @@ public class RelationImpl implements Relation {
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) {
-		// if (dep == null) return new Resolved (candidates);
+
 		if (candidates == null || candidates.isEmpty())
 			return null;
 

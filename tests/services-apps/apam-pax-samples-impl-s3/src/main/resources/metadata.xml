@@ -16,7 +16,7 @@
 
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
 
 	<implementation name="group-a"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
@@ -52,7 +52,7 @@
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency id="eletronic-device-private" field="element" specification="eletronic-device-private" />
+		<dependency name="eletronic-device-private" field="element" specification="eletronic-device-private" />
 		<dependency field="c" />
 	</implementation>
 
@@ -141,20 +141,20 @@
 
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" id=".*" specification="eletronic-device-private" fail="exception"
+			<dependency override="true" name=".*" specification="eletronic-device-private" fail="exception"
 				exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-fail-wait" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" id=".*" specification="eletronic-device-private" fail="wait" />
+			<dependency override="true" name=".*" specification="eletronic-device-private" fail="wait" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-hide" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" id=".*" specification="eletronic-device-private" hide="true" />
+			<dependency override="true" name=".*" specification="eletronic-device-private" hide="true" />
 		</contentMngt>
 	</composite>
 

@@ -28,6 +28,7 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,7 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.impl.CompositeTypeImpl;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -78,6 +80,8 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 	public void start() {
+		//to load the initial OBR before to register
+		newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
 		ApamManagers.addRelationManager(this, 3);
 		// logger.info("[OBRMAN] started");
 	}
@@ -139,16 +143,38 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 
+	/**
+	 * return false if the bundle does not exist in OSGi (therefore can be deployed)
+	 *              if it exist and is starting or has been started (we should wait for the component to arrive). 
+	 * return true  if it exists but not active and cannot be started. Do not deploy.
+	 * @param symbolicName
+	 * @return
+	 */
 	public boolean bundleInactif(String symbolicName) {
 		Bundle[] bunldes = m_context.getBundles();
 		for (Bundle bundle : bunldes) {
+			//It is there, do nothing
 			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(symbolicName)) {
 				if (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING || bundle.getState() == Bundle.UNINSTALLED) {
 					return false;
 				}
+				//If only installed, try to start it. Successfull or not, do not try to deploy.
+				if (bundle.getState() == Bundle.INSTALLED) {
+					try {
+						bundle.start() ;
+					} catch (BundleException e) {
+						logger.info("The bundle " + bundle.getSymbolicName() + " is installed but cannot be started!");
+						return true ;
+					}
+					//Starting failed. No solution : cannot be deployed and cannot be started. Make as if failed
+					logger.info("The bundle " + bundle.getSymbolicName() + " is installed and has been be started!");
+					return false ;
+				} 
+				//The bundle is here but cannot be used nor installed.
 				return true;
 			}
 		}
+		//It does not exist: deploy it.
 		return false;
 	}
 

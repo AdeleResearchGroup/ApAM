@@ -15,7 +15,7 @@
 
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
 
 	<implementation name="fr.imag.adele.apam.pax.test.implS2.S2OutterImpl"
 		classname="fr.imag.adele.apam.pax.test.implS2.S2OutterImpl"
@@ -54,14 +54,14 @@
 
 	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl">
 		<contentMngt>
-			<dependency override="true" id=".*" interface=".*Eletronic" eager="true">
+			<dependency override="true" name=".*" interface=".*Eletronic" eager="true">
 			</dependency>
 		</contentMngt>
 	</composite>
 	
 	<composite name="S2Impl-composite-eager-forceEager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager">
 		<contentMngt>
-			<dependency override="true" id=".*" specification="eletronic-device" eager="true">
+			<dependency override="true" name=".*" specification="eletronic-device" eager="true">
 			</dependency>
 		</contentMngt>
 	</composite>	

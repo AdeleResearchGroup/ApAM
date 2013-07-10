@@ -44,15 +44,14 @@
                     </xs:annotation>
                 </xs:element>
 
-                <xs:element name="dependency" type="RelationType"/>
-				<xs:element name="relation" type="RelationType"/>
+                <xs:element name="dependency" type="DependencyType"/>
+
+		<xs:element name="relation" type="InjectedDependencyType"/>
+
             </xs:choice>
             <xs:attributeGroup ref="basicComponentAttributes"/>
         </xs:complexType>
     </xs:element>
-
-    <!-- 	<xs:element name="property" type="PropertyType" /> -->
-    <!-- 	<xs:element name="property" type="PropertyValueType" /> -->
 
     <xs:element name="implementation">
         <xs:complexType>
@@ -71,7 +70,7 @@
 
                 <xs:element name="definition" type="InjectedDefinitionType"/>
 
-                <xs:element name="dependency" type="InjectedDependencyType">
+                <xs:element name="dependency" type="DependencyType">
                     <xs:annotation>
                         <xs:documentation> A property definition, it must be valued by the instance.
                             if the internal is true, the value of
@@ -80,9 +79,10 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+		<xs:element name="relation" type="InjectedDependencyType"/>
+
                 <xs:element ref="callback"/>
                 <xs:element ref="ipojo:requires"/>
-
                 <xs:element ref="ipojo:provides"/>
 
             </xs:choice>
@@ -104,7 +104,7 @@
     <xs:complexType name="StartType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="property" type="PropertyValueType"/>
-            <xs:element name="dependency" type="RelationType"/>
+            <xs:element name="dependency" type="DependencyType"/>
             <xs:element name="trigger" type="TriggerType" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
         <xs:attribute name="implementation" type="xs:string" use="required"/>
@@ -118,8 +118,8 @@
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="property" type="PropertyDefType"/>
-               <xs:element name="dependency" type="RelationType"/>
-				<xs:element name="relation" type="RelationType"/>
+               <xs:element name="dependency" type="DependencyType"/>
+		<xs:element name="relation" type="RelationType"/>
             </xs:choice>
             <xs:attribute name="implementation" type="xs:string" use="required"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
@@ -134,13 +134,12 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="property" type="PropertyDefType"/>
                 <xs:element name="dependency" type="RelationType"/>
-				<xs:element name="relation" type="RelationType"/>
+		<xs:element name="relation" type="InjectedDependencyType"/>
             </xs:choice>
             <xs:attribute name="implementation" type="xs:string" use="required"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
-
 
     <xs:element name="composite">
         <xs:complexType>
@@ -151,8 +150,8 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="property" type="PropertyDefType"/>
                 <xs:element name="definition" type="DefinitionType"/>
-                <xs:element name="dependency" type="RelationType"/>
-				<xs:element name="relation" type="RelationType"/>
+                <xs:element name="dependency" type="DependencyType"/>
+		<xs:element name="relation" type="InjectedDependencyType"/>
                 <xs:element name="contentMngt" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:choice minOccurs="0" maxOccurs="unbounded" >
@@ -247,20 +246,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-<!--
-    <xs:complexType name="DependencyType">
-        <xs:annotation>
-            <xs:documentation> A dependency declaration</xs:documentation>
-        </xs:annotation>
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
-        </xs:choice>
-        <xs:attributeGroup ref="basicDependencyAttributes"/>
-    </xs:complexType>
-	-->
-
-	  <xs:complexType name="RelationType">
+    <xs:complexType name="RelationType">
         <xs:annotation>
             <xs:documentation> A relation declaration</xs:documentation>
         </xs:annotation>
@@ -268,10 +254,37 @@
             <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
-        <xs:attributeGroup ref="basicRelationAttributes" />
+        <xs:attributeGroup ref="basicRelationAttributes"/>
+    </xs:complexType>
 
+    <xs:complexType name="DependencyType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="interface" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="field" type="xs:string" use="optional"/>
+                    <xs:attribute name="method" type="xs:string" use="optional"/>
+                    <xs:attribute name="type" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="message" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="push" type="xs:string" use="optional"/>
+                    <xs:attribute name="pull" type="xs:string" use="optional"/>
+                    <xs:attribute name="type" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="field" type="xs:string" use="optional"/>
+        <xs:attribute name="push" type="xs:string" use="optional"/>
+        <xs:attribute name="pull" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+        <xs:attribute name="added" type="xs:string" use="optional"/>
+        <xs:attribute name="removed" type="xs:string" use="optional"/>
+        <xs:attributeGroup ref="basicDependencyAttributes"/>
+    </xs:complexType>
 
-	  </xs:complexType>
     <xs:complexType name="InjectedDependencyType">
 
         <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -310,7 +323,9 @@
         <xs:attribute name="hide" type="xs:string" use="optional"/>
         <xs:attribute name="eager" type="xs:string" use="optional"/>
         <xs:attribute name="override" type="xs:boolean" use="optional"/>
-        <xs:attributeGroup ref="basicRelationAttributes"/>
+        <xs:attribute name="source" type="xs:string" use="optional"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+        <xs:attributeGroup ref="basicDependencyAttributes"/>
     </xs:complexType>
 
     <xs:complexType name="ResourceDependencyType">
@@ -433,6 +448,16 @@
         <xs:attribute name="messages" type="xs:string" use="optional"/>
     </xs:attributeGroup>
 
+    <xs:attributeGroup name="basicDependencyAttributes">
+        <xs:attribute name="specification" type="xs:string" use="optional"/>
+        <xs:attribute name="interface" type="xs:string" use="optional"/>
+        <xs:attribute name="message" type="xs:string" use="optional"/>
+        <xs:attribute name="multiple" type="xs:boolean" use="optional"/>
+        <xs:attribute name="implementation" type="xs:string" use="optional"/>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+        <xs:attribute name="exception" type="xs:string" use="optional"/>
+        <xs:attribute name="fail" type="apamFailStrategyType" use="optional"/>
+    </xs:attributeGroup>
 
     <xs:attributeGroup name="basicRelationAttributes">
         <xs:attribute name="specification" type="xs:string" use="optional"/>
@@ -440,27 +465,43 @@
         <xs:attribute name="message" type="xs:string" use="optional"/>
         <xs:attribute name="multiple" type="xs:boolean" use="optional"/>
         <xs:attribute name="implementation" type="xs:string" use="optional"/>
-        <xs:attribute name="name" type="xs:string" use="optional"/> 
-		<xs:attribute name="id" type="xs:string" use="optional"/>
-        <xs:attribute name="source" type="xs:string" use="optional"/>
-        <xs:attribute name="target" type="xs:string" use="optional"/>
-        <xs:attribute name="sourceKind" type="xs:string" use="optional"/>
-        <xs:attribute name="targetKind" type="xs:string" use="optional"/>
-        <xs:attribute name="fail" type="xs:string" use="optional"/>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
         <xs:attribute name="exception" type="xs:string" use="optional"/>
+        <xs:attribute name="sourceKind" type="apamKindType" use="optional"/>
+        <xs:attribute name="targetKind" type="apamKindType" use="optional"/>
+        <xs:attribute name="fail" type="apamFailStrategyType" use="optional"/>
+	<xs:attribute name="creation" type="apamCreationStrategyType" use="optional"/>
+	<xs:attribute name="resolve" type="apamResolveType" use="optional"/>
     </xs:attributeGroup>
-	
-<!--	
-    <xs:attributeGroup name="basicDependencyAttributes">
-        <xs:attribute name="specification" type="xs:string" use="optional"/>
-        <xs:attribute name="interface" type="xs:string" use="optional"/>
-        <xs:attribute name="message" type="xs:string" use="optional"/>
-        <xs:attribute name="multiple" type="xs:boolean" use="optional"/>
-        <xs:attribute name="implementation" type="xs:string" use="optional"/>
-        <xs:attribute name="id" type="xs:string" use="optional"/>
-        <xs:attribute name="fail" type="xs:string" use="optional"/>
-        <xs:attribute name="exception" type="xs:string" use="optional"/>
-    </xs:attributeGroup>
-	-->
+
+	<xs:simpleType name="apamKindType">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="implementation"/>
+	    <xs:enumeration value="specification"/>
+	    <xs:enumeration value="instance"/>
+	  </xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="apamResolveType">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="internal"/>
+	    <xs:enumeration value="external"/>
+	  </xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="apamFailStrategyType">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="exception"/>
+	    <xs:enumeration value="wait"/>
+	  </xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="apamCreationStrategyType">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="manual"/>
+	    <xs:enumeration value="lazy"/>
+	    <xs:enumeration value="eager"/>
+	  </xs:restriction>
+	</xs:simpleType>
 
 </xs:schema>
