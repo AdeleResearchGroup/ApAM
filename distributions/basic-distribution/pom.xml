@@ -91,12 +91,12 @@
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>obrman</artifactId>
-                                   				<version>${project.version}</version>
+                                   					<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>dynaman</artifactId>
-                                   				<version>${project.version}</version>
+	                                   				<version>${project.version}</version>
 								</artifactItem>
 								<!-- Felix Dependencies -->
 								<artifactItem>
