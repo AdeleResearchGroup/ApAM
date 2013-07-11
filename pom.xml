@@ -109,9 +109,6 @@
 			<properties>
 				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
 			</properties>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<modules>
 				<module>runtime</module>
 				<module>plugins</module>
@@ -128,8 +125,10 @@
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
-				<module>tests</module>
 			</modules>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>			
 		</profile>
 
 

@@ -205,7 +205,7 @@ public class Substitute {
 	 * @param source
 	 * @param attr
 	 * @param sourceTypeAttr
-//	 * @return
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	private static Object checkReturnSub (Component source, SplitSub sub, String sourceAttr, AttrType sourceTypeAttr) {
@@ -294,7 +294,7 @@ public class Substitute {
 			return valueObject ;
 
 		/*
-		 * Substitution needed
+		 * Substitution is needed
 		 */
 		//A function to call
 		if (value.charAt(0) == '@')
@@ -303,10 +303,17 @@ public class Substitute {
 		/*
 		 * It is a meta substitution
 		 */
+		
 		AttrType st = null ;
 		// If attr is null, it is because it is a substitution in a filter. Source is currently the target ! Do no check the attr
 		if (attr != null) {
 			st = source.getAttrType(attr) ;
+			//If it is the group that defined the attribute, 
+			//the substitution must be computed from the definition level (because of links "group" and "members")
+			//the value must be the same at all levels
+			if (source.getGroup() != null && source.getGroup().getAttrType(attr) != null) {
+				source = source.getGroup () ;
+			}
 		}
 
 		SplitSub sub = split (value) ;
