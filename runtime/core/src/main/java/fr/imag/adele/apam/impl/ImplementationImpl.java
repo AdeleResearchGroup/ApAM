@@ -82,6 +82,11 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		}
 
 		@Override
+		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+
+		@Override
 		public void setApamComponent(Component apamComponent) {
 			throw new UnsupportedOperationException("method not available in root type");
 		}

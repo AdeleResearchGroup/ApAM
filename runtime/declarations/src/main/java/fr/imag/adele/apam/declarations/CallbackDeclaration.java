@@ -50,10 +50,13 @@ public class CallbackDeclaration extends Instrumentation {
         return methodName;
     }
     
-    boolean TODO =true;
-    
     public boolean isValidInstrumentation() {
-    	return TODO;
+    	try {
+			implementation.getReflection().getMethodArgumentNumber(methodName, true);
+			return true;
+		} catch (NoSuchMethodException e) {
+			return false;
+		}
     }
 
 

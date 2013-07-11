@@ -90,7 +90,7 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
    			return false;
    		
    		/*
-   		 * Add to APAM all other dynamic service regsitrations 
+   		 * Add to APAM all other dynamic service registrations 
    		 */
    		Apform2Apam.newInstance(osgiInstance);
         return true;

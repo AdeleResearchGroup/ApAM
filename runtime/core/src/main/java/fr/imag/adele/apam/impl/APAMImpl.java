@@ -44,6 +44,7 @@ import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.Util;
 
 public class APAMImpl implements Apam {
@@ -77,6 +78,14 @@ public class APAMImpl implements Apam {
 			expectedManagers.add(rootModel.getManagerName());
 		}
         
+        /*
+         * disable resolution temporarily, until all the required managers of the root composite
+         * are registered
+         */
+        if (! expectedManagers.isEmpty()) {
+        	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 5*000/*ms*/);
+        }
+        
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
         ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
@@ -91,7 +100,7 @@ public class APAMImpl implements Apam {
     public void managerRegistered(Manager manager) {
     	expectedManagers.remove(manager.getName());
     	if (expectedManagers.isEmpty())
-    		((ApamResolverImpl)CST.apamResolver).setApamReady();
+    		((ApamResolverImpl)CST.apamResolver).enable();
     }
     
     @Override
@@ -272,6 +281,11 @@ public class APAMImpl implements Apam {
 			numInstances ++;
 			String name = declaration.getName()+"-"+numInstances;
 			return new ApamOnlyComposite(declaration.getReference(),name,initialProperties);
+		}
+		
+		@Override
+		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+			throw new UnsupportedOperationException("method not available for appliation composite type");
 		}
 
     }

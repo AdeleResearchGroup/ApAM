@@ -52,23 +52,77 @@ public class ApamResolverImpl implements ApamResolver {
 	private APAMImpl apam;
 	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
 
-	private boolean apamReady = false;
+	/**
+	 * The current state of the resolver. The resolver can be temporarily disabled, for instance
+	 * for waiting for the installation of required managers;
+	 * 
+	 */
+	private boolean enabled 	= false;
 	
+	/**
+	 * A description of the condition that must be met to enable the resolver again.
+	 */
+	private String 	condition	= "resolver startup";
+
+	/**
+	 * If the resolver is disabled, the time at which it will be automatically enabled,
+	 * even if the condition is not met. This is not an delay, but the actual future
+	 * time.
+	 */
+	private long maxDisableTime	= 0L;
+
 	public ApamResolverImpl(APAMImpl theApam) {
 		this.apam = theApam;
 	}
 
-	public synchronized void setApamReady() {
-		apamReady = true;
+	/**
+	 * Disables the resolver until the specified condition is met. If the condition
+	 * is not signaled before the specified timeout, the resolver will be automatically
+	 * enabled.
+	 */
+	public synchronized void disable(String condition, long timeout) {
+		this.enabled 		= false;
+		this.condition		= condition;
+		this.maxDisableTime	= System.currentTimeMillis() + timeout;
+		
+	}
+
+	/**
+	 * Enables the resolver after the condition is met
+	 */
+	public synchronized void enable() {
+		this.enabled 		= true;
+		this.condition		= null;
+		this.maxDisableTime	= 0L;
+		
 		this.notifyAll();
 	}
 	
-	private synchronized void checkApamReady() {
-		while (! apamReady) {
+	/**
+	 * Verifies if the resolver is enabled. If it is disabled blocks the calling
+	 * thread waiting for the enable condition.
+	 */
+	private synchronized void checkEnabled() {
+		while (! this.enabled) {
 			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				
+				/*
+				 * Verify if the disable timeout has expired, in that 
+				 * case simply enable the resolver again.
+				 */
+				long currentTime = System.currentTimeMillis();
+				if (currentTime > maxDisableTime) {
+					
+					System.err.println("APAM RESOLVER resuming resolution, condition did not happen: "+condition);
+					enable();
+					return;
+				}
+					
+				System.err.println("APAM RESOLVER waiting for: "+condition);
+				wait(this.maxDisableTime - currentTime);
+				
+				
+			} catch (InterruptedException ignored) {
 			}
 		}
 	} 
@@ -223,7 +277,10 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Resolved<?> resolveLink(Component source2, Relation dep) {
 		
-		checkApamReady();
+		/*
+		 * verify the resolver is actually enabled
+		 */
+		checkEnabled();
 		
 		if (source2 == null || dep == null){
 			logger.error("missing client or relation ");

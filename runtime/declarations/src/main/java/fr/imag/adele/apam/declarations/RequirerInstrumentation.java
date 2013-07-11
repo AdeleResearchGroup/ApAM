@@ -164,7 +164,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static class MessageQueueField extends InjectedField {
 
-		public MessageQueueField(AtomicImplementationDeclaration implementation,	String fieldName) {
+		public MessageQueueField(AtomicImplementationDeclaration implementation, String fieldName) {
 			super(implementation, fieldName, MessageReference.class);
 		}
 

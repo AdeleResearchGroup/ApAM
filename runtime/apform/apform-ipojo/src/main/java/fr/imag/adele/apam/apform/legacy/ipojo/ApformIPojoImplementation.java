@@ -30,6 +30,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.BaseApformComponent;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime
@@ -121,6 +122,11 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 		}
 	}
 
+	@Override
+	public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+		throw new UnsupportedOperationException("iPOJO instances are automatically discovered by APAM");
+	}
+	
 	@Override
 	public void setProperty(String attr, String value) {
 		// TODO see if we can reconfigure factory publication

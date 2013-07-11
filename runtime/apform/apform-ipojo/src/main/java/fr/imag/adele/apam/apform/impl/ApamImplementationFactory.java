@@ -131,5 +131,28 @@ public abstract class ApamImplementationFactory extends ApamComponentFactory {
 	        }
 		}
 	    
+		/**
+		 * Creates an instance of the factory, and register it directly with APAM.
+		 * 
+		 * This method can be used by external services (like device discovery protocols) to create instances
+		 * in APAM that are not the result of a resolution.
+		 */
+		@Override
+		public ApformInstance addDiscoveredInstance(Map<String,Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+			try {
+
+				Properties properties = new Properties();
+				if (configuration != null)
+					properties.putAll(configuration);
+
+				ApamInstanceManager instance = (ApamInstanceManager) createComponentInstance(properties);
+				return instance.getApform();
+
+			} catch (Exception cause) {
+				throw new ComponentImpl.InvalidConfiguration(cause);
+			}
+		}	    
+	    
 	}
+	
 }

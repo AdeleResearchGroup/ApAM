@@ -157,6 +157,9 @@ public class OSGiMan implements RelationManager {
 				
 			}
 			
+			/*
+			 * TODO BUG Evaluate constraints on implementations
+			 */
 			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
 				
 				if (implementations.isEmpty())
@@ -167,6 +170,9 @@ public class OSGiMan implements RelationManager {
 						new Resolved<Implementation> (implementations.iterator().next()) ;
 			}
 			
+			/*
+			 * TODO BUG Evaluate constraints on instances
+			 */
 			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
 				
 				if (instances.isEmpty())

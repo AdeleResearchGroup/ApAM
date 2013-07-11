@@ -38,11 +38,12 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
-import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * ApformCompositeType of and the factory of RemoteMachine.
@@ -104,6 +105,11 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory, ApformComposi
     @Override
     public RemoteMachine createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
        throw new UnsupportedOperationException("ApformCompositeType is not instantiable");
+    }
+
+    @Override
+    public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration,	UnsupportedOperationException {
+       throw new UnsupportedOperationException("ApformCompositeType can not be discovered");
     }
 
     /**

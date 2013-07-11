@@ -30,6 +30,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime
@@ -96,7 +97,15 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	public ApformInstance createInstance(Map<String, String> initialProperties) {
 		throw new UnsupportedOperationException();
 	}
-   
+
+	/**
+	 * Register a discovered instance
+	 */
+	@Override
+	public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration,	UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+	
     /**
      * Find a specification matching the osgi instance
      */
