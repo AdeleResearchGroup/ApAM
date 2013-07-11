@@ -206,6 +206,20 @@
 			added="start" removed="stop" /> -->
 	</implementation>
 	
+	<implementation name="S1Impl-removed-callback-with-no-constraint"
+		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		<dependency field="s2" removed="unbindWithInstance" />
+	</implementation>
+
+	<implementation name="S1Impl-removed-callback-with-constraint"
+		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		<dependency field="s2" removed="unbindWithInstance" >
+			<constraints>
+				<instance filter="(defined-property=*)" />
+			</constraints>
+		</dependency>
+	</implementation>
+
 	<implementation name="S1Impl-added-callback-signature-instance-invalid-methods"
 		classname="fr.imag.adele.apam.pax.test.implS1.S1ImplCallbackAddedValidMethodsOnlyInvalidArguments" specification="fr.imag.adele.apam.pax.test.iface.S1">
 		<dependency field="s2" added="bindWithInstance"  />

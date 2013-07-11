@@ -685,6 +685,65 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 				s1.getIsBindUnbindReceivedInstanceParameter() == true);
 
 	}
+	
+	@Test
+	public void removedCallbackWhenThereAreNOConstraints_tc111() {
+
+		String messageTemplate="In case of a remove callback, when a property of a service A change and the service B do NOT use a constraint to inject A on its instance, the link from A->B should NOT be brocken and restablished, thus remove callback should NOT have been called";
+		
+		Implementation impl = CST.apamResolver.findImplByName(null,
+				"S1Impl-removed-callback-with-no-constraint");
+
+		Instance instance = impl.createInstance(null,
+				new HashMap<String, String>());
+
+		S1Impl s1 = (S1Impl) instance.getServiceObject();
+		
+		s1.getS2();
+
+		//The line s1.getS2() creates the link and sets the UnbindReceivedInstanceParameter to true, so we roll it back to false
+
+		s1.setIsBindUnbindReceivedInstanceParameter(false);
+		
+		//after change the variable we expect apam NOT to call the remove method
+		
+		instance.getLinkDest("s2").setProperty("defined-property", "ups");
+		
+		Assert.assertTrue(messageTemplate,
+				s1.getIsBindUnbindReceivedInstanceParameter() == false);
+
+
+	}
+	
+	@Test
+	public void removedCallbackWhenThereAreConstraints_tc112() {
+
+		String messageTemplate="In case of a remove callback, when a property of a service A change and the service B use a constraint to inject A on its instance, the link from A->B should be brocken and restablished, thus remove callback should have been called";
+		
+		Implementation impl = CST.apamResolver.findImplByName(null,
+				"S1Impl-removed-callback-with-constraint");
+
+		Instance instance = impl.createInstance(null,
+				new HashMap<String, String>());
+
+		S1Impl s1 = (S1Impl) instance.getServiceObject();
+				
+		s1.getS2();
+
+		//The line s1.getS2() creates the link and sets the UnbindReceivedInstanceParameter to true, so we roll it back to false
+
+		s1.setIsBindUnbindReceivedInstanceParameter(false);
+		
+		//after change the variable we expect apam to call the remove method
+		
+		instance.getLinkDest("s2").setProperty("defined-property", "ups");
+		
+		
+		Assert.assertTrue(messageTemplate,
+				s1.getIsBindUnbindReceivedInstanceParameter() == true);
+
+
+	}
 
 	@Test
 	@Ignore

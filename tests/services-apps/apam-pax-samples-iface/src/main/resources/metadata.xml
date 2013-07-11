@@ -77,6 +77,7 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S2"
 		name="fr.imag.adele.apam.pax.test.iface.S2">
+		<definition name="defined-property" type="string" />
 	</specification>
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S3"

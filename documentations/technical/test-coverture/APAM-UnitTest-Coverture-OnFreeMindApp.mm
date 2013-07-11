@@ -189,7 +189,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353075698358" ID="ID_296603360" MODIFIED="1353075702293" TEXT="callback">
+<node CREATED="1353075698358" ID="ID_296603360" MODIFIED="1373558818892" TEXT="callback">
 <node CREATED="1353075111719" ID="ID_968919845" MODIFIED="1354295100923" TEXT="init callback, should be called when the components starts-tc021">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -212,6 +212,12 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1372953108128" ID="ID_652392009" MODIFIED="1372953121115" TEXT="removed callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc110">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1373563097136" ID="ID_1081429386" MODIFIED="1373563265770" TEXT="callback should NOT be called when the dependency property changed and this dependency is NOT based on a constraint-tc111">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1373563174319" ID="ID_716967721" MODIFIED="1373563297587" TEXT="callback should be called when the dependency property changes and this dependency is is based on a constraint-tc112">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
