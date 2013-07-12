@@ -69,7 +69,7 @@
 			<dependency>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>0.0.3-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- Junit Dependencies -->

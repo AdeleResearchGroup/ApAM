@@ -116,7 +116,9 @@
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
+		<!--
 				<module>distributions</module>
+		-->
 				<module>tests</module>
 			</modules>
 		</profile>
