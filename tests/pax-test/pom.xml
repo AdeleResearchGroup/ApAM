@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<artifactId>apam-tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.3-SNAPSHOT</version>
+		<version>0.0.3</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -265,7 +264,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<scope>test</scope>
-			<version>${project.version}</version>
+			<version>0.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -297,10 +296,15 @@
 			<version>2.5</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-bundle-minimal</artifactId>
+			<version>2.5.2</version>
+		</dependency><!--
+		<dependency>
 			<groupId>org.ow2.chameleon.commons.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
-			<version>2.5.2-0002-SNAPSHOT</version>
-		</dependency>
+			<version>2.5.2</version>
+		</dependency> -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
