@@ -3,7 +3,7 @@
     <parent>
         <artifactId>obrman-apps-test</artifactId>
         <groupId>fr.imag.adele.apam.tests</groupId>
-        <version>0.0.4-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>fr.imag.adele.apam.tests.obrman</groupId>
