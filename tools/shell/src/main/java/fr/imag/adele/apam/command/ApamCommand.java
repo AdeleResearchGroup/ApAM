@@ -87,7 +87,7 @@ public class ApamCommand {
 		"l#creates and start a new instance of the target implementation",
 		"pending#display all pending installations in apam platform",
 		"updatecomponent#updates target component (Warning: updates the whole Bundle)",
-		"tutu#set properties of an instance" };
+		"setproperty#set properties of an instance" };
 
 	// Apam injected
 	@Requires
@@ -119,7 +119,7 @@ public class ApamCommand {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public void tutu(PrintWriter out, String... args) {
+	public void setproperty(PrintWriter out, String... args) {
 		if (args.length <= 1) {
 			argumentMessageError(
 					out,
