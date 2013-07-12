@@ -47,6 +47,7 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
+import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -63,6 +64,7 @@ import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -158,6 +160,9 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_PULL                = "pull";
 	private static final String  ATT_BIND                = "added";
 	private static final String  ATT_UNBIND              = "removed";
+	//TODO relation variable declaration
+	private static final String  ATT_CREATION_POLICY     = "creation";
+	private static final String  ATT_RESOLVE_POLICY     = "resolve";
 
 	private static final String  VALUE_OPTIONAL          = "optional";
 	private static final String  VALUE_WAIT              = "wait";
@@ -776,6 +781,12 @@ public class CoreMetadataParser implements CoreParser {
 
 		ComponentKind targetKind 	= parseKind(component.getName(),element,CoreMetadataParser.ATT_TARGET_KIND,false,ComponentKind.INSTANCE);
 
+		String creationPolicyString		= parseString(component.getName(), element, CoreMetadataParser.ATT_CREATION_POLICY, false);
+		CreationPolicy creationPolicy   = CreationPolicy.getPolicy(creationPolicyString);
+		
+		String resolvePolicyString		= parseString(component.getName(), element, CoreMetadataParser.ATT_RESOLVE_POLICY, false);
+		ResolvePolicy resolvePolicy 	= ResolvePolicy.getPolicy(resolvePolicyString);
+		
 		RelationDeclaration relation = null;
 
 		/*
@@ -794,7 +805,7 @@ public class CoreMetadataParser implements CoreParser {
 				id = parseString(component.getName(), element, CoreMetadataParser.ATT_FIELD, false);
 			}
 
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind, resolvePolicy, creationPolicy);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -838,7 +849,7 @@ public class CoreMetadataParser implements CoreParser {
 		 */
 		if (targetDef != null && targetDef instanceof ResourceReference) {
 
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind, resolvePolicy, creationPolicy);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -878,8 +889,8 @@ public class CoreMetadataParser implements CoreParser {
 
 			targetDef = relationInstrumentation.getRequiredResource();
 			id = (id != null) ? id : relationInstrumentation.getName();
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
 
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind, resolvePolicy, creationPolicy);
 			relationInstrumentation.setRelation(relation);
 
 		}
@@ -891,7 +902,7 @@ public class CoreMetadataParser implements CoreParser {
 			//Usually the case with instance relation redefinition. Target is defined in the implementation
 			//			errorHandler.error(Severity.ERROR, "relation target must be specified " + element);
 			//			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind, resolvePolicy, creationPolicy);
 		}
 
 		/*

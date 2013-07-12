@@ -121,7 +121,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
 	 * Whether a relation matching this policy must be eagerly resolved
 	 */
-    private Boolean            isEager;
+    //private Boolean            isEager;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
@@ -132,8 +132,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
-    private CreationPolicy     creationPolicy=null;
-    private ResolvePolicy      resolvePolicy=null;
+    private ResolvePolicy     resolvePolicy=null;
+    private CreationPolicy      creationPolicy=null;
     
     
     /**
@@ -150,12 +150,12 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     
     public RelationDeclaration(ComponentReference<?> component,  String id, boolean isOverride,
     		boolean isMultiple, ResolvableReference resource) {
-    	this(component,id,isOverride,isMultiple,resource, null,ComponentKind.INSTANCE,ComponentKind.INSTANCE);
+    	this(component,id,isOverride,isMultiple,resource, null,ComponentKind.INSTANCE,ComponentKind.INSTANCE,null,null);
     }
 
     public RelationDeclaration(ComponentReference<?> component, String id, boolean isOverride,
     		boolean isMultiple, ResolvableReference resource,
-    		String sourceName, ComponentKind sourceKind, ComponentKind targetKind) {
+    		String sourceName, ComponentKind sourceKind, ComponentKind targetKind, ResolvePolicy resolve, CreationPolicy creation) {
 
         super(resource);
 
@@ -173,8 +173,12 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         this.sourceKind			= sourceKind;
         this.targetKind			= targetKind;
         
+        this.resolvePolicy=resolve;
+        
+        this.creationPolicy=creation;
+        
         this.isMultiple 		= isMultiple;
-        this.isEager 			= null;
+        //this.isEager 			= null;
         this.mustHide 			= null;
         this.missingPolicy 		= null;
         this.missingException 	= null;
@@ -201,7 +205,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     public RelationDeclaration clone() {
 
         RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.reference.getIdentifier(), this.isOverride,
-        		this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetKind);
+        		this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetKind,this.resolvePolicy,this.creationPolicy);
 
 //        clone.setSourceKind(this.sourceKind);
 //        clone.setTargetType(this.targetKind);
@@ -217,6 +221,9 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         clone.setMissingException(this.getMissingException());
         clone.setMissingPolicy(this.getMissingPolicy());
 
+        clone.setCreationPolicy(this.getCreationPolicy());
+        clone.setResolvePolicy(this.getResolvePolicy());
+        
         return clone;
     }
 
@@ -323,16 +330,19 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
      * Whether dependencies matching this contextual policy must be resolved eagerly
      */
+    @Deprecated
     public Boolean isEager() {
-        return isEager;
+        return this.creationPolicy==null?null:this.creationPolicy==CreationPolicy.EAGER;
     }
 
+    @Deprecated
     public boolean isEffectiveEager() {
-    	return isEager != null ? isEager : false;
+    	return this.creationPolicy != null ? this.creationPolicy==CreationPolicy.EAGER : false;
     }
     
     public void setEager(Boolean isEager) {
-        this.isEager = isEager;
+    	
+        this.creationPolicy = isEager?CreationPolicy.EAGER:null;
     }
 
     /**
@@ -440,4 +450,22 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         return callbacks.get(trigger);
     }
 
+	public ResolvePolicy getResolvePolicy() {
+		return resolvePolicy;
+	}
+
+	public void setResolvePolicy(ResolvePolicy resolvePolicy) {
+		this.resolvePolicy = resolvePolicy;
+	}
+
+	public CreationPolicy getCreationPolicy() {
+		return creationPolicy;
+	}
+
+	public void setCreationPolicy(CreationPolicy creationPolicy) {
+		this.creationPolicy = creationPolicy;
+	}
+
+
+    
 }

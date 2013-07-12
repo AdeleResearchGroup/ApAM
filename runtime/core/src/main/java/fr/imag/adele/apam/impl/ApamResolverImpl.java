@@ -349,7 +349,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		/*
-		 * It is resolved.
+		 * It is resolved. 
 		 */
 		if (resolved.singletonResolved != null) {
 			source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);

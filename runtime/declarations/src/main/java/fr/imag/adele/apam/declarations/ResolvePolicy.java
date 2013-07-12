@@ -14,15 +14,27 @@
  */
 package fr.imag.adele.apam.declarations;
 
+/**
+ * Specify the component space to resolve
+ * @author jnascimento
+ *
+ */
 public enum ResolvePolicy {
 
-
-	MANUAL,
+	EXIST, 
 	
+	INTERNAL,
 
-	LAZY,
-	
+	EXTERNAL;
 
-	EAGER
+	public static ResolvePolicy getPolicy(String id){
+		for(ResolvePolicy p:values()){
+			if(p.toString().toLowerCase().equals(id)){
+				return p;
+			}
+		}
+
+		return null;
+	}
 	
 }

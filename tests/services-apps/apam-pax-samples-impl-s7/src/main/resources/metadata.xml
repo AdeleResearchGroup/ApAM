@@ -153,7 +153,7 @@
 		classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter06"
 		specification="S07-specification-06">
 		<relation name="con" field="injected" sourceKind="implementation"
-			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Interface06" creation="eager" />
+			targetKind="instance" interface="fr.imag.adele.apam.pax.test.implS7.S07Interface06" />
 		<definition name="instance-property" type="string" />
 		<property name="implementation-property" value="ok" />
 	</implementation>

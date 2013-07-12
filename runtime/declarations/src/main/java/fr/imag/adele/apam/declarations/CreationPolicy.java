@@ -14,10 +14,40 @@
  */
 package fr.imag.adele.apam.declarations;
 
+/**
+ * Defines the momentum in which the framework will lookup for an instance of a dependency 
+ * @author jnascimento
+ *
+ */
 public enum CreationPolicy {
 
-	INTERNAL,
 
-	EXTERNAL
+	/**
+	 * Resolution is done only via XML
+	 */
+	MANUAL,
+	
+
+	/**
+	 * Resolves only when the client tries to use the dependency for the first time
+	 */
+	LAZY,
+	
+
+	/**
+	 * Resolves the dependency as soon as the client starts
+	 */
+	EAGER;
+	
+	
+	public static CreationPolicy getPolicy(String id){
+		for(CreationPolicy p:values()){
+			if(p.toString().toLowerCase().equals(id)){
+				return p;
+			}
+		}
+
+		return null;
+	}
 	
 }
