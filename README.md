@@ -54,7 +54,7 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 * ApAM 0.0.4 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=3&page=1&state=closed) (currently under development) 
 	* Yet to define
-* ApAM 0.0.3 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed)
+* ApAM 0.0.3 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.3/apam-basic-distribution-0.0.3.zip)  
 	* Relations
 	* Meta substitution
 * ApAM 0.0.2
