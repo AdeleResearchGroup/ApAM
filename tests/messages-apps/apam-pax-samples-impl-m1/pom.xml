@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam.tests</groupId>
 		<artifactId>messages-apps</artifactId>
-		<version>0.0.3</version>
+		<version>0.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	<packaging>bundle</packaging>
