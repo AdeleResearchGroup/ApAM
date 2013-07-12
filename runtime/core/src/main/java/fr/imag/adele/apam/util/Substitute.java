@@ -311,8 +311,12 @@ public class Substitute {
 			//If it is the group that defined the attribute, 
 			//the substitution must be computed from the definition level (because of links "group" and "members")
 			//the value must be the same at all levels
-			if (source.getGroup() != null && source.getGroup().getAttrType(attr) != null) {
-				source = source.getGroup () ;
+			Component group = source.getGroup() ;
+			while (group != null) {
+				if (source.getGroup().getAttrType(attr) == null) 
+					break ;
+				source = group ;
+				group = group.getGroup() ;
 			}
 		}
 

@@ -22,6 +22,7 @@ public class LinkImpl implements Link {
     private final ComponentImpl source;
     private final ComponentImpl destination;
 	private final boolean hasConstraints;
+	private final boolean isPromotion;
 	private final Relation definition ;
 //	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
 //	private final boolean isWire;
@@ -37,11 +38,12 @@ public class LinkImpl implements Link {
      * @param hasConstraints : true if the relation has constraints
      * @param wire true if it is a wire
      */
-	public LinkImpl(Component from, Component to, Relation dep, boolean hasConstraints) {
+	public LinkImpl(Component from, Component to, Relation dep, boolean hasConstraints, boolean isPromotion) {
         source = (ComponentImpl) from;
         destination = (ComponentImpl) to;
         this.hasConstraints = hasConstraints ;
         definition = dep ;
+        this.isPromotion = isPromotion ;
 //		this.isWire = dep.isWire();
 //		this.isInjected = dep.isInjected();
 //		this.depName = dep.getIdentifier();
@@ -62,9 +64,14 @@ public class LinkImpl implements Link {
         return definition.getIdentifier();
     }
 
+
     @Override
     public boolean hasConstraints() {
         return hasConstraints;
+    }
+    @Override
+    public boolean isPromotion () {
+        return isPromotion;
     }
 
 

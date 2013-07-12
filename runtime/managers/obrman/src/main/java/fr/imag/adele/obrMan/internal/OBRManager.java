@@ -156,7 +156,7 @@ public class OBRManager {
 			return null;
 		}
 		try {
-			ApamFilter filter = ApamFilter.newInstance(filterStr, true);
+			ApamFilter filter = ApamFilter.newInstance(filterStr);
 			for (Resource res : allResources) {
 				if (obrMan.bundleInactif(res.getSymbolicName())){
 					continue;

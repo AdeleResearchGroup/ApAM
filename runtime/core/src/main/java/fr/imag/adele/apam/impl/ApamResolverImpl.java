@@ -58,7 +58,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * 
 	 */
 	private boolean enabled 	= false;
-	
+
 	/**
 	 * A description of the condition that must be met to enable the resolver again.
 	 */
@@ -84,7 +84,7 @@ public class ApamResolverImpl implements ApamResolver {
 		this.enabled 		= false;
 		this.condition		= condition;
 		this.maxDisableTime	= System.currentTimeMillis() + timeout;
-		
+
 	}
 
 	/**
@@ -94,10 +94,10 @@ public class ApamResolverImpl implements ApamResolver {
 		this.enabled 		= true;
 		this.condition		= null;
 		this.maxDisableTime	= 0L;
-		
+
 		this.notifyAll();
 	}
-	
+
 	/**
 	 * Verifies if the resolver is enabled. If it is disabled blocks the calling
 	 * thread waiting for the enable condition.
@@ -105,23 +105,23 @@ public class ApamResolverImpl implements ApamResolver {
 	private synchronized void checkEnabled() {
 		while (! this.enabled) {
 			try {
-				
+
 				/*
 				 * Verify if the disable timeout has expired, in that 
 				 * case simply enable the resolver again.
 				 */
 				long currentTime = System.currentTimeMillis();
 				if (currentTime > maxDisableTime) {
-					
+
 					System.err.println("APAM RESOLVER resuming resolution, condition did not happen: "+condition);
 					enable();
 					return;
 				}
-					
+
 				System.err.println("APAM RESOLVER waiting for: "+condition);
 				wait(this.maxDisableTime - currentTime);
-				
-				
+
+
 			} catch (InterruptedException ignored) {
 			}
 		}
@@ -220,11 +220,11 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Implementation mainComponent			= mainInst.getImpl();
 		String applicationName 					= mainComponent.getName() + "_Appli";
-//		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
+		//		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
 		Set<ManagerModel> models				= new HashSet<ManagerModel>();
 
 		logger.debug("creating a dummy root composite type " + applicationName + " to contain unused " + mainInst) ;
-		
+
 		CompositeType application = apam.createCompositeType(null,
 				//				applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
 				applicationName, null, mainComponent.getName(), models, null);
@@ -276,23 +276,30 @@ public class ApamResolverImpl implements ApamResolver {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Resolved<?> resolveLink(Component source2, Relation dep) {
-		
+
 		/*
-		 * verify the resolver is actually enabled
+		 * verify the resolver is actually ready to work (all managers are present)
 		 */
 		checkEnabled();
-		
+
 		if (source2 == null || dep == null){
 			logger.error("missing client or relation ");
 			return null;
 		}
 
+		/*
+		 * If manual, the resolution must fail silently
+		 */
+		//TODO
+		boolean createManual = false ; //rel.getCreate().equals("manual")
+		if (createManual) return null ;
+		
 		Component source = dep.getRelSource(source2) ;
 		if (source == null ){
 			logger.error("Component source not at the right level; found " + source2 + " expected " + dep.getSourceKind());
 			return null;
 		}
-		
+
 		// Will contain the solution .
 		Resolved resolved = null;
 
@@ -382,6 +389,9 @@ public class ApamResolverImpl implements ApamResolver {
 
 			Resolved<?> res = null;
 			boolean deployed = false;
+			
+			//TODO
+			boolean resolveExist = false ;//rel.getResolve().equals("internal");
 
 			for (RelationManager manager : selectionPath) {
 				if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
@@ -404,13 +414,20 @@ public class ApamResolverImpl implements ApamResolver {
 				deployedImpl(source, depl, deployed);
 
 				/*
-				 * If an implementation is returned as "toInstantiate" it has to
-				 * be instantiated
+				 * If an implementation is returned as "toInstantiate" it has to be instantiated
 				 */
 				if (res.toInstantiate != null) {
 					if (relation.getTargetKind() != ComponentKind.INSTANCE) {
 						logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
 						continue;
+					}
+
+					/*
+					 * If resolveExist, we cannot instanciate.
+					 */				
+					if (resolveExist) {
+						logger.error("create=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot instantiate. Resolve failed.");
+						return null ;
 					}
 
 					Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
@@ -489,18 +506,24 @@ public class ApamResolverImpl implements ApamResolver {
 	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
 
 		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
-		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
-			/*
-			 * Skip apamman and UpdateMan
-			 */
-			if (relationManager.getName().equals(CST.APAMMAN) || relationManager.getName().equals(CST.UPDATEMAN)) {
-				continue;
+
+		/*
+		 * If resolve = exist or internal, only ApamMan must be called
+		 */
+		boolean resolveExternal = true ;//rel.getResolve().equals("external") || == null;
+		if (resolveExternal) {
+			for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
+				/*
+				 * Skip apamman and UpdateMan
+				 */
+				if (relationManager.getName().equals(CST.APAMMAN) || relationManager.getName().equals(CST.UPDATEMAN)) {
+					continue;
+				}
+				relationManager.getSelectionPath(source, relation, selectionPath);
 			}
-			relationManager.getSelectionPath(source, relation, selectionPath);
+			((RelationImpl)relation).computeFilters(source) ;
 		}
-
-		((RelationImpl)relation).computeFilters(source) ;
-
+		
 		if (!relation.isRelation()) { // It is a find
 			logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
 		} else

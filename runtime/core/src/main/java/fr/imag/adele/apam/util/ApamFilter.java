@@ -109,7 +109,7 @@ public class ApamFilter /* implements Filter */ {
 	 */
 	public static ApamFilter newInstance(String filterString) {
 		try {
-			return ApamFilter.newInstance(filterString, false);
+			return ApamFilter.newInstance(filterString, true);
 		} catch  (InvalidSyntaxException e) {
 			logger.error(e.getMessage());
 		}
@@ -133,7 +133,7 @@ public class ApamFilter /* implements Filter */ {
 		return !f.equals(f2);
 	}
 	
-	public static ApamFilter newInstance(String filterString, boolean ignoreCase)
+	private static ApamFilter newInstance(String filterString, boolean ignoreCase)
 			throws InvalidSyntaxException {
 		return new Parser(filterString, ignoreCase, null).parse();
 	}
@@ -172,7 +172,7 @@ public class ApamFilter /* implements Filter */ {
 	 *             case variants of the same key name.
 	 *             
 	 */
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public boolean match(Map map) {
 		return match0(new CaseInsensitiveMap<Object>(map));
 	}
@@ -190,7 +190,7 @@ public class ApamFilter /* implements Filter */ {
 	 *             case variants of the same key name.
 	 */
 	public boolean matchCase(Map map) {
-		return match0(map);
+		return match0 (map);
 	}
 
 	/**
@@ -359,44 +359,6 @@ public class ApamFilter /* implements Filter */ {
 		return toString().hashCode();
 	}
 
-	//    public boolean validateAttr(Map<String, String> validAttr, String f, String spec) {
-	//        switch (op) {
-	//            case AND:
-	//            case OR: {
-	//                ApamFilter[] filters = (ApamFilter[]) value;
-	//                boolean ok = true ;
-	//                for (ApamFilter filter : filters) {
-	//                    if (!filter.validateAttr(validAttr, f, spec)) ok = false ;
-	//                }
-	//                return ok;
-	//            }
-	//
-	//            case NOT: {
-	//                ApamFilter filter = (ApamFilter) value;
-	//                return filter.validateAttr(validAttr, f, spec);
-	//            }
-	//
-	//            case SUBSTRING:
-	//            case EQUAL:
-	//            case GREATER:
-	//            case LESS:
-	//            case APPROX:
-	//            case SUBSET:
-	//            case SUPERSET:
-	//            case PRESENT: {
-	//                if (!Util.isFinalAttribute(attr) && !validAttr.containsKey(attr)) {
-	//                    logger.error("Members of component " + spec + " cannot have property " + attr
-	//                            + ". Invalid constraint " + f);
-	//                    return false ;
-	//                }
-	//                if (validAttr.containsKey(attr)) {
-	//                    return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
-	//                }
-	//            }
-	//            return true ;
-	//        }
-	//        return true ;
-	//    }
 
 	private boolean match0(Map properties) {
 

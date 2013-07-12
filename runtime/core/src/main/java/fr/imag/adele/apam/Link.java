@@ -24,6 +24,8 @@ public interface Link {
     
     public boolean hasConstraints() ;
     
+    public boolean isPromotion () ;
+
     public void remove();
     
 	public boolean isWire();

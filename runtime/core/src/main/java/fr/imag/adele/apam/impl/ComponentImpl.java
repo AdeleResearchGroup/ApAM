@@ -509,14 +509,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 		//		}
-		Link link = new LinkImpl(this, to, dep, hasConstraints);
+		Link link = new LinkImpl(this, to, dep, hasConstraints, promotion);
 		links.add(link);
 		((ComponentImpl) to).invlinks.add(link);
 
 		/*
 		 * if "to" is an instance in the unused pull, move it to the from composite.
 		 */
-		if (dep.isWire() && this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
+//		if (dep.isWire() && this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
+	    if (this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
 				((InstanceImpl) to).setOwner(((Instance) this).getComposite());
 
 		//TODO What to do if it is a link towards an unused implem or spec ? Nothing ? 
@@ -789,13 +790,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 * the property change. This must be done before notification and propagation,
 		 * otherwise we risk to remove links updated by managers.
 		 * 
+		 * We remove only those links that are now invalid 
+		 * 	 problematic for those that are not lazy links : assychronous messages, .. and avoiding unnecessary work
 		 * TODO Check if this must be done for all links or only dynamic links
 		 */
 		for (Link incoming : getInvLinks()) {
-			if (incoming.hasConstraints())
+			//If still valid, do nothing
+			if (incoming.hasConstraints() && !isValidLink(incoming)) {
+				//remove
 				incoming.remove();
+				//recreate
+				CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
+			}
 		}
-		
 		
 		// does the change, notifies managers, changes the platform and propagate to
 		// members
@@ -804,6 +811,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return true;
 	}
 
+	private boolean isValidLink (Link incoming) {
+		Component source = incoming.getSource() ;
+		Relation relation = incoming.getDefinition() ;
+		((RelationImpl)relation).computeFilters(source) ;
+		boolean valid = source.createLink (incoming.getDestination(), incoming.getDefinition(), incoming.hasConstraints(), incoming.isPromotion()) ;
+		((RelationImpl)relation).resetFilters() ;
+		return valid ;
+	}
 
 	/**
 	 * Set the value of the property in the Apam state model. Changing an
