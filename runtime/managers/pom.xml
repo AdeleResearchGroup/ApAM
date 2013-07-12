@@ -26,8 +26,10 @@
 	<modules>
 		<module>obrman</module>
 		<module>dynaman</module>
- 		<module>histman</module>  
+ 		<module>histman</module> 
+		<!-- 
  		<module>distriman</module>  
+		-->
 	</modules>
 	 
 </project>
