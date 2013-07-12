@@ -618,10 +618,13 @@ public class RelationImpl implements Relation {
 
 	@Override
 	public boolean hasConstraints() {
-		return mngImplementationConstraintFilters != null
-				|| mngInstanceConstraintFilters != null
-				|| implementationConstraintFilters != null
-				|| instanceConstraintFilters != null;
+		
+		return !mngImplementationConstraintFilters.isEmpty()
+				|| !mngInstanceConstraintFilters.isEmpty()
+				|| !implementationConstraintFilters.isEmpty()
+				|| !instanceConstraintFilters.isEmpty();
+
+		
 	}
 
 

@@ -30,7 +30,7 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 ```xml
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.2.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
 
 ...
 
@@ -48,19 +48,13 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 </apam>
 ```
 
-
-### Nighly build test results
-
-Unit test launched: 
-
-* Relations [report](https://apam.ci.cloudbees.com/job/ApamRelations/fr.imag.adele.apam.tests.services$apam-pax-test/lastBuild/testReport/) 
-* Master branch [report](https://apam.ci.cloudbees.com/job/APAMUnitTest/fr.imag.adele.apam.tests.services$apam-pax-test/lastBuild/testReport/) 
-
 # Release
 
 ## Changelog
 
-* ApAM 0.0.3 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) (currently under development) 
+* ApAM 0.0.4 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=3&page=1&state=closed) (currently under development) 
+	* Yet to define
+* ApAM 0.0.3 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed)
 	* Relations
 	* Meta substitution
 * ApAM 0.0.2

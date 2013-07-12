@@ -87,7 +87,7 @@ public class ApamCommand {
 		"l#creates and start a new instance of the target implementation",
 		"pending#display all pending installations in apam platform",
 		"updatecomponent#updates target component (Warning: updates the whole Bundle)",
-	"setproperty#set properties of an instance" };
+		"setproperty#set properties of an instance" };
 
 	// Apam injected
 	@Requires

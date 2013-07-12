@@ -25,7 +25,7 @@
 
 		<xsl:attribute name="uri">mvn:<xsl:value-of
 			select="$groupid" />/<xsl:value-of select="$artifactid" />/<xsl:value-of
-			select="'0.0.2-SNAPSHOT'" />
+			select="'0.0.3-SNAPSHOT'" />
 		</xsl:attribute>
 	</xsl:template>
 

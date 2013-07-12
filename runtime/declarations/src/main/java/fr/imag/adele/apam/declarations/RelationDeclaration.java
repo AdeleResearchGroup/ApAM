@@ -129,6 +129,12 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
     private Boolean             mustHide;
 
+    /**
+     * Whether a resolution error must trigger a backtrack in the architecture
+     */
+    private CreationPolicy     creationPolicy=null;
+    private ResolvePolicy      resolvePolicy=null;
+    
     
     /**
 	 * 
