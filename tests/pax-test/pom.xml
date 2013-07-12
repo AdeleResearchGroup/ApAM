@@ -259,13 +259,13 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- Distriman -->
+		<!-- Distriman 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<scope>test</scope>
 			<version>0.0.3</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
