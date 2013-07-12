@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>TestPromotion</artifactId>
@@ -43,28 +43,28 @@
 <!-- 		<dependency> -->
 <!-- 			<groupId>fr.imag.adele.apam</groupId> -->
 <!-- 			<artifactId>APAM</artifactId> -->
-<!-- 			<version>0.0.2-SNAPSHOT</version> -->
+<!-- 			<version>0.0.3-SNAPSHOT</version> -->
 <!-- 			<type>bundle</type> -->
 <!-- 			<scope>compile</scope> -->
 <!-- 		</dependency> -->
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S3</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S4</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
