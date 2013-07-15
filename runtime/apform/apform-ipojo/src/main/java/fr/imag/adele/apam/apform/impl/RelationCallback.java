@@ -11,6 +11,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 
 /**
@@ -39,13 +40,19 @@ public class RelationCallback extends Callback {
 		
 		/*
 		 * We force reflection meta-data calculation in the constructor to signal errors as soon as
-		 * possible. This however has a cost in terms of early class loading.  
+		 * possible. This however has a cost in terms of early class loading.
+		 * 
+		 * For partially declared relations, we need to wait until the apform has been fully reified
+		 * in APAM in order to have access to the complete relation declaration.
 		 */
-		try {
-			searchMethod();
-		} catch (NoSuchMethodException e) {
-			throw new ConfigurationException("invalid method declaration in callback "+callback.getMethodName()+ " for relation "+relation.getIdentifier());
+		if (relation.getTargetKind() != null) {
+			try {
+				searchMethod();
+			} catch (NoSuchMethodException e) {
+				throw new ConfigurationException("invalid method declaration in callback "+callback.getMethodName()+ " for relation "+relation.getIdentifier());
+			}
 		}
+
 	}
 	
 	public boolean isTriggeredBy(String relationName, RelationDeclaration.Event trigger) {
@@ -80,29 +87,45 @@ public class RelationCallback extends Callback {
         	if (! method.getName().equals(callback.getMethodName()))
 				continue;
 
+    		
+        	ComponentKind targetKind = relation.getTargetKind();
+        	
         	/*
-        	 * We are looking for a method with an optional, single parameter of kind
-        	 * APAM component (depending on the target of the relation)
+        	 * If target kind is not directly specified in the declaration, wee ask APAM to perform
+        	 * the calculation.
         	 */
-        	Class<?> targetKind = Component.class;
-        	switch (relation.getTargetKind()) {
+        	if (targetKind == null && instance.getApamComponent() != null) {
+        		targetKind = instance.getApamComponent().getRelation(relation.getIdentifier()).getTargetKind();
+        	}
+
+        	if (targetKind == null)
+        		throw new NoSuchMethodException(callback.getMethodName());
+        	
+        	Class<?> parameterKind = Component.class;
+        	switch (targetKind) {
         		case SPECIFICATION:
-        			targetKind = Specification.class;
+        			parameterKind = Specification.class;
         			break;
         		case IMPLEMENTATION:
-        			targetKind = Implementation.class;
+        			parameterKind = Implementation.class;
         			break;
         		case INSTANCE:
-        			targetKind = Instance.class;
+        			parameterKind = Instance.class;
         			break;
         	}
-        	
+
+
+        	/*
+        	 * We are looking for a method with an optional, single parameter of kind
+        	 * APAM component (depending on the target of the relation if specified)
+        	 */
+
         	Class<?>[] parameters = method.getParameterTypes();
         	if (parameters.length > 1)
         		continue;
 
            	Class<?> parameter = parameters.length == 1 ? parameters[0] : null;
-           	if (parameter != null && ! parameter.isAssignableFrom(targetKind))
+           	if (parameter != null && ! parameter.isAssignableFrom(parameterKind))
         		continue;
         	
         	if (candidate == null) {

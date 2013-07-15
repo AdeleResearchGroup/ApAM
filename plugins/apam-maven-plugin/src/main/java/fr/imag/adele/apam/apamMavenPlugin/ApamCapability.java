@@ -33,6 +33,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.util.Attribute;
+import fr.imag.adele.apam.util.CoreMetadataParser;
 
 
 public class ApamCapability {
@@ -92,6 +93,8 @@ public class ApamCapability {
 	
 	public static ApamCapability get(ComponentReference<?> reference) {
 		if (reference == null) return null ;
+		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) return null;
+		
 		ApamCapability cap = capabilities.get(reference.getName()) ;
 		if (cap == null && !missing.contains(reference.getName())) {
 			missing.add(reference.getName()) ;
@@ -102,6 +105,8 @@ public class ApamCapability {
 
 	public static ComponentDeclaration getDcl(String name) {
 		if (name == null) return null ;
+		if (name.equals(CoreMetadataParser.UNDEFINED)) return null;
+
 		if (capabilities.get(name) != null)
 			return capabilities.get(name).dcl;
 		return null ;
@@ -109,6 +114,8 @@ public class ApamCapability {
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
 		if (reference == null) return null ;
+		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) return null;
+		
 		if (capabilities.get(reference.getName()) != null)
 			return capabilities.get(reference.getName()).dcl;
 		return null ;

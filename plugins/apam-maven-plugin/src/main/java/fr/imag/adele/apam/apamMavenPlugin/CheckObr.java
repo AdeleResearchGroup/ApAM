@@ -51,6 +51,7 @@ import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
+import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
 import fr.imag.adele.apam.util.Util;
@@ -463,6 +464,8 @@ public class CheckObr {
 		return source ;
 
 	}
+	
+	
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent. If
 	 * a final attribute, it is ignored but returns null. (cannot be set).
@@ -699,11 +702,11 @@ public class CheckObr {
 			} 
 			depIds.add(dep.getIdentifier());
 
-			// validating relation constraints and preferences..
-			CheckObr.checkConstraint(component, dep);
-
 			// replace the definition by the effective relation (adding group definition)
 			computeGroupRelation(component, dep);
+
+			// validating relation constraints and preferences..
+			CheckObr.checkConstraint(component, dep);
 
 			// Checking fields and complex dependencies
 			CheckObr.checkFieldTypeDep(dep);
@@ -757,91 +760,124 @@ public class CheckObr {
 	 * @param relation
 	 * @return
 	 */
-	public static RelationDeclaration computeGroupRelation(ComponentDeclaration depComponent, RelationDeclaration relation) {
-		String depName = relation.getIdentifier();
+	public static void computeGroupRelation(ComponentDeclaration depComponent, RelationDeclaration relation) {
+		String relName = relation.getIdentifier();
 
-		// look for that relation declaration above
-		RelationDeclaration groupDep = getRelationDefinition (depComponent, depName) ;
-
-		//		// look for that relation declaration above
-		//		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
-		//		RelationDeclaration groupDep = null ;
-		//		while (group != null && (groupDep == null)) {
-		//			groupDep = group.getLocalRelation(depName) ;
-		//			group = ApamCapability.getDcl(group.getGroupReference()) ;
-		//		}
-
-		if (groupDep == null) {
-			//It is not defined above. Return it as is.
-			return relation;
-		}
-
-		//it is declared above. Merge and check.
-		//First merge flags, and then constraints.
-		Util.overrideDepFlags(relation, groupDep, false);
-		relation.getImplementationConstraints().addAll(
-				groupDep.getImplementationConstraints());
-		relation.getInstanceConstraints().addAll(
-				groupDep.getInstanceConstraints());
-		relation.getImplementationPreferences().addAll(
-				groupDep.getImplementationPreferences());
-		relation.getInstancePreferences().addAll(
-				groupDep.getInstancePreferences());
-
-		//Check if the targets are compatible. Keep the most general one;
-		if (relation.getTarget() == null) {
-			//set the target
-			relation.setTarget(groupDep.getTarget());
-			return relation;
-		} 
-		if (relation.getTarget() instanceof ResourceReference) {
-			//It is an interface or message. So either the same interface, or an interface of the group component
-			if (groupDep.getTarget() instanceof ResourceReference) {
-				//must be the same one
-				if (groupDep.getTarget().equals(relation.getTarget()))
-					return relation;
-				CheckObr.error("Invalid target for " + relation
-						+ " expected " + groupDep.getTarget());
-				return null ;
+		/*
+		 *  Iterate over all ancestor groups, and complete missing information in order to get the full
+		 *  relation declaration
+		 */
+		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference());
+		while (group != null) {
+			
+			RelationDeclaration groupDep = group.getLocalRelation(relName) ;
+			
+			/*
+			 * skip group levels that do not refine the definition
+			 */
+			if (groupDep == null) {
+				group =  ApamCapability.getDcl(group.getGroupReference());
+				continue;
 			}
-			//group is against a component. Check if that component implements the resource.
-			ComponentDeclaration groupTarget = ApamCapability.getDcl(((ComponentReference<?>)groupDep.getTarget())) ;
-			if (groupTarget.getProvidedResources().contains(
-					relation.getTarget())) {
-				//Keep the component as target
+			
+
+			//it is declared above. Merge and check.
+			//First merge flags, and then constraints.
+			Util.overrideDepFlags(relation, groupDep, false);
+			relation.getImplementationConstraints().addAll(
+					groupDep.getImplementationConstraints());
+			relation.getInstanceConstraints().addAll(
+					groupDep.getInstanceConstraints());
+			relation.getImplementationPreferences().addAll(
+					groupDep.getImplementationPreferences());
+			relation.getInstancePreferences().addAll(
+					groupDep.getInstancePreferences());
+			
+			boolean relationTargetDefined	= ! relation.getTarget().getName().equals(CoreMetadataParser.UNDEFINED);
+			boolean groupTargetdefined		= ! groupDep.getTarget().getName().equals(CoreMetadataParser.UNDEFINED);
+			
+			/*
+			 * Get the target defined at the most general level
+			 */
+			if (!relationTargetDefined && groupTargetdefined) {
 				relation.setTarget(groupDep.getTarget());
-				return relation;
+			} 
+			
+			if (relationTargetDefined && groupTargetdefined) {
+				
+				ResourceReference relationTargetResource 		= relation.getTarget().as(ResourceReference.class);
+				ComponentReference<?> relationTargetComponent	= relation.getTarget().as(ComponentReference.class);
+				
+				ResourceReference groupTargetResource 			= groupDep.getTarget().as(ResourceReference.class);
+				ComponentReference<?> groupTargetComponent		= groupDep.getTarget().as(ComponentReference.class);
+				
+				/*
+				 * The relation declared in the group targets a resource, the refined relation must target the same
+				 */
+				if (relationTargetResource != null && groupTargetResource != null) {
+					if (!relationTargetResource.equals(groupTargetResource)) {
+						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
+								" expected " + groupTargetResource +" as specified in "+group.getName());
+					}
+				}
+				
+				/*
+				 * The relation declared in the group targets a component, the refinement may target a provided resource, 
+				 * but we keep the more general definition
+				 */
+				if (relationTargetResource != null && groupTargetComponent != null) {
+
+					ComponentDeclaration groupTarget = ApamCapability.getDcl(groupTargetComponent);
+					if (groupTarget.getProvidedResources().contains(relationTargetResource)) {
+						relation.setTarget(groupTargetComponent);
+					}
+					else {
+						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
+								" expected one of the provided resources of " + groupTargetComponent +" as specified in "+group.getName());
+						
+					}
+				}
+				
+				/*
+				 * The relation declared in the group targets a component, the refinement may target any component 
+				 * that is in the group of the target, but we keep the more general definition
+				 */
+				if (relationTargetComponent != null && groupTargetComponent != null) {
+					
+					ComponentDeclaration groupTarget 	= ApamCapability.getDcl(groupTargetComponent);
+					ComponentDeclaration relationTarget = ApamCapability.getDcl(relationTargetComponent);
+					
+					while (relationTarget != null && ! relationTarget.getReference().equals(groupTarget.getReference()))
+						relationTarget = ApamCapability.getDcl(relationTarget.getGroupReference());
+					
+					if (relationTarget != null ) {
+						relation.setTarget(groupTargetComponent);
+					}
+					else {
+						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
+								" expected an memeber of " + groupTargetComponent +" as specified in "+group.getName());
+						
+					}
+				}
+
+				/*
+				 * The relation declared in the group targets a resource, the refinement may target a component
+				 * that provides this resource,  but we keep the more general definition
+				 */
+				if (relationTargetComponent != null && groupTargetResource != null) {
+					ComponentDeclaration relationTarget = ApamCapability.getDcl(relationTargetComponent);
+					if (! relationTarget.getProvidedResources().contains(groupTargetResource)) {
+						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
+								" expected a component providing " + groupTargetResource +" as specified in "+group.getName());
+					}
+				}
+
+				
 			}
-			CheckObr.error("Invalid target for " + relation
-					+ " In component " + groupDep + " relation " + depName
-					+ " is definned against " + groupDep.getTarget()
-					+ " which does not implement " + relation.getTarget());
-			return null ;
+			
+			group =  ApamCapability.getDcl(group.getGroupReference());
 		}
 
-		//target is a component reference, group should be too
-		if (!(groupDep.getTarget() instanceof ComponentReference<?>)) {
-			CheckObr.error("Invalid target for " + relation
-					+ " In component " + groupDep + " relation "
-					+ depName + " is definned against " + groupDep.getTarget() ) ;
-			return null ;
-		}
-		// Should be the same or "above". The group target is supposed to be
-		// above the current relation target.
-
-		ComponentDeclaration targetCompo = ApamCapability
-				.getDcl(((ComponentReference<?>) relation.getTarget()));
-		while (targetCompo != null) {
-			if (targetCompo.getReference().equals(groupDep.getTarget())) {
-				relation.setTarget(groupDep.getTarget());
-				return relation;
-			}
-			targetCompo = ApamCapability.getDcl(targetCompo.getGroupReference()) ;
-		}
-		CheckObr.error("Invalid target for" + relation
-				+ " In component " + groupDep + " relation "
-				+ depName + " is defined against " + groupDep.getTarget() ) ;
-		return null ;		
 	}
 
 

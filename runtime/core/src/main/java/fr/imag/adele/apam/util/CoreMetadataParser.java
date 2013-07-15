@@ -36,9 +36,6 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
@@ -114,7 +111,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  STATE                   = "state";
 	private static final String  IMPORTS                 = "import";
 	private static final String  EXPORT                  = "export";
-	//    private static final String  FRIEND                  = "friend";
 	private static final String  EXPORTAPP               = "exportapp";
 	private static final String  CALLBACK                = "callback";
 
@@ -130,7 +126,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_INSTANCE            = "instance";
 	private static final String  ATT_INTERFACES          = "interfaces";
 	private static final String  ATT_MESSAGES            = "messages";
-	//    private static final String  ATT_MESSAGE_METHODS     = "message-methods";
 	private static final String  ATT_TYPE                = "type";
 	private static final String  ATT_VALUE               = "value";
 	private static final String  ATT_FIELD               = "field";
@@ -146,7 +141,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_EAGER               = "eager";
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
-	private static final String  ATT_ID 				 = "id";
 	private static final String  ATT_PROPERTY            = "property";
 	private static final String  ATT_DEPENDENCY          = "dependency";
 	private static final String  ATT_TO                  = "to";
@@ -764,134 +758,172 @@ public class CoreMetadataParser implements CoreParser {
 		ResolvableReference targetDef = parseResolvableReference(component.getName(),element, false);
 
 		/*
-		 * All dependencies have an optional identifier and multiplicity specification
+		 * All dependencies have an optional identifier and multiplicity specification, as well as an optional source kind
+		 * and target kind
 		 */
-		String id 			= parseString(component.getName(), element, CoreMetadataParser.ATT_NAME, false);
-		boolean isOverride	= isContextual && parseBoolean(component.getName(),element, ATT_OVERRIDE, false, false);
+		String id 					= parseString(component.getName(), element, CoreMetadataParser.ATT_NAME, false);
+		boolean isOverride			= isContextual && parseBoolean(component.getName(),element, ATT_OVERRIDE, false, false);
 
-		boolean isMultiple	= parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, false);
+		boolean isMultiple			= parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, false);
 
 		String sourceName 			= parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, isContextual && ! isOverride);
-		ComponentKind sourceKind	= parseKind(component.getName(), element,CoreMetadataParser.ATT_SOURCE_KIND, isContextual && ! isOverride, ComponentKind.INSTANCE);
 
-		ComponentKind targetKind 	= parseKind(component.getName(),element,CoreMetadataParser.ATT_TARGET_KIND,false,ComponentKind.INSTANCE);
-
-		RelationDeclaration relation = null;
+		ComponentKind sourceKind	= parseKind(component.getName(), element,CoreMetadataParser.ATT_SOURCE_KIND, isContextual && ! isOverride, null);
+		ComponentKind targetKind 	= parseKind(component.getName(),element,CoreMetadataParser.ATT_TARGET_KIND,false,null);
 
 		/*
-		 * Component dependencies reference a single mandatory component (specification, implementation, instance),
-		 * and in the case of atomic components they may optionally have a number of nested injection declarations
+		 * For atomic components, dependency declarations may optionally have a number of nested instrumentation declarations.
+		 * 
+		 * These are parsed first, as a number of attributes of the relation that are not explicitly declared can be inferred
+		 * from the instrumentation metadata.
 		 */
-		if (targetDef != null && targetDef instanceof ComponentReference<?>) {
+
+		List<RequirerInstrumentation> instrumentations = new ArrayList<RequirerInstrumentation>();
+		if (component instanceof AtomicImplementationDeclaration) {
+
+			AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
 
 			/*
-			 * for atomic components, a field injection may be specified
-			 * directly as an attribute of the relation. In this case, the field
-			 * name is used as identifier of the relation, if not given
-			 * explicitly
+			 * Optionally, as a shortcut, a single injection may be specified directly as an attribute
+			 * of the relation
 			 */
-			if (component instanceof AtomicImplementationDeclaration && id == null) {
-				id = parseString(component.getName(), element, CoreMetadataParser.ATT_FIELD, false);
+			RequirerInstrumentation directInstrumentation = parseRelationInstrumentation(element, atomic, false);
+			if (directInstrumentation != null) {
+				instrumentations.add(directInstrumentation);
 			}
 
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
-
-			if (component instanceof AtomicImplementationDeclaration) {
-
-				AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
-				for (Element injection : optional(element.getElements())) {
-
-					/*
-					 * ignore elements that are not from APAM
-					 */
-					if (!CoreMetadataParser.isApamDefinition(injection))
-						continue;
-
-					/*
-					 * Accept only resource references
-					 */
-					String resourceKind = injection.getName();
-					if (!(CoreMetadataParser.INTERFACE.equals(resourceKind) || CoreMetadataParser.MESSAGE.equals(resourceKind)))
-						continue;
-
-					RequirerInstrumentation relationInjection = parseRelationInstrumentation(injection, atomic, true);
-					relationInjection.setRelation(relation);
-
-				}
+			for (Element instrumentation : optional(element.getElements())) {
 
 				/*
-				 * Optionally, as a shortcut, a single injection may be
-				 * specified directly as an attribute of the relation
+				 * ignore elements that are not from APAM
 				 */
-				RequirerInstrumentation relationInjection = parseRelationInstrumentation(element, atomic, false);
-				if (relationInjection != null) {
-					relationInjection.setRelation(relation);
-				}
+				if (!CoreMetadataParser.isApamDefinition(instrumentation))
+					continue;
 
+				/*
+				 * Accept only resource references
+				 */
+				String resourceKind = instrumentation.getName();
+				if (!(CoreMetadataParser.INTERFACE.equals(resourceKind) || CoreMetadataParser.MESSAGE.equals(resourceKind)))
+					continue;
+
+				instrumentations.add(parseRelationInstrumentation(instrumentation, atomic, true));
+
+			}
+
+
+		}
+
+		/*
+		 * If a target kind is explicitly declared, the specified instrumentation fields or method types must match.
+		 */
+		if (targetKind != null) {
+			for (RequirerInstrumentation instrumentation : instrumentations) {
+				
+				String javaType 			= instrumentation.getRequiredResource().getJavaType();
+				ResourceReference resource	= targetDef != null ? targetDef.as(ResourceReference.class) : null;
+				
+				/*
+				 * NOTE For target kind INSTANCE we can only verify if an explicit target resource is specified,
+				 * otherwise we accept the definition and it must be checked at the semantic level.
+				 */
+				boolean match    			= targetKind.isAssignableTo(javaType) || 
+											  (targetKind.equals(INSTANCE) && resource != null ? javaType.equals(resource) : true);
+				if (!match) {
+					errorHandler.error(Severity.ERROR,
+							"relation target doesn't match the type of the field or method " + instrumentation.getName() +
+							" in " + element);
+				}
+				
 			}
 		}
 
 		/*
-		 * Simple dependencies reference a single resource, an for atomic
-		 * components a single injection must be specified directly as an
-		 * attribute of the relation
+		 * If no ID was explicitly specified, but a single instrumentation was declared the the name of the field or method
+		 * becomes the ID of the relation.
 		 */
-		if (targetDef != null && targetDef instanceof ResourceReference) {
+		if ( id == null && instrumentations.size() == 1) {
+			id = instrumentations.get(0).getName();
+		}
 
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
-
-			if (component instanceof AtomicImplementationDeclaration) {
-
-				AtomicImplementationDeclaration atomic 			= (AtomicImplementationDeclaration) component;
-				RequirerInstrumentation relationInstrumentation = parseRelationInstrumentation(element, atomic, false);
-
-				if (relationInstrumentation != null) {
-
-					String fieldType = relationInstrumentation.getRequiredResource().getJavaType();
-					boolean match    = (targetKind.equals(ComponentKind.SPECIFICATION) && fieldType.equals(Specification.class.getName())) ||
-									   (targetKind.equals(ComponentKind.IMPLEMENTATION) && fieldType.equals(Implementation.class.getName())) ||
-							           (targetKind.equals(ComponentKind.INSTANCE) && ( fieldType.equals(Instance.class.getName()) || relationInstrumentation.getRequiredResource().equals(targetDef))); 
-					/*
-					 * Both the explicit target and the specified injection must match 
-					 */
-					if (!match) {
-						errorHandler.error(Severity.ERROR,
-								"relation target " + targetDef.getName() + " doesn't match the type of the field or method " + relationInstrumentation.getName() + " in "
-										+ element);
-					}
-
-					relationInstrumentation.setRelation(relation);
+		/*
+		 * If no target was explicitly specified, sometimes we can infer it from the instrumentation metadata.
+		 * 
+		 */
+		if ( !instrumentations.isEmpty() && (targetDef == null || targetKind == null)) {
+			
+			ComponentKind 		inferredKind = null;
+			ResolvableReference inferredTarget = null;
+			
+			for (RequirerInstrumentation instrumentation : instrumentations) {
+				
+				String javaType 					= instrumentation.getRequiredResource().getJavaType();
+				ComponentKind 		candidateKind 	= null;
+				ResolvableReference candidateTarget = null;
+				
+				if (ComponentKind.COMPONENT.isAssignableTo(javaType)) {
+					candidateKind 	= null;
+					candidateTarget	= null;
+				}
+				else if (ComponentKind.SPECIFICATION.isAssignableTo(javaType)) {
+					candidateKind 	= ComponentKind.SPECIFICATION;
+					candidateTarget	= null;
+				}
+				else if (ComponentKind.IMPLEMENTATION.isAssignableTo(javaType)) {
+					candidateKind 	= ComponentKind.IMPLEMENTATION;
+					candidateTarget	= null;
+				}
+				else if (ComponentKind.INSTANCE.isAssignableTo(javaType)) {
+					candidateKind 	= ComponentKind.INSTANCE;
+					candidateTarget	= null;
+				}
+				else {
+					candidateKind 	= ComponentKind.INSTANCE;
+					candidateTarget	= instrumentation.getRequiredResource();
+				}
+				
+				/*
+				 * If there are conflicting declarations we gave up inferring target
+				 */
+				if (inferredKind != null && candidateKind != null && !inferredKind.equals(candidateKind)) {
+					inferredKind 	= null;
+					inferredTarget 	= null;
+					break;
 				}
 
+				if (inferredTarget != null && candidateTarget != null && !inferredTarget.equals(candidateTarget)) {
+					inferredKind 	= null;
+					inferredTarget 	= null;
+					break;
+				}
 
+				inferredKind 	= candidateKind != null ? candidateKind : inferredKind;
+				inferredTarget	= candidateTarget != null ? candidateTarget : inferredTarget;
 			}
+			
+			if (targetDef == null && inferredTarget != null)
+				targetDef = inferredTarget;
+			
+			if (targetKind == null && inferredKind != null)
+				targetKind = inferredKind;
+		}
+
+		if (id == null && targetDef == null) {
+			errorHandler.error(Severity.ERROR, "relation name or target must be specified " + element);
 		}
 
 		/*
-		 * If no target was explicitly specified, but an injection was specified for an atomic component, we can infer
-		 * the target from the injection  
+		 * No target was explicitly specified, record this fact
 		 */
-		if (targetDef == null && component instanceof AtomicImplementationDeclaration) {
-
-			AtomicImplementationDeclaration atomic 			= (AtomicImplementationDeclaration) component;
-			RequirerInstrumentation relationInstrumentation = parseRelationInstrumentation(element, atomic, true);
-
-			targetDef = relationInstrumentation.getRequiredResource();
-			id = (id != null) ? id : relationInstrumentation.getName();
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
-
-			relationInstrumentation.setRelation(relation);
-
-		}
+		if (targetDef == null)
+			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
 
 		/*
-		 * If no target was specified signal the error
+		 * Create the relation and add the declared instrumentation
 		 */
-		if (targetDef == null && !(component instanceof AtomicImplementationDeclaration)) {
-			//Usually the case with instance relation redefinition. Target is defined in the implementation
-			//			errorHandler.error(Severity.ERROR, "relation target must be specified " + element);
-			//			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+		for (RequirerInstrumentation instrumentation : instrumentations) {
+			instrumentation.setRelation(relation);
 		}
 
 		/*
@@ -963,9 +995,7 @@ public class CoreMetadataParser implements CoreParser {
 	/**
 	 * parse the injected dependencies of a primitive
 	 */
-	private RequirerInstrumentation parseRelationInstrumentation(Element element,
-			AtomicImplementationDeclaration atomic,
-			boolean mandatory) {
+	private RequirerInstrumentation parseRelationInstrumentation(Element element, AtomicImplementationDeclaration atomic, boolean mandatory) {
 
 		String field = parseString(atomic.getName(),element, CoreMetadataParser.ATT_FIELD, false);
 		//        String method = parseString(element, CoreMetadataParser.ATT_METHOD, false);

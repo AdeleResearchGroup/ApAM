@@ -125,7 +125,7 @@ public abstract class ComponentDeclaration{
     }
 
     /**
-     * Get the reference to this declaration
+     * Get the reference to the parent group of this declaration
      */
     public abstract ComponentReference<?> getGroupReference() ;
 
@@ -281,12 +281,11 @@ public abstract class ComponentDeclaration{
      * Notice that we return a set of resource references but typed to particular subtype of references,
      * the unchecked downcast is then safe at runtime.
      */
-	@SuppressWarnings("unchecked")
 	public <T extends ResourceReference> Set<T> getProvidedResources(Class<T> kind) {
     	Set<T> resources = new HashSet<T>();
     	for (ResourceReference resourceReference : providedResources) {
 			if (kind.isInstance(resourceReference) )
-				resources.add((T) resourceReference);
+				resources.add(kind.cast(resourceReference));
 		}
         return resources;
     }

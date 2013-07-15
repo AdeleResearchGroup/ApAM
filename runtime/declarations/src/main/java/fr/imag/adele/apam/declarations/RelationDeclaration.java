@@ -159,11 +159,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
         super(resource);
 
-        assert component != null;
-        
-        if (id==null && getTarget() == null) {
-        	System.err.println("ERRROR Both id and target null for relation in component " + component ) ;
-        }
+        assert component != null && resource != null;
         
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
         this.isOverride			= isOverride;

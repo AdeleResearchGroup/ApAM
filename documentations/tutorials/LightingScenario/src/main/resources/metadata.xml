@@ -153,12 +153,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</apam-instance>
  -->
 	<apam-instance implementation="LightApplication" name="myKitchen">
- 	<relation name="depLights" specification="Light" >
+ 	<relation name="depLights" >
+ 	
 		<constraints> 
 			<instance filter="(location=kitchen)"/>
 		</constraints>
 	</relation> 
-		<relation name="depButtons" specification="Button" multiple="true">
+		<relation name="depButtons">
 		<constraints>
 			<instance filter="(location=kitchen)"/>
 		</constraints>
