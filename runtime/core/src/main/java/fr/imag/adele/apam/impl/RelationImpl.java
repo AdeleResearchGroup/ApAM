@@ -187,7 +187,6 @@ public class RelationImpl implements Relation {
 
 		// Flags
 		this.isMultiple = dep.isMultiple();
-		this.isEager = (dep.isEager() == null) ? false : dep.isEager();
 		this.mustHide = (dep.isHide() == null) ? false : dep.isHide();
 		this.missingPolicy = dep.getMissingPolicy();
 		this.missingException = dep.getMissingException();
@@ -232,6 +231,7 @@ public class RelationImpl implements Relation {
 		}
 
 		this.isDynamic = (dep.isMultiple() || dep.isEffectiveEager() || (!isInjected && hasCallbacks));
+		this.isEager   = (!isInjected && hasCallbacks) || (dep.isEager() != null) ? dep.isEager() : false;
 
 	}
 
