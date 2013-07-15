@@ -33,9 +33,10 @@
 		<module>felix.config.base</module>
 		<module>basic-distribution</module>
 		<module>complete-distribution</module>
+		<module>distriman-distribution</module>
 <!--
 		<module>histman-distribution</module>
-		<module>distriman-distribution</module>
+
  		<module>icasa-distribution</module>
 -->
 	</modules>

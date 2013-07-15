@@ -67,6 +67,13 @@
             <artifactId>org.apache.felix.http.jetty</artifactId>
             <version>2.2.0</version>
         </dependency>
+
+		<dependency>
+			<groupId>org.ow2.chameleon.commons.cxf</groupId>
+			<artifactId>cxf-bundle-minimal</artifactId>
+			<version>2.5.2-0002</version>
+		</dependency>
+
 <!--
 	<dependency>
 		<groupId>org.ow2.chameleon.commons.cxf</groupId>

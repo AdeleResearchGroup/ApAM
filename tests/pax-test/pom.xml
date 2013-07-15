@@ -259,13 +259,20 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- Distriman 
+		<!-- Distriman -->
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<scope>test</scope>
-			<version>0.0.3</version>
-		</dependency> -->
+			<version>${project.version}</version>
+		</dependency> 
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>dependencies-distriman</artifactId>
+			<scope>test</scope>
+			<type>pom</type>
+			<version>${project.version}</version>
+		</dependency> 
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
@@ -296,15 +303,20 @@
 			<version>2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.cxf</groupId>
+			<groupId>org.ow2.chameleon.commons.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
-			<version>2.5.2</version>
-		</dependency><!--
+			<version>2.5.2-0002</version>
+		</dependency><!-- 
 		<dependency>
 			<groupId>org.ow2.chameleon.commons.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
 			<version>2.5.2</version>
 		</dependency> -->
+		<dependency>
+			<groupId>org.ow2.chameleon.commons.cxf</groupId>
+			<artifactId>cxf-bundle-minimal</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

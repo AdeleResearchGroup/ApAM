@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2010-2011 Université Joseph Fourier Licensed under the Apache License, Version 2.0 (the "License"); you may 
-	not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-	Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS 
-	IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language 
-	governing permissions and limitations under the License. -->
+<!-- Copyright 2010-2011 Université Joseph Fourier Licensed under the Apache 
+	License, Version 2.0 (the "License"); you may not use this file except in 
+	compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- Project parent -->
@@ -13,7 +16,7 @@
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-distributions</artifactId>
 		<version>0.0.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<!-- Project coordinates -->
@@ -65,6 +68,7 @@
 							<outputDirectory>${basedir}/bin</outputDirectory>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
+							<type>pom,jar,bundle</type>
 						</configuration>
 					</execution>
 
@@ -81,22 +85,22 @@
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>apam-bundle</artifactId>
-                                    <version>${project.version}</version>
+									<version>${project.version}</version>
 								</artifactItem>
-                                <artifactItem>
+								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>apam-universal-shell</artifactId>
-                                    <version>${project.version}</version>
+									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>obrman</artifactId>
-                                   					<version>${project.version}</version>
+									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>dynaman</artifactId>
-	                                   				<version>${project.version}</version>
+									<version>${project.version}</version>
 								</artifactItem>
 								<!-- Felix Dependencies -->
 								<artifactItem>
@@ -109,15 +113,15 @@
 									<version>3.1.4</version>
 								</artifactItem>
 
-                                <artifactItem>
-                                    <groupId>org.apache.felix</groupId>
-                                    <artifactId>org.apache.felix.configadmin</artifactId>
-                                    <version>1.2.8</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.felix</groupId>
-                                    <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-                                </artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.configadmin</artifactId>
+									<version>1.2.8</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.ipojo.annotations</artifactId>
+								</artifactItem>
 
 								<artifactItem>
 									<groupId>org.osgi</groupId>
@@ -125,11 +129,11 @@
 									<version>4.2.0</version>
 								</artifactItem>
 								<!--GOGO -->
-                                <artifactItem>
-                                    <groupId>org.knowhowlab.osgi.shell</groupId>
-                                    <artifactId>felix-gogo</artifactId>
-                                </artifactItem>
-                                <artifactItem>
+								<artifactItem>
+									<groupId>org.knowhowlab.osgi.shell</groupId>
+									<artifactId>felix-gogo</artifactId>
+								</artifactItem>
+								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.gogo.command</artifactId>
 									<version>0.12.0</version>
@@ -156,21 +160,21 @@
 								</artifactItem>
 
 								<!-- Logger -->
-                                <artifactItem>
-                                    <groupId>org.apache.felix</groupId>
-                                    <artifactId>org.apache.felix.log</artifactId>
-                                    <version>1.0.1</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ch.qos.logback</groupId>
-                                    <artifactId>logback-core</artifactId>
-                                    <version>1.0.7</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ch.qos.logback</groupId>
-                                    <artifactId>logback-classic</artifactId>
-                                    <version>1.0.7</version>
-                                </artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.log</artifactId>
+									<version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>ch.qos.logback</groupId>
+									<artifactId>logback-core</artifactId>
+									<version>1.0.7</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>ch.qos.logback</groupId>
+									<artifactId>logback-classic</artifactId>
+									<version>1.0.7</version>
+								</artifactItem>
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
@@ -249,7 +253,8 @@
 									</fileset>
 								</copy>
 								<copy failonerror="true" overwrite="true" todir="${basedir}/bundle/">
-									<fileset dir="${project.build.directory}/distrib-temp/neededBundles/">
+									<fileset
+										dir="${project.build.directory}/distrib-temp/neededBundles/">
 										<include name="*.jar" />
 									</fileset>
 								</copy>
@@ -295,8 +300,8 @@
 								<include>felix-cache</include>
 								<include>load/*</include>
 								<include>load</include>
-                                <include>log</include>
-                                <include>log/*</include>
+								<include>log</include>
+								<include>log/*</include>
 								<include>apam.bat</include>
 								<include>apamDebug.bat</include>
 								<include>apam</include>
@@ -334,10 +339,10 @@
 			</plugin>
 
 			<plugin>
-			        <artifactId>maven-deploy-plugin</artifactId>
-			        <configuration>
-			          <skip>false</skip>
-			        </configuration>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
 			</plugin>
 
 		</plugins>

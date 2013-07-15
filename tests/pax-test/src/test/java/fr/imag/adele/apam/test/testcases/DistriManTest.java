@@ -41,7 +41,7 @@ import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 import fr.imag.adele.apam.test.support.distriman.DistrimanUtil;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-//@RunWith(JUnit4TestRunner.class)
+@RunWith(JUnit4TestRunner.class)
 public class DistriManTest extends ExtensionAbstract {
 
 	// CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
@@ -49,7 +49,7 @@ public class DistriManTest extends ExtensionAbstract {
 	@Override
 	public List<Option> config() {
 		List<Option> config = new ArrayList<Option>();// super.config();
-
+		
 		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
@@ -60,8 +60,8 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
+		
 		config.add(packApamDynaMan());
-		// config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());
 		
 		config.add(packApamDistriMan());
 		
