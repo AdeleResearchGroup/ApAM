@@ -288,33 +288,21 @@
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>.</directory>
-							<includes>
-								<include>bin/*</include>
-								<include>bundle/*</include>
-								<include>bin</include>
-								<include>bundle</include>
-								<include>felix-cache/**/*</include>
-								<include>felix-cache</include>
-								<include>load/*</include>
-								<include>load</include>
-								<include>log</include>
-								<include>log/*</include>
-								<include>apam.bat</include>
-								<include>apamDebug.bat</include>
-								<include>apam</include>
-								<include>apamDebug</include>
-							</includes>
-							<excludes>
-								<exclude>README.txt</exclude>
-								<exclude>pom.xml</exclude>
-								<exclude>save-conf-files/*</exclude>
-							</excludes>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
+				<filesets>
+					<fileset>
+						<directory>.</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>conf/*</exclude>
+							<exclude>pom.xml</exclude>
+							<exclude>debug.bat</exclude>
+							<exclude>debug.sh</exclude>
+						</excludes>
+						<followSymlinks>false</followSymlinks>
+					</fileset>
+				</filesets>
 				</configuration>
 			</plugin>
 

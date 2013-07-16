@@ -167,13 +167,13 @@ public class RemoteMachine implements ApformInstance {
 			if (instance == null) {
 
 				logger.info("dependency {} was NOT found in {}",
-						dependency.getIdentifier(), this.getURLServlet());
+						dependency.getName(), this.getURLServlet());
 
 				return null;
 			}
 
 			logger.info("dependency {} was found remotely in {}",
-					dependency.getIdentifier(),this.getURLServlet());
+					dependency.getName(),this.getURLServlet());
 
 			Set<Implementation> impl = Collections.emptySet();
 
@@ -274,7 +274,7 @@ public class RemoteMachine implements ApformInstance {
 					logger.info("its not a InterfaceReference");
 				}
 				
-				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getIdentifier(),endpointUrl, this.getApamComponent()
+				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getName(),endpointUrl, this.getApamComponent()
 						.getComposite(), proxyRaw);
 				
 				String implName = inst.getImplementation();

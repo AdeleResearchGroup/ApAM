@@ -163,8 +163,6 @@ public abstract class ExtensionAbstract extends TestUtils {
 						"https://maven.java.net/content/repositories/releases/",
 						"https://repository.apache.org/content/groups/public",
 						"https://repository.apache.org/content/groups/snapshots"),
-						
-				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject(),
 //				mavenBundle("fr.imag.adele.apam", "dependencies-distriman").versionAsInProject()
 				mavenBundle("org.ow2.asm", "asm-all").version("4.1"),
 				mavenBundle("javax.mail", "com.springsource.javax.mail").version("1.4.1"),
@@ -173,7 +171,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("org.apache.xml", "com.springsource.org.apache.xml.resolver").version("1.2.0"),
 				mavenBundle("org.dom4j", "com.springsource.org.dom4j").version("1.6.1"),
 				mavenBundle("joda-time", "joda-time").version("1.6.2"),
-				mavenBundle("org.ow2.chameleon.commons.cxf", "cxf-bundle-minimal").version("2.5.2-0002"),
+				//mavenBundle("org.ow2.chameleon.commons.cxf", "cxf-bundle-minimal").version("2.5.2-0002"),
+				mavenBundle("org.apache.cxf", "cxf-bundle-minimal").version("2.5.2"),
 				mavenBundle("com.google.guava", "guava").version("13.0-rc1"),	
 				mavenBundle("javax.ws.rs", "javax.ws.rs-api").version("2.0-m09"),	
 				mavenBundle("org.eclipse.jetty", "jetty-continuation").version("7.6.8.v20121106"),
@@ -198,6 +197,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("org.codehaus.jackson", "jackson-core-asl").version("1.9.12"),
 				mavenBundle("org.codehaus.jackson", "jackson-mapper-asl").version("1.9.12"),				
 				mavenBundle("org.codehaus.jettison", "jettison").version("1.3.3"),
+				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject(),
 				mavenBundle("org.apache.felix", "org.apache.felix.main").version("1.8.0")
 				
 				);

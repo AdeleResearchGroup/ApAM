@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -231,7 +232,7 @@
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-distriman-iface</artifactId>
@@ -265,18 +266,18 @@
 			<artifactId>DISTRIMAN</artifactId>
 			<scope>test</scope>
 			<version>${project.version}</version>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>dependencies-distriman</artifactId>
 			<scope>test</scope>
 			<type>pom</type>
 			<version>${project.version}</version>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<!-- <version>4.1.0</version>  -->
+			<!-- <version>4.1.0</version> -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -302,27 +303,27 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 		</dependency>
+		
+		<!-- 
 		<dependency>
 			<groupId>org.ow2.chameleon.commons.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
 			<version>2.5.2-0002</version>
-		</dependency><!-- 
+		</dependency>
+		 -->
+
 		<dependency>
-			<groupId>org.ow2.chameleon.commons.cxf</groupId>
+			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
 			<version>2.5.2</version>
-		</dependency> -->
-		<dependency>
-			<groupId>org.ow2.chameleon.commons.cxf</groupId>
-			<artifactId>cxf-bundle-minimal</artifactId>
-			<version>1.0.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
 		</dependency>
-		
+
 		<!-- Messages Tests -->
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
@@ -387,17 +388,17 @@
 
 
 
-<dependency>
-	<groupId>org.codehaus.jackson</groupId>
-	<artifactId>jackson-mapper-asl</artifactId>
-	<version>1.9.12</version>
-</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.12</version>
+		</dependency>
 
-<dependency>
-	<groupId>org.codehaus.jackson</groupId>
-	<artifactId>jackson-core-asl</artifactId>
-	<version>1.9.12</version>
-</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.12</version>
+		</dependency>
 
 	</dependencies>
 

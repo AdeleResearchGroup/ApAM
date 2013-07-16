@@ -72,7 +72,7 @@ public class RemoteDependencyDeclaration extends RelationDeclaration {
      */
     public RemoteDependencyDeclaration(Relation dep,String provider) {
     	
-     	super(new ComponentReference<ComponentDeclaration>(dep.getLinkSource().getName()), dep.getIdentifier(), dep.getTarget(), dep.isMultiple());
+     	super(new ComponentReference<ComponentDeclaration>(dep.getLinkSource().getName()), dep.getName(), dep.getTarget(), dep.isMultiple());
     	
         this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
         this.getInstanceConstraints().addAll(dep.getInstanceConstraints());

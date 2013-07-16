@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import junit.framework.Assert;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
@@ -33,10 +35,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.util.Filter;
+import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.distriman.DistrimanIface;
 import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 import fr.imag.adele.apam.test.support.distriman.DistrimanUtil;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -44,12 +49,18 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class DistriManTest extends ExtensionAbstract {
 
+	@Inject
+	private BundleContext bc;
+	
+	@Inject @Filter(timeout=60000)
+	private DistrimanIface distriman;
+
 	// CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
 	// CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
 	@Override
 	public List<Option> config() {
 		List<Option> config = new ArrayList<Option>();// super.config();
-		
+
 		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
@@ -60,16 +71,14 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
-		
 		config.add(packApamDynaMan());
-		
 		config.add(packApamDistriMan());
-		
+
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-iface").versionAsInProject());
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-P2").versionAsInProject());
-		
+
 		return config;
 
 	}
@@ -186,7 +195,8 @@ public class DistriManTest extends ExtensionAbstract {
 		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-singleinterface", "P2", false, clienturl);
+				"specification", "P2-spec-singleinterface", "P2", false,
+				clienturl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
@@ -219,27 +229,27 @@ public class DistriManTest extends ExtensionAbstract {
 	public void ProviderDependencyConstraintRespected_tc096()
 			throws MalformedURLException, IOException {
 
-		boolean validInstanceAvailable=false;
-		
-		final String constraint="(rule=one)";
-		
+		boolean validInstanceAvailable = false;
+
+		final String constraint = "(rule=one)";
+
 		String clienturl = "http://127.0.0.1:8080";
 		String serverurl = "http://127.0.0.1:8080/apam/machine";
-		
-		final String jsonPayload = DistrimanUtil.httpRequestDependency(
-				"p2", "specification", "P2-spec-constraint", "P2", false,
-				clienturl, new ArrayList<String>() {
+
+		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
+				"specification", "P2-spec-constraint", "P2", false, clienturl,
+				new ArrayList<String>() {
 					{
 						add(constraint);
 					}
 				}, new ArrayList<String>());
-		
+
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
 				put("content", jsonPayload);
 			}
 		};
-		
+
 		try {
 
 			Implementation p1Impl = CST.apamResolver.findImplByName(null,
@@ -247,18 +257,19 @@ public class DistriManTest extends ExtensionAbstract {
 
 			Instance p1Inst = p1Impl.createInstance(null, null);
 
-
 			DistrimanUtil.curl(parameters, serverurl);
-			
-			//An exception should be raised since there is no instance that can meet the constraints
+
+			// An exception should be raised since there is no instance that can
+			// meet the constraints
 
 		} catch (EOFException e) {
-			validInstanceAvailable=false;
+			validInstanceAvailable = false;
 		}
 
-		
-		Assert.assertTrue("A remote instance that do not respect the constraint was injected",!validInstanceAvailable);
-		
+		Assert.assertTrue(
+				"A remote instance that do not respect the constraint was injected",
+				!validInstanceAvailable);
+
 		try {
 
 			Implementation p1Impl = CST.apamResolver.findImplByName(null,
@@ -270,23 +281,23 @@ public class DistriManTest extends ExtensionAbstract {
 
 			Map<String, String> properties = DistrimanUtil
 					.propertyGet(response);
-			
-			Map<String, String> endpoints = DistrimanUtil
-					.endpointGet(response);
-			
+
+			Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
+
 			DistrimanUtil.endpointConnect(endpoints);
-			
+
 			Assert.assertTrue(
 					String.format(
 							"remote object do not respect the instance constraints specified <%s> instead the value for rule was %s.",
-							constraint, properties.get("rule")),
-					properties.get("rule").equals("one"));
-			
+							constraint, properties.get("rule")), properties
+							.get("rule").equals("one"));
+
 		} catch (EOFException e) {
 			e.printStackTrace();
-			Assert.fail("inespected exception while injecting the remote field, with the message:"+e.getMessage());
+			Assert.fail("inespected exception while injecting the remote field, with the message:"
+					+ e.getMessage());
 		}
-		
+
 	}
 
 }

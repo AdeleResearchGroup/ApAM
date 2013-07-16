@@ -57,7 +57,7 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman::core")
 @Instantiate
 @Provides
-public class Distriman implements RelationManager {
+public class Distriman implements DistrimanIface, RelationManager {
 
 	private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 

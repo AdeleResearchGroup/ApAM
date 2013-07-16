@@ -63,6 +63,7 @@
 							fr.imag.adele.apam.distriman.web
 						</Private-Package>
 						<Export-Package>
+						    fr.imag.adele.apam.distriman,
 							com.google.common.collect,
 							org.json,
 							javax.jmdns*
@@ -94,7 +95,7 @@
 		<dependency>
 			<artifactId>apam-core</artifactId>
 			<groupId>fr.imag.adele.apam</groupId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -128,10 +129,17 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 		</dependency>
+		<!--  
 		<dependency>
 			<groupId>org.ow2.chameleon.commons.cxf</groupId>
 			<artifactId>cxf-bundle-minimal</artifactId>
 			<version>2.5.2-0002-SNAPSHOT</version>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-bundle-minimal</artifactId>
+			<version>2.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>

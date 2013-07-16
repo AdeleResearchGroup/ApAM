@@ -16,11 +16,8 @@ package fr.imag.adele.apam.tests.helpers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -38,7 +35,7 @@ public abstract class TestUtils {
 	protected List<Instance> auxLookForInstanceOf(String ... clazz) {
 
 		List<Instance> pool = new ArrayList<Instance>();
-
+	
 		for (Instance i : CST.componentBroker.getInsts()) {
 
 			ImplementationDeclaration apamImplDecl = i.getImpl()
