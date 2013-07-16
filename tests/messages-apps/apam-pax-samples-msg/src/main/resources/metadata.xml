@@ -16,7 +16,7 @@
 
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/relation/runtime/core/src/main/resources/xsd/ApamCore.xsd">
 
 	<specification name="MessageProducerSpec01"
 		messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
