@@ -60,7 +60,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		public void setApamComponent(Component apamComponent) {
 			throw new UnsupportedOperationException("method not available in root instance");
 		}
-		
+
 		@Override
 		public void setProperty(String attr, String value) {
 			throw new UnsupportedOperationException("method not available in root instance");
@@ -235,13 +235,15 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
 		/* Remove outgoing wires (definitions or visibilities may have changed)
 		 * 
-		for (Wire outgoing : this.getWires()) {
-			if (!this.canSee(outgoing.getDest()) outgoing.remove();
+		 */
+		for (Link outgoing : this.getLocalLinks()) {
+			if (!this.canSee(outgoing.getDestination())) {
+				outgoing.remove();
+			}
 		}
 
-		 */
-
-		//TODO recalculer les declarations d'attribut et de relships contextuelles????
+		// recalculer les declarations d'attribut et de relships contextuelles
+		((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
 
 	}
 

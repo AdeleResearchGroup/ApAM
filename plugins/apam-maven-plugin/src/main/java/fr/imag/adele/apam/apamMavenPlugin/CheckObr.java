@@ -712,10 +712,11 @@ public class CheckObr {
 			CheckObr.checkFieldTypeDep(dep);
 
 			//eager and hide cannot be defined here
-			if (dep.isEager() != null || dep.isHide() != null) {
-				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a relation "
-						+ dep.getIdentifier());
-			}
+			//TODO relation, attention! this block was removed since now with relation, the eager can be define in this stage
+//			if (dep.isEager() != null || dep.isHide() != null) {
+//				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a relation "
+//						+ dep.getIdentifier());
+//			}
 
 			// Checking if the exception is existing
 			String except = dep.getMissingException();

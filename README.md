@@ -30,7 +30,7 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 ```xml
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.2.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
 
 ...
 
@@ -52,7 +52,9 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 ## Changelog
 
-* ApAM 0.0.3 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) (currently under development) 
+* ApAM 0.0.4 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=3&page=1&state=closed) (currently under development) 
+	* Yet to define
+* ApAM 0.0.3 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.3/apam-basic-distribution-0.0.3.zip)  
 	* Relations
 	* Meta substitution
 * ApAM 0.0.2

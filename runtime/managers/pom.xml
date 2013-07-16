@@ -14,7 +14,7 @@
 	<parent>
 		<artifactId>apam-runtime</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.3-SNAPSHOT</version>
+		<version>0.0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -26,7 +26,7 @@
 	<modules>
 		<module>obrman</module>
 		<module>dynaman</module>
- 		<module>histman</module>  
+ 		<module>histman</module> 
  		<module>distriman</module>  
 	</modules>
 	 

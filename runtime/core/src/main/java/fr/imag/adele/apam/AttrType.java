@@ -64,6 +64,7 @@ public class AttrType {
 	
 	//@Override
 	public boolean equals (AttrType type2) {
+		if (type2 == null) return false ;
 		if (isSet != type2.isSet) return false ;
 		if (type != type2.type) return false ;
 		if (type==ENUM) {

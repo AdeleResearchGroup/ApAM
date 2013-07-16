@@ -31,7 +31,7 @@ import fr.imag.adele.apam.test.testcases.RelationTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ CompositeTest.class, ConstraintTest.class,
-		InjectionInstantiationTest.class, PropertyTest.class,DynamanDependentTest.class, OBRMANTest.class, MessageTest.class, DistriManTest.class, MetaSubstitutionTest.class, RelationTest.class})
+		InjectionInstantiationTest.class, PropertyTest.class,DynamanDependentTest.class, OBRMANTest.class, MessageTest.class, MetaSubstitutionTest.class, RelationTest.class, DistriManTest.class})
 public class AllTests {
 
 }

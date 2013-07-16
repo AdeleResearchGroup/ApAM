@@ -44,6 +44,7 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
+import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -60,6 +61,7 @@ import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -152,6 +154,9 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_PULL                = "pull";
 	private static final String  ATT_BIND                = "added";
 	private static final String  ATT_UNBIND              = "removed";
+	//TODO relation variable declaration
+	private static final String  ATT_CREATION_POLICY     = "creation";
+	private static final String  ATT_RESOLVE_POLICY     = "resolve";
 
 	private static final String  VALUE_OPTIONAL          = "optional";
 	private static final String  VALUE_WAIT              = "wait";
@@ -919,10 +924,19 @@ public class CoreMetadataParser implements CoreParser {
 			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
 
 		/*
+		 * Get the resolution policies
+		 */
+		String creationPolicyString		= parseString(component.getName(), element, CoreMetadataParser.ATT_CREATION_POLICY, false);
+		CreationPolicy creationPolicy   = CreationPolicy.getPolicy(creationPolicyString);
+		
+		String resolvePolicyString		= parseString(component.getName(), element, CoreMetadataParser.ATT_RESOLVE_POLICY, false);
+		ResolvePolicy resolvePolicy 	= ResolvePolicy.getPolicy(resolvePolicyString);
+
+		/*
 		 * Get the optional missing policy
 		 */
-		MissingPolicy policy 	= parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, null);
-		String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
+		MissingPolicy missingPolicy 	= parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, null);
+		String missingException 		= parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
 
 		/*
 		 * Get the optional contextual properties
@@ -935,13 +949,15 @@ public class CoreMetadataParser implements CoreParser {
 		 */
 		RelationDeclaration relation = new RelationDeclaration(component.getReference(),id,
 												sourceName,sourceKind,
-												targetDef,targetKind,isMultiple,
-												policy,missingException,
+												targetDef,targetKind,
+												creationPolicy, resolvePolicy,isMultiple,
+												missingPolicy,missingException,
 												isOverride,isEager != null ? Boolean.valueOf(isEager): null,mustHide != null ? Boolean.valueOf(mustHide): null);
 		
 		for (RequirerInstrumentation instrumentation : instrumentations) {
 			instrumentation.setRelation(relation);
 		}
+
 
 		/*
 		 * look for bind and unbind callbacks 

@@ -376,12 +376,12 @@ public abstract class ComponentDeclaration{
 						+ "\n");
             }
         }
-        if (properties.size() != 0) {
-        	ret.append(nl + "   Properties: ");
-            for (Object resRef : properties.keySet()) {
-            	ret.append(nl + "      " + (String) resRef + " = " + properties.get(resRef));
-            }
-        }
+//        if (properties.size() != 0) {
+//        	ret.append(nl + "   Properties: ");
+//            for (Object resRef : properties.keySet()) {
+//            	ret.append(nl + "      " + (String) resRef + " = " + properties.get(resRef));
+//            }
+//        }
         if (definitions.size() != 0) {
         	ret.append(nl + "   Attribute definitions ") ;
             for (PropertyDefinition resRef : definitions) {

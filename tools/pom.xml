@@ -3,13 +3,14 @@
   <parent>
     <artifactId>apam-project</artifactId>
     <groupId>fr.imag.adele.apam</groupId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>apam-tools</artifactId>
   <packaging>pom</packaging>
   <modules>
   	<module>shell</module>
-      <!--   	<module>jmx</module> -->
+  	<module>dependencies-distriman</module>
+      	<!--<module>jmx</module>-->
   </modules>
   <name>Tools projects for ApAM</name>
 </project>

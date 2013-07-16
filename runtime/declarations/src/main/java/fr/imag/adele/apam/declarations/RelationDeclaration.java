@@ -66,87 +66,91 @@ public class RelationDeclaration extends ConstrainedReference {
     /**
      * The reference to this declaration
      */
-    private final Reference    reference;
+    private final Reference			reference;
 
     /**
      * The source component for this declaration in the case of contextual dependencies
      */
-    private final String 		sourceName;
+    private final String			sourceName;
 
     /**
 	 * The level of abstraction where this relation can be instantiated
 	 */
-    private final ComponentKind	sourceKind;
+    private final ComponentKind		sourceKind;
     
     /**
 	 * The level of abstraction of the target of the relation
 	 */
-    private final ComponentKind	targetKind;
+    private final ComponentKind		targetKind;
 
     /**
 	 * Whether this relation is declared explicitly as multiple
 	 */
-    private final boolean		isMultiple;
+    private final boolean			isMultiple;
 
     /**
      * The policy to handle unresolved dependencies
      */
 
-    private final MissingPolicy  		missingPolicy;
+    private final MissingPolicy		missingPolicy;
 
     /**
      * The exception to throw for the exception missing policy
      * 
      */
-    private final String              missingException;
+    private final String			missingException;
 
     /**
 	 * The list of instrumentation that need to be performed in the source 
 	 * primitive component to implement the semantics of this relation at
 	 * runtime. 
 	 */
-    protected final List<RequirerInstrumentation>		instrumentations;
+    protected final List<RequirerInstrumentation>			instrumentations;
 
     /**
      * The map of list of call back methods associated to the relation lifecycle
      */
-    protected final Map<Event, Set<CallbackDeclaration>> callbacks;
+    protected final Map<Event, Set<CallbackDeclaration>>	callbacks;
     
     /**
 	 * Whether this relation is declared explicitly as an override
 	 */
-    private final boolean		isOverride;
+    private final boolean				isOverride;
     
     /**
 	 * Whether a relation matching this policy must be eagerly resolved
 	 */
-    private final Boolean            isEager;
+    private final Boolean				isEager;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
 
-    private final Boolean             mustHide;
+    private final Boolean            	mustHide;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
-    private CreationPolicy     creationPolicy=null;
-    private ResolvePolicy      resolvePolicy=null;
+    private final ResolvePolicy			resolvePolicy;
+    private final CreationPolicy		creationPolicy;
     
     public RelationDeclaration(ComponentReference<?> component,  String id, ResolvableReference target, boolean isMultiple) {
     	this(component,id,
     	null,ComponentKind.INSTANCE,
-    	target,ComponentKind.INSTANCE,isMultiple,
+    	target,ComponentKind.INSTANCE,
+    	CreationPolicy.MANUAL, ResolvePolicy.EXIST, isMultiple,
     	MissingPolicy.OPTIONAL,null,
     	false,false,false);
     }
 
     public RelationDeclaration(ComponentReference<?> component, String id, 
     				String sourceName, ComponentKind sourceKind, 
-    				ResolvableReference target, ComponentKind targetKind, boolean isMultiple,
+    				ResolvableReference target, ComponentKind targetKind,
+       				CreationPolicy creationPolicy, 
+       				ResolvePolicy resolvePolicy,
+       				boolean isMultiple,
     				MissingPolicy missingPolicy, String missingException,
-    				boolean isOverride, Boolean isEager, Boolean mustHide) {
+     				boolean isOverride, Boolean isEager, Boolean mustHide) {
 
         super(target);
 
@@ -162,7 +166,10 @@ public class RelationDeclaration extends ConstrainedReference {
         this.missingPolicy 		= missingPolicy;
         this.missingException 	= missingException;
         
+        this.creationPolicy		= creationPolicy;
+        this.resolvePolicy		= resolvePolicy;
         this.isMultiple 		= isMultiple;
+        
         this.isOverride			= isOverride;
         this.isEager 			= isEager;
         this.mustHide 			= mustHide;
@@ -186,8 +193,12 @@ public class RelationDeclaration extends ConstrainedReference {
     	
         RelationDeclaration effective = new RelationDeclaration(refinement.getComponent(),this.getIdentifier(),
         										this.getSourceName(),this.getSourceKind(),
-        										this.getTarget(),this.getTargetKind(), refinement.isMultiple,
-        										refinement.getMissingPolicy() == null ? this.getMissingPolicy() : refinement.getMissingPolicy(),refinement.getMissingException() == null ? this.getMissingException() : refinement.getMissingException(),
+        										this.getTarget(),this.getTargetKind(), 
+        										this.getCreationPolicy() == null ? refinement.getCreationPolicy() : this.getCreationPolicy(),
+        										this.getResolvePolicy() == null ? refinement.getResolvePolicy() : this.getResolvePolicy(),
+        										refinement.isMultiple,
+        										this.getMissingPolicy() == null ? refinement.getMissingPolicy() : this.getMissingPolicy(),
+        										this.getMissingException() == null ? refinement.getMissingException() : this.getMissingException(),
         										refinement.isOverride,refinement.isEager,refinement.mustHide);
 
 
@@ -224,8 +235,12 @@ public class RelationDeclaration extends ConstrainedReference {
     	
         RelationDeclaration effective = new RelationDeclaration(this.getComponent(),this.getIdentifier(),
         										this.getSourceName(),this.getSourceKind(),
-        										this.getTarget(),this.getTargetKind(), this.isMultiple,
-        										override.getMissingPolicy() != null ? override.getMissingPolicy() : this.getMissingPolicy(),override.getMissingException() != null ? override.getMissingException() : this.getMissingException(),
+        										this.getTarget(),this.getTargetKind(), 
+        										override.getCreationPolicy() != null ? override.getCreationPolicy() : this.getCreationPolicy(),
+              									override.getResolvePolicy() != null ? override.getResolvePolicy() : this.getResolvePolicy(),
+        										this.isMultiple,
+        										override.getMissingPolicy() != null ? override.getMissingPolicy() : this.getMissingPolicy(),
+        										override.getMissingException() != null ? override.getMissingException() : this.getMissingException(),
         										this.isOverride,override.isEager,override.mustHide);
 
 
@@ -323,6 +338,14 @@ public class RelationDeclaration extends ConstrainedReference {
         return oneRequiredService ? supportMultiple : isMultiple;
     }
     
+	public ResolvePolicy getResolvePolicy() {
+		return resolvePolicy;
+	}
+
+	public CreationPolicy getCreationPolicy() {
+		return creationPolicy;
+	}
+
     /**
 	 * Get the policy associated with this relation
 	 */
@@ -337,19 +360,6 @@ public class RelationDeclaration extends ConstrainedReference {
         return missingException;
     }
     
-    @Override
-    public boolean equals(Object object) {
-    	if (! (object instanceof RelationDeclaration))
-    		return false;
-    	
-    	RelationDeclaration that = (RelationDeclaration) object;
-    	return this.reference.equals(that.reference);
-    }
-    
-    @Override
-    public int hashCode() {
-    	return reference.hashCode();
-    }
 
      /**
 	 * Get the instrumentation metadata associated to this relation declaration
@@ -381,7 +391,7 @@ public class RelationDeclaration extends ConstrainedReference {
 	 * Whether dependencies matching this contextual policy must be resolved eagerly
 	 */
     public Boolean isEager() {
-        return isEager;
+        return this.isEager;
     }
 
     public boolean isEffectiveEager() {
@@ -394,6 +404,20 @@ public class RelationDeclaration extends ConstrainedReference {
 	 */
     public Boolean isHide() {
         return mustHide;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+    	if (! (object instanceof RelationDeclaration))
+    		return false;
+    	
+    	RelationDeclaration that = (RelationDeclaration) object;
+    	return this.reference.equals(that.reference);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return reference.hashCode();
     }
 
     @Override
@@ -457,4 +481,5 @@ public class RelationDeclaration extends ConstrainedReference {
     }
 
 
+    
 }
