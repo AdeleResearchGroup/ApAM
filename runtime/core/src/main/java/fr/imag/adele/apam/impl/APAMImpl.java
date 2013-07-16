@@ -45,6 +45,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
 
 public class APAMImpl implements Apam {
@@ -296,11 +297,16 @@ public class APAMImpl implements Apam {
      */
     private static class ApamOnlyComposite extends BaseApformComponent<Composite,InstanceDeclaration> implements ApformInstance {
 
-    	public ApamOnlyComposite(ImplementationReference<?>implementation,String name,Map<String, String> initialProperties) {
+    	public ApamOnlyComposite(ImplementationReference<?>implementation,String name, Map<String, String> initialProperties) {
     		
     		super(new InstanceDeclaration(implementation,name,null));
-    		if (initialProperties != null)
-    			declaration.getProperties().putAll(initialProperties);
+    		if (initialProperties != null) {
+    			for (Map.Entry<String, String> property : initialProperties.entrySet()) {
+    				if (! Attribute.isFinalAttribute(property.getKey()))
+    					declaration.getProperties().put(property.getKey(),property.getValue());
+				}
+    		}
+    			
     	} 
 
 		@Override
