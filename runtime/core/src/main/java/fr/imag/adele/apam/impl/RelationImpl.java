@@ -20,11 +20,13 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -106,14 +108,15 @@ public class RelationImpl implements Relation {
 	// Whether this relation is declared explicitly as multiple
 	private final boolean isMultiple;
 
+	private final CreationPolicy create;
+	
+	private final ResolvePolicy resolve;
+	
 	// The policy to handle unresolved dependencies
 	private final MissingPolicy missingPolicy;
 
 	// The exception to throw for the exception missing policy
 	private final String missingException;
-
-	// Whether a relation matching this policy must be eagerly resolved
-	private final boolean isEager;
 
 	// Whether a resolution error must trigger a backtrack in the architecture
 	private final boolean mustHide;
@@ -145,6 +148,8 @@ public class RelationImpl implements Relation {
 		this.identifier = "";
 		this.targetDefinition = target;
 		this.isMultiple = false;
+		this.create	= CreationPolicy.LAZY;
+		this.resolve = ResolvePolicy.EXTERNAL;
 		this.sourceKind = (sourceKind == null) ? ComponentKind.INSTANCE : sourceKind ;
 		this.targetKind = (targetKind == null) ? ComponentKind.INSTANCE : targetKind;
 
@@ -153,7 +158,6 @@ public class RelationImpl implements Relation {
 		isDynamic = false;
 		isWire = false;
 		isInjected = false;
-		isEager = false;
 		mustHide = false;
 		missingException = null;
 		missingPolicy = null;
@@ -183,10 +187,6 @@ public class RelationImpl implements Relation {
 		this.targetKind 		= (declaration.getTargetKind() == null) ? ComponentKind.INSTANCE : declaration.getTargetKind();
 		this.targetDefinition	= declaration.getTarget();
 
-		// Flags
-		this.isMultiple 		= declaration.isMultiple();
-		this.missingPolicy 		= declaration.getMissingPolicy();
-		this.missingException 	= declaration.getMissingException();
 
 
 		// computing isDynamic, isWire, hasField.
@@ -209,9 +209,19 @@ public class RelationImpl implements Relation {
 			}
 		}
 
-		this.isEager	= (declaration.isEager() == null) ? hasCallbacks : declaration.isEager();
+		// Flags
+		this.isMultiple 		= declaration.isMultiple();
+		if (declaration.getCreationPolicy() == null) 
+			this.create = hasCallbacks ? CreationPolicy.EAGER : CreationPolicy.LAZY;
+		else
+			this.create = declaration.getCreationPolicy();
+		
+		this.resolve			= declaration.getResolvePolicy() == null ? ResolvePolicy.EXTERNAL : declaration.getResolvePolicy();
+		this.missingPolicy 		= declaration.getMissingPolicy();
+		this.missingException 	= declaration.getMissingException();
+
 		this.mustHide 	= (declaration.isHide() == null) ? false : declaration.isHide();
-		this.isDynamic	= (declaration.isMultiple() || declaration.isEffectiveEager() || (!isInjected && hasCallbacks));
+		this.isDynamic	= declaration.isMultiple() || (this.create == CreationPolicy.EAGER);
 
 		// Constraints
 		this.implementationConstraints.addAll(declaration.getImplementationConstraints());
@@ -221,6 +231,10 @@ public class RelationImpl implements Relation {
 
 	}
 
+	public RelationDeclaration getDeclaration() {
+		return declaration;
+	}
+	
 	/**
 	 * Get the effective result of refining this relation by the specified partial declaration
 	 */
@@ -546,7 +560,7 @@ public class RelationImpl implements Relation {
 
 	// Get the id of the relation in the declaring component declaration
 	@Override
-	public String getIdentifier() {
+	public String getName() {
 		return identifier;
 	}
 
@@ -562,11 +576,14 @@ public class RelationImpl implements Relation {
 		return missingPolicy;
 	}
 
-	// Whether dependencies matching this contextual policy must be resolved
-	// eagerly
 	@Override
-	public boolean isEager() {
-		return isEager;
+	public CreationPolicy getCreation() {
+		return create;
+	}
+
+	@Override
+	public ResolvePolicy getResolve() {
+		return resolve;
 	}
 
 	/**
@@ -891,7 +908,7 @@ public class RelationImpl implements Relation {
 		//ret.append("resolving ");
 
 		if (isRelation())
-			ret.append("relation " + getIdentifier() + " towards ");
+			ret.append("relation " + getName() + " towards ");
 
 		if (isMultiple)
 			ret.append("multiple ");
@@ -904,7 +921,8 @@ public class RelationImpl implements Relation {
 			ret.append(" providing " + getTarget());
 
 		ret.append(" from " + linkSource);
-
+		ret.append(" (creation = "+create+", resolve = "+resolve+")");
+		
 		if (!implementationConstraintFilters.isEmpty()) {
 			ret.append("\n         Implementation Constraints");
 			for (ApamFilter inj : implementationConstraintFilters) {
@@ -932,34 +950,6 @@ public class RelationImpl implements Relation {
 		return ret.toString();
 	}
 
-	@Override
-	public boolean isManual() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
-	@Override
-	public boolean isLazy() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isExist() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isInternal() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isExternal() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }

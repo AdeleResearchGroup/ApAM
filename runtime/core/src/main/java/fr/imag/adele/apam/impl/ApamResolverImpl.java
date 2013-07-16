@@ -40,12 +40,14 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.RelationPromotion;
+import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 
 public class ApamResolverImpl implements ApamResolver {
@@ -162,7 +164,7 @@ public class ApamResolverImpl implements ApamResolver {
 		// <promotion specification="SA" relation="clientDep" to="compoDep" />
 		for (RelationPromotion promo: composite.getCompType().getCompoDeclaration().getPromotions()) {
 			if (!promo.getContentRelation().getIdentifier()
-					.equals(relation.getIdentifier())) {
+					.equals(relation.getName())) {
 				continue; // this promotion is not about our relation (not
 				// "clientDep")
 			}
@@ -275,14 +277,14 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Resolved<?> resolveLink(Component source2, Relation dep) {
+	public Resolved<?> resolveLink(Component source2, Relation rel) {
 
 		/*
 		 * verify the resolver is actually ready to work (all managers are present)
 		 */
 		checkEnabled();
 
-		if (source2 == null || dep == null){
+		if (source2 == null || rel == null){
 			logger.error("missing client or relation ");
 			return null;
 		}
@@ -290,13 +292,12 @@ public class ApamResolverImpl implements ApamResolver {
 		/*
 		 * If manual, the resolution must fail silently
 		 */
-		//TODO
-		boolean createManual = false ; //rel.getCreate().equals("manual")
+		boolean createManual = rel.getCreation() == CreationPolicy.MANUAL ;
 		if (createManual) return null ;
 		
-		Component source = dep.getRelSource(source2) ;
+		Component source = rel.getRelSource(source2) ;
 		if (source == null ){
-			logger.error("Component source not at the right level; found " + source2 + " expected " + dep.getSourceKind());
+			logger.error("Component source not at the right level; found " + source2 + " expected " + rel.getSourceKind());
 			return null;
 		}
 
@@ -310,41 +311,41 @@ public class ApamResolverImpl implements ApamResolver {
 		/*
 		 * Promotion control Only for instances
 		 */
-		if (source instanceof Instance && dep.isRelation()) {
+		if (source instanceof Instance && rel.isRelation()) {
 			Composite compo = getClientComposite((Instance) source);
-			Relation promotionRelation = getPromotionRel((Instance) source, dep);
+			Relation promotionRelation = getPromotionRel((Instance) source, rel);
 
 			// if it is a promotion, get the composite relation targets.
 			if (promotionRelation != null) {
 				isPromotion = true;
 				promoHasConstraints = promotionRelation.hasConstraints();
 				if (promotionRelation.isMultiple())
-					resolved = new Resolved(compo.getLinkDests(promotionRelation.getIdentifier()));
+					resolved = new Resolved(compo.getLinkDests(promotionRelation.getName()));
 				else
-					resolved = new Resolved(compo.getLinkDest(promotionRelation.getIdentifier()));
+					resolved = new Resolved(compo.getLinkDest(promotionRelation.getName()));
 
 				if (resolved.isEmpty()) // Maybe the composite did not resolved
 					// that relation so far.
 					resolved = resolveLink(compo, promotionRelation);
 				if (resolved == null) {
-					logger.error("Failed to resolve " + dep.getTarget() + " from " + source + "(" + dep.getIdentifier() + ")");
+					logger.error("Failed to resolve " + rel.getTarget() + " from " + source + "(" + rel.getName() + ")");
 					return null;
 				}
 
 				// Select the sub-set that matches the dep constraints. No
 				// source visibility control (null).
 				// Adds the manager constraints and compute filters
-				computeSelectionPath(source, dep);
-				resolved = dep.getResolved(resolved, isPromotion);
+				computeSelectionPath(source, rel);
+				resolved = rel.getResolved(resolved, isPromotion);
 			}
 		}
 
 		if (!isPromotion) {
-			resolved = this.resolveByManagers(source, dep);
+			resolved = this.resolveByManagers(source, rel);
 		}
 
 		if (resolved == null) {
-			logger.error("Failed to resolve " + dep.getTarget().getName() + " from " + source + "(relation " + dep.getIdentifier() + ")");
+			logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source + "(relation " + rel.getName() + ")");
 			return null;
 		}
 
@@ -352,11 +353,11 @@ public class ApamResolverImpl implements ApamResolver {
 		 * It is resolved. 
 		 */
 		if (resolved.singletonResolved != null) {
-			source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+			source.createLink(resolved.singletonResolved, rel, rel.hasConstraints() || promoHasConstraints, isPromotion);
 			return resolved ;
 		}
 		for (Object target : resolved.setResolved) {
-			source.createLink((Component) target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+			source.createLink((Component) target, rel, rel.hasConstraints() || promoHasConstraints, isPromotion);
 		}
 
 		return resolved;
@@ -390,8 +391,7 @@ public class ApamResolverImpl implements ApamResolver {
 			Resolved<?> res = null;
 			boolean deployed = false;
 			
-			//TODO
-			boolean resolveExist = false ;//rel.getResolve().equals("internal");
+			boolean resolveExist = relation.getResolve() == ResolvePolicy.EXIST ;
 
 			for (RelationManager manager : selectionPath) {
 				if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
@@ -510,7 +510,7 @@ public class ApamResolverImpl implements ApamResolver {
 		/*
 		 * If resolve = exist or internal, only ApamMan must be called
 		 */
-		boolean resolveExternal = true ;//rel.getResolve().equals("external") || == null;
+		boolean resolveExternal = relation.getResolve() == ResolvePolicy.EXTERNAL ;
 		if (resolveExternal) {
 			for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
 				/*

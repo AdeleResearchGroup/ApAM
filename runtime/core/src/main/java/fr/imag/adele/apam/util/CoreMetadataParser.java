@@ -140,7 +140,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_TARGET_KIND         = "targetKind";
 	private static final String  ATT_FAIL                = "fail";
 	private static final String  ATT_EXCEPTION           = "exception";
-	private static final String  ATT_EAGER               = "eager";
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
 	private static final String  ATT_PROPERTY            = "property";
@@ -941,7 +940,6 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * Get the optional contextual properties
 		 */
-		String isEager 	= parseString(component.getName(),element, CoreMetadataParser.ATT_EAGER, false);
 		String mustHide = parseString(component.getName(),element, CoreMetadataParser.ATT_HIDE, false);
 
 		/*
@@ -952,7 +950,7 @@ public class CoreMetadataParser implements CoreParser {
 												targetDef,targetKind,
 												creationPolicy, resolvePolicy,isMultiple,
 												missingPolicy,missingException,
-												isOverride,isEager != null ? Boolean.valueOf(isEager): null,mustHide != null ? Boolean.valueOf(mustHide): null);
+												isOverride,mustHide != null ? Boolean.valueOf(mustHide): null);
 		
 		for (RequirerInstrumentation instrumentation : instrumentations) {
 			instrumentation.setRelation(relation);

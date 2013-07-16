@@ -275,7 +275,7 @@ public class PendingRequest {
 		}
 		
 				
-		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relation.getIdentifier());
+		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relation.getName());
 		
 		/*
 		 * For single-valued relations we just verify there is some resolution

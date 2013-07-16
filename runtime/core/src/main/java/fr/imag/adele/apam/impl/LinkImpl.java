@@ -61,7 +61,7 @@ public class LinkImpl implements Link {
 
     @Override
     public String getName() {
-        return definition.getIdentifier();
+        return definition.getName();
     }
 
 

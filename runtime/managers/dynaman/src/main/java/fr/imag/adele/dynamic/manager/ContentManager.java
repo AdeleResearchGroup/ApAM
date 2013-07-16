@@ -36,6 +36,7 @@ import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
@@ -471,7 +472,7 @@ public class ContentManager  {
 				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,component,relation);
 				addDynamicRequest(request);
 				
-				if (relation.isEager())
+				if (relation.getCreation() == CreationPolicy.EAGER)
 					request.resolve();
 			}			
 		}
@@ -810,7 +811,7 @@ public class ContentManager  {
 	 * verifies if a relation matches the specified grant
 	 */
 	private static boolean match(GrantDeclaration grant, Relation relation) {
-		return relation.getIdentifier().equals(grant.getRelation().getIdentifier());
+		return relation.getName().equals(grant.getRelation().getIdentifier());
 	}
 
 	/**

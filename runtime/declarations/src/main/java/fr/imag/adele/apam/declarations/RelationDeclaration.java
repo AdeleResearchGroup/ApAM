@@ -118,11 +118,6 @@ public class RelationDeclaration extends ConstrainedReference {
     private final boolean				isOverride;
     
     /**
-	 * Whether a relation matching this policy must be eagerly resolved
-	 */
-    private final Boolean				isEager;
-
-    /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
 
@@ -140,7 +135,7 @@ public class RelationDeclaration extends ConstrainedReference {
     	target,ComponentKind.INSTANCE,
     	CreationPolicy.MANUAL, ResolvePolicy.EXIST, isMultiple,
     	MissingPolicy.OPTIONAL,null,
-    	false,false,false);
+    	false,false);
     }
 
     public RelationDeclaration(ComponentReference<?> component, String id, 
@@ -150,7 +145,7 @@ public class RelationDeclaration extends ConstrainedReference {
        				ResolvePolicy resolvePolicy,
        				boolean isMultiple,
     				MissingPolicy missingPolicy, String missingException,
-     				boolean isOverride, Boolean isEager, Boolean mustHide) {
+     				boolean isOverride, Boolean mustHide) {
 
         super(target);
 
@@ -171,7 +166,6 @@ public class RelationDeclaration extends ConstrainedReference {
         this.isMultiple 		= isMultiple;
         
         this.isOverride			= isOverride;
-        this.isEager 			= isEager;
         this.mustHide 			= mustHide;
 
         this.instrumentations	= new ArrayList<RequirerInstrumentation>();
@@ -199,7 +193,7 @@ public class RelationDeclaration extends ConstrainedReference {
         										refinement.isMultiple,
         										this.getMissingPolicy() == null ? refinement.getMissingPolicy() : this.getMissingPolicy(),
         										this.getMissingException() == null ? refinement.getMissingException() : this.getMissingException(),
-        										refinement.isOverride,refinement.isEager,refinement.mustHide);
+        										refinement.isOverride,refinement.mustHide);
 
 
         effective.instrumentations.addAll(this.instrumentations);
@@ -241,7 +235,7 @@ public class RelationDeclaration extends ConstrainedReference {
         										this.isMultiple,
         										override.getMissingPolicy() != null ? override.getMissingPolicy() : this.getMissingPolicy(),
         										override.getMissingException() != null ? override.getMissingException() : this.getMissingException(),
-        										this.isOverride,override.isEager,override.mustHide);
+        										this.isOverride,override.mustHide);
 
 
         effective.getImplementationConstraints().addAll(this.getImplementationConstraints());
@@ -388,17 +382,6 @@ public class RelationDeclaration extends ConstrainedReference {
     }
     
     /**
-	 * Whether dependencies matching this contextual policy must be resolved eagerly
-	 */
-    public Boolean isEager() {
-        return this.isEager;
-    }
-
-    public boolean isEffectiveEager() {
-    	return isEager != null ? isEager : false;
-    }
-    
-    /**
 	 * Whether an error resolving a relation matching this policy should trigger
 	 * a backtrack in resolution
 	 */
@@ -428,7 +411,7 @@ public class RelationDeclaration extends ConstrainedReference {
     public String printRelationDeclaration(String indent) {
         StringBuffer ret = new StringBuffer ();
 		ret.append(indent + " relation " + getIdentifier() + " towards "
-				+ getTarget().getName());
+				+ getTarget().getName() +" (creation ="+creationPolicy+", resolve="+resolvePolicy+")");
     
         
         if (!instrumentations.isEmpty()) {

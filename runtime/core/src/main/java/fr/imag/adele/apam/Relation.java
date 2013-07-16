@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public interface Relation  {
@@ -66,7 +68,7 @@ public interface Relation  {
 	//	public Component getComponent() ;
 
 	// Get the id of the relation in the declaring component declaration
-	public String getIdentifier() ;
+	public String getName() ;
 	
 	//	//Get the source (ancestor) for ctxt relation
 	//	public String getSource () ;
@@ -86,6 +88,10 @@ public interface Relation  {
 	// Get the exception associated with the missing policy
 	public String getMissingException() ;
 
+	public CreationPolicy getCreation();
+	
+	public ResolvePolicy getResolve();
+	
 	//True if relation cardinality is multiple
 	public boolean isMultiple();
 
@@ -106,26 +112,6 @@ public interface Relation  {
 	//true if this is a Wire or a Link 
 	public boolean isWire();
 	public boolean isRelation();
-
-	/*
-	 * Attribute creation
-	 */
-	//This relation must be created only manualy
-	public boolean isManual () ;
-	// This relation must be resolved eagerly
-	public boolean isEager() ;
-	//This relation must be resolved lazily
-	public boolean isLazy() ;
-
-	/*
-	 * Attribute resolve
-	 */
-	//During a resolution, the target must be existing in the ASM (no instantiation, no deployment)
-	public boolean isExist () ;
-	//During a resolution, the target must be existing in the ASM, but can be instantiated (no deployment)
-	public boolean isInternal () ;
-	//During a resolution, the target can be found by any manager (possible instantiation or deployment)
-	public boolean isExternal () ;
 
 	//Ex in Util
 	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) ;

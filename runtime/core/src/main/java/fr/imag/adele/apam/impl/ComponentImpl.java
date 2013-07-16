@@ -600,8 +600,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (!dep.isRelation())
 			return true;
 
-		if (CST.isFinalRelation(dep.getIdentifier())){
-			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getIdentifier());
+		if (CST.isFinalRelation(dep.getName())){
+			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getName());
 		}
 		
 		if ((to == null) || (dep == null)) {
@@ -617,7 +617,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			throw new IllegalArgumentException("CreateLink: Target kind " + to.getKind() + " is not compatible with relation targetType " + dep.getTargetKind());
 		}
 
-		String depName = dep.getIdentifier();
+		String depName = dep.getName();
 
 		for (Link link : links) { // check if it already exists
 			if ((link.getDestination() == to) && link.getName().equals(depName)) {
@@ -829,9 +829,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		while (group != null) {
 			
 			for (Relation relation : group.getLocalRelations()) {
-				if (! processed.contains(relation.getIdentifier())) {
+				if (! processed.contains(relation.getName())) {
 					relations.add(relation);
-					processed.add(relation.getIdentifier());
+					processed.add(relation.getName());
 				}
 			}
 			
@@ -843,9 +843,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			CompositeType comptype = ((Instance) this).getComposite().getCompType();
 			
 			for (Relation relation : comptype.getCtxtRelations(this)) {
-				if (! processed.contains(relation.getIdentifier())) {
+				if (! processed.contains(relation.getName())) {
 					relations.add(relation);
-					processed.add(relation.getIdentifier());
+					processed.add(relation.getName());
 				}
 			}
 			
@@ -853,9 +853,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
 				for (Relation relation : comptype.getCtxtRelations(this)) {
-					if (! processed.contains(relation.getIdentifier())) {
+					if (! processed.contains(relation.getName())) {
 						relations.add(relation);
-						processed.add(relation.getIdentifier());
+						processed.add(relation.getName());
 					}
 				}
 			}
