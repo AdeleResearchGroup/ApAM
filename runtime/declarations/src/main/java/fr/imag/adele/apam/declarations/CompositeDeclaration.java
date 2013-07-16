@@ -55,12 +55,12 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	/**
 	 * The list of contextual relation overrides of this composite
 	 */
-	private final List<RelationDeclaration> contextualDependencies;
+	private final Set<RelationDeclaration> contextualDependencies;
 	
 	/**
 	 * The list of contextual relation overrides of this composite
 	 */
-	private final List<RelationDeclaration> contextualOverrides;
+	private final Set<RelationDeclaration> contextualOverrides;
 	
 	/**
 	 * The list of contextual link declarations in this composite
@@ -80,8 +80,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
         this.visibility				= new VisibilityDeclaration();
         this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
         this.instances				= new ArrayList<InstanceDeclaration>();
-        this.contextualDependencies	= new ArrayList<RelationDeclaration>();
-        this.contextualOverrides	= new ArrayList<RelationDeclaration>();
+        this.contextualDependencies	= new HashSet<RelationDeclaration>();
+        this.contextualOverrides	= new HashSet<RelationDeclaration>();
         this.contextualLinks		= new ArrayList<LinkDeclaration>();
         this.promotions				= new ArrayList<RelationPromotion>();
         
@@ -167,14 +167,14 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     /**
      * The list of contextual dependencies
      */
-    public List<RelationDeclaration> getContextualDependencies() {
+    public Set<RelationDeclaration> getContextualDependencies() {
 		return contextualDependencies;
 	}
     
     /**
      * The list of contextual dependencies
      */
-    public List<RelationDeclaration> getOverridenDependencies() {
+    public Set<RelationDeclaration> getOverridenDependencies() {
 		return contextualOverrides;
 	}
     

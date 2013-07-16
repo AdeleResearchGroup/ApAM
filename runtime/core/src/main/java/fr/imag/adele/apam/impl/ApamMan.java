@@ -138,7 +138,7 @@ public class ApamMan implements RelationManager {
 			}
 			return null ;
 		} else if (relation.getTarget() instanceof ComponentReference<?>) {
-			System.err.println("Invilid traget reference : componentReference");
+			System.err.println("Invalid target reference : "+relation.getTarget());
 			return null ;
 		}
 

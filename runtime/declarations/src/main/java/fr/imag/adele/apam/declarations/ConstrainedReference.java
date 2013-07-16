@@ -30,7 +30,7 @@ public class ConstrainedReference {
 	/**
 	 * The reference to the target component.
 	 */
-	private ResolvableReference 	    resource;
+	private final ResolvableReference 	resource;
 
 	/**
 	 * The set of constraints that must be satisfied by the target component implementation
@@ -69,13 +69,6 @@ public class ConstrainedReference {
 	 */
 	public ResolvableReference getTarget() {
 		return resource;
-	}
-
-	/**
-	 * WARNIONG. Should be used only by compiler, to compute the effective group dependency target
-	 */
-	public void setTarget(ResolvableReference resource) {
-		this.resource = resource;
 	}
 
 	/**

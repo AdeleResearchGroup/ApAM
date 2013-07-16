@@ -182,7 +182,6 @@ public class RelationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	@Ignore
 	public void RelationSourceImplementationTargetImplementationOverride_tc100() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,

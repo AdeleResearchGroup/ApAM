@@ -31,22 +31,22 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.Visible;
-//import org.osgi.framework.Filter;
 
 public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
@@ -140,10 +140,134 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param initialProperties
 	 */
 	public void finishInitialize (Map<String, String> initialProperties) {
-		relations = RelationImpl.initializeDependencies (this) ;
+		initializeDependencies() ;
 		initializeProperties (initialProperties) ;
 		initializeResources () ;
 	}
+	
+	/**
+	 * Provided a component, compute its effective relations, adding group
+	 * constraint and flags. It is supposed to be correct !! No failure expected
+	 * 
+	 * Does not add those dependencies defined "above" nor the composite ones;
+	 * except for the implementation definition that are overridden by the
+	 * current composite (for instances) that are duplicated and copied at the
+	 * instance level
+	 * 
+	 */
+	private void initializeDependencies() {
+		
+		/*
+		 * First we need to compute the list of relations that must be locally defined in this component.
+		 * We consider locally defined relation declarations and overridden inherited relations.
+		 * 
+		 */
+		Set<RelationDeclaration> overrides = null;
+		if (this instanceof Instance)
+			overrides = ((Instance) this).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
+
+		Set<RelationDeclaration> localRelations	= new HashSet<RelationDeclaration>();
+		Set<String> processed 					= new HashSet<String>();
+
+		Component group = this;
+		while (group != null) {
+			
+			for (RelationDeclaration relationDeclaration : group.getDeclaration().getDependencies()) {
+
+				/*
+				 * Ignore relations already processed at a lower level
+				 */
+				if (processed.contains(relationDeclaration.getIdentifier()))
+					continue;
+
+				/*
+				 * Check overridden relations
+				 */
+				boolean matchOverride = false;
+				for (RelationDeclaration override : overrides != null ? overrides : Collections.<RelationDeclaration> emptySet()) {
+					if (matchOverride(relationDeclaration,override)) {
+						relationDeclaration = relationDeclaration.overriddenBy(override);
+						matchOverride = true;
+					}
+				}
+				
+				/*
+				 * Process locally declared and inherited overridden relations 
+				 */
+				if ( group == this || matchOverride) {
+					localRelations.add(relationDeclaration);
+					processed.add(relationDeclaration.getIdentifier());
+				}
+
+			}
+			
+			group	= group.getGroup();
+		}
+
+		/*
+		 * Define all the local relations of this component
+		 */
+		for (RelationDeclaration relationDeclaration : localRelations) {
+			
+			/*
+			 * Local declarations may be partial definitions, we need to compute the complete declaration by
+			 * refining the ancestor definition. 
+			 */
+			Relation base		= this.getRelation(relationDeclaration.getIdentifier());
+			relationDeclaration = (base == null) ? relationDeclaration : ((RelationImpl)base).refinedBy(relationDeclaration);
+			
+			relations.put(relationDeclaration.getIdentifier(), new RelationImpl(relationDeclaration));
+		}
+
+	}
+	
+	/**
+	 * Given a relation declared in this component, checks if the provided override relation 
+	 * matches the relation declaration.
+	 * 
+	 * To be applied on a component C, the override must be such that :
+	 * 		id matches the override id
+	 *      source must be the name of C or of an ancestor of C.
+	 * 		target must be the same type (resource of component, and its name must match). 
+	 *
+	 */
+	public boolean matchOverride(RelationDeclaration relation, RelationDeclaration override) {
+
+		//Overrides are currently only valid for instance
+		boolean match = (this instanceof Instance);
+		if (!match)
+			return false ;
+		
+		//Check if Ids are compatible
+		match = relation.getIdentifier().matches(override.getIdentifier()); 
+		if (!match)
+			return false ;
+		
+		//Check if override source matches this component or one of its ancestors
+		//If no source id is specified in the override  it is considered to always
+		//match
+		
+		match 	= (override.getSourceName() == null) ;
+		Component group = this;
+		while (group != null && !match) {
+			match	= group.getName().matches(override.getSourceName()); 
+			group	= group.getGroup();
+		}
+		
+		if (!match) 
+			return false ;
+		
+		/*
+		 * Check if targets are compatible
+		 * Same target: the same specification, the same implementation or same resource name with a matching
+		 */
+		// same nature: direct comparison
+		match = relation.getTarget().getClass().equals(override.getTarget().getClass()) && 
+				relation.getTarget().getName().matches(override.getTarget().getName());
+		
+		return match;
+	}
+	
 
 	private void initializeResources () {
 		Set<ResourceReference> resources = getDeclaration().getProvidedResources() ;
@@ -697,24 +821,46 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Set<Relation> getRelations() {
-		Set<Relation> deps = new HashSet<Relation>();
+		Set<Relation> relations = new HashSet<Relation>();
+		Set<String> processed 	= new HashSet<String>();
+		
 		Component group = this;
 		while (group != null) {
-			deps.addAll(group.getLocalRelations());
+			
+			for (Relation relation : group.getLocalRelations()) {
+				if (! processed.contains(relation.getIdentifier())) {
+					relations.add(relation);
+					processed.add(relation.getIdentifier());
+				}
+			}
+			
 			group = group.getGroup();
 		}
 
 		// Looking for composite definitions.
 		if (this instanceof Instance) {
 			CompositeType comptype = ((Instance) this).getComposite().getCompType();
-			deps.addAll(comptype.getCtxtRelations(this));
+			
+			for (Relation relation : comptype.getCtxtRelations(this)) {
+				if (! processed.contains(relation.getIdentifier())) {
+					relations.add(relation);
+					processed.add(relation.getIdentifier());
+				}
+			}
+			
 		}
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
-				deps.addAll(comptype.getCtxtRelations(this));
+				for (Relation relation : comptype.getCtxtRelations(this)) {
+					if (! processed.contains(relation.getIdentifier())) {
+						relations.add(relation);
+						processed.add(relation.getIdentifier());
+					}
+				}
 			}
 		}
-		return deps;
+		
+		return relations;
 	}
 
 

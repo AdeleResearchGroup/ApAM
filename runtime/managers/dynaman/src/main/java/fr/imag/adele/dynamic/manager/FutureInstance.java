@@ -58,9 +58,7 @@ public class FutureInstance {
 		triggers = new ArrayList<Relation>();
 		for (ConstrainedReference trigger : declaration.getTriggers()) {
 
-			RelationDeclaration triggerRelation = new RelationDeclaration(
-					declaration.getReference(), "trigger-" + counter, false, false,
-					trigger.getTarget());
+			RelationDeclaration triggerRelation = new RelationDeclaration(declaration.getReference(), "trigger-" + counter, trigger.getTarget(), false);
 			triggerRelation.getImplementationConstraints().addAll(
 					trigger.getImplementationConstraints());
 			triggerRelation.getInstanceConstraints().addAll(

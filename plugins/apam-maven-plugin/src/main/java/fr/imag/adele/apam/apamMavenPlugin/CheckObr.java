@@ -703,7 +703,7 @@ public class CheckObr {
 			depIds.add(dep.getIdentifier());
 
 			// replace the definition by the effective relation (adding group definition)
-			computeGroupRelation(component, dep);
+			dep = computeGroupRelation(component, dep);
 
 			// validating relation constraints and preferences..
 			CheckObr.checkConstraint(component, dep);
@@ -760,7 +760,7 @@ public class CheckObr {
 	 * @param relation
 	 * @return
 	 */
-	public static void computeGroupRelation(ComponentDeclaration depComponent, RelationDeclaration relation) {
+	public static RelationDeclaration computeGroupRelation(ComponentDeclaration depComponent, RelationDeclaration relation) {
 		String relName = relation.getIdentifier();
 
 		/*
@@ -780,29 +780,15 @@ public class CheckObr {
 				continue;
 			}
 			
-
-			//it is declared above. Merge and check.
-			//First merge flags, and then constraints.
-			Util.overrideDepFlags(relation, groupDep, false);
-			relation.getImplementationConstraints().addAll(
-					groupDep.getImplementationConstraints());
-			relation.getInstanceConstraints().addAll(
-					groupDep.getInstanceConstraints());
-			relation.getImplementationPreferences().addAll(
-					groupDep.getImplementationPreferences());
-			relation.getInstancePreferences().addAll(
-					groupDep.getInstancePreferences());
 			
 			boolean relationTargetDefined	= ! relation.getTarget().getName().equals(CoreMetadataParser.UNDEFINED);
 			boolean groupTargetdefined		= ! groupDep.getTarget().getName().equals(CoreMetadataParser.UNDEFINED);
 			
-			/*
-			 * Get the target defined at the most general level
-			 */
-			if (!relationTargetDefined && groupTargetdefined) {
-				relation.setTarget(groupDep.getTarget());
-			} 
 			
+			/*
+			 * If the target are defined at several levels they must be compatible
+			 * 
+			 */
 			if (relationTargetDefined && groupTargetdefined) {
 				
 				ResourceReference relationTargetResource 		= relation.getTarget().as(ResourceReference.class);
@@ -828,13 +814,9 @@ public class CheckObr {
 				if (relationTargetResource != null && groupTargetComponent != null) {
 
 					ComponentDeclaration groupTarget = ApamCapability.getDcl(groupTargetComponent);
-					if (groupTarget.getProvidedResources().contains(relationTargetResource)) {
-						relation.setTarget(groupTargetComponent);
-					}
-					else {
+					if (! groupTarget.getProvidedResources().contains(relationTargetResource)) {
 						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
 								" expected one of the provided resources of " + groupTargetComponent +" as specified in "+group.getName());
-						
 					}
 				}
 				
@@ -850,13 +832,9 @@ public class CheckObr {
 					while (relationTarget != null && ! relationTarget.getReference().equals(groupTarget.getReference()))
 						relationTarget = ApamCapability.getDcl(relationTarget.getGroupReference());
 					
-					if (relationTarget != null ) {
-						relation.setTarget(groupTargetComponent);
-					}
-					else {
+					if (relationTarget == null ) {
 						CheckObr.error("Invalid target for " + relation+ " in component " + depComponent.getName() +
 								" expected an memeber of " + groupTargetComponent +" as specified in "+group.getName());
-						
 					}
 				}
 
@@ -875,9 +853,11 @@ public class CheckObr {
 				
 			}
 			
+			relation = groupDep.refinedBy(relation);
 			group =  ApamCapability.getDcl(group.getGroupReference());
 		}
 
+		return relation;
 	}
 
 

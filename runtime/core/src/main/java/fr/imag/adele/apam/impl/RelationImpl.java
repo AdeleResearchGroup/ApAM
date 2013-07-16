@@ -3,7 +3,6 @@ package fr.imag.adele.apam.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +28,17 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Util;
 
 
 public class RelationImpl implements Relation {
 
 	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
 
+	/**
+	 * The effective declaration used to build this relation, 
+	 */
+	private final RelationDeclaration declaration;
+	
 	// Relationship name
 	private final String identifier;
 
@@ -54,8 +57,6 @@ public class RelationImpl implements Relation {
 	// The actual source of this relation. Set just before a resolution
 	private Component linkSource;
 	
-	private RelationDeclaration declaration;
-
 	// // The reference to the associated component
 	// private final Component component;
 
@@ -140,6 +141,7 @@ public class RelationImpl implements Relation {
 	public RelationImpl(ResolvableReference target, ComponentKind sourceKind, ComponentKind targetKind, Set<String> constraints, List<String> preferences) {
 		// The minimum info for a find.
 		// this.component = component;
+		this.declaration = null;
 		this.identifier = "";
 		this.targetDefinition = target;
 		this.isMultiple = false;
@@ -172,69 +174,60 @@ public class RelationImpl implements Relation {
 	/*
 	 * Component can be null; in that case filters are not substituted.
 	 */
-	public RelationImpl(RelationDeclaration dep) {
-		// Definition
+	public RelationImpl(RelationDeclaration declaration) {
+
+		this.declaration		= declaration;
 		
-		declaration=dep;
-		
-		// this.component = component;
-		this.targetDefinition = dep.getTarget();
-		this.identifier = dep.getIdentifier();
-		this.sourceKind = (dep.getSourceKind() == null) ? ComponentKind.INSTANCE : dep.getSourceKind();
-		this.targetKind = (dep.getTargetKind() == null) ? ComponentKind.INSTANCE : dep.getTargetKind();
-		// this.sourceName = (dep.getSource() == null) ? component.getName() :
-		// dep.getSource().getName();
+		this.identifier 		= declaration.getIdentifier();
+		this.sourceKind 		= (declaration.getSourceKind() == null) ? ComponentKind.INSTANCE : declaration.getSourceKind();
+		this.targetKind 		= (declaration.getTargetKind() == null) ? ComponentKind.INSTANCE : declaration.getTargetKind();
+		this.targetDefinition	= declaration.getTarget();
 
 		// Flags
-		this.isMultiple = dep.isMultiple();
-		this.mustHide = (dep.isHide() == null) ? false : dep.isHide();
-		this.missingPolicy = dep.getMissingPolicy();
-		this.missingException = dep.getMissingException();
+		this.isMultiple 		= declaration.isMultiple();
+		this.missingPolicy 		= declaration.getMissingPolicy();
+		this.missingException 	= declaration.getMissingException();
 
-		// Constraints
-		this.implementationConstraints.addAll(dep.getImplementationConstraints());
-		this.instanceConstraints.addAll(dep.getInstanceConstraints());
-		this.implementationPreferences.addAll(dep.getImplementationPreferences());
-		this.instancePreferences.addAll(dep.getInstancePreferences());
 
 		// computing isDynamic, isWire, hasField.
+		// NOTE the relation declaration is already refined and overridden so
+		// we have access to all information from all levels above
 		this.isWire = false;
 		this.isInjected = false;
 
 		boolean hasCallbacks = false;
 
-		if (dep.getComponent() instanceof ImplementationReference) {
-			for (RequirerInstrumentation injection : dep.getInstrumentations()) {
+		for (RequirerInstrumentation injection : declaration.getInstrumentations()) {
 
-				if (injection instanceof RequirerInstrumentation.MessageConsumerCallback)
-					hasCallbacks = true;
+			if (injection instanceof RequirerInstrumentation.MessageConsumerCallback)
+				hasCallbacks = true;
 
-				if (injection instanceof RequirerInstrumentation.RequiredServiceField) {
-					this.isInjected = true;
-					if (((RequirerInstrumentation.RequiredServiceField) injection).isWire())
-						this.isWire = true;
-				}
-			}
-
-		}
-		else { //if (dep.getComponent() instanceof InstanceReference) {
-			Instance inst = CST.componentBroker.getInst(dep.getComponent().getName());
-			if (inst != null) {
-				Implementation impl = inst.getImpl();
-				Relation relImpl = impl.getRelation(identifier);
-				if (relImpl != null) {
-					this.isWire = relImpl.isWire();
-					this.isInjected = relImpl.isInjected();
-					hasCallbacks = ! relImpl.isInjected() && relImpl.isDynamic();
-				}
+			if (injection instanceof RequirerInstrumentation.RequiredServiceField) {
+				this.isInjected = true;
+				if (((RequirerInstrumentation.RequiredServiceField) injection).isWire())
+					this.isWire = true;
 			}
 		}
 
-		this.isDynamic = (dep.isMultiple() || dep.isEffectiveEager() || (!isInjected && hasCallbacks));
-		this.isEager   = (!isInjected && hasCallbacks) || (dep.isEager() != null) ? dep.isEager() : false;
+		this.isEager	= (declaration.isEager() == null) ? hasCallbacks : declaration.isEager();
+		this.mustHide 	= (declaration.isHide() == null) ? false : declaration.isHide();
+		this.isDynamic	= (declaration.isMultiple() || declaration.isEffectiveEager() || (!isInjected && hasCallbacks));
+
+		// Constraints
+		this.implementationConstraints.addAll(declaration.getImplementationConstraints());
+		this.instanceConstraints.addAll(declaration.getInstanceConstraints());
+		this.implementationPreferences.addAll(declaration.getImplementationPreferences());
+		this.instancePreferences.addAll(declaration.getInstancePreferences());
 
 	}
 
+	/**
+	 * Get the effective result of refining this relation by the specified partial declaration
+	 */
+	public RelationDeclaration refinedBy(RelationDeclaration refinement) {
+		return this.declaration != null ? this.declaration.refinedBy(refinement) : refinement;
+	}
+	
 	/**
 	 * To be called before any use of this relation.
 	 * 
@@ -793,101 +786,6 @@ public class RelationImpl implements Relation {
 			}
 		}
 		return candidates.iterator().next();
-	}
-
-	/**
-	 * Provided a component, compute its effective relations, adding group
-	 * constraint and flags. It is supposed to be correct !! No failure expected
-	 * 
-	 * Does not add those dependencies defined "above" nor the composite ones;
-	 * except for the implementation definition that are overridden by the
-	 * current composite (for instances) that are duplicated and copied at the
-	 * instance level
-	 * 
-	 */
-	protected static Map<String, Relation> initializeDependencies(Component client) {
-		Map<String, Relation> relations = new HashMap<String, Relation>();
-		List<RelationDeclaration> overDeps = null;
-		if (client instanceof Instance)
-			overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
-
-		for (RelationDeclaration relDef : client.getDeclaration().getDependencies()) {
-			//relations.add (relation.getIdentifier(),relation)) ;
-			Component group = client.getGroup();
-			// look for that relation declaration above
-			RelationDeclaration groupDep = null;
-			while (group != null && (groupDep == null)) {
-				groupDep = group.getDeclaration().getLocalRelation(relDef.getIdentifier());
-				group = group.getGroup();
-			}
-
-			if (groupDep != null) {
-				//Check if really the same relation definition (same source and target kinds, ...)
-				// it is declared above. First merge flags, and then constraints. 
-				Util.overrideDepFlags(relDef, groupDep, false);
-				relDef.getImplementationConstraints().addAll(groupDep.getImplementationConstraints());
-				relDef.getInstanceConstraints().addAll(groupDep.getInstanceConstraints());
-				relDef.getImplementationPreferences().addAll(groupDep.getImplementationPreferences());
-				relDef.getInstancePreferences().addAll(groupDep.getInstancePreferences());	
-			}
-
-			//for instances, return it overriden by composite, unchanged otherwise
-			relDef = overrideComposite(client, relDef, overDeps, false);
-			// Build the corresponding relation; only for those defined at that level
-			relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
-		}
-
-
-		//For instances, we have to override the relation with the composite flags and constraints.
-		//And to duplicate the implementation dependencies that are overridden by the composite
-		if (client instanceof Instance && overDeps != null) {
-			Implementation impl = ((Instance)client).getImpl() ;
-			for (RelationDeclaration relDef : impl.getDeclaration().getDependencies()) {
-				//If not defined at instance level
-				if (relations.get(relDef.getIdentifier()) == null) {
-					//returns null if no override
-					relDef = overrideComposite(client, relDef, overDeps, true);
-					if (relDef != null) {
-						//If not null, the implementation definition has been cloned and overriden
-						relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
-					}
-				}
-			}
-		}
-		return relations;
-	}
-
-	/*
-	 * for instances, looks if the relation is overriden. If so : if duplicate
-	 * is true: duplicate the def, and override and return the modified relation
-	 * else override and return the same relation modified.
-	 */
-	private static RelationDeclaration overrideComposite(Component client, RelationDeclaration relDef, List<RelationDeclaration> overDeps, boolean duplicate) {
-		if (overDeps == null || !(client instanceof Instance)) {
-			if (duplicate)
-				return null;
-			return relDef;
-		}
-
-		for (RelationDeclaration overDep : overDeps) {
-			if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
-				//Do not change the implemention relDeclaration
-				if (duplicate)
-					relDef = relDef.clone();
-				Util.overrideDepFlags(relDef, overDep, true);
-				// It is assumed that the filters have been checked at compile time (checkObr)
-				relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
-				relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
-				relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
-				relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
-				return relDef;
-			}
-		}
-
-		//No override found. Return as is if not duplicate
-		if (duplicate)
-			return null;
-		return relDef;
 	}
 
 

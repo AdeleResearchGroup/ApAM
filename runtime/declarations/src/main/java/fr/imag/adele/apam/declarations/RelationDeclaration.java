@@ -28,7 +28,7 @@ import java.util.Set;
  * @author vega
  * 
  */
-public class RelationDeclaration extends ConstrainedReference implements Cloneable {
+public class RelationDeclaration extends ConstrainedReference {
 	
 	/**
 	 * The events associated to the runtime life-cycle of the relation
@@ -64,11 +64,6 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-     * The map of list of call back methods associated to the same trigger
-     */
-    protected final Map<Event, Set<CallbackDeclaration>> callbacks;
-
-    /**
      * The reference to this declaration
      */
     private final Reference    reference;
@@ -92,12 +87,18 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	 * Whether this relation is declared explicitly as multiple
 	 */
     private final boolean		isMultiple;
-    
+
     /**
-	 * Whether this relation is declared explicitly as an override
-	 */
-    private final boolean		isOverride;
-    
+     * The policy to handle unresolved dependencies
+     */
+
+    private final MissingPolicy  		missingPolicy;
+
+    /**
+     * The exception to throw for the exception missing policy
+     * 
+     */
+    private final String              missingException;
 
     /**
 	 * The list of instrumentation that need to be performed in the source 
@@ -107,27 +108,25 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     protected final List<RequirerInstrumentation>		instrumentations;
 
     /**
-     * The policy to handle unresolved dependencies
+     * The map of list of call back methods associated to the relation lifecycle
      */
-
-    private MissingPolicy  		missingPolicy;
-
+    protected final Map<Event, Set<CallbackDeclaration>> callbacks;
+    
     /**
-     * The exception to throw for the exception missing policy
-     * 
-     */
-    private String              missingException;
-
+	 * Whether this relation is declared explicitly as an override
+	 */
+    private final boolean		isOverride;
+    
     /**
 	 * Whether a relation matching this policy must be eagerly resolved
 	 */
-    private Boolean            isEager;
+    private final Boolean            isEager;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
 
-    private Boolean             mustHide;
+    private final Boolean             mustHide;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
@@ -135,92 +134,136 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     private CreationPolicy     creationPolicy=null;
     private ResolvePolicy      resolvePolicy=null;
     
-    
-    /**
-	 * 
-	 * @param component
-	 *            the name of the component who had the reference
-	 * @param id
-	 *            the id of the relation
-	 * @param isMultiple
-	 *            define if this relation is multiple
-	 * @param resource
-	 *            the resource which we should look for
-	 */
-    
-    public RelationDeclaration(ComponentReference<?> component,  String id, boolean isOverride,
-    		boolean isMultiple, ResolvableReference resource) {
-    	this(component,id,isOverride,isMultiple,resource, null,ComponentKind.INSTANCE,ComponentKind.INSTANCE);
+    public RelationDeclaration(ComponentReference<?> component,  String id, ResolvableReference target, boolean isMultiple) {
+    	this(component,id,
+    	null,ComponentKind.INSTANCE,
+    	target,ComponentKind.INSTANCE,isMultiple,
+    	MissingPolicy.OPTIONAL,null,
+    	false,false,false);
     }
 
-    public RelationDeclaration(ComponentReference<?> component, String id, boolean isOverride,
-    		boolean isMultiple, ResolvableReference resource,
-    		String sourceName, ComponentKind sourceKind, ComponentKind targetKind) {
+    public RelationDeclaration(ComponentReference<?> component, String id, 
+    				String sourceName, ComponentKind sourceKind, 
+    				ResolvableReference target, ComponentKind targetKind, boolean isMultiple,
+    				MissingPolicy missingPolicy, String missingException,
+    				boolean isOverride, Boolean isEager, Boolean mustHide) {
 
-        super(resource);
+        super(target);
 
-        assert component != null && resource != null;
+        assert component != null && target != null;
         
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
-        this.isOverride			= isOverride;
         this.reference			= new Reference(component,id);
 
         this.sourceName			= sourceName;
         this.sourceKind			= sourceKind;
         this.targetKind			= targetKind;
+
+        this.missingPolicy 		= missingPolicy;
+        this.missingException 	= missingException;
         
         this.isMultiple 		= isMultiple;
-        this.isEager 			= null;
-        this.mustHide 			= null;
-        this.missingPolicy 		= null;
-        this.missingException 	= null;
-        this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
+        this.isOverride			= isOverride;
+        this.isEager 			= isEager;
+        this.mustHide 			= mustHide;
+
         this.instrumentations	= new ArrayList<RequirerInstrumentation>();
+        this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
         
     }
-    
-    @Override
-    public boolean equals(Object object) {
-    	if (! (object instanceof RelationDeclaration))
-    		return false;
+
+    /**
+     * Computes the effective declaration that is the result of applying the specified refinement to this
+     * declaration.
+     * 
+	 * TODO currently we keep the most general target definition and we loose the target declaration of 
+	 * the lower level, should we add additional constraints to represent the narrowing of the target?
+     * 
+     */
+    public RelationDeclaration refinedBy(RelationDeclaration refinement) {
     	
-    	RelationDeclaration that = (RelationDeclaration) object;
-    	return this.reference.equals(that.reference);
+    	assert this.getIdentifier().equals(refinement.getIdentifier());
+    	
+        RelationDeclaration effective = new RelationDeclaration(refinement.getComponent(),this.getIdentifier(),
+        										this.getSourceName(),this.getSourceKind(),
+        										this.getTarget(),this.getTargetKind(), refinement.isMultiple,
+        										refinement.getMissingPolicy() == null ? this.getMissingPolicy() : refinement.getMissingPolicy(),refinement.getMissingException() == null ? this.getMissingException() : refinement.getMissingException(),
+        										refinement.isOverride,refinement.isEager,refinement.mustHide);
+
+
+        effective.instrumentations.addAll(this.instrumentations);
+        effective.instrumentations.addAll(refinement.instrumentations);
+
+        effective.callbacks.putAll(this.callbacks);
+        effective.callbacks.putAll(refinement.callbacks);
+        
+        effective.getImplementationConstraints().addAll(this.getImplementationConstraints());
+        effective.getImplementationConstraints().addAll(refinement.getImplementationConstraints());
+        
+        effective.getInstanceConstraints().addAll(this.getInstanceConstraints());
+        effective.getInstanceConstraints().addAll(refinement.getInstanceConstraints());
+        
+        effective.getImplementationPreferences().addAll(this.getImplementationPreferences());
+        effective.getImplementationPreferences().addAll(refinement.getImplementationPreferences());
+        
+        effective.getInstancePreferences().addAll(this.getInstancePreferences());
+        effective.getInstancePreferences().addAll(refinement.getInstancePreferences());
+
+        return effective;
+
     }
     
-    @Override
-    public int hashCode() {
-    	return reference.hashCode();
-    }
+    /**
+     * Computes the effective declaration that is the result of applying the specified override to this
+     * declaration.
+     * 
+     */
+    public RelationDeclaration overriddenBy(RelationDeclaration override) {
+    	
+    	assert override.isOverride() && this.getIdentifier().matches(override.getIdentifier());
+    	
+        RelationDeclaration effective = new RelationDeclaration(this.getComponent(),this.getIdentifier(),
+        										this.getSourceName(),this.getSourceKind(),
+        										this.getTarget(),this.getTargetKind(), this.isMultiple,
+        										override.getMissingPolicy() != null ? override.getMissingPolicy() : this.getMissingPolicy(),override.getMissingException() != null ? override.getMissingException() : this.getMissingException(),
+        										this.isOverride,override.isEager,override.mustHide);
 
-    @Override
-    public RelationDeclaration clone() {
 
-        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.reference.getIdentifier(), this.isOverride,
-        		this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetKind);
-
-//        clone.setSourceKind(this.sourceKind);
-//        clone.setTargetType(this.targetKind);
+        effective.getImplementationConstraints().addAll(this.getImplementationConstraints());
+        effective.getImplementationConstraints().addAll(override.getImplementationConstraints());
         
-        clone.callbacks.putAll(this.callbacks);
-        clone.instrumentations.addAll(this.instrumentations);
+        effective.getInstanceConstraints().addAll(this.getInstanceConstraints());
+        effective.getInstanceConstraints().addAll(override.getInstanceConstraints());
         
-        clone.getImplementationConstraints().addAll(this.getImplementationConstraints());
-        clone.getInstanceConstraints().addAll(this.getInstanceConstraints());
-        clone.getImplementationPreferences().addAll(this.getImplementationPreferences());
-        clone.getInstancePreferences().addAll(this.getInstancePreferences());
+        effective.getImplementationPreferences().addAll(this.getImplementationPreferences());
+        effective.getImplementationPreferences().addAll(override.getImplementationPreferences());
+        
+        effective.getInstancePreferences().addAll(this.getInstancePreferences());
+        effective.getInstancePreferences().addAll(override.getInstancePreferences());
 
-        clone.setMissingException(this.getMissingException());
-        clone.setMissingPolicy(this.getMissingPolicy());
+        return effective;
 
-        return clone;
     }
-
+   
     /**
      * The defining component
      */
     public ComponentReference<?> getComponent() {
         return reference.getDeclaringComponent();
+    }
+
+    /**
+     * Get the reference to this declaration
+     */
+    public Reference getReference() {
+        return reference;
+    }
+
+    /**
+	 * Get the id of the relation in the declaring component declaration
+	 */
+    public String getIdentifier() {
+        return reference.getIdentifier();
     }
     
     /**
@@ -239,28 +282,6 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 		return targetKind;
 	}
 
-    /**
-	 * Get the id of the relation in the declaring component declaration
-	 */
-    public String getIdentifier() {
-        return reference.getIdentifier();
-    }
-
-    /**
-     * Whether this declaration is an override
-     */
-    public boolean isOverride() {
-    	return isOverride;
-    }
-    
-    /**
-     * Get the reference to this declaration
-     */
-    public Reference getReference() {
-        return reference;
-    }
-
-    
     /**
 	 * The multiplicity of a relation.
 	 * 
@@ -301,7 +322,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
         return oneRequiredService ? supportMultiple : isMultiple;
     }
-
+    
     /**
 	 * Get the policy associated with this relation
 	 */
@@ -310,15 +331,55 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-	 * Set the missing policy used for this relation
+     * Get the exception associated with the missing policy
+     */
+    public String getMissingException() {
+        return missingException;
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+    	if (! (object instanceof RelationDeclaration))
+    		return false;
+    	
+    	RelationDeclaration that = (RelationDeclaration) object;
+    	return this.reference.equals(that.reference);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return reference.hashCode();
+    }
+
+     /**
+	 * Get the instrumentation metadata associated to this relation declaration
 	 */
-    public void setMissingPolicy(MissingPolicy missingPolicy) {
-        this.missingPolicy = missingPolicy;
+    public List<RequirerInstrumentation> getInstrumentations() {
+        return instrumentations;
+    }
+
+    public void addCallback(Event trigger, CallbackDeclaration callback) {
+        if (callbacks.get(trigger) == null) {
+            callbacks.put(trigger, new HashSet<CallbackDeclaration>());
+        }
+        callbacks.get(trigger).add(callback);
+
+    }
+
+    public Set<CallbackDeclaration> getCallback(Event trigger) {
+        return callbacks.get(trigger);
     }
 
     /**
-     * Whether dependencies matching this contextual policy must be resolved eagerly
+     * Whether this declaration is an override
      */
+    public boolean isOverride() {
+    	return isOverride;
+    }
+    
+    /**
+	 * Whether dependencies matching this contextual policy must be resolved eagerly
+	 */
     public Boolean isEager() {
         return isEager;
     }
@@ -327,41 +388,12 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     	return isEager != null ? isEager : false;
     }
     
-    public void setEager(Boolean isEager) {
-        this.isEager = isEager;
-    }
-
     /**
 	 * Whether an error resolving a relation matching this policy should trigger
 	 * a backtrack in resolution
 	 */
     public Boolean isHide() {
         return mustHide;
-    }
-
-    public void setHide(Boolean mustHide) {
-        this.mustHide = mustHide;
-    }
-
-    /**
-     * Get the exception associated with the missing policy
-     */
-    public String getMissingException() {
-        return missingException;
-    }
-
-    /**
-	 * Set the missing exception used for this relation
-	 */
-    public void setMissingException(String missingException) {
-        this.missingException = missingException;
-    }
-
-    /**
-	 * Get the instrumentations associated to this relation declaration
-	 */
-    public List<RequirerInstrumentation> getInstrumentations() {
-        return instrumentations;
     }
 
     @Override
@@ -424,16 +456,5 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
     }
 
-    public void addCallback(Event trigger, CallbackDeclaration callback) {
-        if (callbacks.get(trigger) == null) {
-            callbacks.put(trigger, new HashSet<CallbackDeclaration>());
-        }
-        callbacks.get(trigger).add(callback);
-
-    }
-
-    public Set<CallbackDeclaration> getCallback(Event trigger) {
-        return callbacks.get(trigger);
-    }
 
 }

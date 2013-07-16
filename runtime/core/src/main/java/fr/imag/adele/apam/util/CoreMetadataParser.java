@@ -919,9 +919,26 @@ public class CoreMetadataParser implements CoreParser {
 			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
 
 		/*
+		 * Get the optional missing policy
+		 */
+		MissingPolicy policy 	= parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, null);
+		String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
+
+		/*
+		 * Get the optional contextual properties
+		 */
+		String isEager 	= parseString(component.getName(),element, CoreMetadataParser.ATT_EAGER, false);
+		String mustHide = parseString(component.getName(),element, CoreMetadataParser.ATT_HIDE, false);
+
+		/*
 		 * Create the relation and add the declared instrumentation
 		 */
-		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
+		RelationDeclaration relation = new RelationDeclaration(component.getReference(),id,
+												sourceName,sourceKind,
+												targetDef,targetKind,isMultiple,
+												policy,missingException,
+												isOverride,isEager != null ? Boolean.valueOf(isEager): null,mustHide != null ? Boolean.valueOf(mustHide): null);
+		
 		for (RequirerInstrumentation instrumentation : instrumentations) {
 			instrumentation.setRelation(relation);
 		}
@@ -949,31 +966,6 @@ public class CoreMetadataParser implements CoreParser {
 							+ "\" is invalid or not found");
 				relation.addCallback(RelationDeclaration.Event.UNBIND,callback);
 			}
-		}
-
-		/*
-		 * Get the optional missing policy
-		 */
-		MissingPolicy policy = parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, null);
-		relation.setMissingPolicy(policy);
-
-		/*
-		 * Get the optional missing exception specification
-		 */
-		String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
-		if (policy != null && policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
-			relation.setMissingException(missingException);
-		}
-
-		String isEager = parseString(component.getName(),element, CoreMetadataParser.ATT_EAGER, false);
-		String mustHide = parseString(component.getName(),element, CoreMetadataParser.ATT_HIDE, false);
-
-		if (isEager != null) {
-			relation.setEager(Boolean.parseBoolean(isEager));
-		}
-
-		if (mustHide != null) {
-			relation.setHide(Boolean.parseBoolean(mustHide));
 		}
 
 		/*
