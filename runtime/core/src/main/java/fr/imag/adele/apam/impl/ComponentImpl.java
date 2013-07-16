@@ -342,21 +342,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		put (CST.NAME, apform.getDeclaration().getName()) ;
 		if (this instanceof Specification) {
 			put (CST.SPECNAME, apform.getDeclaration().getName()) ;
-		} else {
-			if (this instanceof Implementation) {
-				put (CST.IMPLNAME, apform.getDeclaration().getName()) ;
-				if (this instanceof CompositeType) {
-					put(CST.APAM_COMPOSITETYPE, CST.V_TRUE);
-				}
-				if (this instanceof Composite) {
-					put(CST.APAM_COMPOSITE, CST.V_TRUE);
-					put(CST.APAM_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
-				}
-			} else  {
-				if (this instanceof Instance) {
-					put (CST.INSTNAME, apform.getDeclaration().getName()) ;
-					//put (CST.A_COMPOSITE, ((Instance)this).getComposite().getName());
-				}
+		}
+		else if (this instanceof Implementation) {
+			put (CST.IMPLNAME, apform.getDeclaration().getName()) ;
+			if (this instanceof CompositeType) {
+				put(CST.APAM_COMPOSITETYPE, CST.V_TRUE);
+			}
+		}
+		else  if (this instanceof Instance) {
+			put (CST.INSTNAME, apform.getDeclaration().getName()) ;
+			if (this instanceof Composite) {
+				put(CST.APAM_COMPOSITE, CST.V_TRUE);
+				put(CST.APAM_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
 			}
 		}
 
@@ -908,7 +905,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public Map<String, String> getAllPropertiesString() {
 		Map<String, String> ret = new HashMap<String, String>();
 		for (Entry<String, Object> e : this.entrySet()) {
-			ret.put(e.getKey(), Util.toStringAttrValue(e.getValue()));
+			if (!Attribute.isFinalAttribute(e.getKey()))
+				ret.put(e.getKey(), Util.toStringAttrValue(e.getValue()));
 		}
 		return ret;
 	}

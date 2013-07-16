@@ -405,7 +405,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 
 	 @Override
 	 public Component getGroup() {
-		 return getImplDeclaration().getSpecification() != null ? mySpec : null;
+		 return mySpec;
 	 }
 
 
