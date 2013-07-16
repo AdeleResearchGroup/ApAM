@@ -215,7 +215,7 @@
 		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
 		<dependency field="s2" removed="unbindWithInstance" >
 			<constraints>
-				<instance filter="(defined-property=*)" />
+				<instance filter="(defined-property=expected)" />
 			</constraints>
 		</dependency>
 	</implementation>

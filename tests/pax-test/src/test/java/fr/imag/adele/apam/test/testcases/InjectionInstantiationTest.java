@@ -34,6 +34,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.pax.test.iface.S2;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch;
@@ -728,7 +729,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		S1Impl s1 = (S1Impl) instance.getServiceObject();
 				
-		s1.getS2();
+		S2 first = s1.getS2();
 
 		//The line s1.getS2() creates the link and sets the UnbindReceivedInstanceParameter to true, so we roll it back to false
 
@@ -736,12 +737,14 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		
 		//after change the variable we expect apam to call the remove method
 		
-		instance.getLinkDest("s2").setProperty("defined-property", "ups");
+		instance.getLinkDest("s2").setProperty("defined-property", "invalid");
 		
+		S2 second = s1.getS2();
 		
 		Assert.assertTrue(messageTemplate,
 				s1.getIsBindUnbindReceivedInstanceParameter() == true);
 
+		Assert.assertNotSame("Must be a new instance", first, second);
 
 	}
 

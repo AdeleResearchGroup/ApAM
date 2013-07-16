@@ -601,20 +601,25 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return true;
 
 		if (CST.isFinalRelation(dep.getName())){
-			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getName());
+			logger.error("CreateLink: cannot create predefine relation " + dep.getName());
+			return false;
 		}
 		
 		if ((to == null) || (dep == null)) {
-			throw new IllegalArgumentException("CreateLink: Source or target are null ");
+			logger.error("CreateLink: Source or target are null ");
+			return false;
 		}
 		if (!promotion && !canSee(to)) {
-			throw new IllegalArgumentException("CreateLink: Source  " + this + " does not see its target " + to);
+			logger.error("CreateLink: Source  " + this + " does not see its target " + to);
+			return false;
 		}
 		if (this.getKind() != dep.getSourceKind()) {
-			throw new IllegalArgumentException("CreateLink: Source kind " + getKind() + " is not compatible with relation sourceType " + dep.getSourceKind());
+			logger.error("CreateLink: Source kind " + getKind() + " is not compatible with relation sourceType " + dep.getSourceKind());
+			return false;
 		}
 		if (to.getKind() != dep.getTargetKind()) {
-			throw new IllegalArgumentException("CreateLink: Target kind " + to.getKind() + " is not compatible with relation targetType " + dep.getTargetKind());
+			logger.error("CreateLink: Target kind " + to.getKind() + " is not compatible with relation targetType " + dep.getTargetKind());
+			return false;
 		}
 
 		String depName = dep.getName();
@@ -940,15 +945,20 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 * 	 problematic for those that are not lazy links : assychronous messages, .. and avoiding unnecessary work
 		 * TODO Check if this must be done for all links or only dynamic links
 		 */
+		Object oldValue = get(attr);
+		put(attr,value);
+		
 		for (Link incoming : getInvLinks()) {
 			//If still valid, do nothing
-			if (incoming.hasConstraints() && !isValidLink(incoming)) {
+			if (incoming.hasConstraints() && !isValidLink (incoming)) {
 				//remove
 				incoming.remove();
 				//recreate
 				CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
 			}
 		}
+		
+		if (oldValue == null) remove(attr); else put(attr,oldValue);
 		
 		// does the change, notifies managers, changes the platform and propagate to
 		// members
@@ -960,10 +970,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	private boolean isValidLink (Link incoming) {
 		Component source = incoming.getSource() ;
 		Relation relation = incoming.getDefinition() ;
-		((RelationImpl)relation).computeFilters(source) ;
-		boolean valid = source.createLink (incoming.getDestination(), incoming.getDefinition(), incoming.hasConstraints(), incoming.isPromotion()) ;
-		((RelationImpl)relation).resetFilters() ;
-		return valid ;
+		try {
+			((RelationImpl)relation).computeFilters(source) ;
+			return relation.matchRelationConstraints(incoming.getDestination());
+		}
+		finally {
+			((RelationImpl)relation).resetFilters() ;
+		}
 	}
 
 	/**
