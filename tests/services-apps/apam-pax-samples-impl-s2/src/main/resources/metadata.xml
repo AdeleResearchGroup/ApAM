@@ -54,14 +54,14 @@
 
 	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl">
 		<contentMngt>
-			<dependency override="true" name=".*" interface=".*Eletronic" eager="true">
+			<dependency override="true" name=".*" interface=".*Eletronic" creation="eager">
 			</dependency>
 		</contentMngt>
 	</composite>
 	
 	<composite name="S2Impl-composite-eager-forceEager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager">
 		<contentMngt>
-			<dependency override="true" name=".*" specification="eletronic-device" eager="true">
+			<dependency override="true" name=".*" specification="eletronic-device" creation="eager">
 			</dependency>
 		</contentMngt>
 	</composite>	
