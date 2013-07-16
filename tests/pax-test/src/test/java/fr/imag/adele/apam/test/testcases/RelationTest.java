@@ -199,7 +199,6 @@ public class RelationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	@Ignore
 	public void RelationSourceImplementationTargetInstanceCreationEager_tc101() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
@@ -208,13 +207,7 @@ public class RelationTest extends ExtensionAbstract {
 		Instance instance = implementation.createInstance(null,
 				Collections.<String, String> emptyMap());
 
-		S07ImplementationImporter05 dependency = (S07ImplementationImporter05) instance
-				.getServiceObject();
-
 		auxListInstances();
-		
-//		Instance instanceInjectedReference = auxListInstanceReferencedBy(dependency
-//				.getInjected());
 
 		ComponentImpl ci=(ComponentImpl)implementation;
 		
