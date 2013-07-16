@@ -315,17 +315,19 @@
     </xs:complexType>
 
     <xs:complexType name="ContextDependencyType">
-
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
+
         <xs:attribute name="hide" type="xs:string" use="optional"/>
         <xs:attribute name="eager" type="xs:string" use="optional"/>
         <xs:attribute name="override" type="xs:boolean" use="optional"/>
         <xs:attribute name="source" type="xs:string" use="optional"/>
         <xs:attribute name="target" type="xs:string" use="optional"/>
-        <xs:attributeGroup ref="basicDependencyAttributes"/>
+
+        <xs:attributeGroup ref="basicRelationAttributes"/>
+
     </xs:complexType>
 
     <xs:complexType name="ResourceDependencyType">

@@ -28,7 +28,6 @@ app-store.xml
 # apam distribution
 distributions/distriman-distribution/conf
 distributions/*-distribution/*
-!distributions/*-distribution/conf
 #merge files
 
 *.orig
