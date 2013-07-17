@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.imag.adele.apam.test.lights</groupId>
+    <artifactId>LightingScenarioTest</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <description>Integration Test based on the Lightning scenario Tutorial (dependencies, call back, events producers and consumers)</description>
+
+
+    <packaging>bundle</packaging>
+
+
+    <!-- Check Latest ApAM Version -->
+    <properties>
+        <apam-version>0.0.3</apam-version>
+    </properties>
+
+
+    <!-- Repositories List -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apam-plugin-repository</id>
+            <url>https://repository-apam.forge.cloudbees.com/release/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <build>
+        <plugins>
+        
+        
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.7</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>fr.imag.adele.apam</groupId>
+                <artifactId>apam-maven-plugin</artifactId>
+                <version>${apam-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apam-bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-core</artifactId>
+            <version>${apam-version}</version>
+        </dependency>
+    </dependencies>
+    
+  <repositories>
+    <repository>
+      <id>cloudbees-ApAM-release</id>
+      <name>Cloudbees Private Repository - ApAM - Release</name>
+      <url>https://repository-apam.forge.cloudbees.com/release/repository/</url>
+    </repository>
+    <repository>
+      <id>cloudbees-ApAM-snapshot</id>
+      <name>Cloudbees Private Repository - ApAM - Snapshot</name>
+      <url>https://repository-apam.forge.cloudbees.com/snapshot/repository/</url>
+    </repository>
+  </repositories>
+      
+</project>
