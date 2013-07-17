@@ -42,7 +42,7 @@ public class SwingButtonImpl implements ActionListener, SimpleButton {
     	
         frame = new javax.swing.JFrame(name);
         initComponents();
-        frame.setVisible(true);
+        //frame.setVisible(true);
     }
 
     public void stopped() {
