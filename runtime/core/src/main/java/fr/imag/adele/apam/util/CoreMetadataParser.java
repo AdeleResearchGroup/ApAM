@@ -1973,6 +1973,39 @@ public class CoreMetadataParser implements CoreParser {
 			
 			throw new NoSuchMethodException("unavailable metadata for method " + methodName);
 		}
+		
+		public String[] getMethodArgumentTypes(String methodName,
+				boolean includeInherited) throws NoSuchMethodException {
+
+			if (pojoMetadata != null) {
+				for (MethodMetadata method : pojoMetadata
+						.getMethods(methodName)) {
+					return method.getMethodArguments();
+				}
+			}
+
+			if (instrumentedCode != null) {
+				for (Method method : includeInherited ? instrumentedCode
+						.getMethods() : instrumentedCode.getDeclaredMethods()) {
+
+					if (!method.getName().equals(methodName))
+						continue;
+
+					List<String> mp=new ArrayList<String>();
+					
+					for(Class l:method.getParameterTypes()){
+						mp.add(l.getSimpleName());
+					}
+					
+					
+					
+					return mp.toArray(new String[1]);
+				}
+			}
+
+			throw new NoSuchMethodException("unavailable metadata for method "
+					+ methodName);
+		}
 			
 		@Override
 		public String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException {

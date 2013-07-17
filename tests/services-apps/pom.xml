@@ -24,6 +24,8 @@
 		<module>apam-pax-distriman-iface</module>
 		<module>apam-pax-distriman-P1</module>
 		<module>apam-pax-distriman-P2</module>
+		<module>LightingScenarioTest</module>
+
 	</modules>
 
 </project>

@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+		<groupId>fr.imag.adele.apam.tests.app</groupId>
+		<artifactId>services</artifactId>
+		<version>0.0.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>    
+    
+    <groupId>fr.imag.adele.apam.test.lights</groupId>
+    <artifactId>LightingScenarioTest</artifactId>
+
+    <description>Integration Test based on the Lightning scenario Tutorial (dependencies, call back, events producers and consumers)</description>
+
+
+    <packaging>bundle</packaging>
+
+
+
+    <!-- Repositories List -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apam-plugin-repository-snapshot</id>
+            <url>https://repository-apam.forge.cloudbees.com/snapshot/repository/</url>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>apam-plugin-repository-release</id>
+            <url>https://repository-apam.forge.cloudbees.com/release/repository/</url>           
+        </pluginRepository>
+        
+    </pluginRepositories>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>fr.imag.adele.apam</groupId>
+                <artifactId>apam-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apam-bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+      
+</project>

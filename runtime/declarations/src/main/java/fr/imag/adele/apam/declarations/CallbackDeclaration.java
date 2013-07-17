@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.declarations;
 
-
 /**
  * The declaration of a method that needs to be invoked on the implementation
  * to notify an APAM event (component and dependencies lifecycle).
@@ -53,10 +52,30 @@ public class CallbackDeclaration extends Instrumentation {
     public boolean isValidInstrumentation() {
     	try {
 			implementation.getReflection().getMethodArgumentNumber(methodName, true);
-			return true;
+			String[] types=implementation.getReflection().getMethodArgumentTypes(methodName, true);
+			
+			if( types.length==0 ) {
+				return true;
+			} else if(types.length==1) {
+				String classString=types[0]; 
+				
+				if(classString.equals("fr.imag.adele.apam.Component")
+						||classString.equals("fr.imag.adele.apam.Instance")
+						||classString.equals("fr.imag.adele.apam.Implementation")
+						||classString.equals("fr.imag.adele.apam.Specification")){
+					return true;
+				}
+				
+			}
+			
 		} catch (NoSuchMethodException e) {
+			
 			return false;
+			
 		}
+    	
+    	return false;
+    	
     }
 
 

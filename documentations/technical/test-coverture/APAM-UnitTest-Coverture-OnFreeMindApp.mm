@@ -208,11 +208,11 @@
 <node CREATED="1363702462031" ID="ID_772256253" MODIFIED="1363702552010" TEXT="in dependency tag, the method spec. (without parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc085">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1372952675291" ID="ID_386052917" MODIFIED="1372952740717" TEXT="added callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc109">
-<icon BUILTIN="button_ok"/>
+<node CREATED="1372952675291" ID="ID_386052917" MODIFIED="1374054514520" TEXT="added callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc109">
+<icon BUILTIN="stop-sign"/>
 </node>
-<node CREATED="1372953108128" ID="ID_652392009" MODIFIED="1372953121115" TEXT="removed callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc110">
-<icon BUILTIN="button_ok"/>
+<node CREATED="1372953108128" ID="ID_652392009" MODIFIED="1374054519888" TEXT="removed callback, when the class has several valid method names but only invalid arguments dont fail the compilation (but fails the injection)-tc110">
+<icon BUILTIN="stop-sign"/>
 </node>
 <node CREATED="1373563097136" ID="ID_1081429386" MODIFIED="1373563265770" TEXT="callback should NOT be called when the dependency property changed and this dependency is NOT based on a constraint-tc111">
 <icon BUILTIN="button_ok"/>

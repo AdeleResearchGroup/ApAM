@@ -61,6 +61,17 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
          * The type of the first parameter of the specified java method
          */
         String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException;
+        
+        /**
+         * Return the list of argument types
+         * @param methodName
+         * @param includeInherited
+         * @return
+         * @throws NoSuchMethodException
+         */
+        
+        public String[] getMethodArgumentTypes(String methodName, boolean includeInherited) throws NoSuchMethodException;
+        
 
     }
 
