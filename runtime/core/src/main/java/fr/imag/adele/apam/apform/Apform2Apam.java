@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.ComponentReference;
 
 
 public class Apform2Apam {
@@ -149,6 +149,10 @@ public class Apform2Apam {
     		return requiredComponent;
     	}
 
+    	@Override
+    	public String toString() {
+    		return description;
+    	}
     }
 
     /**
@@ -217,7 +221,7 @@ public class Apform2Apam {
         	 * race conditions with appearing components.
         	 * 
         	 * TODO perhaps this code should be refactored into the broker, so that
-        	 * validation and blocking can de done atomically
+        	 * validation and blocking can be done atomically
         	 */
         	if (CST.componentBroker.getComponent(componentName) != null)
         		return;
@@ -311,10 +315,31 @@ public class Apform2Apam {
          */
         protected abstract Component reify();
 
+        /**
+         * The required components that need to be already refified
+         * in APAM as a requisites to start reifying this component
+         */
+        protected abstract List<ComponentReference<?>> getRequirements();
+        
+        /*
+         * (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         @Override
         public void run() {
             try {
             	started();
+            	
+            	/*
+            	 * Wait for required components
+            	 */
+            	for (ComponentReference<?> requirement : getRequirements()) {
+            		CST.componentBroker.getWaitComponent(requirement.getName());
+				}
+            	
+            	/*
+            	 * perform reification and notify after completion
+            	 */
             	Component apamReification = reify();
                 if (apamReification != null) {
                     notifyDeployment(apamReification);
@@ -361,18 +386,12 @@ public class Apform2Apam {
         }
         
         @Override
+        protected List<ComponentReference<?>> getRequirements() {
+        	return Collections.<ComponentReference<?>>singletonList(getComponent().getDeclaration().getImplementation());
+        }
+        
+        @Override
         public Component reify() {
-        	
-        	/*
-        	 * Verify implementation is currently installed. 
-        	 * If not installed wait for installation.
-        	 */
-        	String implementationName = getComponent().getDeclaration().getImplementation().getName();
-        	CST.componentBroker.getWaitComponent(implementationName);
-        	
-        	/*
-        	 * Add to APAM
-        	 */
         	return CST.componentBroker.addInst(null,getComponent());
         }
 
@@ -396,20 +415,17 @@ public class Apform2Apam {
         }
         
         @Override
+        protected List<ComponentReference<?>> getRequirements() {
+        	ComponentReference<?> specification = getComponent().getDeclaration().getSpecification();
+           	if (specification != null)
+           		return Collections.<ComponentReference<?>>singletonList(specification);
+
+           	return Collections.emptyList();
+        }
+        
+        @Override
         public Component reify() {
-        	/*
-        	 * Verify specification is currently installed. If not installed wait for
-        	 * installation
-        	 */
-        	SpecificationReference specification = getComponent().getDeclaration().getSpecification();
-        	if (specification != null) {
-        		CST.componentBroker.getWaitComponent(specification.getName());
-        	}
-        	
-        	/*
-        	 * Add to APAM
-        	 */
-            return CST.componentBroker.addImpl(null,getComponent());
+             return CST.componentBroker.addImpl(null,getComponent());
         }
 
     }
@@ -429,6 +445,11 @@ public class Apform2Apam {
         @Override
         public ApformSpecification getComponent() {
         	return (ApformSpecification) super.getComponent();
+        }
+        
+        @Override
+        protected List<ComponentReference<?>> getRequirements() {
+        	return Collections.emptyList();
         }
         
         @Override

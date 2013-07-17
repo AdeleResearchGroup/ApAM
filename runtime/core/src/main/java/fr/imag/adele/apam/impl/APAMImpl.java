@@ -84,7 +84,7 @@ public class APAMImpl implements Apam {
          * are registered
          */
         if (! expectedManagers.isEmpty()) {
-        	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 5*000/*ms*/);
+        	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 20*1000/*ms*/);
         }
         
         apamMan = new ApamMan();
