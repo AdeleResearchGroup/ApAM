@@ -191,8 +191,8 @@ public class RelationDeclaration extends ConstrainedReference {
         										this.getCreationPolicy() == null ? refinement.getCreationPolicy() : this.getCreationPolicy(),
         										this.getResolvePolicy() == null ? refinement.getResolvePolicy() : this.getResolvePolicy(),
         										refinement.isMultiple,
-        										this.getMissingPolicy() == null ? refinement.getMissingPolicy() : this.getMissingPolicy(),
-        										this.getMissingException() == null ? refinement.getMissingException() : this.getMissingException(),
+        										refinement.getMissingPolicy() != null ? refinement.getMissingPolicy() : this.getMissingPolicy(),
+        										refinement.getMissingException() != null ? refinement.getMissingException() : this.getMissingException(),
         										refinement.isOverride,refinement.mustHide);
 
 
