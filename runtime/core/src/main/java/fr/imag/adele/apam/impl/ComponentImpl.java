@@ -352,8 +352,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		else  if (this instanceof Instance) {
 			put (CST.INSTNAME, apform.getDeclaration().getName()) ;
 			if (this instanceof Composite) {
+				
+				Composite composite = (Composite)this;
 				put(CST.APAM_COMPOSITE, CST.V_TRUE);
-				put(CST.APAM_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
+				if (composite.getMainInst() != null)
+					put(CST.APAM_MAIN_INSTANCE, composite.getMainInst().getName());
 			}
 		}
 
