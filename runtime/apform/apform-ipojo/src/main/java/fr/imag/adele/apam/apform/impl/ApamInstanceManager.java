@@ -127,9 +127,24 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
          */
         apform 	= this.new Apform();
         
+        /*
+         * InstanceManager.configure assumes that there is instrumented code manipulation data, so we cannot reuse
+         * this method for APAM abstract components. This is one of the drawbacks of trying to reuse InstanceManager
+         * for all kind of APAM components.
+         */
         
-        configuration.put("instance.name", declaration.getName());
-        super.configure(metadata, configuration);
+        if (getFactory().hasInstrumentedCode()) {
+        	configuration.put("instance.name", declaration.getName());
+        	super.configure(metadata, configuration);
+        } else {
+            // Add the name
+            m_name = (String) configuration.get("instance.name");
+            
+            // Create the standard handlers and add these handlers to the list
+            for (int i = 0; i < m_handlers.length; i++) {
+                m_handlers[i].init(this, metadata, configuration);
+            }
+        }
 
         /*
          * TODO Currently there is no life-cycle handler, so we perform configuration directly in the instance
@@ -137,6 +152,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
          */
         loadLifeCycleCallbacks();
     }
+    
 
     /**
      * Notify instance activation/deactivation
