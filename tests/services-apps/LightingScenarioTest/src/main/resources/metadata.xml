@@ -97,6 +97,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="LightManagerPanel"
 		classname="fr.imag.adele.apam.test.lights.panel.LightManagerTester">
 		<callback onInit="started" onRemove="stopped"/>
+        <definition name="toShow" type="int" field="toShow" value="0" method="show"/>
 <!--         <definition name="testPressButton" type="string" field="myTestedButtonName" method="testPressButton"/> -->
         <relation specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton"/>
 		<relation  specification="Light" field="theLights" multiple="true" added="newLight" removed="removeLight"/>
@@ -104,8 +105,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</relation> -->
 	</implementation>
 
-   <apam-instance implementation="LightManagerPanel" name="myPanel">
-    </apam-instance>
+<!--    <apam-instance implementation="LightManagerPanel" name="myPanel"> -->
+<!--     </apam-instance> -->
 	
 
 	<apam-instance implementation="LightApplication" name="myKitchen">

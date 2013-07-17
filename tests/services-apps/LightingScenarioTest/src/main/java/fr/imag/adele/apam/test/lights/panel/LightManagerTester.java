@@ -52,6 +52,8 @@ public class LightManagerTester implements ActionListener {
     JButton btn1;
     JButton btn2;
     JButton btn3;
+    
+    private int toShow; 
 
     private static Logger logger = LoggerFactory
 	    .getLogger(LightManagerTester.class);
@@ -82,8 +84,17 @@ public class LightManagerTester implements ActionListener {
 	rebuildLightsColumn();
 	rebuildButtonsColumn();
 	myFrame.pack();
-	myFrame.setVisible(true);
+	if(toShow>0)
+	    myFrame.setVisible(true);
 
+    }
+    
+    public void show() {
+	if(toShow>0)
+	    myFrame.setVisible(true);
+	else myFrame.setVisible(false);
+	  
+	
     }
 
     public void stopped() {
@@ -185,11 +196,11 @@ public class LightManagerTester implements ActionListener {
 	}
     }
 
-    private void testButtonKitchen() {
+    public void testButtonKitchen() throws Exception {
 	shutDownLights();
 	testPressButton("buttonKitchen");
 	try {
-	    Thread.sleep(1000);
+	    Thread.sleep(200);
 	} catch (InterruptedException e) {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
@@ -203,21 +214,17 @@ public class LightManagerTester implements ActionListener {
 	    } else if(light.isLightOn())
 		error=true;
 	}
-	if(error)
+	if(error) {
 	    logger.error("Light status incorrect");
+	    throw new Exception("Light status incorrect");
+	}
     }
 
-    private void testButtonLiving() {
+    public void testButtonLiving() throws Exception{
 	shutDownLights();
 	testPressButton("buttonLivingOne");
 	try {
-	    Thread.sleep(1000);
-	} catch (InterruptedException e) {
-	    logger.error("Test stopped");
-	    e.printStackTrace();
-	}
-	try {
-	    Thread.sleep(1000);
+	    Thread.sleep(200);
 	} catch (InterruptedException e) {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
@@ -230,8 +237,10 @@ public class LightManagerTester implements ActionListener {
 	    if (light.isLightOn())
 		error = true;
 	}
-	if (error)
+	if(error) {
 	    logger.error("Light status incorrect");
+	    throw new Exception("Light status incorrect");
+	}
     }
 
     private void shutDownLights() {
@@ -240,6 +249,7 @@ public class LightManagerTester implements ActionListener {
 	}
     }
 
+    @Deprecated
     public void testMyKitchenBinding() {
 	logger.info("testMyKitchenBinding()");
 	ApamResolver resolver = CST.apamResolver;
@@ -274,12 +284,16 @@ public class LightManagerTester implements ActionListener {
      * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
+	try {
 	if (e.getSource() == btn1)
 	    testMyKitchenBinding();
 	else if (e.getSource() == btn2)
 	    testButtonKitchen();
 	else if (e.getSource() == btn3)
 	    testButtonLiving();
+	} catch (Exception exc) {
+	    exc.printStackTrace();
+	}
     }
 
 }
