@@ -748,6 +748,9 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	}
 
+	/**
+	 * This test is scheduled to be removed
+	 */
 	@Test
 	@Ignore
 	public void AddedCallbackOnlyInvalidArgumentMethods_tc109() {
@@ -768,6 +771,9 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		
 	}
 	
+	/**
+	 * This test is scheduled to be removed
+	 */
 	@Test
 	@Ignore
 	public void RemovedCallbackOnlyInvalidArgumentMethods_tc110() {
