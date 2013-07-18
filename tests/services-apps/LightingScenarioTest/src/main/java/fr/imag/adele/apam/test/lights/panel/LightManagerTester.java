@@ -182,14 +182,16 @@ public class LightManagerTester implements ActionListener {
 	}
     }
 
-    public void testPressButton(String buttonName) {
-	logger.info("testPressButton(), Button to test " + buttonName);
+    public void testPressButton(String location) {
+	logger.info("testPressButton(), Location button to test " + location);
 	if (theButtons != null && theButtons.size() > 0) {
+	    boolean found = false;
 	    Iterator<SimpleButton> it = theButtons.iterator();
-	    while (it.hasNext()) {
+	    while (it.hasNext()&&!found) {
 		SimpleButton btn = it.next();
-		if (btn.getName().equals(buttonName)) {
+		if (btn.getLocation().equals(location)) {
 		    logger.debug("testPressButton(), found button to test");
+		    found= true;
 		    btn.pressButton();
 		}
 	    }
@@ -198,48 +200,61 @@ public class LightManagerTester implements ActionListener {
 
     public void testButtonKitchen() throws Exception {
 	shutDownLights();
-	testPressButton("buttonKitchen");
 	try {
 	    Thread.sleep(200);
 	} catch (InterruptedException e) {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
 	}
-	boolean error=false;
+	testPressButton("kitchen");
+	try {
+	    Thread.sleep(200);
+	} catch (InterruptedException e) {
+	    logger.error("Test stopped");
+	    e.printStackTrace();
+	}
+	String error="";
 	
 	for(BinaryLight light : theLights) {
 	    if(light.getLocation().equals("kitchen")) {
-		    if(!light.isLightOn())
-			error=true;
+		    if(!light.isLightOn()) {
+			error+=light.getName()+" in "+light.getLocation()+" is off (should be on);";
+		    }
 	    } else if(light.isLightOn())
-		error=true;
+		error+=light.getName()+" in "+light.getLocation()+" is off (should be on);";
 	}
-	if(error) {
-	    logger.error("Light status incorrect");
-	    throw new Exception("Light status incorrect");
+	if(!error.equals("")) {
+	    logger.error("Light status incorrect : "+error);
+	    throw new Exception("Light status incorrect : "+error);
 	}
     }
 
     public void testButtonLiving() throws Exception{
 	shutDownLights();
-	testPressButton("buttonLivingOne");
 	try {
 	    Thread.sleep(200);
 	} catch (InterruptedException e) {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
 	}
-	boolean error = false;
+	testPressButton("living");
+	try {
+	    Thread.sleep(200);
+	} catch (InterruptedException e) {
+	    logger.error("Test stopped");
+	    e.printStackTrace();
+	}
+	String error="";
 
 	for (BinaryLight light : theLights) {
 	    // no light should be on because there is now Lighting application
 	    // in the living
 	    if (light.isLightOn())
-		error = true;
+		error+=light.getName()+" in "+light.getLocation()+" is on (should be off);";
 	}
-	if(error) {
-	    logger.error("Light status incorrect");
-	    throw new Exception("Light status incorrect");
+	if(!error.equals("")) {
+	    logger.error("Light status incorrect : "+error);
+	    throw new Exception("Light status incorrect : "+error);
 	}
     }
 
