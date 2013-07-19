@@ -29,7 +29,6 @@
 		<module>apform</module>
 		<module>bundle</module>
 		<module>managers</module>
-		<module>upnp</module>
 	</modules>
 	 
 </project>
