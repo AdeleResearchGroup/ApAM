@@ -521,8 +521,8 @@ public class ApamResolverImpl implements ApamResolver {
 				}
 				relationManager.getSelectionPath(source, relation, selectionPath);
 			}
-			((RelationImpl)relation).computeFilters(source) ;
 		}
+		((RelationImpl)relation).computeFilters(source) ;
 		
 		if (!relation.isRelation()) { // It is a find
 			logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
