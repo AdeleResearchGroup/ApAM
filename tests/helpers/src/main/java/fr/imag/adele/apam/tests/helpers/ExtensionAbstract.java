@@ -234,9 +234,10 @@ public abstract class ExtensionAbstract extends TestUtils {
 		CompositeOption logConfig = new DefaultCompositeOption(
 				mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
 				mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(), 
-				mavenBundle("org.slf4j","slf4j-api").versionAsInProject()
+				mavenBundle("org.slf4j","slf4j-api").versionAsInProject(),
+				mavenBundle("org.apache.felix","org.apache.felix.log").version("1.0.1")
 				);
-
+		
 		return logConfig;
 	}
 	
@@ -292,7 +293,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s2").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject(),
-//				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s7").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s7").versionAsInProject(),
 								
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject());

@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.pax.test.implS7;
 
-import fr.imag.adele.apam.pax.test.implS7ext.S07Dependency03;
+import fr.imag.adele.apam.pax.test.implS7.S07Dependency03;
 
 
 public class S07Implem14 implements S07Interface14 {
@@ -17,7 +17,7 @@ public class S07Implem14 implements S07Interface14 {
 		return injected02;
 	}
 	
-	public S07Dependency03 injected03;
+	private S07Dependency03 injected03;
 	public S07Dependency03 getInjected03() throws Exception {
 		return injected03;
 	}	

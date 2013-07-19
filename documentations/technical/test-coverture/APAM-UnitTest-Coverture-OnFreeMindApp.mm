@@ -42,9 +42,6 @@
 <node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1360339406812" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
-<icon BUILTIN="button_cancel"/>
-</node>
 <node CREATED="1356684961188" ID="ID_1368445057" MODIFIED="1356685224122" TEXT="Testing superset &apos;*&gt;&apos; for integer-tc057">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -473,8 +470,12 @@
 <node CREATED="1372768328285" ID="ID_1141166594" MODIFIED="1372768578769" TEXT="targetKind">
 <icon BUILTIN="list"/>
 <node CREATED="1372768336910" ID="ID_1440659865" MODIFIED="1372768339040" TEXT="instance">
-<node CREATED="1372768460062" ID="ID_241198248" MODIFIED="1372768463443" TEXT="constraint"/>
-<node CREATED="1372768466174" ID="ID_592739735" MODIFIED="1372768468230" TEXT="preference"/>
+<node CREATED="1372768460062" ID="ID_241198248" MODIFIED="1374223242227" TEXT="constraint">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1372768466174" ID="ID_592739735" MODIFIED="1374223621796" TEXT="preference">
+<icon BUILTIN="button_cancel"/>
+</node>
 <node CREATED="1372776456639" ID="ID_525077534" MODIFIED="1372777403370" TEXT="tc109">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -507,6 +508,7 @@
 </node>
 <node CREATED="1372164263071" ID="ID_1036631998" MODIFIED="1372167224424" TEXT="link/dependency">
 <node CREATED="1372166663775" ID="ID_816538448" MODIFIED="1372951297137" TEXT="resolve">
+<<<<<<< HEAD
 <node CREATED="1372166667135" ID="ID_439462138" MODIFIED="1372166668907" TEXT="exist">
 <node CREATED="1374246432412" ID="ID_963123621" MODIFIED="1374246447400" TEXT="tct001">
 <icon BUILTIN="button_ok"/>
@@ -514,6 +516,17 @@
 </node>
 <node CREATED="1372166670031" ID="ID_211662486" MODIFIED="1372166672101" TEXT="internal"/>
 <node CREATED="1372166673215" ID="ID_1193893964" MODIFIED="1372166675509" TEXT="external"/>
+=======
+<node CREATED="1372166667135" ID="ID_439462138" MODIFIED="1374223234584" TEXT="exist">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1372166670031" ID="ID_211662486" MODIFIED="1374223234603" TEXT="internal">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1372166673215" ID="ID_1193893964" MODIFIED="1374223234603" TEXT="external">
+<icon BUILTIN="button_cancel"/>
+</node>
+>>>>>>> 5a645074c03095dcc66b1e241040122f0ec66a0a
 </node>
 <node CREATED="1372166619503" ID="ID_1293205806" MODIFIED="1372951295582" TEXT="creation">
 <icon BUILTIN="list"/>
@@ -527,7 +540,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1372166647512" TEXT="manual"/>
+<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1374223246971" TEXT="manual">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 <node CREATED="1372261224582" ID="ID_1892269130" MODIFIED="1372261333537" TEXT="there is inheritance from spec-&gt;implem in relation declaration-tc100">
