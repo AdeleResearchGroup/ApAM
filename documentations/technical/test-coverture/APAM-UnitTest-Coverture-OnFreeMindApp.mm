@@ -42,9 +42,6 @@
 <node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1360339406812" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
-<icon BUILTIN="button_cancel"/>
-</node>
 <node CREATED="1356684961188" ID="ID_1368445057" MODIFIED="1356685224122" TEXT="Testing superset &apos;*&gt;&apos; for integer-tc057">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -476,7 +473,9 @@
 <node CREATED="1372768460062" ID="ID_241198248" MODIFIED="1374223242227" TEXT="constraint">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1372768466174" ID="ID_592739735" MODIFIED="1372768468230" TEXT="preference"/>
+<node CREATED="1372768466174" ID="ID_592739735" MODIFIED="1374223621796" TEXT="preference">
+<icon BUILTIN="button_cancel"/>
+</node>
 <node CREATED="1372776456639" ID="ID_525077534" MODIFIED="1372777403370" TEXT="tc109">
 <icon BUILTIN="button_ok"/>
 </node>
