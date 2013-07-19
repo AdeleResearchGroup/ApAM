@@ -1,0 +1,80 @@
+<repository lastmodified='20130709053925.852'>
+  <resource id='fr.imag.adele.apam.tutorials.temperature.adeletech.AdeleHeatingTech/0.0.1.SNAPSHOT' symbolicname='fr.imag.adele.apam.tutorials.temperature.adeletech.AdeleHeatingTech' presentationname='AdeleHeatingTech' uri='/home/thibaud/.m2/repository/fr/imag/adele/apam/tutorials/temperature/adeletech/AdeleHeatingTech/0.0.1-SNAPSHOT/AdeleHeatingTech-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>14434</size>
+    <capability name='bundle'>
+      <p n='symbolicname' v='fr.imag.adele.apam.tutorials.temperature.adeletech.AdeleHeatingTech'/>
+      <p n='presentationname' v='AdeleHeatingTech'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.tutorials.temperature.adeletech.devices'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='uses:' v='fr.imag.adele.apam.tutorials.temperature.devices'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.tutorials.temperature.adeletech.services'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='uses:' v='javax.swing.border,javax.swing,fr.imag.adele.apam.tutorials.temperature.devices,javax.swing.event'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tutorials.temperature.adeletech'/>
+      <p n='artifactId' v='AdeleHeatingTech'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='RandomTemperature'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='RandomTemperature'/>
+      <p n='provide-interfaces' v='fr.imag.adele.apam.tutorials.temperature.devices.TemperatureSensor'/>
+      <p n='provide-specification' v='TemperatureSensor'/>
+      <p n='Unit' v='Celsius'/>
+      <p n='definition-name' t='string' v=''/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='DummyHeater'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='DummyHeater'/>
+      <p n='provide-interfaces' v='fr.imag.adele.apam.tutorials.temperature.devices.Heater'/>
+      <p n='provide-specification' v='Heater'/>
+      <p n='definition-name' t='string' v=''/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='HeatingApplication'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='HeatingApplication'/>
+      <p n='provide-interfaces' v='java.awt.event.ActionListener,javax.swing.event.ChangeListener'/>
+      <p n='definition-name' t='string' v=''/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='AdeleTechHeatingApplication'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='AdeleTechHeatingApplication'/>
+      <p n='apam-composite' v='true'/>
+      <p n='apam-main-component' v='HeatingApplication'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='myHeatingApp'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='myHeatingApp'/>
+      <p n='impl-name' v='AdeleTechHeatingApplication'/>
+      <p n='apam-main-component' v='HeatingApplication'/>
+      <p n='apam-composite' v='true'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=javax.swing.border))' extend='false' multiple='false' optional='false'>Import package javax.swing.border</require>
+    <require name='package' filter='(&amp;(package=javax.swing))' extend='false' multiple='false' optional='false'>Import package javax.swing</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.tutorials.temperature.devices)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.tutorials.temperature.devices;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='package' filter='(&amp;(package=javax.swing.event))' extend='false' multiple='false' optional='false'>Import package javax.swing.event</require>
+    <require name='apam-component' filter='(name=TemperatureSensor)' extend='false' multiple='false' optional='false'>specification relation toward TemperatureSensor</require>
+    <require name='apam-component' filter='(name=Heater)' extend='false' multiple='false' optional='false'>specification relation toward Heater</require>
+  </resource>
+</repository>
