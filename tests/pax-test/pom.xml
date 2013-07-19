@@ -233,6 +233,13 @@
             <version>${project.version}</version>
         </dependency>
 
+<!--         <dependency> -->
+<!--             <groupId>fr.imag.adele.apam.tests.services</groupId> -->
+<!--             <artifactId>apam-pax-samples-impl-s7ext</artifactId> -->
+<!--             <scope>test</scope> -->
+<!--             <version>${project.version}</version> -->
+<!--         </dependency> -->
+
         <dependency>
             <groupId>fr.imag.adele.apam.tests.services</groupId>
             <artifactId>apam-pax-distriman-iface</artifactId>

@@ -16,7 +16,7 @@
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/relation/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 <!--  1° Devices : The Buttons -->
  	<specification name="Button"
@@ -53,11 +53,11 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<apam-instance implementation="ButtonNotGUI" name="buttonLivingOne">
 		<property name="location" value="living"/>
 	</apam-instance>
-<!-- 
+
 	<apam-instance implementation="ButtonNotGUI" name="buttonLivingTwo">
 		<property name="location" value="living"/>
 	</apam-instance>
- -->	
+	
 	
 
 
@@ -87,11 +87,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<apam-instance implementation="BinaryLightImpl" name="lightLivingOne">
 		<property name="location" value="living"/>
 	</apam-instance>
-<!-- 
+ 
 	<apam-instance implementation="BinaryLightImpl" name="lightLivingTwo">
 		<property name="location" value="living"/>
 	</apam-instance>
- -->
  	
 <!--  3° Services : Light Application -->
 	<implementation name="LightApplication"
@@ -99,8 +98,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<callback onInit="start" onRemove="stop"/>
         <!-- Use of predefined property of apam -->
         <definition name="name" type="string" field="myName"/>		
-		<relation name="depLights" specification="Light" field="theLights" multiple="true" added="newLight"/>
-        <relation name="depButtons" specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton">
+		<relation name="depLights" specification="Light" field="theLights" multiple="true" added="newLight" resolve="exist"/>
+        <relation name="depButtons" specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton" resolve="exist">
 			<message push="aButtonHasBeenPressed" />
 		</relation>
 	</implementation>
@@ -109,8 +108,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="LightManagerPanel"
 		classname="fr.imag.adele.apam.tutorials.lights.panel.LightManagerPanel">
 		<callback onInit="started" onRemove="stopped"/>
-        <relation specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton"/>
-		<relation  specification="Light" field="theLights" multiple="true" added="newLight" removed="removeLight">
+        <relation specification="Button" field="theButtons" multiple="true" added="newButton" removed="removeButton" resolve="exist"/>
+		<relation  specification="Light" field="theLights" multiple="true" added="newLight" removed="removeLight" resolve="exist">
 			<message push="aLightStatusHasChanged" />
 		</relation>
 	</implementation>
@@ -120,12 +119,12 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	
 
 <!-- 5° Composite : Rooms -->
-<!--  
+
 	<composite name="Kitchen"
 		singleton="true" >
 		<contentMngt>
 			<start implementation="LightApplication" name="myLightApplicationKitchen"/>
-			<own specification="Button"  property="location" value="kitchen" />
+			<own specification="Button"  property="location" value="kitchen"  />
 			<own specification="Light"  property="location" value="kitchen"/>
 			<export instance="true"/>
 			<import instance="false"/>	
@@ -137,7 +136,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  	<composite name="Living"
 		singleton="true">
 		<contentMngt>
-			<start implementatdepLightsion="LightApplication" name="myLightApplicationLiving"/>
+			<start implementation="LightApplication" name="myLightApplicationLiving"/>
 			<own specification="Button"  property="location" value="living" />
 			<own specification="Light"  property="location" value="living"/>
 			<export instance="true"/>
@@ -151,22 +150,5 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	
 	<apam-instance implementation="Living" name="myLiving">
 	</apam-instance>
- -->
-	<apam-instance implementation="LightApplication" name="myKitchen">
- 	<relation name="depLights" >
- 	
-		<constraints> 
-			<instance filter="(location=kitchen)"/>
-		</constraints>
-	</relation> 
-		<relation name="depButtons">
-		<constraints>
-			<instance filter="(location=kitchen)"/>
-		</constraints>
-	</relation>  
-	</apam-instance>
-	
-<!-- 	<apam-instance implementation="LightApplication" name="myLiving">
-	</apam-instance>  -->
 
 </apam>

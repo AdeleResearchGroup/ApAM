@@ -10,7 +10,7 @@
   
 <!-- Check Latest ApAM Version -->
   <properties>
-  	<apam-version>0.0.3-SNAPSHOT</apam-version>
+  	<apam-version>0.0.4-SNAPSHOT</apam-version>
   </properties>
   
 <!-- Repositories List -->
