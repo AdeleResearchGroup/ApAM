@@ -234,9 +234,10 @@ public abstract class ExtensionAbstract extends TestUtils {
 		CompositeOption logConfig = new DefaultCompositeOption(
 				mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
 				mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(), 
-				mavenBundle("org.slf4j","slf4j-api").versionAsInProject()
+				mavenBundle("org.slf4j","slf4j-api").versionAsInProject(),
+				mavenBundle("org.apache.felix","org.apache.felix.log").version("1.0.1")
 				);
-
+		
 		return logConfig;
 	}
 	
