@@ -151,9 +151,9 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 	}
 	
-	@Ignore
+
 	@Test
-	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tcxxx() {
+	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tc117() {
 		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
 				"subject-a");
 		
