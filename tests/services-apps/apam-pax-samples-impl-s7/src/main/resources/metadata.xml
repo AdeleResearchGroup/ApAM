@@ -383,6 +383,25 @@
             resolve="external" fail="exception" />
     </implementation>
 
+    <!-- CASE 16 -->
+
+    <specification name="S07-specification-16"
+        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface16">
+    </specification>
+
+    <implementation name="S07-implementation-16"
+        classname="fr.imag.adele.apam.pax.test.implS7.S07Implem16"
+        specification="S07-specification-16">
+        <relation name="testexist02" field="injected02"
+            specification="S07-Dependency-02"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency02"
+            creation="manual" fail="exception" />
+    </implementation>    
+    
+    
     <!-- END OF CASES -->
+    
+
+    
 
 </apam>
