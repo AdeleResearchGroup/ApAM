@@ -41,7 +41,7 @@ public class PropertyCallback extends Callback {
 		return this.property.getName().equals(propertyName);
 	}
 	
-	public Object invoke(String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+	public Object invoke(Object value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (m_methodObj == null) {
             searchMethod();
         }

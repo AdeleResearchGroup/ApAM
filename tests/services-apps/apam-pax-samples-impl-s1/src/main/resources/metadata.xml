@@ -166,6 +166,18 @@
 		<definition field="state" name="state" type="string" value="toto" method="stateChanged" />
 	</implementation>
 
+	<implementation name="PropertyTypeIntChangeNotification"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch"
+		specification="eletronic-device">
+		<definition field="state" name="state" type="int" value="0" method="stateChanged" />
+	</implementation>
+
+	<implementation name="PropertyTypeBooleanChangeNotification"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch"
+		specification="eletronic-device">
+		<definition field="state" name="state" type="boolean" value="false" method="stateChanged" />
+	</implementation>
+
 	<implementation name="LgSwitch"
 		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
 		specification="eletronic-device">

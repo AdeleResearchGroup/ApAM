@@ -497,12 +497,12 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
         
         @Override
         public void setProperty(String attr, String value) {
-
+        	
             Object pojo = getPojoObject();
             if (pojo == null)
                 return;
 
-            fireCallbacks(attr, value);
+            fireCallbacks(attr, super.getApamComponent().getPropertyObject(attr));
         }
 
         
@@ -517,7 +517,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 			}
 		}
         
-        private void fireCallbacks(String attr, String value) {
+        private void fireCallbacks(String attr, Object value) {
         	for (PropertyCallback callback : propertyCallbacks) {
                 try {
 					if (callback.isTriggeredBy(attr))
