@@ -418,7 +418,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void RelationSourceSpecificationTargetInstance_tc109() {
+	public void RelationSourceInstanceTargetInstance_tc109() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"S07-implementation-13");
