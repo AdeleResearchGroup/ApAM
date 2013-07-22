@@ -17,6 +17,7 @@
     <implementation name="S07-DependencyImpl"
         classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl"
         specification="S07-Dependency">
+        <definition name="criteria" type="string"/>
     </implementation>
 
     <!-- CASE-01 -->
@@ -300,6 +301,25 @@
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
     </implementation>
 
+    <!-- CASE-15 -->
+
+    <specification name="S07-specification-15"
+        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface15">
+        <relation name="con"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+    </specification>
+
+    <implementation name="S07-implementation-15"
+        classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter15"
+        specification="S07-specification-15">
+        <relation name="con" field="injected"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" >
+            <constraints>
+				<instance filter="(criterial=the-chosen-one)" />
+			</constraints>
+        </relation>
+    </implementation>
+    
     <!-- CASE 14 -->
     <specification name="S07-Dependency-02"
         interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency02">
