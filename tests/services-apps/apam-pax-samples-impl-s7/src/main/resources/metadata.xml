@@ -304,11 +304,6 @@
     <specification name="S07-Dependency-02"
         interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency02">
     </specification>
-    <specification name="S07-Dependency-03"
-        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency03">
-    </specification>    
-
-
     <implementation name="S07-DependencyImpl-02"
         classname="fr.imag.adele.apam.pax.test.implS7.S07DependencyImpl02"
         specification="S07-Dependency-02" />
@@ -321,7 +316,7 @@
     <implementation name="S07-implementation-14"
         classname="fr.imag.adele.apam.pax.test.implS7.S07Implem14"
         specification="S07-specification-14">
-        <relation name="testexist" field="injected02"
+        <relation name="testexist02" field="injected02"
             specification="S07-Dependency-02"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency02"
             resolve="exist" fail="exception" />
@@ -330,14 +325,23 @@
     <implementation name="S07-implementation-14bis"
         classname="fr.imag.adele.apam.pax.test.implS7.S07Implem14"
         specification="S07-specification-14">
-        <relation name="testinternal01" field="injected02"
+        <relation name="testinternal02" field="injected02"
             specification="S07-Dependency-02"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency02"
             resolve="internal" fail="exception" />
-        <relation name="testinternal02" field="injected03"
+        <relation name="testinternal03" field="injected03"
             specification="S07-Dependency-03"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency03"
             resolve="internal" fail="exception" />
+    </implementation>
+
+    <implementation name="S07-implementation-14ter"
+        classname="fr.imag.adele.apam.pax.test.implS7.S07Implem14"
+        specification="S07-specification-14">
+        <relation name="testexternal03" field="injected03"
+            specification="S07-Dependency-03"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency03"
+            resolve="external" fail="exception" />
     </implementation>
 
     <!-- END OF CASES -->

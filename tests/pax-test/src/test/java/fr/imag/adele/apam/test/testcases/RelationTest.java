@@ -532,4 +532,24 @@ public class RelationTest extends ExtensionAbstract {
 
 	}
 	
+	@Test
+	public void RelationLinkResolveExternal_tct003() {
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-14ter");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
+				
+		//  Test should success on external bundle resolution
+		testResolutionException(dependency,3);
+		auxListInstances();
+		org.junit.Assert.assertFalse("No exception should be raised as the dependency can be resolved externally",
+			testResolutionException(dependency,3));
+		Assert.assertEquals("Only one relation should have been created : ",
+			1, instance.getRawLinks().size());
+
+	}	
+	
 }

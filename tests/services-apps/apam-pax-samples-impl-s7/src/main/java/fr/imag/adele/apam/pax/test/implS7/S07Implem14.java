@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.pax.test.implS7;
 
-import fr.imag.adele.apam.pax.test.implS7.S07Dependency03;
+import fr.imag.adele.apam.pax.test.specS7ext.S07Dependency03;
+
 
 
 public class S07Implem14 implements S07Interface14 {

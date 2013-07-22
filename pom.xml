@@ -125,6 +125,7 @@
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
+				<module>tests</module>
 			</modules>
 			<activation>
 				<activeByDefault>true</activeByDefault>
