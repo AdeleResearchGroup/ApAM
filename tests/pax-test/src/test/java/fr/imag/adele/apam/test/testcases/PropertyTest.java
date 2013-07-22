@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -33,6 +31,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -955,6 +954,36 @@ public class PropertyTest extends ExtensionAbstract {
 			Assert.assertTrue(message,result);
 		else
 			Assert.assertFalse(message,result);
+	}
+	
+	
+	@Test
+	public void PropertyTypeIntChangeNoticationCallback_tc115() {
+
+		final String prologTemplate="Declaring a 'method' attribute into a integer type property, should invoke the declared method with the right type and value. %s";
+		
+		Integer propertyValue=Integer.valueOf(734);
+		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyTypeIntChangeNotification");
+		Instance inst = implementation.createInstance(null, null);
+		
+		inst.setProperty("state",propertyValue);
+
+		PropertyTypeIntChangeNotificationSwitch switchdevice=(PropertyTypeIntChangeNotificationSwitch)inst.getServiceObject();
+		
+		Assert.assertTrue(String.format(prologTemplate, "Although the invocation was not performed."),switchdevice.getObjectReceivedInNotification() != null);
+		
+		String messageWrongType=String.format(prologTemplate, "Although the invocation was not performed with the right type. ");
+		String messageWrongTypeDetail=String.format(messageWrongType+" %s given instead of %s",switchdevice.getObjectReceivedInNotification().getClass().getCanonicalName(),Integer.class.getCanonicalName());
+		
+		Assert.assertTrue(messageWrongTypeDetail,switchdevice.getObjectReceivedInNotification() instanceof Integer);
+		
+		String messageWrongValue=String.format(prologTemplate, "Although the invocation was not performed with the right value. ");
+		String messageWrongValueDetail=String.format(messageWrongValue+" %s given instead of %s",switchdevice.getObjectReceivedInNotification(),propertyValue);
+		
+		Assert.assertTrue(messageWrongValueDetail,switchdevice.getObjectReceivedInNotification().equals(propertyValue));
+		
 	}
 	
 }
