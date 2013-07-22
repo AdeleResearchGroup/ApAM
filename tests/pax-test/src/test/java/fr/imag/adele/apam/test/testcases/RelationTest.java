@@ -24,6 +24,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.pax.test.implS7.S07CustomException;
 import fr.imag.adele.apam.pax.test.implS7.S07Implem14;
+import fr.imag.adele.apam.pax.test.implS7.S07Implem16;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter01;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter02;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter03;
@@ -451,10 +452,8 @@ public class RelationTest extends ExtensionAbstract {
 		Instance instance = implementation.createInstance(null,
 				Collections.<String, String> emptyMap());
 
-		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
-		
 		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
-			testResolutionException(dependency,2));
+			testResolutionExceptionCase14(instance,2));
 		Assert.assertEquals("No relations should have been created (no instance of dependency existing)",
 			0, instance.getRawLinks().size());
 		
@@ -468,15 +467,15 @@ public class RelationTest extends ExtensionAbstract {
 		auxListInstances();
 		
 		org.junit.Assert.assertFalse("No exception should be raised as the dependency can be resolved",
-			testResolutionException(dependency,2));
+			testResolutionExceptionCase14(instance,2));
 		Assert.assertEquals("One relation should have been created",
 			1, instance.getRawLinks().size());
 
 	}
 	
-	private boolean testResolutionException(Object dependency, int methodNumber) {
+	private boolean testResolutionExceptionCase14(Instance inst, int methodNumber) {
 		//Force field injection (a bit akward with polymorphism)
-	    	S07Implem14 implem = (S07Implem14) dependency;
+	    	S07Implem14 implem = (S07Implem14) inst.getServiceObject();
 		try{
 		    switch (methodNumber) {
 		    case 2:
@@ -506,24 +505,20 @@ public class RelationTest extends ExtensionAbstract {
 
 		Instance instance = implementation.createInstance(null,
 				Collections.<String, String> emptyMap());
-
-		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
 		
 		org.junit.Assert.assertFalse("No exception should be raised as the dependency should be instanciated",
-			testResolutionException(dependency,2));
+			testResolutionExceptionCase14(instance,2));
 		Assert.assertEquals("One relation should have been created",
 			1, instance.getRawLinks().size());
 		
 		Instance instance2 = implementation.createInstance(null,
 			Collections.<String, String> emptyMap());
 
-		S07Implem14 dependency2 = (S07Implem14) instance2.getServiceObject();
-		
 		Implementation implementationdep = CST.apamResolver.findImplByName(null,
 			"S07-DependencyImpl-02");
 
 		Assert.assertFalse("No exception should be raised as the dependency is already instanciated",
-			testResolutionException(dependency2,2));
+			testResolutionExceptionCase14(instance2,2));
 		auxListInstances();
 		Assert.assertEquals("Only one relation should have been created : ",
 			1, instance2.getRawLinks().size());
@@ -531,10 +526,10 @@ public class RelationTest extends ExtensionAbstract {
 			1, implementationdep.getInsts().size());
 		
 		//  Test should fail on external bundle resolution
-		testResolutionException(dependency,3);
+		testResolutionExceptionCase14(instance2,3);
 		auxListInstances();
 		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
-			testResolutionException(dependency,3));
+			testResolutionExceptionCase14(instance2,3));
 		Assert.assertEquals("Only one relation should have been created : ",
 			1, instance.getRawLinks().size());
 	}
@@ -571,16 +566,60 @@ public class RelationTest extends ExtensionAbstract {
 		Instance instance = implementation.createInstance(null,
 				Collections.<String, String> emptyMap());
 
-		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
-				
 		//  Test should success on external bundle resolution
-		testResolutionException(dependency,3);
 		auxListInstances();
 		org.junit.Assert.assertFalse("No exception should be raised as the dependency can be resolved externally",
-			testResolutionException(dependency,3));
+			testResolutionExceptionCase14(instance,3));
+		Assert.assertEquals("Only one relation should have been created : ",
+			1, instance.getRawLinks().size());
+
+	}
+	
+	private boolean testResolutionExceptionCase16(Instance inst) {
+		//Force field injection (a bit akward with polymorphism)
+	    	S07Implem16 implem = (S07Implem16) inst.getServiceObject();
+	    	try{
+	    	    if(implem.getInjected02()==null)
+		    return true;    
+		} catch(ResolutionException exc) {
+		    exc.printStackTrace();
+		    return true;
+		}catch(Exception exc) {
+		    exc.printStackTrace();
+		    return true;
+		}
+		return false;	    
+	}
+	
+	@Test
+	public void RelationLinkResolveExternal_tct004() {
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-16");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+				
+		Implementation implementationdep = CST.apamResolver.findImplByName(null,
+			"S07-DependencyImpl-02");
+		Instance instancedep = implementationdep.createInstance(null,
+			Collections.<String, String> emptyMap());
+
+
+		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved automatically (creation=manual)",
+			testResolutionExceptionCase16(instance));
+		Assert.assertEquals("No relations should have been created (no instance of dependency existing)",
+			0, instance.getRawLinks().size());
+		
+		instance.createLink(instancedep, instance.getRelation("testexist02"), false, false);
+
+		testResolutionExceptionCase16(instance);
+		auxListInstances();
+		org.junit.Assert.assertFalse("No exception should be raised as the dependency has been resolved manually",
+			testResolutionExceptionCase16(instance));
 		Assert.assertEquals("Only one relation should have been created : ",
 			1, instance.getRawLinks().size());
 
 	}	
+	
 	
 }
