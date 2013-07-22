@@ -66,6 +66,12 @@
 <node CREATED="1359555151681" ID="ID_1998306046" MODIFIED="1359555177966" TEXT="Property change notification (&quot;method&quot; attribute) should be called only once per setProperty called-tc064">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1374499491522" ID="ID_1949138226" MODIFIED="1374501600540" TEXT="Property change notification (&quot;method&quot; attribute type Int) should be invoked with parameter as the same type as the property-tc115">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1374499491522" ID="ID_894192060" MODIFIED="1374501594044" TEXT="Property change notification (&quot;method&quot; attribute type Boolean) should be invoked with parameter as the same type as the property-tc116">
+<icon BUILTIN="button_ok"/>
+</node>
 <node CREATED="1360338389951" ID="ID_1623151872" MODIFIED="1360338564501" TEXT="PropertySetTypeBracesNoCommaInTheEnd-tc65">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -522,9 +528,7 @@
 </node>
 </node>
 <node CREATED="1372166673215" ID="ID_1193893964" MODIFIED="1372166675509" TEXT="external">
-<node CREATED="1374484141572" ID="ID_180143186" MODIFIED="1374487476092" TEXT="tct003">
-<icon BUILTIN="button_ok"/>
-</node>
+<node CREATED="1374484141572" ID="ID_180143186" MODIFIED="1374484145336" TEXT="tct003"/>
 </node>
 </node>
 <node CREATED="1372166619503" ID="ID_1293205806" MODIFIED="1372951295582" TEXT="creation">
@@ -539,10 +543,8 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1374487266428" TEXT="manual">
-<node CREATED="1374487211211" ID="ID_665464556" MODIFIED="1374487226835" TEXT="tct004">
-<icon BUILTIN="button_ok"/>
-</node>
+<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1374223246971" TEXT="manual">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 </node>

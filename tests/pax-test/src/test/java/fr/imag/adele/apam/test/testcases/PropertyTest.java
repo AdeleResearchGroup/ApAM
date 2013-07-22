@@ -31,6 +31,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
@@ -978,6 +979,35 @@ public class PropertyTest extends ExtensionAbstract {
 		String messageWrongTypeDetail=String.format(messageWrongType+" %s given instead of %s",switchdevice.getObjectReceivedInNotification().getClass().getCanonicalName(),Integer.class.getCanonicalName());
 		
 		Assert.assertTrue(messageWrongTypeDetail,switchdevice.getObjectReceivedInNotification() instanceof Integer);
+		
+		String messageWrongValue=String.format(prologTemplate, "Although the invocation was not performed with the right value. ");
+		String messageWrongValueDetail=String.format(messageWrongValue+" %s given instead of %s",switchdevice.getObjectReceivedInNotification(),propertyValue);
+		
+		Assert.assertTrue(messageWrongValueDetail,switchdevice.getObjectReceivedInNotification().equals(propertyValue));
+		
+	}
+	
+	@Test
+	public void PropertyTypeBooleanChangeNoticationCallback_tc116() {
+
+		final String prologTemplate="Declaring a 'method' attribute into a boolean type property, should invoke the declared method with the right type and value. %s";
+		
+		Boolean propertyValue=Boolean.TRUE;
+		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyTypeBooleanChangeNotification");
+		Instance inst = implementation.createInstance(null, null);
+		
+		inst.setProperty("state",propertyValue);
+
+		PropertyTypeBooleanChangeNotificationSwitch switchdevice=(PropertyTypeBooleanChangeNotificationSwitch)inst.getServiceObject();
+		
+		Assert.assertTrue(String.format(prologTemplate, "Although the invocation was not performed."),switchdevice.getObjectReceivedInNotification() != null);
+		
+		String messageWrongType=String.format(prologTemplate, "Although the invocation was not performed with the right type. ");
+		String messageWrongTypeDetail=String.format(messageWrongType+" %s given instead of %s",switchdevice.getObjectReceivedInNotification().getClass().getCanonicalName(),Boolean.class.getCanonicalName());
+		
+		Assert.assertTrue(messageWrongTypeDetail,switchdevice.getObjectReceivedInNotification() instanceof Boolean);
 		
 		String messageWrongValue=String.format(prologTemplate, "Although the invocation was not performed with the right value. ");
 		String messageWrongValueDetail=String.format(messageWrongValue+" %s given instead of %s",switchdevice.getObjectReceivedInNotification(),propertyValue);
