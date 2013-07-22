@@ -314,12 +314,31 @@
         specification="S07-specification-15">
         <relation name="con" field="injected"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" >
-            <constraints>
-				<instance filter="(criterial=the-chosen-one)" />
-			</constraints>
+        	<constraints>
+			<instance filter="(criteria=the-chosen-one)" />
+		</constraints>
         </relation>
     </implementation>
     
+    <!-- CASE-17 -->
+
+    <specification name="S07-specification-17"
+        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface17">
+        <relation name="con"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+    </specification>
+
+    <implementation name="S07-implementation-17"
+        classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter17"
+        specification="S07-specification-17">
+        <relation name="con" field="injected"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" >
+        	<preferences>
+			<instance filter="(criteria=the-chosen-one)" />
+		</preferences>
+        </relation>
+    </implementation>
+
     <!-- CASE 14 -->
     <specification name="S07-Dependency-02"
         interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency02">

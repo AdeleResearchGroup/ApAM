@@ -293,6 +293,10 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s2").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject(),
+<<<<<<< HEAD
+=======
+				//mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s7").versionAsInProject(),
+>>>>>>> ff6e3fde979084c9c6f9b14895ca8f39e4e9da25
 								
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject());

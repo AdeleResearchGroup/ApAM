@@ -38,6 +38,7 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter11;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter12;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter13;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter15;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter17;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -418,7 +419,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void RelationSourceSpecificationTargetInstance_tc109() {
+	public void RelationSourceInstanceTargetInstance_tc109() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"S07-implementation-13");
@@ -543,10 +544,10 @@ public class RelationTest extends ExtensionAbstract {
 		Implementation implementationTarget = CST.apamResolver.findImplByName(null,
 				"S07-implementation-15");
 		
-		Instance instance01=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","do-not-take-this-instance");}});
-		Instance instance02=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","neither-this");}});
-		Instance instance03=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","the-chosen-one");}});
-		Instance instance04=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","ignore-this");}});
+		Instance instanceInvalid01=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","do-not-take-this-instance");}});
+		Instance instanceInvalid02=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","neither-this");}});
+		Instance instanceValid=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","the-chosen-one");}});
+		Instance instanceInvalid04=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","ignore-this");}});
 
 		Instance instanceTarget=implementationTarget.createInstance(null, null);
 		
@@ -554,8 +555,33 @@ public class RelationTest extends ExtensionAbstract {
 		
 		Instance instanceInjected=auxListInstanceReferencedBy(implem.getInjected());
 		
-		Assert.assertTrue(instanceInjected==instance03);
+		Assert.assertTrue("Using <relation/> element in metadata to inject a dependency, the constraint filter was not respect as expected.",instanceInjected==instanceValid);
+		 
+	}
+	
+	@Test
+	public void RelationPreferencesForSourceInstanceTargetInstance_tc114(){
 		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-DependencyImpl");
+		
+		Implementation implementationTarget = CST.apamResolver.findImplByName(null,
+				"S07-implementation-17");
+		
+		Instance instanceInvalid01=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","do-not-take-this-instance");}});
+		Instance instanceInvalid02=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","neither-this");}});
+		Instance instanceValid01=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","the-chosen-one");}});
+		Instance instanceValid02=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","the-chosen-one");}});
+		Instance instanceInvalid03=implementation.createInstance(null, new HashMap<String, String>(){{put("criteria","ignore-this");}});
+
+		Instance instanceTarget=implementationTarget.createInstance(null, null);
+		
+		S07ImplementationImporter17 implem=(S07ImplementationImporter17)instanceTarget.getServiceObject();
+		
+		Instance instanceInjected=auxListInstanceReferencedBy(implem.getInjected());
+		
+		Assert.assertTrue("Using <relation/> element in metadata to inject a dependency, the preference filter was not respect as expected.",instanceInjected==instanceValid01||instanceInjected==instanceValid02);
+		 
 	}
 	
 	@Test
