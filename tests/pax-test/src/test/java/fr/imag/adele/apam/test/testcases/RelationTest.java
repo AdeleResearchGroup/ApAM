@@ -23,6 +23,7 @@ import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.pax.test.implS7.S07CustomException;
+import fr.imag.adele.apam.pax.test.implS7.S07Implem14;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter01;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter02;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter03;
@@ -440,103 +441,103 @@ public class RelationTest extends ExtensionAbstract {
 		
 	}
 	
-//	@Test
-//	public void RelationLinkResolveExist_tct001() {
-//	    
-//
-//		Implementation implementation = CST.apamResolver.findImplByName(null,
-//				"S07-implementation-14");
-//
-//		Instance instance = implementation.createInstance(null,
-//				Collections.<String, String> emptyMap());
-//
-//		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
-//		
-//		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
-//			testResolutionException(dependency,2));
-//		Assert.assertEquals("No relations should have been created (no instance of dependency existing)",
-//			0, instance.getRawLinks().size());
-//		
-//
-//		Implementation implementationdep = CST.apamResolver.findImplByName(null,
-//			"S07-DependencyImpl-02");
-//		
-//
-//		Instance instancedep = implementationdep.createInstance(null,
-//			Collections.<String, String> emptyMap());
-//		auxListInstances();
-//		
-//		org.junit.Assert.assertFalse("No exception should be raised as the dependency can be resolved",
-//			testResolutionException(dependency,2));
-//		Assert.assertEquals("One relation should have been created",
-//			1, instance.getRawLinks().size());
-//
-//	}
-//	
-//	private boolean testResolutionException(Object dependency, int methodNumber) {
-//		//Force field injection (a bit akward with polymorphism)
-//	    	S07Implem14 implem = (S07Implem14) dependency;
-//		try{
-//		    switch (methodNumber) {
-//		    case 2:
-//			if(implem.getInjected02()==null)
-//			return true;
-//			break;
-//		    case 3:
-//			if(implem.getInjected03()==null)
-//			return true;			
-//			break;
-//		    }
-//		    
-//		} catch(ResolutionException exc) {
-//		    exc.printStackTrace();
-//		    return true;
-//		}catch(Exception exc) {
-//		    exc.printStackTrace();
-//		    return true;
-//		}
-//		return false;	    
-//	}
-//	
-//	@Test
-//	public void RelationLinkResolveInternal_tct002() {
-//		Implementation implementation = CST.apamResolver.findImplByName(null,
-//				"S07-implementation-14bis");
-//
-//		Instance instance = implementation.createInstance(null,
-//				Collections.<String, String> emptyMap());
-//
-//		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
-//		
-//		org.junit.Assert.assertFalse("No exception should be raised as the dependency should be instanciated",
-//			testResolutionException(dependency,2));
-//		Assert.assertEquals("One relation should have been created",
-//			1, instance.getRawLinks().size());
-//		
-//		Instance instance2 = implementation.createInstance(null,
-//			Collections.<String, String> emptyMap());
-//
-//		S07Implem14 dependency2 = (S07Implem14) instance2.getServiceObject();
-//		
-//		Implementation implementationdep = CST.apamResolver.findImplByName(null,
-//			"S07-DependencyImpl-02");
-//
-//		Assert.assertFalse("No exception should be raised as the dependency is already instanciated",
-//			testResolutionException(dependency2,2));
-//		auxListInstances();
-//		Assert.assertEquals("Only one relation should have been created : ",
-//			1, instance2.getRawLinks().size());
-//		Assert.assertEquals("Only one instance of dependency should have been instanciated",
-//			1, implementationdep.getInsts().size());
-//		
-//		//  Test should fail on external bundle resolution
-//		testResolutionException(dependency,3);
-//		auxListInstances();
-//		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
-//			testResolutionException(dependency,3));
-//		Assert.assertEquals("Only one relation should have been created : ",
-//			1, instance.getRawLinks().size());
-//	}
+	@Test
+	public void RelationLinkResolveExist_tct001() {
+	    
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-14");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
+		
+		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
+			testResolutionException(dependency,2));
+		Assert.assertEquals("No relations should have been created (no instance of dependency existing)",
+			0, instance.getRawLinks().size());
+		
+
+		Implementation implementationdep = CST.apamResolver.findImplByName(null,
+			"S07-DependencyImpl-02");
+		
+
+		Instance instancedep = implementationdep.createInstance(null,
+			Collections.<String, String> emptyMap());
+		auxListInstances();
+		
+		org.junit.Assert.assertFalse("No exception should be raised as the dependency can be resolved",
+			testResolutionException(dependency,2));
+		Assert.assertEquals("One relation should have been created",
+			1, instance.getRawLinks().size());
+
+	}
+	
+	private boolean testResolutionException(Object dependency, int methodNumber) {
+		//Force field injection (a bit akward with polymorphism)
+	    	S07Implem14 implem = (S07Implem14) dependency;
+		try{
+		    switch (methodNumber) {
+		    case 2:
+			if(implem.getInjected02()==null)
+			return true;
+			break;
+		    case 3:
+			if(implem.getInjected03()==null)
+			return true;			
+			break;
+		    }
+		    
+		} catch(ResolutionException exc) {
+		    exc.printStackTrace();
+		    return true;
+		}catch(Exception exc) {
+		    exc.printStackTrace();
+		    return true;
+		}
+		return false;	    
+	}
+	
+	@Test
+	public void RelationLinkResolveInternal_tct002() {
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-14bis");
+
+		Instance instance = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+
+		S07Implem14 dependency = (S07Implem14) instance.getServiceObject();
+		
+		org.junit.Assert.assertFalse("No exception should be raised as the dependency should be instanciated",
+			testResolutionException(dependency,2));
+		Assert.assertEquals("One relation should have been created",
+			1, instance.getRawLinks().size());
+		
+		Instance instance2 = implementation.createInstance(null,
+			Collections.<String, String> emptyMap());
+
+		S07Implem14 dependency2 = (S07Implem14) instance2.getServiceObject();
+		
+		Implementation implementationdep = CST.apamResolver.findImplByName(null,
+			"S07-DependencyImpl-02");
+
+		Assert.assertFalse("No exception should be raised as the dependency is already instanciated",
+			testResolutionException(dependency2,2));
+		auxListInstances();
+		Assert.assertEquals("Only one relation should have been created : ",
+			1, instance2.getRawLinks().size());
+		Assert.assertEquals("Only one instance of dependency should have been instanciated",
+			1, implementationdep.getInsts().size());
+		
+		//  Test should fail on external bundle resolution
+		testResolutionException(dependency,3);
+		auxListInstances();
+		org.junit.Assert.assertTrue("An exception should be raised as the dependency cannot be resolved as no instance running",
+			testResolutionException(dependency,3));
+		Assert.assertEquals("Only one relation should have been created : ",
+			1, instance.getRawLinks().size());
+	}
 
 	@Test
 	public void RelationConstraintForSourceInstanceTargetInstance_tc113(){
@@ -558,8 +559,8 @@ public class RelationTest extends ExtensionAbstract {
 		
 		Instance instanceInjected=auxListInstanceReferencedBy(implem.getInjected());
 		
-		Assert.assertTrue(instanceInjected==instance03);
-		
+		Assert.assertTrue("Using <relation/> element in metadata to inject a dependency, the constraint filter was not respect as expected.",instanceInjected==instance03);
+		 
 	}
 	
 	@Test

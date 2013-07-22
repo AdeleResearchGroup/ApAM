@@ -314,9 +314,9 @@
         specification="S07-specification-15">
         <relation name="con" field="injected"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" >
-            <constraints>
-				<instance filter="(criterial=the-chosen-one)" />
-			</constraints>
+        	<constraints>
+			<instance filter="(criteria=the-chosen-one)" />
+		</constraints>
         </relation>
     </implementation>
     
