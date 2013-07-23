@@ -294,12 +294,15 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353075841416" ID="ID_1642355188" MODIFIED="1374223839694" POSITION="right" TEXT="OBRMan">
+<node CREATED="1353075841416" ID="ID_1642355188" MODIFIED="1374563367000" POSITION="right" TEXT="OBRMan">
 <node CREATED="1353085358875" ID="ID_1347548977" MODIFIED="1353085447680" TEXT="should raise an exception in case of a invalid configuration path is given">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353077625512" ID="ID_852943712" MODIFIED="1353085682813" TEXT="load and instantiate a component from repository">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1374563370447" ID="ID_913362004" MODIFIED="1374563424462" TEXT="should instanciate component if bundle is installed but not started">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>

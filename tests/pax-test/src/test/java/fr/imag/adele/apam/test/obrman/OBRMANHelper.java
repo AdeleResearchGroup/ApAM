@@ -61,7 +61,7 @@ public class OBRMANHelper {
 		// URL obrModelAppUrl = context.getBundle().getResource(modelPrefix +
 		// ".OBRMAN.cfg");
 		URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
-				+ "/models/" + modelPrefix + ".OBRMAN.cfg");
+				+ "/target/classes/" + modelPrefix + ".OBRMAN.cfg");
 
 		System.out.println(modelPrefix + " >>> " + obrModelAppUrl);
 
@@ -85,7 +85,7 @@ public class OBRMANHelper {
 		// URL obrModelAppUrl = context.getBundle().getResource(name +
 		// ".OBRMAN.cfg");
 		URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
-				+ "/models/" + name + ".OBRMAN.cfg");
+				+ "/target/classes/" + name + ".OBRMAN.cfg");
 
 		System.out.println(name + " >>> " + obrModelAppUrl);
 

@@ -422,6 +422,16 @@
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>models</directory>
+                <filtering>true</filtering>
+                <includes>
+                <include>**/*.cfg</include>
+            </includes>
+        </resource>
+        </resources>    
+    
         <plugins>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>

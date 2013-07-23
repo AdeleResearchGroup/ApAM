@@ -10,6 +10,17 @@
 	<artifactId>APP2-Composite</artifactId>
     <name>App2 Composite</name>
 	<build>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+				<include>**/*.cfg</include>
+			</includes>
+		</resource>
+		</resources>	
+	
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

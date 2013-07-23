@@ -12,21 +12,24 @@
 	<xsl:template match="@uri[parent::resource]">
 
 		<xsl:variable name="groupid">
-			<xsl:value-of select="../capability/p[@n='groupId']/@v" />
+			<xsl:value-of 
+				select="../capability[@name='maven']/p[@n='groupId']/@v" />
 		</xsl:variable>
 
 		<xsl:variable name="artifactid">
 			<xsl:value-of
-				select="../capability/p[@n='artifactId']/@v" />
+				select="../capability[@name='maven']/p[@n='artifactId']/@v" />
 		</xsl:variable>
 		<xsl:variable name="version">
-			<xsl:value-of select="../capability/p[@n='version']/@v" />
+			<xsl:value-of 
+			select="../capability[@name='maven']/p[@n='version']/@v" />
 		</xsl:variable>
 
 		<xsl:attribute name="uri">mvn:<xsl:value-of
 			select="$groupid" />/<xsl:value-of select="$artifactid" />/<xsl:value-of
-			select="'0.0.3-SNAPSHOT'" />
+			select="$version" />
 		</xsl:attribute>
+
 	</xsl:template>
 
 </xsl:stylesheet>
