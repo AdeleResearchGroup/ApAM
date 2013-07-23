@@ -1613,7 +1613,7 @@ public class CoreMetadataParser implements CoreParser {
 
 		if (mandatory) {
 			errorHandler.error(Severity.ERROR, "resource name must be specified in " + element.getName());
-			return new UndefinedReference(element.getName(), ResourceReference.class);
+			return new UndefinedReference( new ResourceReference(element.getName()));
 		}
 
 		return null;
@@ -1807,14 +1807,14 @@ public class CoreMetadataParser implements CoreParser {
 				 */
 				String collectionType = getCollectionType(fieldReflectionMetadata);
 				if (collectionType != null)
-					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(fieldName, InterfaceReference.class);
+					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(new InterfaceReference(fieldName));
 
 				/*
 				 * Verify if it is a message
 				 */
 				String messageType = getMessageType(fieldReflectionMetadata);
 				if (messageType != null)
-					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
+					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(new MessageReference(fieldName));
 
 				/*
 				 * Otherwise we consider it as an interface
@@ -1833,14 +1833,14 @@ public class CoreMetadataParser implements CoreParser {
 				 */
 				String collectionType = getCollectionType(fieldIPojoMetadata);
 				if (collectionType != null)
-					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(fieldName, InterfaceReference.class);
+					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(new InterfaceReference(fieldName));
 							
 				/*
 				 * Verify if it is a message
 				 */
 				String messageType = getMessageType(fieldIPojoMetadata);
 				if (messageType != null)
-					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
+					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(new MessageReference(fieldName));
 
 				/*
 				 * Otherwise we consider it as an interface

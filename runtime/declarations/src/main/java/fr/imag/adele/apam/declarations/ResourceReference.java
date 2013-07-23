@@ -24,7 +24,7 @@ package fr.imag.adele.apam.declarations;
  * @author vega
  *
  */
-public abstract class ResourceReference extends Reference implements ResolvableReference {
+public class ResourceReference extends Reference implements ResolvableReference {
 
 	/**
 	 * The namespace for all references to resources identified by java class names
@@ -33,7 +33,7 @@ public abstract class ResourceReference extends Reference implements ResolvableR
 	
     private final String type;
 
-    protected ResourceReference(String type) {
+    public ResourceReference(String type) {
         super(ResourceReference.JAVA_NAMESPACE);
         this.type = type;
     }
