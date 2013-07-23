@@ -116,7 +116,7 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 		 */
 		public ResourceReference getProvidedResource() {
 			MessageReference target = methodReturnType.get();
-			return target != null ? target : new UndefinedReference(methodName,MessageReference.class);
+			return target != null ? target : new UndefinedReference(new MessageReference(methodName));
 		}
 
 		

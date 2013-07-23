@@ -748,52 +748,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	}
 
-	/**
-	 * This test is scheduled to be removed
-	 */
-	@Test
-	@Ignore
-	public void AddedCallbackOnlyInvalidArgumentMethods_tc109() {
-
-		Implementation impl = CST.apamResolver
-				.findImplByName(null,
-						"S1Impl-added-callback-signature-instance-invalid-methods");
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		Instance instance = impl.createInstance(null,
-				new HashMap<String, String>());
-
-		Assert.assertTrue("Declaring added callbacks methods (with a valid name) but only wrong arguments type cause the injection to fails.", instance!=null);
-		
-		S1ImplCallbackAddedValidMethodsOnlyInvalidArguments s1 = (S1ImplCallbackAddedValidMethodsOnlyInvalidArguments) instance
-				.getServiceObject();
-		
-	}
-	
-	/**
-	 * This test is scheduled to be removed
-	 */
-	@Test
-	@Ignore
-	public void RemovedCallbackOnlyInvalidArgumentMethods_tc110() {
-
-		Implementation impl = CST.apamResolver
-				.findImplByName(null,
-						"S1Impl-removed-callback-signature-instance-invalid-methods");
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		Instance instance = impl.createInstance(null,
-				new HashMap<String, String>());
-
-		Assert.assertTrue("Declaring removed callbacks methods (with a valid name) but only wrong arguments type cause the injection to fails.", instance!=null);
-		
-		S1ImplCallbackRemovedValidMethodsOnlyInvalidArguments s1 = (S1ImplCallbackRemovedValidMethodsOnlyInvalidArguments) instance
-				.getServiceObject();
-		
-	}
-
 	@Test
 	public void AddedRemovedCallbackInDependencyDeclarationEmptySignature_tc085() {
 

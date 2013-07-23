@@ -77,14 +77,13 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static abstract class InjectedField extends RequirerInstrumentation {
 		
-		protected final Class<? extends ResourceReference> kind;
-		protected final String fieldName;
+		protected final ResourceReference field;
 		
 		
 		private final Lazy<ResourceReference> fieldType = new Lazy<ResourceReference>() {
 			protected ResourceReference evaluate(CodeReflection reflection) {
 				try {
-					return reflection.getFieldType(fieldName);
+					return reflection.getFieldType(field.getName());
 				} catch (NoSuchFieldException e) {
 					return null;
 				}
@@ -95,7 +94,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		private final Lazy<Boolean> fieldMultiplicity = new Lazy<Boolean>() {
 			protected Boolean evaluate(CodeReflection reflection) {
 				try {
-					return reflection.isCollectionField(fieldName);
+					return reflection.isCollectionField(field.getName());
 				} catch (NoSuchFieldException e) {
 					return false;
 				}
@@ -103,15 +102,14 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		};
 		
-		protected InjectedField(AtomicImplementationDeclaration implementation, String fieldName,  Class<? extends ResourceReference> kind) {
+		protected InjectedField(AtomicImplementationDeclaration implementation, ResourceReference field) {
 			super(implementation);
-			this.kind		= kind;
-			this.fieldName = fieldName;
+			this.field = field;
 		}
 		
 		@Override
 		public String getName() {
-			return fieldName;
+			return field.getName();
 		}
 		
 		@Override
@@ -122,7 +120,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		@Override
 		public ResourceReference getRequiredResource() {
 			ResourceReference target = fieldType.get();
-			return target != null ? target :  new UndefinedReference(fieldName,kind);
+			return target != null ? target :  new UndefinedReference(field);
 		}
 
 		@Override
@@ -143,7 +141,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	public static class RequiredServiceField extends InjectedField {
 
 		public RequiredServiceField(AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, fieldName, InterfaceReference.class);
+			super(implementation, new InterfaceReference(fieldName));
 		}
 
 		public boolean isWire() {
@@ -165,7 +163,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	public static class MessageQueueField extends InjectedField {
 
 		public MessageQueueField(AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, fieldName, MessageReference.class);
+			super(implementation, new MessageReference(fieldName));
 		}
 
 		@Override
@@ -211,7 +209,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		@Override
 		public ResourceReference getRequiredResource() {
 			MessageReference target = argumentType.get();
-			return target != null ? target :  new UndefinedReference(methodName,MessageReference.class);
+			return target != null ? target :  new MessageReference(methodName);
 		}
 
 		@Override

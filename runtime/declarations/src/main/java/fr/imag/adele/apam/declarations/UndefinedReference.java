@@ -16,21 +16,26 @@ package fr.imag.adele.apam.declarations;
 
 public class UndefinedReference extends ResourceReference {
 
-    private final String subject;
+    private final ResourceReference subject;
     private final Class<? extends ResourceReference> kind;
 
-    public UndefinedReference(String subject,Class<? extends ResourceReference> kind){
-        super("<Unavailable type for "+kind.getSimpleName()+" "+subject+">");
+    public UndefinedReference(ResourceReference subject){
+        super("<Unavailable type for "+subject.getClass().getSimpleName()+" "+subject.getName()+">");
         this.subject = subject;
-        this.kind= kind;
+        this.kind= subject.getClass();
     }
     
     public boolean isKind(Class<? extends ResourceReference> kind) {
         return kind.isAssignableFrom(this.kind);
     }
+    
    
+    @Override
+    public <R extends Reference> R as(Class<R> kind) {
+    	return subject.as(kind);
+    }
     public String getSubject(){
-        return subject;
+        return subject.getName();
     }
        
     public String toString() {

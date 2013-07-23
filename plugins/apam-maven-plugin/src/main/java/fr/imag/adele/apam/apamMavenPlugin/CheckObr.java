@@ -96,6 +96,14 @@ public class CheckObr {
 	 *            a relation
 	 */
 	private static void checkConstraint(ComponentDeclaration component, RelationDeclaration dep) {
+
+		if (dep.isMultiple()
+				&& (!dep.getImplementationPreferences().isEmpty() || !dep
+						.getInstancePreferences().isEmpty())) {
+			error("Preferences cannot be defined for a relation with multiple cardinality: "
+					+ dep.getIdentifier());
+		}
+		
 		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference))
 			return;
 
@@ -109,12 +117,6 @@ public class CheckObr {
 		// implementations members
 		Map<String, String> validAttrs = cap.getValidAttrNames();
 
-		if (dep.isMultiple()
-				&& (!dep.getImplementationPreferences().isEmpty() || !dep
-						.getInstancePreferences().isEmpty())) {
-			error("Preferences cannot be defined for a relation with multiple cardinality: "
-					+ dep.getIdentifier());
-		}
 		checkFilters(component, dep.getImplementationConstraints(), dep.getImplementationPreferences(), 
 				validAttrs, dep.getTarget().getName());
 		checkFilters(component, dep.getInstanceConstraints(), dep.getInstancePreferences(), 
