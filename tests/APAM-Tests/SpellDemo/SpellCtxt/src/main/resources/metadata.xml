@@ -15,7 +15,7 @@
 
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/relation/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
+ xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<specification name="Ctxt"  >
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
