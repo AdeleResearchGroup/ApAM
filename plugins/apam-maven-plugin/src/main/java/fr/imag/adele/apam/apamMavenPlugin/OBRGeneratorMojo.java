@@ -31,6 +31,7 @@ import java.util.jar.Manifest;
 
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
+import org.apache.felix.ipojo.parser.ParseException;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -185,7 +186,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 				throw new MojoExecutionException("Metadata Apam compilation failed.");
 			}
 			if (parsingFailed) {
-				throw new MojoExecutionException("Invalid xml Apam Metadata syntax");
+				error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
 			}
 
 			OutputStream obr;
@@ -217,21 +218,18 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			obr.flush();
 			obr.close();
 
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
-			// System.err.println("Cannot open for writing : " + obrFile.getAbsolutePath());
-		} catch (MalformedURLException e) {
-			getLog().error(e.getMessage(), e);
-		} catch (IOException e) {
-			getLog().error(e.getMessage(), e);
-//		} catch (ParseException e) {
-//			getLog().error(e.getMessage(), e);
+			error(Severity.ERROR, e.getMessage());
+			throw new MojoExecutionException(e.getMessage());
 		}
+		
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<ComponentDeclaration> getComponentFromJar (File jar) {
+	private List<ComponentDeclaration> getComponentFromJar (File jar) throws InvalidApamMetadataException {
+		
 		try {
 			JarFile jarFile = new JarFile(jar);
 			Manifest manifest = jarFile.getManifest();
@@ -246,8 +244,11 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			manifest = null;
 			jarFile.close();
 			if (ipojoMetadata == null) {
-				getLog().info(" No Apam metadata for " + jar );
-				return Collections.EMPTY_LIST;
+				String message=" No Apam metadata for " + jar ;
+				getLog().error(message);
+				error(Severity.ERROR, message);
+				throw new InvalidApamMetadataException(message);
+
 			}
 			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
 			Element root = ManifestMetadataParser
@@ -263,11 +264,16 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			getLog().info(contains) ;
 			return ret ;
 			
-		} catch (Exception e) {
-			getLog().info("Parsing Apam metadata for " + jar + " - FAILED ");
-			e.printStackTrace() ;
+		} catch (ParseException e) {
+			String message="Parsing manifest metadata for " + jar + " - FAILED ";
+			getLog().error(message);
+			error(Severity.ERROR, message);
+		} catch (IOException e) {
+			getLog().error(e.getMessage());
+			error(Severity.ERROR, e.getMessage());
 		}
-		return null ;
+		
+		return Collections.EMPTY_LIST; 
 	}
 	
 	@Override
