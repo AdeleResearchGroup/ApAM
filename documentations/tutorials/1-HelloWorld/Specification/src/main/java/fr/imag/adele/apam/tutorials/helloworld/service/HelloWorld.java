@@ -1,5 +1,3 @@
-import fr.imag.adele.apam.tutorials.lights.binarylight.SwingBinaryLightImpl;
-
 /**
  * Copyright 2011-2013 Universite Joseph Fourier, LIG, ADELE team
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +12,16 @@ import fr.imag.adele.apam.tutorials.lights.binarylight.SwingBinaryLightImpl;
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * LightTest.java - 2 juil. 2013
+ * HelloWorldApAM.java - 24 juil. 2013
  */
+package fr.imag.adele.apam.tutorials.helloworld.service;
+
 
 /**
- * @author thibaud
+ * A POJO interface for Hello World Service
  *
  */
-public class LightTest {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		SwingBinaryLightImpl defaultLight = new SwingBinaryLightImpl();
-		defaultLight.started();
-//		defaultLight.setLightStatus(true);
-//		defaultLight.setLightStatus(false);
-		defaultLight.stopped();
-	}
-
+public interface HelloWorld {
+    
+    public void sayHello(String name);
 }

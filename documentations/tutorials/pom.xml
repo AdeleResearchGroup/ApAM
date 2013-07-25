@@ -13,7 +13,7 @@
     <parent>
         <groupId>fr.imag.adele.apam</groupId>
         <artifactId>apam-project</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
+        <version>0.0.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 	<groupId>fr.imag.adele.apam.tutorials</groupId>
@@ -23,10 +23,11 @@
 	<name>Apam Tutorials</name>
 
 
-<!-- 	<modules> -->
-<!--         <module>HelloWorld-Spec</module> -->
-<!--         <module>HelloWorld</module> -->
-<!--         <module>HelloGui</module> -->
-<!--         <module>NewHelloWorld</module> -->
-<!-- 	</modules> -->
+ 	<modules>
+		<module>0-ProjectSkeleton</module> 
+		<module>1-HelloWorld</module> 
+	<!--	<module>2-SpellCheckerTutorial</module> -->
+		<module>3-TemperatureScenario</module>  
+		<module>4-LightingScenario</module> 
+ 	</modules>
 </project>

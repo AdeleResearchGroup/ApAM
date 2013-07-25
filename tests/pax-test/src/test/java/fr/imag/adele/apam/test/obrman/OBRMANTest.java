@@ -18,19 +18,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
+import fr.imag.adele.apam.util.CoreMetadataParser;
+import fr.imag.adele.apam.util.CoreParser;
 
 /**
  * Test Suite
@@ -59,6 +67,7 @@ public class OBRMANTest extends ExtensionAbstract{
     
     @Test 
     public void testRootModel() {
+	
     	obrmanhelper.waitForIt(1000);
         int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
@@ -81,7 +90,7 @@ public class OBRMANTest extends ExtensionAbstract{
     	obrmanhelper.waitForIt(1000);
         CompositeType app2CompoType = null;
         try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/0.0.4-SNAPSHOT!/app-store.xml" };
+            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
             obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
             app2CompoType = obrmanhelper.createCompositeType("APP2",
                     "APP2_MAIN", null);
@@ -114,7 +123,7 @@ public class OBRMANTest extends ExtensionAbstract{
         apam.waitForIt(1000);
         CompositeType app1CompoType = null;
         try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/0.0.4-SNAPSHOT!/app-store.xml" };
+            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
             obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
             app1CompoType = obrmanhelper.createCompositeType("APP1",
                     "APP1_MAIN", null);
@@ -191,5 +200,41 @@ public class OBRMANTest extends ExtensionAbstract{
             fail(e.getMessage());
         }
     }
+
+    @Test
+    public void obrmanInstanciationWhenBundleInstalledNotStarted_tct005() {
+    	obrmanhelper.waitForIt(1000);
+
+    	Implementation implementation = CST.apamResolver.findImplByName(null,
+		"Obrman-Test-S3Impl");
+
+	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved (cannot be found using obrman)",implementation);
+
+	Instance instance = implementation.createInstance(null,
+		Collections.<String, String> emptyMap());
+	
+	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null",instance);    	
+	Bundle bundle= implementation.getApformComponent().getBundle();
+	
+	try {
+	    bundle.stop();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    fail(e.getMessage());
+	}
+	
+    	implementation = CST.apamResolver.findImplByName(null,
+		"Obrman-Test-S3Impl");
+    	
+	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved as bundle is not started",implementation);
+
+	instance = implementation.createInstance(null,
+		Collections.<String, String> emptyMap());
+	
+	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null",instance);    	
+
+    	
+    }
+
 
 }

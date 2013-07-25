@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>apam-tests</artifactId>
+    <groupId>fr.imag.adele.apam</groupId>
+    <version>0.0.4-SNAPSHOT</version>
+  </parent>
+  
+  
+  <groupId>fr.imag.adele.apam.tests</groupId>
+  <artifactId>apam-pax-obrmantest-s3</artifactId>
+  
+  <packaging>bundle</packaging>
+  
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>fr.imag.adele.apam</groupId>
+                <artifactId>apam-maven-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+  
+  
+</project>

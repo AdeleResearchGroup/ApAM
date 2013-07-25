@@ -1,12 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-    <groupId>fr.imag.adele.apam.tutorials.lights</groupId>
-    <artifactId>LightingScenario</artifactId>
+    <groupId>fr.imag.adele.apam.tutorials.helloworld</groupId>
+    <artifactId>HelloWorld-Implementation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tutorials.helloworld</groupId>
+            <artifactId>HelloWorld-Specification</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 
     <!-- Check Latest ApAM Version -->
@@ -48,5 +55,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

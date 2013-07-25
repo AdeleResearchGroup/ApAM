@@ -26,6 +26,7 @@ import java.util.Set;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.ow2.chameleon.testing.helpers.IPOJOHelper;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
@@ -43,12 +44,16 @@ public class OBRMANHelper {
 	private final OSGiHelper osgi;
 
 	private final IPOJOHelper ipojo;
+	
+	public static final String OBRMAN_BUNDLE_NAME = "obrman";
+	
+	private Version version;
 
 	public OBRMANHelper(BundleContext pContext) {
 		context = pContext;
 		osgi = new OSGiHelper(context);
 		ipojo = new IPOJOHelper(context);
-
+		version=getBundleVersion();
 	}
 
 	public void dispose() {
@@ -174,6 +179,25 @@ public class OBRMANHelper {
 					+ bundle.getState() + "]");
 		}
 		System.out.println("---------End of List of installed bundle--------");
+	}
+	
+	private Version getBundleVersion() {
+	    for (Bundle bundle : context.getBundles())
+		if(bundle.getSymbolicName().equals(OBRMAN_BUNDLE_NAME))
+			return bundle.getVersion();
+	    return null;
+	}
+	
+	public String getMavenVersion() {
+	    if (version==null)
+		return null;
+	    else {
+		    String result=version.getMajor()+"."+version.getMinor()+"."+version.getMicro();
+		    if(version.getQualifier()!= null && version.getQualifier().length()>0)
+			result+="-"+version.getQualifier();
+		    return result;
+	    }
+
 	}
 
 }

@@ -1,5 +1,3 @@
-import fr.imag.adele.apam.tutorials.lights.button.SwingButtonImpl;
-
 /**
  * Copyright 2011-2013 Universite Joseph Fourier, LIG, ADELE team
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +12,20 @@ import fr.imag.adele.apam.tutorials.lights.button.SwingButtonImpl;
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * ButtonTest.java - 2 juil. 2013
+ * HelloWorldApAM.java - 24 juil. 2013
  */
+package fr.imag.adele.apam.tutorials.helloworld.impl;
+
+import fr.imag.adele.apam.tutorials.helloworld.service.HelloWorld;
+
 
 /**
- * @author thibaud
+ * A POJO implementation of Hello World Service
  *
  */
-public class ButtonTest {
-	
-	public static void main(String[] args) {
-		SwingButtonImpl btn= new SwingButtonImpl();
-		btn.started();
-	}
+public class HelloWorldImpl implements HelloWorld {
+    
+    public void sayHello(String name) {
+	System.out.println("Hello "+name+" !");
+    }
 }

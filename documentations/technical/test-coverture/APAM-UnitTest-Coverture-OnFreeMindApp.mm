@@ -301,8 +301,10 @@
 <node CREATED="1353077625512" ID="ID_852943712" MODIFIED="1353085682813" TEXT="load and instantiate a component from repository">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1374563370447" ID="ID_913362004" MODIFIED="1374563424462" TEXT="should instanciate component if bundle is installed but not started">
+<node CREATED="1374563370447" ID="ID_913362004" MODIFIED="1374670024907" TEXT="should instanciate component if bundle is installed but not started">
+<node CREATED="1374669994338" ID="ID_1824328752" MODIFIED="1374670015443" TEXT="tct005">
 <icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>
@@ -541,7 +543,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372166642799" ID="ID_190271305" MODIFIED="1372166644008" TEXT="eager">
+<node CREATED="1372166642799" ID="ID_190271305" MODIFIED="1374670019627" TEXT="eager">
 <node COLOR="#010101" CREATED="1372339312006" ID="ID_304605003" MODIFIED="1374485640866" TEXT="tc101">
 <icon BUILTIN="button_ok"/>
 </node>

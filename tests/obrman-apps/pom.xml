@@ -13,6 +13,8 @@
 		<module>app2</module>
         <module>app1</module>
 		<module>repositories</module>
+		<module>apam-pax-obrmantest-s3</module>
 	</modules>
+	
 	
 </project>
