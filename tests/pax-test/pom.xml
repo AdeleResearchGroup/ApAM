@@ -427,7 +427,7 @@
                 <directory>models</directory>
                 <filtering>true</filtering>
                 <includes>
-                <include>**/*.cfg</include>
+                <include>**/*</include>
             </includes>
         </resource>
         </resources>    
