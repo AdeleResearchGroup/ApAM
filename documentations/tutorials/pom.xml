@@ -25,8 +25,8 @@
 
  	<modules>
 		<module>0-ProjectSkeleton</module> 
-	<!--	<module>1-HelloWorld</module> 
-		<module>2-SpellCheckerTutorial</module> -->
+		<module>1-HelloWorld</module> 
+	<!--	<module>2-SpellCheckerTutorial</module> -->
 		<module>3-TemperatureScenario</module>  
 		<module>4-LightingScenario</module> 
  	</modules>
