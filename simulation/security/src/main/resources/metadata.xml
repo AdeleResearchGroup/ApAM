@@ -32,7 +32,7 @@
 			<export instance="false"/>
 			<exportApp instance="true"/>
 						
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
 
 		</contentMngt>
 	</composite>
@@ -52,7 +52,7 @@
 	-->
 	<composite name="FireManagementDomain" singleton="true">
 
-		<dependency  id="emergencyDoors" specification="Door" multiple="true">
+		<dependency  name="emergencyDoors" specification="Door" multiple="true">
 			<constraints>
 				<instance filter="(access=true)"/>
 			</constraints>
@@ -63,15 +63,15 @@
 		<contentMngt>
 	
 			<state implementation="EmergencyDetection" property="emergency"/>
-			<dependency override="true" source="EmergencyState" id="emergencyEvents" eager="true" />
+			<dependency override="true" source="EmergencyState" name="emergencyEvents" eager="true" />
 			
 			<import instance="false" />
 			<export instance="false"/>
 
 			<own specification="SmokeDetector"/>
 			
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
-			<dependency override="true" source=".*" id=".*" specification="SmokeDetector" eager="true" />
+			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" name=".*" specification="SmokeDetector" eager="true" />
 
 		</contentMngt>
 
@@ -87,7 +87,7 @@
 			<import instance="true" />
 			<export instance="true"/>
 
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
 		</contentMngt>
 	</composite>
 
@@ -98,7 +98,7 @@
 	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
 		<callback onInit="start"/>
 		<definition name="emergency" type="emergency,normal" field="stateProperty" internal="true" />
-		<dependency id="emergencyEvents" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
+		<dependency name="emergencyEvents" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
 	</implementation>
 	
 </apam>
