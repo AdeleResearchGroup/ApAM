@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>fr.imag.adele.apam.tutorials.temperature.adeletech</groupId>
-    <artifactId>AdeleHeatingTech</artifactId>
+    <artifactId>AdeleHeatingApplication</artifactId>
 
 
     <packaging>bundle</packaging>
@@ -42,20 +42,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>2.3.7</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <obrRepository>${basedir}/private-adele-obr</obrRepository>
-                    <file>private-adele-obr/${project.artifactId}-${project.version}.jar</file>
-                    <pomFile>pom.xml</pomFile>
-                    <obrXml>${basedir}/src/main/resources/obr.xml</obrXml>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
             </plugin>
 
 
@@ -71,33 +57,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install-jar</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>private-adele-obr</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
-
     </build>
 
     <dependencies>
