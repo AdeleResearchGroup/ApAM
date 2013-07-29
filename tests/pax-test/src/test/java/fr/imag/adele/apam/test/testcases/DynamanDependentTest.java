@@ -230,7 +230,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
 				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
-				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
