@@ -618,7 +618,7 @@ public class RelationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void RelationLinkResolveExternal_tct004() {
+	public void RelationLinkCreationManual_tct004() {
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"S07-implementation-16");
 
