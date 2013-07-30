@@ -71,7 +71,7 @@ public class Visible {
 
 		// Check if target is visible from the instances of source type
 		if ( isVisibleIn(source.getCompType(), target)) {
-			return false;
+			return true;
 		}
 
 		// Check if the target is visible to other components in the same application
