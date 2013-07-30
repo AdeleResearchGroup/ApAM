@@ -267,7 +267,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1354720048703" ID="ID_1119045837" MODIFIED="1354720050152" TEXT="export">
+<node CREATED="1354720048703" ID="ID_1119045837" MODIFIED="1375189619242" TEXT="export">
 <node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354783298706" TEXT="exportApp=&apos;true&apos; and export=&apos;false&apos; for global-tc038">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -288,6 +288,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
+<node CREATED="1375189654903" ID="ID_736266460" MODIFIED="1375189755603" TEXT="even if a composite declares &apos;export implem=false&apos;, he should have access to it-tc118">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1353943999397" TEXT="promotion">
@@ -302,8 +305,8 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1374563370447" ID="ID_913362004" MODIFIED="1374670024907" TEXT="should instanciate component if bundle is installed but not started">
-<node CREATED="1374669994338" ID="ID_1824328752" MODIFIED="1374670015443" TEXT="tct005">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1374669994338" ID="ID_1824328752" MODIFIED="1375099009964" TEXT="tct005">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -494,8 +497,12 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372768340318" ID="ID_1326272685" MODIFIED="1372768347474" TEXT="implementation"/>
-<node CREATED="1372768348604" ID="ID_1449760738" MODIFIED="1372768350861" TEXT="specification"/>
+<node CREATED="1372768340318" ID="ID_1326272685" MODIFIED="1375184814994" TEXT="implementation">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1372768348604" ID="ID_1449760738" MODIFIED="1375184817610" TEXT="specification">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 <node CREATED="1372257321846" ID="ID_995840284" MODIFIED="1372257324553" TEXT="specification">

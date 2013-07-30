@@ -56,10 +56,18 @@
 		<dependency field="c" />
 	</implementation>
 
+	<implementation name="group-b-specification"
+		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<relation field="element" resolve="internal"/>
+		<dependency field="d" specification="eletronic-device" multiple="false" />
+		<dependency field="e" specification="eletronic-device" multiple="false" />
+	</implementation>
+	
 	<implementation name="group-b"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
+		<relation field="element" resolve="internal"/>
 		<dependency field="d" />
 		<dependency field="e" />
 	</implementation>
@@ -94,10 +102,22 @@
 
 	<composite name="composite-a-local-instance" main="group-a">
 		<contentMngt>
-			<export instance="false" />
+			<export implementation="true" instance="false" />
 		</contentMngt>
 	</composite>
-
+	
+	<composite name="composite-a-local-instance-nomain">
+		<contentMngt>
+			<export implementation="true" instance="false" />
+		</contentMngt>
+	</composite>
+	
+	<composite name="composite-a-local-implementation-nomain">
+		<contentMngt>
+			<export implementation="false" instance="true"/>
+		</contentMngt>
+	</composite>
+	
 	<composite name="composite-a-local-implementation" main="group-a">
 		<contentMngt>
 			<export implementation="false" />
@@ -114,6 +134,13 @@
 		main="group-a">
 		<contentMngt>
 			<import implementation="false" />
+		</contentMngt>
+	</composite>
+	
+	<composite name="composite-a-import-implementation-notinstance"
+		main="group-a">
+		<contentMngt>
+			<import implementation="true" instance="false" />
 		</contentMngt>
 	</composite>
 

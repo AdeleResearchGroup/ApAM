@@ -39,6 +39,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.util.Visible;
 
 public class ImplementationImpl extends ComponentImpl implements Implementation {
 
@@ -247,6 +248,13 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
+	   /**
+     * If this implementation can be instantiated in the specified composite
+     */
+    public boolean canBeInstantiatedIn(Composite composite) {
+    	return Visible.isVisibleIn(composite,this);
+    }
+
 	/**
 	 * From an implementation, create an instance. Creates both the apform and APAM instances.
 	 * Can be called from the API. 
@@ -257,7 +265,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	public Instance createInstance(Composite composite, Map<String, String> initialProperties) {
 
 //		if ((composite != null) && !Util.checkImplVisible(composite.getCompType(), this)) {
-			if ((composite != null) && ! composite.canSee(this)) {
+			if ((composite != null) && ! this.canBeInstantiatedIn(composite)) {
 			logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);
 			return null;
 		}
