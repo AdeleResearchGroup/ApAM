@@ -11,14 +11,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="TemperatureSensor"
-		interfaces="fr.imag.adele.apam.tutorials.temperature.devices.TemperatureSensor">
+    <specification name="TemperatureSensor"
+        interfaces="fr.imag.adele.apam.tutorials.temperature.devices.TemperatureSensor">
 
-		<definition name="Unit" type="Celsius, Fahrenheit" />
-	</specification>
+        <definition name="Unit" type="Celsius, Fahrenheit" />
+    </specification>
 
-	<specification name="Heater"
-		interfaces="fr.imag.adele.apam.tutorials.temperature.devices.Heater">
-	</specification>
+    <specification name="Heater"
+        interfaces="fr.imag.adele.apam.tutorials.temperature.devices.Heater">
+    </specification>
+    
+
 
 </apam>

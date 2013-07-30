@@ -24,7 +24,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     <implementation name="HelloWorld-Client"
         classname="fr.imag.adele.apam.tutorials.helloworld.client.HelloWorldClient">
         <callback onInit="start" onRemove="stop"/>
-        <dependency field="helloService"></dependency>
+        <dependency field="helloService" ></dependency>
     </implementation>
 
 </apam>

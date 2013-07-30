@@ -147,6 +147,11 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 			//The jar to compile
 			List<ComponentDeclaration> components = getComponentFromJar(artifact.getFile());
+			
+			if(components.isEmpty()){
+				throw new InvalidApamMetadataException();
+			}
+			
             classpathDescriptor.add(artifact.getFile());
 			/*
 			 * Get the definition of the components needed to compile
@@ -227,7 +232,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<ComponentDeclaration> getComponentFromJar (File jar) throws InvalidApamMetadataException {
 		
 		try {
@@ -243,13 +247,13 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			iPOJOmetadata = null;
 			manifest = null;
 			jarFile.close();
-			if (ipojoMetadata == null) {
+			if (ipojoMetadata == null ) {
 				String message=" No Apam metadata for " + jar ;
 				getLog().error(message);
-				error(Severity.ERROR, message);
-				throw new InvalidApamMetadataException(message);
+				return Collections.emptyList();
 
 			}
+			
 			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
 			Element root = ManifestMetadataParser
 			.parseHeaderMetadata(ipojoMetadata);
@@ -273,7 +277,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			error(Severity.ERROR, e.getMessage());
 		}
 		
-		return Collections.EMPTY_LIST; 
+		return Collections.emptyList(); 
 	}
 	
 	@Override

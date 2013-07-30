@@ -6,9 +6,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   
-  <groupId>fr.imag.adele.apam.tutorials.temperature</groupId>
-  <artifactId>HeatingDevices</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <artifactId>HeatingDevicesSpec</artifactId>
   
 
 
@@ -17,7 +15,7 @@
   
 <!-- Check Latest ApAM Version -->
   <properties>
-  	<apam-version>0.0.3-SNAPSHOT</apam-version>
+  	<apam-version>0.0.4-SNAPSHOT</apam-version>
   </properties>
   
 <!-- Repositories List -->

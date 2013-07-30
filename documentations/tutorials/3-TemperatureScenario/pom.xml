@@ -7,19 +7,15 @@
   
 <!-- Check Latest ApAM Version -->
   <properties>
-  	<apam-version>0.0.3-SNAPSHOT</apam-version>
+  	<apam-version>0.0.4-SNAPSHOT</apam-version>
   </properties>
   
-<!-- Repositories List -->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>apam-plugin-repository</id>
-			<url>https://repository-apam.forge.cloudbees.com/release/repository/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-  
+ 	<modules>
+		<module>HeatingDevicesSpec</module> 
+		<module>AdeleHeatingTech</module> 
+		<module>AdeleHeatingApplication</module>  
+ 	</modules>
+
+
   
 </project>

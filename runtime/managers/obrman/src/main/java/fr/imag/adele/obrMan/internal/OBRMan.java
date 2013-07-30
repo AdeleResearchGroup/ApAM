@@ -158,8 +158,8 @@ public class OBRMan implements RelationManager, OBRManCommand {
 				if (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING || bundle.getState() == Bundle.UNINSTALLED) {
 					return false;
 				}
-				//If only installed, try to start it. Successfull or not, do not try to deploy.
-				if (bundle.getState() == Bundle.INSTALLED) {
+				//If only installed, try to start it. Successful or not, do not try to deploy.
+				if (bundle.getState() == Bundle.INSTALLED || bundle.getState() == Bundle.RESOLVED ) {
 					try {
 						bundle.start() ;
 					} catch (BundleException e) {
@@ -170,8 +170,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 					logger.info("The bundle " + bundle.getSymbolicName() + " is installed and has been be started!");
 					return false ;
 				} 
-				//The bundle is here but cannot be used nor installed.
-				return true;
+				
 			}
 		}
 		//It does not exist: deploy it.

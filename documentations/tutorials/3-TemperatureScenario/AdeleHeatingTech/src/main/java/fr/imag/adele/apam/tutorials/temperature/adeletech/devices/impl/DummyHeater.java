@@ -14,7 +14,7 @@
  *
  * DummyHeater.java - 8 juil. 2013
  */
-package fr.imag.adele.apam.tutorials.temperature.adeletech.devices;
+package fr.imag.adele.apam.tutorials.temperature.adeletech.devices.impl;
 
 import fr.imag.adele.apam.tutorials.temperature.devices.Heater;
 
