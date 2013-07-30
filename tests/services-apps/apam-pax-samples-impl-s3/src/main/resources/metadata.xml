@@ -168,20 +168,20 @@
 
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" name=".*" specification="eletronic-device-private" fail="exception"
+			<override name=".*" specification="eletronic-device-private" fail="exception"
 				exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-fail-wait" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" name=".*" specification="eletronic-device-private" fail="wait" />
+			<override name=".*" specification="eletronic-device-private" fail="wait" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-hide" main="group-a-private-component">
 		<contentMngt>
-			<dependency override="true" name=".*" specification="eletronic-device-private" hide="true" />
+			<override name=".*" specification="eletronic-device-private"/>
 		</contentMngt>
 	</composite>
 
