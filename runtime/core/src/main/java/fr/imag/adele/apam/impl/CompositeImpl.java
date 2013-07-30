@@ -297,8 +297,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	 */
 	@Override
 	public Object getServiceObject() {
-		assert (mainInst != null);
-		return mainInst.getApformInst().getServiceObject();
+		return mainInst != null ? mainInst.getApformInst().getServiceObject() : null;
 	}
 
 	@Override
