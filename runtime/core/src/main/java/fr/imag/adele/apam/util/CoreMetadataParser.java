@@ -98,6 +98,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  DEPENDENCY              = "dependency";
 	private static final String  RELATIONS               = "relations";
 	private static final String  RELATION                = "relation";
+	private static final String  OVERRIDE                = "override";
 	private static final String  LINK                    = "link";
 	private static final String  INTERFACE               = "interface";
 	private static final String  MESSAGE                 = "message";
@@ -133,7 +134,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_FIELD               = "field";
 	private static final String  ATT_INTERNAL            = "internal";
 	private static final String  ATT_MULTIPLE            = "multiple";
-	private static final String  ATT_OVERRIDE            = "override";
 	private static final String  ATT_SOURCE              = "source";
 	private static final String  ATT_TARGET              = "target";
 	private static final String  ATT_SOURCE_KIND         = "sourceKind";
@@ -721,7 +721,8 @@ public class CoreMetadataParser implements CoreParser {
 		 * Iterate over all sub elements looking for relation declarations
 		 */
 		for (Element relation : every(element.getElements(CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM),
-				element.getElements(CoreMetadataParser.RELATION, CoreMetadataParser.APAM))) {
+				element.getElements(CoreMetadataParser.RELATION, CoreMetadataParser.APAM),
+				element.getElements(CoreMetadataParser.OVERRIDE, CoreMetadataParser.APAM))) {
 
 			/*
 			 * Add to content contextual declaration
@@ -766,7 +767,7 @@ public class CoreMetadataParser implements CoreParser {
 		 * and target kind
 		 */
 		String id 					= parseString(component.getName(), element, CoreMetadataParser.ATT_NAME, false);
-		boolean isOverride			= isContextual && parseBoolean(component.getName(),element, ATT_OVERRIDE, false, false);
+		boolean isOverride			= isContextual && element.getName().equals(OVERRIDE);
 
 		boolean isMultiple			= parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, false);
 
