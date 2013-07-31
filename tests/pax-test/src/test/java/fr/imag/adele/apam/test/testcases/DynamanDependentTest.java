@@ -185,6 +185,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
 		
 		auxListInstances("instances existing after the test-");
+		System.out.println("pool.size() : "+ pool.size());
 
 		Assert.assertTrue(
 				String.format(
