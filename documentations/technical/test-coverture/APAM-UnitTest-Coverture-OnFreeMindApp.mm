@@ -224,7 +224,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353316551326" TEXT="preference">
+<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1375362057730" TEXT="preference">
 <node CREATED="1353075782472" ID="ID_1933538834" MODIFIED="1354295267666" TEXT="injected instance should respect the preference (if its satisfiable)-tc024">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -236,6 +236,11 @@
 </node>
 <node CREATED="1353076557752" ID="ID_533005585" MODIFIED="1354295361281" TEXT="should be possible find an impl by its name-tc027">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1375362057733" ID="ID_1688355282" MODIFIED="1375362099776" TEXT="preference should be resolved if a new instance that matchs appears)">
+<node CREATED="1375362103820" ID="ID_1025748012" MODIFIED="1375362111307" TEXT="tct006">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 </node>
