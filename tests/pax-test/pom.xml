@@ -276,6 +276,13 @@
         </dependency>
 
         <dependency>
+            <groupId>fr.imag.adele.apam.tests.app</groupId>
+            <artifactId>apam-pax-composite-av</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
             <artifactId>apam-universal-shell</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
             <version>${project.version}</version>

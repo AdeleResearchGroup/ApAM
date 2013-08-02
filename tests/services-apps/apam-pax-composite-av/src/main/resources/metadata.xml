@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2011-2013 Universite Joseph Fourier, LIG, ADELE team Licensed 
+    under the Apache License, Version 2.0 (the "License"); you may not use this 
+    file except in compliance with the License. You may obtain a copy of the 
+    License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by 
+    applicable law or agreed to in writing, software distributed under the License 
+    is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
+    KIND, either express or implied. See the License for the specific language 
+    governing permissions and limitations under the License. 1 août 2013 -->
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+
+
+    <!-- Specifications of basic services provided by physical devices or 
+        pure software components -->
+    <specification name="MediaServer"
+        interfaces="fr.imag.adele.apam.pax.test.av.spec.MediaServer">
+        <definition name="bandwidth" type="string" />
+        <definition name="media-provided" type="{picture,audio,video}" />
+        <definition name="location" type="home,mobile" />
+    </specification>
+
+    <specification name="MediaRenderer"
+        interfaces="fr.imag.adele.apam.pax.test.av.spec.MediaRenderer">
+        <definition name="location" type="home,mobile" />
+    </specification>
+
+    <specification name="MediaControlPoint"
+        interfaces="fr.imag.adele.apam.pax.test.av.spec.MediaControlPoint">
+        <relation specification="MediaRenderer" multiple="true"
+            name="theRenderers" ></relation>
+        <relation specification="MediaServer" multiple="true"
+            name="theServers" >
+        </relation>
+        <relation specification="RemoteControl" multiple="false"
+            name="userInterface" ></relation>
+        
+        <definition name="location" type="home,mobile" />
+    </specification>
+
+    <specification name="RemoteControl"
+        interfaces="fr.imag.adele.apam.pax.test.av.spec.RemoteControl">
+        <definition name="location" type="home,mobile" />
+    </specification>
+
+
+    <!-- Implementations of Physical Devices (should started as Instance 
+        in root composite) -->
+    <implementation name="MediaServerDevice"
+        classname="fr.imag.adele.apam.pax.test.av.impl.NASMediaServer"
+        specification="MediaServer">
+        <property name="location" value="home" />
+    </implementation>
+
+    <implementation name="SmartTVDevice"
+        classname="fr.imag.adele.apam.pax.test.av.impl.SmartTV"
+        specification="MediaRenderer">
+        <property name="location" value="home" />
+    </implementation>
+
+    <implementation name="StereoSystemDevice"
+        classname="fr.imag.adele.apam.pax.test.av.impl.StereoSystem"
+        specification="MediaRenderer">
+        <property name="location" value="home" />
+    </implementation>
+
+    <implementation name="SmartTabletDevice"
+        classname="fr.imag.adele.apam.pax.test.av.impl.SmartTablet"
+        specification="RemoteControl">
+        <property name="location" value="mobile" />
+    </implementation>
+
+    <!-- Pure software Implementations of services (should dynamically started 
+        by composite to match their needs) -->
+
+    <implementation name="SoftwareMediaController"
+        classname="fr.imag.adele.apam.pax.test.av.impl.MediaController"
+        specification="MediaControlPoint">
+        <relation specification="MediaRenderer" multiple="true"
+            field="theRenderers" name="theRenderers" resolve="exist"></relation>
+        <relation specification="MediaServer" multiple="true"
+            field="theServers" name="theServers" resolve="exist">
+        </relation>
+        <relation specification="RemoteControl" multiple="false"
+            field="userInterface" name="userInterface" resolve="exist"></relation>
+    </implementation>
+
+    <implementation name="SoftwareMediaServer"
+        classname="fr.imag.adele.apam.pax.test.av.impl.NASMediaServer"
+        specification="MediaServer">
+    </implementation>
+
+    <implementation name="SoftwareMediaRenderer"
+        classname="fr.imag.adele.apam.pax.test.av.impl.SmartTV"
+        specification="MediaRenderer">
+    </implementation>
+
+
+    <!-- Instances of Physical Devices already installed -->
+
+    <apam-instance implementation="MediaServerDevice"
+        name="STB-MediaLibrary">
+        <property name="bandwidth" value="high" />
+        <property name="media-provided" value="video" />
+    </apam-instance>
+
+    <apam-instance implementation="MediaServerDevice"
+        name="SynergyNAS">
+        <property name="bandwidth" value="low" />
+        <property name="media-provided" value="picture,audio,video" />
+    </apam-instance>
+
+    <apam-instance implementation="SmartTVDevice" name="GoogleTV">
+    </apam-instance>
+    <apam-instance implementation="StereoSystemDevice"
+        name="Bose-HomeTheater">
+    </apam-instance>
+
+
+    <!-- Composites -->
+    <composite name="HomeDigitalContent-00" singleton="true">
+        <contentMngt>
+            <own specification="MediaServer" property="location"
+                value="home" />
+            <export implementation="(implementation-name=MediaServer)" />
+        </contentMngt>
+    </composite>
+
+    <composite name="UserTablet-00" main="SmartTabletDevice">
+        <!-- actually not possible to define a property in the main implem 
+            of an instance <property name="location" value="home" /> -->
+
+        <contentMngt>
+            <start implementation="SoftwareMediaController" name="TabletController">
+                <property name="location" value="mobile" />
+            </start>
+            <start implementation="SoftwareMediaServer" name="TabletMediaServer">
+                <property name="location" value="mobile" />
+            </start>
+            <start implementation="SoftwareMediaRenderer" name="TabletMediaRenderer">
+                <property name="location" value="mobile" />
+            </start>
+
+            <export
+                implementation="(|(implementation-name=MediaRenderer)(implementation-name=MediaServer)(implementation-name=SmartTabletDevice))" />
+        </contentMngt>
+    </composite>
+
+
+
+
+    <!-- TEST CASE tct007 - Without explicit promotion (should resolve composite 
+        relation AND internal) -->
+    <composite name="AVEntertainment-00" singleton="true">
+        <relation specification="MediaServer" name="promotedServers"
+            multiple="true">
+            <constraints>
+                <instance filter="(bandwidth=high)" />
+            </constraints>
+        </relation>
+
+        <relation specification="RemoteControl" name="promotedRemoteControl">
+        </relation>
+
+        <contentMngt>
+            <start implementation="SoftwareMediaController" name="AVEntertainment-Controller">
+            </start>
+
+            <start implementation="SoftwareMediaServer" name="EmbeddedMediaServer">
+                <property name="bandwidth" value="high" />
+            </start>
+
+            <!-- must use the relation defined by composite, or inside the 
+                composite -->
+            <import instance="false" />
+            <export instance="false" />
+
+            <own specification="MediaRenderer" />
+        </contentMngt>
+    </composite>
+
+    <!-- TEST CASE tct008 - Without explicit promotion (should resolve composite 
+        relation AND internal even if internal server has low bandwidth ) -->
+    <composite name="AVEntertainment-01" singleton="true">
+        <relation specification="MediaServer" name="promotedServers"
+            multiple="true">
+            <constraints>
+                <instance filter="(bandwidth=high)" />
+            </constraints>
+        </relation>
+
+        <relation specification="RemoteControl" name="promotedRemoteControl">
+        </relation>
+
+        <contentMngt>
+            <start implementation="SoftwareMediaController" name="AVEntertainment-Controller">
+            </start>
+
+            <start implementation="SoftwareMediaServer" name="EmbeddedMediaServer">
+                <property name="bandwidth" value="low" />
+            </start>
+
+            <!-- must use the relation defined by composite, or inside the 
+                composite -->
+            <import instance="false" />
+            <export instance="false" />
+
+            <own specification="MediaRenderer" />
+        </contentMngt>
+    </composite>
+
+
+    <!-- TEST CASE tct009 - With explicit promotion for implementation (should 
+        only find external promotion) -->
+    <composite name="AVEntertainment-02" singleton="true">
+
+        <relation specification="MediaServer" name="promotedServers"
+            multiple="true">
+            <constraints>
+                <instance filter="(bandwidth=high)" />
+            </constraints>
+        </relation>
+
+        <relation specification="RemoteControl" name="promotedRemoteControl">
+        </relation>
+
+        <contentMngt>
+            <start implementation="SoftwareMediaController" name="AVEntertainment-Controller">
+            </start>
+
+            <start implementation="SoftwareMediaServer" name="EmbeddedMediaServer">
+                <property name="bandwidth" value="high" />
+            </start>
+
+            <own specification="MediaRenderer" />
+            
+            <promote implementation="SoftwareMediaController"
+                dependency="theServers" to="promotedServers" />
+
+            <promote implementation="SoftwareMediaController"
+                dependency="userInterface" to="promotedRemoteControl" />
+
+            <!-- must use the relation defined by composite, or inside the 
+                composite -->
+            <import instance="false" />
+            <export instance="false" />
+            
+        </contentMngt>
+
+    </composite>
+
+    <!-- TEST CASE tct010 - With explicit promotion for specification (should 
+        only find external promotion) -->
+    <composite name="AVEntertainment-03" singleton="true">
+
+        <relation specification="MediaServer" name="promotedServers"
+            multiple="true">
+            <constraints>
+                <instance filter="(bandwidth=high)" />
+            </constraints>
+        </relation>
+
+        <relation specification="RemoteControl" name="promotedRemoteControl">
+        </relation>
+
+        <contentMngt>
+            <start implementation="SoftwareMediaController" name="AVEntertainment-Controller">
+            </start>
+
+            <start implementation="SoftwareMediaServer" name="EmbeddedMediaServer">
+                <property name="bandwidth" value="high" />
+            </start>
+
+            <own specification="MediaRenderer" />
+            
+            <promote specification="MediaControlPoint"
+                dependency="theServers" to="promotedServers" />
+
+            <promote  specification="MediaControlPoint"
+                dependency="userInterface" to="promotedRemoteControl"  />
+
+            <!-- must use the relation defined by composite, or inside the 
+                composite -->
+            <import instance="false" />
+            <export instance="false" />
+            
+        </contentMngt>
+
+    </composite>
+
+
+
+</apam>

@@ -298,8 +298,38 @@
 </node>
 </node>
 </node>
-<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1353943999397" TEXT="promotion">
+<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1375455936881" TEXT="promotion">
 <icon BUILTIN="button_cancel"/>
+<node CREATED="1375455787177" ID="ID_1366326840" MODIFIED="1375455822969" TEXT="ImplicitPromote with same constraints">
+<node CREATED="1375455961672" ID="ID_192847866" MODIFIED="1375455970886" TEXT="tct007">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375455830648" ID="ID_541672399" MODIFIED="1375455849926" TEXT="Implicite Promote without same constraints">
+<node CREATED="1375455975544" ID="ID_247015520" MODIFIED="1375455985668" TEXT="tct008">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375455858594" ID="ID_293362952" MODIFIED="1375455882425" TEXT="Explicit Promote for implem, multiple relation">
+<node CREATED="1375455990181" ID="ID_685613716" MODIFIED="1375456001863" TEXT="tct009">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455891340" ID="ID_1730467482" MODIFIED="1375455908077" TEXT="Explicit Promote for spec, multiple relation">
+<node CREATED="1375456007222" ID="ID_1929849220" MODIFIED="1375456013512" TEXT="tct010">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455913237" ID="ID_610081806" MODIFIED="1375455933157" TEXT="Explicit promote for implem, single relation">
+<node CREATED="1375456423072" ID="ID_454250652" MODIFIED="1375456431583" TEXT="tct011">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455936882" ID="ID_1457806390" MODIFIED="1375455954349" TEXT="Explicit Promote for spec, single relation">
+<node CREATED="1375456435836" ID="ID_748240925" MODIFIED="1375456441623" TEXT="tct012">
+<icon BUILTIN="help"/>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1353075841416" ID="ID_1642355188" MODIFIED="1374563367000" POSITION="right" TEXT="OBRMan">
