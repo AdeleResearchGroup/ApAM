@@ -155,7 +155,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353316598237" TEXT="Dependency">
+<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1375976745835" TEXT="Dependency">
 <node CREATED="1353075661607" ID="ID_916344715" MODIFIED="1353076800476" TEXT="set/array types">
 <node CREATED="1353071915367" ID="ID_1456627929" MODIFIED="1354294904578" TEXT="check if the class instantiated is exactly of the same type as the requested-tc012">
 <icon BUILTIN="button_ok"/>
@@ -242,6 +242,9 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
+</node>
+<node CREATED="1375976750304" ID="ID_707483499" MODIFIED="1375976780715" TEXT="can release a dependency setting the field to null">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 </node>
@@ -388,9 +391,33 @@
 </node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
-<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1353941826631" TEXT="grant">
-<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1353941936277" TEXT="when">
+<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1375976427445" TEXT="grant">
+<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1375976789516" TEXT="when">
+<node CREATED="1375949067088" ID="ID_16840619" MODIFIED="1375976524589" TEXT="grant when state match">
+<node CREATED="1375976490287" ID="ID_630096802" MODIFIED="1375976496637" TEXT="tct013">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976229841" ID="ID_1792765356" MODIFIED="1375976295883" TEXT="release when state does not match anymore">
+<node CREATED="1375976300492" ID="ID_1504990466" MODIFIED="1375976312848" TEXT="tct014">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1375976342464" TEXT="force release when state does not match">
+<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1375976357365" TEXT="tct015">
 <icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375976383370" ID="ID_1796401749" MODIFIED="1375976396456" TEXT="grant to external implementation">
+<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1375976404581" TEXT="tct016">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375976429563" ID="ID_277859218" MODIFIED="1375976442834" TEXT="grant when using resolve=exist">
+<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1375976449612" TEXT="tct017">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
 </node>
 <node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1353941936278" TEXT="implementation">
 <icon BUILTIN="button_cancel"/>
