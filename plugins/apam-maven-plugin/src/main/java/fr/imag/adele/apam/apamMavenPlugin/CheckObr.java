@@ -1312,12 +1312,13 @@ public class CheckObr {
 
 			// Check that a single grant for a given state.
 			for (String def : grantStates) {
-				if (allGrants.contains(def)) {
+			    String completedef=component.getStateProperty().getIdentifier()+def;
+				if (allGrants.contains(completedef)) {
 					error("Component " + own.getComponent().getName()
 							+ " already granted when state is " + def);
 					continue;
 				}
-				allGrants.add(def);
+				allGrants.add(completedef);
 			}
 
 			// Check that the relation exists and has as target the OWN
