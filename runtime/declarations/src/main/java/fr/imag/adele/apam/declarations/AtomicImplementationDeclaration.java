@@ -53,24 +53,20 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         String getMethodReturnType(String methodName, String signature, boolean includeInherited) throws NoSuchMethodException;
         
         /**
-         * The number of parameters of the specified java methos
+         * The number of parameters of the specified java method
          */
-        int getMethodArgumentNumber(String methodName, boolean includeInherited) throws NoSuchMethodException;
+        int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException;
+
+        /**
+         * The list of parameter types
+         */
+        String[] getMethodParameterTypes(String methodName, boolean includeInherited) throws NoSuchMethodException;
         
         /**
-         * The type of the first parameter of the specified java method
+         * The type of of the specified single-paramterjava method
          */
-        String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException;
+        String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException;
         
-        /**
-         * Return the list of argument types
-         * @param methodName
-         * @param includeInherited
-         * @return
-         * @throws NoSuchMethodException
-         */
-        
-        public String[] getMethodArgumentTypes(String methodName, boolean includeInherited) throws NoSuchMethodException;
         
 
     }

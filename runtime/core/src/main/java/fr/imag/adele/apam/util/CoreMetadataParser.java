@@ -153,9 +153,8 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_PULL                = "pull";
 	private static final String  ATT_BIND                = "added";
 	private static final String  ATT_UNBIND              = "removed";
-	//TODO relation variable declaration
 	private static final String  ATT_CREATION_POLICY     = "creation";
-	private static final String  ATT_RESOLVE_POLICY     = "resolve";
+	private static final String  ATT_RESOLVE_POLICY      = "resolve";
 
 	private static final String  VALUE_OPTIONAL          = "optional";
 	private static final String  VALUE_WAIT              = "wait";
@@ -1954,7 +1953,7 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		@Override
-		public int getMethodArgumentNumber(String methodName, boolean includeInherited) throws NoSuchMethodException {
+		public int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException {
 			
 			if (pojoMetadata != null) {
 				for (MethodMetadata method :  pojoMetadata.getMethods(methodName)) {
@@ -1975,32 +1974,34 @@ public class CoreMetadataParser implements CoreParser {
 			throw new NoSuchMethodException("unavailable metadata for method " + methodName);
 		}
 		
-		public String[] getMethodArgumentTypes(String methodName,
-				boolean includeInherited) throws NoSuchMethodException {
+		@Override
+		public String[] getMethodParameterTypes(String methodName, boolean includeInherited) throws NoSuchMethodException {
+
+			List<String> signature = new ArrayList<String>();
 
 			if (pojoMetadata != null) {
-				for (MethodMetadata method : pojoMetadata
-						.getMethods(methodName)) {
-					return method.getMethodArguments();
+				for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
+					
+					for(String argument : method.getMethodArguments()){
+						signature.add(wrap(argument));
+					}
+					
+					return signature.toArray(new String[0]);
 				}
 			}
 
 			if (instrumentedCode != null) {
-				for (Method method : includeInherited ? instrumentedCode
-						.getMethods() : instrumentedCode.getDeclaredMethods()) {
+				for (Method method : includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
 
 					if (!method.getName().equals(methodName))
 						continue;
 
-					List<String> mp=new ArrayList<String>();
 					
-					for(Class l:method.getParameterTypes()){
-						mp.add(l.getSimpleName());
+					for(Class<?> parameterType : method.getParameterTypes()){
+						signature.add(wrap(parameterType.getCanonicalName()));
 					}
 					
-					
-					
-					return mp.toArray(new String[1]);
+					return signature.toArray(new String[0]);
 				}
 			}
 
@@ -2009,7 +2010,7 @@ public class CoreMetadataParser implements CoreParser {
 		}
 			
 		@Override
-		public String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException {
+		public String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException {
 			
 			MethodMetadata methodIPojoMetadata = null;
 			if (pojoMetadata != null) {

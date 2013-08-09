@@ -183,7 +183,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		private final Lazy<MessageReference> argumentType = new Lazy<MessageReference>() {
 			protected MessageReference evaluate(CodeReflection reflection) {
 				try {
-					return new MessageReference(reflection.getMethodArgumentType(methodName,true));
+					return new MessageReference(reflection.getMethodParameterType(methodName,true));
 				} catch (NoSuchMethodException e) {
 					return null;
 				}

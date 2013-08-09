@@ -14,6 +14,9 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The declaration of a method that needs to be invoked on the implementation
  * to notify an APAM event (component and dependencies lifecycle).
@@ -49,37 +52,32 @@ public class CallbackDeclaration extends Instrumentation {
         return methodName;
     }
     
+    private static final List<String> APAM_COMPONENTS =  Arrays.asList("fr.imag.adele.apam.Component",
+    															"fr.imag.adele.apam.Instance",
+    															"fr.imag.adele.apam.Implementation",
+																"fr.imag.adele.apam.Specification");
+    
     public boolean isValidInstrumentation() {
     	try {
-			implementation.getReflection().getMethodArgumentNumber(methodName, true);
-			String[] types=implementation.getReflection().getMethodArgumentTypes(methodName, true);
 			
-			if( types.length==0 ) {
+    		int parameterNumber = implementation.getReflection().getMethodParameterNumber(methodName, true);
+			
+			if (parameterNumber == 0)
 				return true;
-			} else if(types.length==1) {
-				String classString=types[0]; 
-				
-				if(classString.equals("fr.imag.adele.apam.Component")
-						||classString.equals("fr.imag.adele.apam.Instance")
-						||classString.equals("fr.imag.adele.apam.Implementation")
-						||classString.equals("fr.imag.adele.apam.Specification")){
-					return true;
-				}
-				
-			}
+			
+			if (parameterNumber > 1)
+				return false;
+			
+			String[] types = implementation.getReflection().getMethodParameterTypes(methodName, true);
+			
+			return APAM_COMPONENTS.contains(types[0]);
 			
 		} catch (NoSuchMethodException e) {
-			
 			return false;
-			
 		}
-    	
-    	return false;
     	
     }
 
-
-    
     @Override
     public String toString() {
         return "Method name: " + methodName;
