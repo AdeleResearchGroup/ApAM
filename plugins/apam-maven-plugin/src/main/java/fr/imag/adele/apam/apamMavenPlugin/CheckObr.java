@@ -407,7 +407,7 @@ public class CheckObr {
 					return new ApamCapability(bidon) ;
 				}
 				if (source.dcl instanceof ImplementationDeclaration) {
-					InstanceDeclaration bidon = new InstanceDeclaration (((ImplementationReference)source.dcl.getReference()), 
+					InstanceDeclaration bidon = new InstanceDeclaration (((ImplementationReference<?>)source.dcl.getReference()), 
 							"void-" + source.getName(), null) ;
 					return new ApamCapability(bidon) ;
 				}

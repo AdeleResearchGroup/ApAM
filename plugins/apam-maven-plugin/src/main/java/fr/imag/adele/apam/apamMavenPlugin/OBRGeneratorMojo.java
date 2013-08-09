@@ -15,11 +15,9 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +42,6 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreParser;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-//import org.apache.felix.ipojo.plugin.MavenReporter;
 
 /**
  * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".
