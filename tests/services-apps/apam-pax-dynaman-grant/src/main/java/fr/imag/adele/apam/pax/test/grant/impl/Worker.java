@@ -22,10 +22,13 @@ package fr.imag.adele.apam.pax.test.grant.impl;
  */
 public class Worker {
     JackHammer myTool;
+    JackHammer myToolbis;
     
     public void breakRock() {
 	if(myTool != null)
 	    myTool.drill();
+	else if (myToolbis != null)
+	    myToolbis.drill();
 	else System.out.println("I cannot work as I have no tool");
     }
     

@@ -972,5 +972,118 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     }    
     
+    @Test
+    public void CompositeContentGrantWrongImplementationTest_tct019() {
+	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+		null, "Yard_tct013");
+
+	Implementation impl_daystate = (Implementation) CST.apamResolver
+		.findImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) CST.apamResolver
+		.findImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) CST.apamResolver
+		.findImplByName(null, "Worker_waiting_bis");
+	Implementation impl_toolmanager = (Implementation) CST.apamResolver
+		.findImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate))
+		dayinst = inst;
+	    else if (inst.getImpl().equals(impl_toolmanager))
+		managerinst = inst;
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+	System.out.println(">9h : morning !");
+	state.setHour(9);
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"The JackHammer is granted (morning) but the worker resolution should fail too (because wrong implementation working)  -> thread should be waiting",
+		thread.isAlive());
+    }    
+    
+    @Test
+    public void CompositeContentGrantWrongDependencyTest_tct020() {
+	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+		null, "Yard_tct013");
+
+	Implementation impl_daystate = (Implementation) CST.apamResolver
+		.findImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) CST.apamResolver
+		.findImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) CST.apamResolver
+		.findImplByName(null, "Night_worker");
+	Implementation impl_toolmanager = (Implementation) CST.apamResolver
+		.findImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+	
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate))
+		dayinst = inst;
+	    else if (inst.getImpl().equals(impl_toolmanager))
+		managerinst = inst;
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+//	manager.printTools();
+	state.setHour(4);
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+    }
+    
 
 }

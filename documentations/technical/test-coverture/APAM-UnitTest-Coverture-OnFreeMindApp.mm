@@ -237,14 +237,16 @@
 <node CREATED="1353076557752" ID="ID_533005585" MODIFIED="1354295361281" TEXT="should be possible find an impl by its name-tc027">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1375362057733" ID="ID_1688355282" MODIFIED="1375362099776" TEXT="preference should be resolved if a new instance that matchs appears)">
+<node CREATED="1375362057733" ID="ID_1688355282" MODIFIED="1376040278899" TEXT="preference should be resolved if a new instance that matchs appears)">
 <node CREATED="1375362103820" ID="ID_1025748012" MODIFIED="1375362111307" TEXT="tct006">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
 </node>
-<node CREATED="1375976750304" ID="ID_707483499" MODIFIED="1375976780715" TEXT="can release a dependency setting the field to null">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1375976750304" ID="ID_707483499" MODIFIED="1376040279787" TEXT="can release a dependency setting the field to null">
+<node CREATED="1376040257604" ID="ID_845317552" MODIFIED="1376040264866" TEXT="tct018">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
@@ -419,11 +421,15 @@
 </node>
 </node>
 </node>
-<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1353941936278" TEXT="implementation">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1376052066685" TEXT="implementation">
+<node CREATED="1376052043603" ID="ID_1896392184" MODIFIED="1376052051548" TEXT="tct019">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1353941936277" TEXT="dependency">
-<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1376055153558" TEXT="dependency">
+<node CREATED="1376055128933" ID="ID_503309867" MODIFIED="1376055139452" TEXT="tct020">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354296536032" TEXT="specification-tc046">
