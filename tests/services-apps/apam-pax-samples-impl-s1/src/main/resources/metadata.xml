@@ -236,5 +236,15 @@
 		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
 		<dependency field="s2" added="bindWithoutInstance" removed="unbindWithoutInstance" />
 	</implementation>
+    
+    <!--  For tct018 No regression test, behavior to release dependency when setting field to null, keep it otherwise-->
+    <implementation name="ServiceDependencySource_tct018"
+        classname="fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018" >
+        <relation field="target" implementation="ServiceDependencyTarget_tct018" fail="exception" />
+    </implementation>
+    
+    <implementation name="ServiceDependencyTarget_tct018"
+        classname="fr.imag.adele.apam.pax.test.implS1.ServiceDependencyTarget_tct018" shared="false" singleton="true">
+    </implementation>
 
 </apam>

@@ -12,25 +12,29 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * DayState.java - 7 août 2013
+ * ServiceDependencySource_tct018.java - 9 août 2013
  */
-package fr.imag.adele.apam.pax.test.grant.impl;
+package fr.imag.adele.apam.pax.test.implS1;
 
 /**
  * @author thibaud
  *
  */
-public class DayState_15 {
-    private int hour=0;
-    private String state="night";
+public class ServiceDependencySource_tct018 {
+
+    ServiceDependencyTarget_tct018 target;
     
-    public void setHour(int hour) {
-	this.hour=hour;
-	if(hour<6 || hour>22)
-	    state="night";
-	else if (hour <12)
-	    state="morning";
-	else
-	    state="afternoon";
+    public void getAndReleaseTarget() {
+	if (target != null)
+	    target.use();
+	else System.out.println("Target not found");
+	target=null;
     }
- }
+    
+    public void getAndKeepTarget() {
+	if (target != null)
+	    target.use();
+	else System.out.println("Target not found");
+    }
+
+}

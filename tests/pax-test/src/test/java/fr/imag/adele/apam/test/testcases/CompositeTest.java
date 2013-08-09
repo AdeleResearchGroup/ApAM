@@ -647,6 +647,10 @@ public class CompositeTest extends ExtensionAbstract {
 	mediaCtl.resolveServersNumber();
 	for(Link link : instCtl.getLinks("theServers"))
 	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
+	
+	for(Link link : instAV00.getLinks("promotedServers"))
+	    System.out.println("Promoted Server --> " + link.getDestination().getName());
+	
 
 	Assert.assertEquals(
 		"Two media server should be resolved (one internal (with constraints) and one external using promoted relation (with same constraints)",

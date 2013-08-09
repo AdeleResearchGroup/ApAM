@@ -40,6 +40,7 @@ import fr.imag.adele.apam.pax.test.grant.impl.DayState;
 import fr.imag.adele.apam.pax.test.grant.impl.ToolManager;
 import fr.imag.adele.apam.pax.test.grant.impl.Worker;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
+import fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018;
 import fr.imag.adele.apam.pax.test.implS3.FailException;
 import fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
@@ -711,7 +712,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	Assert.assertNotNull("DayState is not found in the composite", dayinst);
 	ToolManager manager = (ToolManager) managerinst.getServiceObject();
 	DayState state = (DayState) dayinst.getServiceObject();
-
+	manager.printTools();
+	apam.waitForIt(500);
 	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
 
 	System.out.println(">19h : afternoon !");
@@ -721,8 +723,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	thread.setDaemon(true);
 	thread.start();
 
-	apam.waitForIt(1000);
-	manager.printTools();
+	apam.waitForIt(500);
 	Assert.assertFalse(
 		"As the JackHammer is granted (afternoon), the worker resolution should be ok -> thread should be ended",
 		thread.isAlive());
@@ -730,12 +731,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	System.out.println(">23h : night !");
 	state.setHour(23);
 	manager.printTools();
+	apam.waitForIt(500);
 	thread = new ThreadWrapper_grant(worker1);
 	thread.setDaemon(true);
 	thread.start();
 
-	apam.waitForIt(1000);
-	;
+	apam.waitForIt(500);
 	Assert.assertTrue(
 		"As the JackHammer is not granted (night again), the worker resolution should fail -> thread should be waiting",
 		thread.isAlive());
@@ -927,6 +928,49 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		"As the JackHammer is granted (morning), the worker resolution should be ok -> thread should be ended",
 		thread.isAlive());
     }
+    
+
+    @Test
+    public void DependencyRelease_tct018 () {
+	Implementation implSource = CST.apamResolver.findImplByName(null,
+		"ServiceDependencySource_tct018");
+	Implementation implTarget = CST.apamResolver.findImplByName(null,
+		"ServiceDependencyTarget_tct018");
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+	
+	Instance instSourceA = implSource.createInstance(null, null);
+	Instance instSourceB = implSource.createInstance(null, null);
+	Instance instTarget = implTarget.createInstance(null, null);
+	
+	ServiceDependencySource_tct018 sourceA= (ServiceDependencySource_tct018) instSourceA.getServiceObject();
+	ServiceDependencySource_tct018 sourceB= (ServiceDependencySource_tct018) instSourceB.getServiceObject();
+	
+	boolean exceptionThrown=false;
+	
+	  try {
+	      sourceA.getAndKeepTarget();
+	      System.out.println("Source A resolved target, but keeping");
+	      sourceB.getAndReleaseTarget();
+	      System.out.println("Source B resolved target");
+	    } catch (Throwable ex) {
+		System.out.println("Exception thrown : "+ex.getMessage());
+	      exceptionThrown=true;
+	    }
+	  Assert.assertTrue("Usual Case if A resolve and use a target (not shared), B cannot use it", exceptionThrown);
+	  
+	  exceptionThrown=false;
+	  try {
+	      sourceA.getAndReleaseTarget();
+	      System.out.println("Source A resolved target, and released");
+	      sourceB.getAndReleaseTarget();
+	      System.out.println("Source B resolved target, and released");
+	    } catch (Throwable ex) {
+		System.out.println("Exception thrown : "+ex.getMessage());
+	      exceptionThrown=true;
+	    }
+	  Assert.assertFalse("If A  set its field to null, dependency should be available for B", exceptionThrown);
+
+    }    
     
 
 }

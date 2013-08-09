@@ -41,6 +41,7 @@ import fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.pax.test.implS1.S1ImplCallbackAddedValidMethodsOnlyInvalidArguments;
 import fr.imag.adele.apam.pax.test.implS1.S1ImplCallbackRemovedValidMethodsOnlyInvalidArguments;
+import fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -582,7 +583,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
 
-	System.out.println("Instances after FIRST injection request (preference cannot be resolved)");
+	System.out
+		.println("Instances after FIRST injection request (preference cannot be resolved)");
 	auxListInstances("\t");
 
 	Instance injectedInstance = CST.componentBroker.getInstService(s1
@@ -593,14 +595,12 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	Assert.assertTrue(
 		String.format(
 			"The instance injected cannot be the prefered one (currentVoltage=500), since there exist no instance in which the preference is valid."
-			+" The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
+				+ " The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
 			injectedInstance.getName(), injectedInstance
 				.getAllProperties().get("currentVoltage"),
-				lgInst.getName(), lgInst.getAllProperties()
-				.get("currentVoltage")), s1
+			lgInst.getName(),
+			lgInst.getAllProperties().get("currentVoltage")), s1
 			.getDevicePreference110v() == lgSwitch);
-	
-	
 
 	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 		"SamsungSwitch");
@@ -621,9 +621,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 			injectedInstance.getName(), injectedInstance
 				.getAllProperties().get("currentVoltage"),
 			samsungInst.getName(), samsungInst.getAllProperties()
-				.get("currentVoltage")),
-		s1.getDevicePreference110v() == samsungSwitch);
-	
+				.get("currentVoltage")), s1
+			.getDevicePreference110v() == samsungSwitch);
 
     }
 

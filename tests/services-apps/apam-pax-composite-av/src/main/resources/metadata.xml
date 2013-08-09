@@ -172,7 +172,7 @@
 
             <!-- must use the relation defined by composite, or inside the 
                 composite -->
-            <import instance="false" />
+             <import instance="false" />
             <export instance="false" />
 
             <own specification="MediaRenderer" />
