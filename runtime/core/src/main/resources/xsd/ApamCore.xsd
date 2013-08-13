@@ -218,7 +218,7 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- ApAM 'definition' and 'property' related types  -->
+    <!-- ApAM 'definition' and 'property' related types -->
 
     <xs:complexType name="DefinitionType">
         <xs:annotation>
@@ -332,8 +332,15 @@
     <xs:complexType name="InjectedDefinitionType">
         <xs:complexContent>
             <xs:extension base="DefinitionType">
+
+                <!-- internal is a deprecated (kept for compatibility, prefer 
+                    injected) attribute internal=true means injected=internal, internal=false 
+                    means injected=external, if attribute not present means injected=both -->
                 <xs:attribute name="internal" type="xs:boolean"
                     use="optional" />
+                <xs:attribute name="injected"
+                    type="fieldInjectionStrategyType" use="optional" />
+
                 <xs:attribute name="field" type="xs:string"
                     use="optional">
                     <xs:annotation>
@@ -403,7 +410,8 @@
     <xs:complexType name="InjectedRelationType">
         <xs:annotation>
             <xs:documentation> A relation declaration definition that
-                can be dynamically synchronized with java data fields and
+                can be dynamically synchronized with java data fields
+                and
                 methods.
             </xs:documentation>
         </xs:annotation>
@@ -420,8 +428,6 @@
                         use="optional" />
                     <xs:attribute name="method" type="xs:string"
                         use="optional" />
-                    <xs:attribute name="type" type="xs:string"
-                        use="optional" />
                 </xs:complexType>
             </xs:element>
             <xs:element name="message" minOccurs="0"
@@ -431,15 +437,12 @@
                         use="optional" />
                     <xs:attribute name="pull" type="xs:string"
                         use="optional" />
-                    <xs:attribute name="type" type="xs:string"
-                        use="optional" />
                 </xs:complexType>
             </xs:element>
         </xs:choice>
         <xs:attribute name="field" type="xs:string" use="optional" />
         <xs:attribute name="push" type="xs:string" use="optional" />
         <xs:attribute name="pull" type="xs:string" use="optional" />
-        <xs:attribute name="type" type="xs:string" use="optional" />
         <xs:attribute name="added" type="xs:string" use="optional" />
         <xs:attribute name="removed" type="xs:string" use="optional" />
         <xs:attributeGroup ref="basicRelationAttributes" />
@@ -483,12 +486,14 @@
         <xs:choice>
             <xs:element name="grant" type="GrantType"
                 minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="deny" type="GrantType"
+                minOccurs="0" maxOccurs="unbounded" />
         </xs:choice>
         <xs:attribute name="specification" type="xs:string"
             use="optional" />
         <xs:attribute name="implementation" type="xs:string"
             use="optional" />
-            
+
         <xs:attribute name="property" type="xs:string" use="optional" />
         <xs:attribute name="value" type="xs:string" use="optional" />
 
@@ -595,6 +600,7 @@
         <xs:attribute name="messages" type="xs:string" use="optional" />
     </xs:attributeGroup>
 
+
     <xs:attributeGroup name="basicRelationAttributes">
         <xs:attribute name="specification" type="xs:string"
             use="optional" />
@@ -606,19 +612,20 @@
         <xs:attribute name="implementation" type="xs:string"
             use="optional" />
         <xs:attribute name="name" type="xs:string" use="optional" />
-        <xs:attribute name="exception" type="xs:string"
-            use="optional" />
         <xs:attribute name="sourceKind" type="apamKindType"
             use="optional" />
         <xs:attribute name="targetKind" type="apamKindType"
-            use="optional" />
-        <xs:attribute name="fail" type="apamFailStrategyType"
             use="optional" />
         <xs:attribute name="creation" type="apamCreationStrategyType"
             use="optional" />
         <xs:attribute name="resolve" type="apamResolveType"
             use="optional" />
+        <xs:attribute name="fail" type="apamFailStrategyType"
+            use="optional" />
+        <xs:attribute name="exception" type="xs:string"
+            use="optional" />
     </xs:attributeGroup>
+
 
     <xs:attributeGroup name="overrideRelationAttributes">
         <xs:attribute name="specification" type="xs:string"
@@ -671,6 +678,30 @@
             <xs:enumeration value="manual" />
             <xs:enumeration value="lazy" />
             <xs:enumeration value="eager" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="fieldInjectionStrategyType">
+        <xs:annotation>
+            <xs:documentation>Defines the behavior of field Injection.
+                Internal means field can only be changed within the java
+                class.
+                External means that it can only be changed by ApAM
+                (using descriptor or
+                setProperty).
+                Both is default value,
+                changes are bidirectionnal from java OR from ApAM
+                (the
+                last one who spoke who's right). A value defined in
+                ApAM
+                descriptor will erase the one defined by the
+                constructor.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="internal" />
+            <xs:enumeration value="external" />
+            <xs:enumeration value="both" />
         </xs:restriction>
     </xs:simpleType>
 

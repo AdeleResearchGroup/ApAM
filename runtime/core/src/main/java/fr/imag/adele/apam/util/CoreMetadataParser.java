@@ -44,6 +44,7 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
@@ -111,6 +112,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  OWN                     = "own";
 	private static final String  PROMOTE                 = "promote";
 	private static final String  GRANT                   = "grant";
+	private static final String  DENY          	     = "deny";
 	private static final String  STATE                   = "state";
 	private static final String  IMPORTS                 = "import";
 	private static final String  EXPORT                  = "export";
@@ -133,6 +135,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_VALUE               = "value";
 	private static final String  ATT_FIELD               = "field";
 	private static final String  ATT_INTERNAL            = "internal";
+	private static final String  ATT_INJECTED            = "injected";
 	private static final String  ATT_MULTIPLE            = "multiple";
 	private static final String  ATT_SOURCE              = "source";
 	private static final String  ATT_TARGET              = "target";
@@ -1113,11 +1116,28 @@ public class CoreMetadataParser implements CoreParser {
 			String defaultValue = parseString(component.getName(),definition, CoreMetadataParser.ATT_VALUE, false);
 			String field = parseString(component.getName(),definition, CoreMetadataParser.ATT_FIELD, false);
 			String callback = parseString(component.getName(),definition, CoreMetadataParser.ATT_METHOD, false);
-			boolean internal = parseBoolean(component.getName(),definition, CoreMetadataParser.ATT_INTERNAL, false, false);
-
+			InjectedPropertyPolicy injected=parseInjectedPropertyPolicy(component.getName(),definition);
+			
 			component.getPropertyDefinitions().add(
-					new PropertyDefinition(component, name, type, defaultValue, field, callback, internal, false));
+					new PropertyDefinition(component, name, type, defaultValue, field, callback, injected, false));
 		}
+	}
+	
+	/**
+	 * Parse the strategy for field synchronization (compatible with deprecated internal=true attribute) 
+	 */
+	private InjectedPropertyPolicy parseInjectedPropertyPolicy(String componentName,Element element) {
+	    String value=parseString(componentName,element, CoreMetadataParser.ATT_INJECTED, false);
+	    InjectedPropertyPolicy injected;
+		if(value==null ||value.trim().length()==0 ||value.equals(CoreParser.UNDEFINED) )
+		    if(parseisDefinedBoolean(componentName,element, CoreMetadataParser.ATT_INTERNAL)) {
+		    	if(parseBoolean(componentName,element, CoreMetadataParser.ATT_INTERNAL, false, false))
+		    	    injected=InjectedPropertyPolicy.INTERNAL;
+		    	else
+		    	    injected=InjectedPropertyPolicy.EXTERNAL;
+		    } else injected=InjectedPropertyPolicy.BOTH;
+		else injected=InjectedPropertyPolicy.getPolicy(value);
+		return injected;
 	}
 
 	/**
@@ -1150,8 +1170,8 @@ public class CoreMetadataParser implements CoreParser {
 			if (type != null) {
 				String field = parseString(component.getName(), property, CoreMetadataParser.ATT_FIELD, false);
 				String callback = parseString(component.getName(), property, CoreMetadataParser.ATT_METHOD, false);
-				boolean internal = parseBoolean(component.getName(), property, CoreMetadataParser.ATT_INTERNAL, false, false);
-				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, field, callback, internal, true));
+				InjectedPropertyPolicy injected=parseInjectedPropertyPolicy(component.getName(),property);
+				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, field, callback, injected, true));
 			}
 			//}
 		}
@@ -1274,6 +1294,29 @@ public class CoreMetadataParser implements CoreParser {
 								.asList(Util.split(states))));
 				ownedComponent.getGrants().add(grantDeclaration);
 			}
+			
+			/*
+			 * parse explicit denies
+			 */
+			for (Element deny : optional(owned.getElements(CoreMetadataParser.DENY, CoreMetadataParser.APAM))) {
+
+				ComponentReference<?> definingComponent = parseComponentReference(composite.getName(),deny, true);
+				String identifier = parseString(composite.getName(),deny, CoreMetadataParser.ATT_DEPENDENCY, false);
+				identifier = identifier != null ? identifier : ownedComponent.getComponent().getName();
+				RelationDeclaration.Reference relation = new RelationDeclaration.Reference(
+						definingComponent,
+						identifier);
+
+
+				String states = parseString(composite.getName(),deny, CoreMetadataParser.ATT_WHEN, true);
+
+				GrantDeclaration denyDeclaration = new GrantDeclaration(
+						relation, new HashSet<String>(Arrays
+								.asList(Util.split(states))));
+				ownedComponent.getDenies().add(denyDeclaration);
+			}
+			
+			
 
 			composite.getOwnedComponents().add(ownedComponent);
 		}

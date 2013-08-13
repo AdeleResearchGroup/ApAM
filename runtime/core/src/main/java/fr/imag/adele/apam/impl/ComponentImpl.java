@@ -39,6 +39,7 @@ import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -320,7 +321,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 */
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
-				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && ! definition.isInternal()) {
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && definition.getInjected()!=InjectedPropertyPolicy.INTERNAL) {
 					Object val = Attribute.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
 					if (val != null)
 						put (definition.getName(),val) ;
@@ -1195,7 +1196,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		// there is a definition for attr
-		if (definition.isInternal() && !forced) {
+		if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL && !forced) {
 			logger.error("Attribute " + attr + " is an internal field attribute and cannot be set.");
 			return null;
 		}

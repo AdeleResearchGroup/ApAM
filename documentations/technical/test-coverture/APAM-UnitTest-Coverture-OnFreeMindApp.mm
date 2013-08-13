@@ -2,7 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1372164246267" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1376388441000" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -10,18 +10,6 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353066636390" ID="ID_1873589170" MODIFIED="1354294358088" TEXT="Configured using api by set property-tc003">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066277318" ID="ID_42176654" MODIFIED="1354294360467" TEXT="Internal/Non internal properties should be visible-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066428630" ID="ID_1680728427" MODIFIED="1354294363581" TEXT="Internal should be updateable only through the app and not from apam-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353070152246" ID="ID_725900474" MODIFIED="1354294366490" TEXT="Non Internal should be updateable through the app and from apam-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066561782" ID="ID_1302007357" MODIFIED="1354294369332" TEXT="Internal/Non internal properties declared in the XML should be injected in apam-tc005">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353070279798" ID="ID_1459016122" MODIFIED="1354294373046" TEXT="Filtering applied in integer values should work properly-tc006">
@@ -134,6 +122,37 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1372336648374" ID="ID_289840574" MODIFIED="1372766385376" TEXT="reach multiple level (not only one)">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1376388442600" ID="ID_1956479739" MODIFIED="1376388595561" TEXT="internal(deprecated but compatible)">
+<node CREATED="1353066277318" ID="ID_42176654" MODIFIED="1354294360467" TEXT="Internal/Non internal properties should be visible-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353066428630" ID="ID_1680728427" MODIFIED="1354294363581" TEXT="Internal should be updateable only through the app and not from apam-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353070152246" ID="ID_725900474" MODIFIED="1354294366490" TEXT="Non Internal should be updateable through the app and from apam-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353066561782" ID="ID_1302007357" MODIFIED="1354294369332" TEXT="Internal/Non internal properties declared in the XML should be injected in apam-tc005">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376388442600" ID="ID_1552635339" MODIFIED="1376388621811" TEXT="injected(new spec for internal)">
+<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1376388668480" TEXT="Internal/Non internal properties should be visible">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353066428630" ID="ID_500797338" MODIFIED="1376388673180" TEXT="Internal should be updateable only through the app and not from apam">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353070152246" ID="ID_1573056914" MODIFIED="1376388750373" TEXT="External should be updateable through apam but not from java">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353066561782" ID="ID_1776436944" MODIFIED="1376388783158" TEXT="both properties can be setted by apam and by the app">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1376388792891" ID="ID_257951403" MODIFIED="1376388852272" TEXT="With both property and internal values setted in constructor should not be erased by apam">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
@@ -393,7 +412,7 @@
 </node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
-<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1375976427445" TEXT="grant">
+<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1376396793310" TEXT="grant">
 <node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1375976789516" TEXT="when">
 <node CREATED="1375949067088" ID="ID_16840619" MODIFIED="1375976524589" TEXT="grant when state match">
 <node CREATED="1375976490287" ID="ID_630096802" MODIFIED="1375976496637" TEXT="tct013">
@@ -430,6 +449,11 @@
 <node CREATED="1376055128933" ID="ID_503309867" MODIFIED="1376055139452" TEXT="tct020">
 <icon BUILTIN="button_ok"/>
 </node>
+</node>
+</node>
+<node CREATED="1376396803788" ID="ID_25351214" MODIFIED="1376396810954" TEXT="deny">
+<node CREATED="1376396813119" ID="ID_1953532174" MODIFIED="1376396819042" TEXT="when">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 <node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354296536032" TEXT="specification-tc046">
