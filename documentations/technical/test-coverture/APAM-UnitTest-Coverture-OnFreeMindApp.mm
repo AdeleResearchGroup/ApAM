@@ -139,21 +139,31 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1376388442600" ID="ID_1552635339" MODIFIED="1376388621811" TEXT="injected(new spec for internal)">
-<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1376388668480" TEXT="Internal/Non internal properties should be visible">
+<node CREATED="1376388442600" ID="ID_1552635339" MODIFIED="1376402698138" TEXT="injected(new spec for internal)">
+<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1376402641492" TEXT="both">
+<node CREATED="1376402559981" ID="ID_1832949702" MODIFIED="1376402605058" TEXT="tct021">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1353066277318" ID="ID_1432101010" MODIFIED="1376402654669" TEXT="both (behavior by default)">
+<node CREATED="1376402559981" ID="ID_512299762" MODIFIED="1376402658398" TEXT="tct022">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376402674636" ID="ID_667210227" MODIFIED="1376402682145" TEXT="external">
+<node CREATED="1376402682145" ID="ID_520303563" MODIFIED="1376402689064" TEXT="tct023">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353066428630" ID="ID_500797338" MODIFIED="1376388673180" TEXT="Internal should be updateable only through the app and not from apam">
+</node>
+<node CREATED="1376402698138" ID="ID_282365848" MODIFIED="1376402705028" TEXT="internal">
+<node CREATED="1376402705029" ID="ID_1634380424" MODIFIED="1376402713547" TEXT="tct024">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376404435679" ID="ID_1375990728" MODIFIED="1376404455147" TEXT="behavior when values defined in constructor">
+<node CREATED="1376404455147" ID="ID_1200361768" MODIFIED="1376404462046" TEXT="tct_025">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353070152246" ID="ID_1573056914" MODIFIED="1376388750373" TEXT="External should be updateable through apam but not from java">
-<icon BUILTIN="button_cancel"/>
-</node>
-<node CREATED="1353066561782" ID="ID_1776436944" MODIFIED="1376388783158" TEXT="both properties can be setted by apam and by the app">
-<icon BUILTIN="button_cancel"/>
-</node>
-<node CREATED="1376388792891" ID="ID_257951403" MODIFIED="1376388852272" TEXT="With both property and internal values setted in constructor should not be erased by apam">
-<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 </node>
