@@ -27,6 +27,7 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.BaseApformComponent;
@@ -89,7 +90,7 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 		for(PropertyDescription  property : factory.getComponentDescription().getProperties()) {
 			if (property.isImmutable()) {
 				declaration.getPropertyDefinitions().add(
-						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, true, true));
+						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, InjectedPropertyPolicy.INTERNAL, true));
 				declaration.getProperties().put(property.getName(), property.getValue());
 			}
 		}

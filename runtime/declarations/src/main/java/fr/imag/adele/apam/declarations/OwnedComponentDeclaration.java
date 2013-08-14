@@ -39,12 +39,18 @@ public class OwnedComponentDeclaration  {
 	 * The list of automatic resource grants
 	 */
 	private final List<GrantDeclaration> grants;
-	
+
+	/**
+	 * The list of explicit resources denied
+	 */
+	private final List<GrantDeclaration> denies;
+
 	public OwnedComponentDeclaration(ComponentReference<?> component, String property, Set<String> values) {
 		this.component	= component;
 		this.property	= property != null ? new PropertyDefinition.Reference(component, property): null;
 		this.values		= values;
 		this.grants		= new ArrayList<GrantDeclaration>();
+		this.denies		= new ArrayList<GrantDeclaration>();
 	}
 	
 	/**
@@ -74,6 +80,14 @@ public class OwnedComponentDeclaration  {
     public List<GrantDeclaration> getGrants() {
 		return grants;
 	}
+    
+    /**
+     * The list of resources explicitly denied
+     */
+    public List<GrantDeclaration> getDenies() {
+		return denies;
+	}
+    
 	
     @Override
     public String toString() {

@@ -34,6 +34,8 @@ import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
+import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct021;
+import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct025;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -1015,5 +1017,133 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertTrue(messageWrongValueDetail,switchdevice.getObjectReceivedInNotification().equals(propertyValue));
 		
 	}
+	
+	
+	@Test
+	public void PropertyDefinitionInjectedBothProperty_tc021() {
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
+
+		String messageTemplace="for a property type injected='both', the %s";
+		
+		Assert.assertTrue(String.format(messageTemplace, "initial value declared in the xml should NOT be ignored for both"),s1.getInjectedBoth().equals("default"));
+		s1Inst.setProperty("injectedBoth", "changedByApamAPI");
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty"), (s1.getInjectedBoth()==null?"":s1.getInjectedBoth()).equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedBoth").equals("changedByApamAPI"));		
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBoth").equals("changedByApamAPI"));
+		
+		s1.setInjectedBoth("changedByJavaInstance");
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedBoth()==null?"":s1.getInjectedBoth()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedBoth").equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBoth").equals("changedByJavaInstance"));
+	}
+
+	@Test
+	public void PropertyDefinitionInjectedBothByDefaultProperty_tc022() {
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
+
+		String messageTemplace="for a property whose type injected not specified (should be both by default), the %s";
+		
+		Assert.assertTrue(String.format(messageTemplace, "initial value declared in the xml should NOT be ignored for both"),s1.getInjectedBothByDefault().equals("default"));
+		s1Inst.setProperty("injectedBothByDefault", "changedByApamAPI");
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty"), (s1.getInjectedBothByDefault()==null?"":s1.getInjectedBothByDefault()).equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedBothByDefault").equals("changedByApamAPI"));		
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBothByDefault").equals("changedByApamAPI"));
+		
+		s1.setInjectedBothByDefault("changedByJavaInstance");
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedBothByDefault()==null?"":s1.getInjectedBothByDefault()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedBothByDefault").equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBothByDefault").equals("changedByJavaInstance"));
+	}
+	
+	
+	@Test
+	public void PropertyDefinitionInjectedExternalProperty_tc023() {
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
+
+		String messageTemplace="for a property type injected='external', the %s";
+		
+		Assert.assertTrue(String.format(messageTemplace, "initial value declared in the xml should NOT be ignored for external"),s1.getInjectedExternal().equals("default"));
+		s1Inst.setProperty("injectedExternal", "changedByApamAPI");
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty"), (s1.getInjectedExternal()==null?"":s1.getInjectedExternal()).equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedExternal").equals("changedByApamAPI"));		
+		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedExternal").equals("changedByApamAPI"));
+		
+		s1.setInjectedExternal("changedByJavaInstance");
+		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedExternal()==null?"":s1.getInjectedExternal()).equals("changedByJavaInstance"));
+		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedExternal").equals("changedByJavaInstance"));
+		
+		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedExternal").equals("changedByJavaInstance"));
+	}
+	
+	@Test
+	public void PropertyDefinitionInjectedInternalProperty_tc024() {
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
+
+		String messageTemplace="for a property type injected='internal', the %s";
+		
+		Assert.assertNull(String.format(messageTemplace, "initial value declared in the xml should be ignored for internal"),s1.getInjectedInternal());
+		s1Inst.setProperty("injectedInternal", "changedByApamAPI");
+		Assert.assertFalse(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty"), (s1.getInjectedInternal()==null?"":s1.getInjectedInternal()).equals("changedByApamAPI"));
+		Assert.assertNull(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedInternal"));		
+		Assert.assertNull(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedInternal"));
+		
+		s1.setInjectedInternal("changedByJavaInstance");
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedInternal()==null?"":s1.getInjectedInternal()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedInternal").equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedInternal").equals("changedByJavaInstance"));
+	}
+	
+	@Test
+	public void PropertyDefinitionInjectedPropertyDefinedInConstructor_tc025() {
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl_tct025");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl_tct025 s1 = (S1Impl_tct025) s1Inst.getServiceObject();
+		String messageTemplace="for a property defined in constructor, the %s";
+		
+
+		Assert.assertNotNull(String.format(messageTemplace, "value declared in the xml should be ignored for internal"),s1.getInjectedInternal());
+		Assert.assertTrue(String.format(messageTemplace, "value declared in the xml should be ignored for internal"),s1.getInjectedInternal().equals("Constructor defined value"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value declared in the xml should be used for external"),s1.getInjectedExternal().equals("default"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value declared in the xml should be used for both"),s1.getInjectedBothSetted().equals("default"));
+		
+		Assert.assertNotNull(String.format(messageTemplace, "value declared in the constructor should be kept if not setted in XML"),s1.getInjectedBothUnsetted());
+		Assert.assertTrue(String.format(messageTemplace, "value declared in the constructor should be kept if not setted in XML"),s1.getInjectedBothUnsetted().equals("Constructor defined value"));
+	}
+	
+	
+	
 	
 }

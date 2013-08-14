@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2011-2013 Universite Joseph Fourier, LIG, ADELE team Licensed 
+    under the Apache License, Version 2.0 (the "License"); you may not use this 
+    file except in compliance with the License. You may obtain a copy of the 
+    License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by 
+    applicable law or agreed to in writing, software distributed under the License 
+    is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
+    KIND, either express or implied. See the License for the specific language 
+    governing permissions and limitations under the License. 1 août 2013 -->
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+
+
+    <!-- common grant testing -->
+    <specification name="Tool"
+        interfaces="fr.imag.adele.apam.pax.test.grant.impl.Tool">
+        <definition name="noise" type="string"/>
+        <definition name="test" type="string"/>
+        </specification>
+
+    <implementation name="ToolManager"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.ToolManager">
+        <relation name="tools" specification="Tool" field="tools"
+            multiple="true">
+            <constraints>
+                <implementation filter="(test=tct013)" />
+            </constraints>
+            
+            </relation>
+    </implementation>
+
+    <implementation name="DayState"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
+        <definition name="TimeOfDay" field="state" internal="true"
+            type="morning, afternoon, night" value="night" />
+    </implementation>
+
+
+
+    <!-- tct013, tct014 and tct016 regular grant working -->
+
+    <implementation name="JackHammer_singleton"
+        specification="Tool"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.JackHammer"
+        shared="false" singleton="true">
+        <property name="noise" value="high"/>
+        <property name="test" value="tct013"/>
+        
+    </implementation>
+
+    <implementation name="Worker_waiting"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.Worker">
+        <relation name="tool" implementation="JackHammer_singleton"
+            fail="wait" field="myTool"></relation>
+    </implementation>
+
+    <implementation name="Worker_waiting_bis"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.Worker">
+        <relation name="tool" implementation="JackHammer_singleton"
+            fail="wait" field="myTool"></relation>
+    </implementation>
+
+    <implementation name="Night_worker"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.Worker">
+        <relation name="tool" implementation="JackHammer_singleton"
+            fail="wait" field="myTool">
+            <constraints>
+                <implementation filter="(noise=low)" />
+            </constraints>
+        </relation>
+        <relation name="toolbis" implementation="JackHammer_singleton"
+            fail="wait" field="myToolbis"></relation>
+    </implementation>
+
+
+    <composite name="Yard_tct013" singleton="true">
+        <contentMngt>
+            <start implementation="ToolManager" name="yardManager"></start>
+
+            <state implementation="DayState" property="TimeOfDay" />
+
+            <own implementation="JackHammer_singleton">
+                <grant when="morning, afternoon" implementation="Worker_waiting"
+                    dependency="tool" />
+                <grant when="night" implementation="Night_worker"
+                    dependency="tool" />
+            </own>
+
+        </contentMngt>
+    </composite>
+
+    <!-- tct015 opposite to grant forcing a release (might need some modifications) -->
+    <implementation name="DayState_15"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
+        <definition name="TimeOfDay_15" field="state"
+            internal="true" type="morning, afternoon, night" value="night" />
+    </implementation>
+
+
+    <composite name="Yard_tct015" singleton="true">
+        <contentMngt>
+            <start implementation="ToolManager" name="yardManager"></start>
+
+            <state implementation="DayState_15" property="TimeOfDay_15" />
+
+            <own implementation="JackHammer_singleton">
+                <grant when="morning, afternoon" implementation="Worker_waiting"
+                    dependency="tool" />
+            </own>
+
+        </contentMngt>
+    </composite>
+
+    <!-- tct017 instead of using singleton, the client try to resolve an 
+        existing dependency -->
+
+    <implementation name="JackHammer_multiple"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.JackHammer"
+        specification="Tool" shared="false">
+    </implementation>
+
+    <implementation name="DayState_17"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
+        <definition name="TimeOfDay_17" field="state"
+            internal="true" type="morning, afternoon, night" value="night" />
+    </implementation>
+
+    <implementation name="ToolManager_17"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.ToolManager">
+        <relation name="tools" specification="Tool" field="tools"
+            multiple="true" resolve="exist"></relation>
+    </implementation>
+
+
+    <implementation name="Worker_waiting_exists"
+        classname="fr.imag.adele.apam.pax.test.grant.impl.Worker">
+        <relation name="tool" implementation="JackHammer_multiple"
+            fail="wait" field="myTool" resolve="exist"></relation>
+    </implementation>
+
+    <composite name="Yard_tct017" singleton="true">
+        <contentMngt>
+            <start implementation="ToolManager_17" name="yardManager"></start>
+
+            <state implementation="DayState_17" property="TimeOfDay_17" />
+
+            <own implementation="JackHammer_multiple">
+                <grant when="morning, afternoon" implementation="Worker_waiting_exists"
+                    dependency="tool" />
+            </own>
+
+        </contentMngt>
+    </composite>
+
+
+    <!-- <implementation name="Worker_failing" -->
+    <!-- classname="fr.imag.adele.apam.pax.test.grant.impl.Worker"> -->
+    <!-- <relation name="tool" implementation="JackHammer" fail="exception" -->
+    <!-- field="myTool"></relation> -->
+    <!-- </implementation> -->
+
+
+
+
+
+
+
+</apam>

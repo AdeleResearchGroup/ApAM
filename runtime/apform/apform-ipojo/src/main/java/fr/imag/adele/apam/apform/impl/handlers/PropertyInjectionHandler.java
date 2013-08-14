@@ -38,6 +38,7 @@ import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.apform.impl.PropertyCallback;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
@@ -162,7 +163,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
         			 * However, we need to propagate all modifications of the collection to APAM, so we
         			 * need to inject a collection bound to the APAM instance.
         			 */
-        			if (definition.isInternal() && fieldValue != null) {
+        			if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL && fieldValue != null) {
         				
         				/*
         				 * Small optimization to perform wrapping only once
@@ -186,7 +187,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
         			 * For non-internal multi-valued property fields the value is stored in APAM.
         			 * 
         			 */
-        			if (! definition.isInternal() && apamValue != null) {
+        			if (definition.getInjected()!=InjectedPropertyPolicy.INTERNAL && apamValue != null) {
         				newValue = apamValue;
         			}
         				
@@ -278,7 +279,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     			/*
     			 * For non-internal multi-valued property fields, modification is not allowed
     			 */
-    			if (definition.isSet() && ! definition.isInternal()) {
+    			if (definition.isSet() && definition.getInjected()!=InjectedPropertyPolicy.INTERNAL) {
     				
     				/*
     				 * WARNING special case. This only happens when the field is initialized in the code and is accessed for
@@ -298,7 +299,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     			 * For primitive and internal multi-valued property fields, always update the APAM value
     			 * to keep synchronization
     			 */
-    			if (definition.isInternal() || !definition.isSet()) {
+    			if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL || !definition.isSet()) {
 
         			if (newValue != null && newValue instanceof BoundSet<?>)
         				newValue = ((BoundSet<?>) newValue).unwrap();
@@ -439,7 +440,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 		 * Verifies that non-internal properties can only be modified through the APAM API
 		 */
 		private final void checkModifiable() throws UnsupportedOperationException {
-			if (! property.isInternal())
+			if (property.getInjected()!=InjectedPropertyPolicy.INTERNAL)
 				throw new UnsupportedOperationException("Field "+ property.getField()+
 						" is associated to non-internal property "+property.getName()+
 						" of component "+property.getComponent().getName()+

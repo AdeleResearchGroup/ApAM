@@ -89,16 +89,16 @@ public class PropertyDefinition {
     private final String callback;
     
     /**
-     * Whether this is an internal property, whose value can not be modified by API
+     * Whether this is an internal, external or both property (modified by java only, API only or both ways)
      */
-    private final boolean internal;
+    private final InjectedPropertyPolicy injected;
     
     /**
      * Whether this is property defined at the same level
      */
     private final boolean local;
 
-    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, String callback, boolean internal, boolean local) {
+    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, String callback, InjectedPropertyPolicy injected, boolean local) {
 
         assert component != null;
         assert name != null;
@@ -114,7 +114,7 @@ public class PropertyDefinition {
         this.defaultValue	= defaultValue;
         this.field 			= field;
         this.callback		= callback;
-        this.internal 		= internal ;
+        this.injected 		= injected ;
         this.local 			= local ;
     }
 
@@ -165,8 +165,8 @@ public class PropertyDefinition {
 	/**
 	 * get the internal property
 	 */
-    public boolean isInternal () {
-    	return internal ;
+    public InjectedPropertyPolicy getInjected () {
+    	return injected ;
     }
 
 	/**

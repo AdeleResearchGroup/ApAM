@@ -2,7 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1372164246267" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1376388441000" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -10,18 +10,6 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353066636390" ID="ID_1873589170" MODIFIED="1354294358088" TEXT="Configured using api by set property-tc003">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066277318" ID="ID_42176654" MODIFIED="1354294360467" TEXT="Internal/Non internal properties should be visible-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066428630" ID="ID_1680728427" MODIFIED="1354294363581" TEXT="Internal should be updateable only through the app and not from apam-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353070152246" ID="ID_725900474" MODIFIED="1354294366490" TEXT="Non Internal should be updateable through the app and from apam-tc004">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353066561782" ID="ID_1302007357" MODIFIED="1354294369332" TEXT="Internal/Non internal properties declared in the XML should be injected in apam-tc005">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353070279798" ID="ID_1459016122" MODIFIED="1354294373046" TEXT="Filtering applied in integer values should work properly-tc006">
@@ -137,6 +125,47 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
+<node CREATED="1376388442600" ID="ID_1956479739" MODIFIED="1376388595561" TEXT="internal(deprecated but compatible)">
+<node CREATED="1353066277318" ID="ID_42176654" MODIFIED="1354294360467" TEXT="Internal/Non internal properties should be visible-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353066428630" ID="ID_1680728427" MODIFIED="1354294363581" TEXT="Internal should be updateable only through the app and not from apam-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353070152246" ID="ID_725900474" MODIFIED="1354294366490" TEXT="Non Internal should be updateable through the app and from apam-tc004">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353066561782" ID="ID_1302007357" MODIFIED="1354294369332" TEXT="Internal/Non internal properties declared in the XML should be injected in apam-tc005">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376388442600" ID="ID_1552635339" MODIFIED="1376402698138" TEXT="injected(new spec for internal)">
+<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1376402641492" TEXT="both">
+<node CREATED="1376402559981" ID="ID_1832949702" MODIFIED="1376402605058" TEXT="tct021">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1353066277318" ID="ID_1432101010" MODIFIED="1376402654669" TEXT="both (behavior by default)">
+<node CREATED="1376402559981" ID="ID_512299762" MODIFIED="1376402658398" TEXT="tct022">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376402674636" ID="ID_667210227" MODIFIED="1376402682145" TEXT="external">
+<node CREATED="1376402682145" ID="ID_520303563" MODIFIED="1376402689064" TEXT="tct023">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1376402698138" ID="ID_282365848" MODIFIED="1376402705028" TEXT="internal">
+<node CREATED="1376402705029" ID="ID_1634380424" MODIFIED="1376402713547" TEXT="tct024">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1376404435679" ID="ID_1375990728" MODIFIED="1376404455147" TEXT="behavior when values defined in constructor">
+<node CREATED="1376404455147" ID="ID_1200361768" MODIFIED="1376404462046" TEXT="tct_025">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">
@@ -155,7 +184,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353316598237" TEXT="Dependency">
+<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1375976745835" TEXT="Dependency">
 <node CREATED="1353075661607" ID="ID_916344715" MODIFIED="1353076800476" TEXT="set/array types">
 <node CREATED="1353071915367" ID="ID_1456627929" MODIFIED="1354294904578" TEXT="check if the class instantiated is exactly of the same type as the requested-tc012">
 <icon BUILTIN="button_ok"/>
@@ -224,7 +253,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353316551326" TEXT="preference">
+<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1375362057730" TEXT="preference">
 <node CREATED="1353075782472" ID="ID_1933538834" MODIFIED="1354295267666" TEXT="injected instance should respect the preference (if its satisfiable)-tc024">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -235,6 +264,16 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353076557752" ID="ID_533005585" MODIFIED="1354295361281" TEXT="should be possible find an impl by its name-tc027">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1375362057733" ID="ID_1688355282" MODIFIED="1376040278899" TEXT="preference should be resolved if a new instance that matchs appears)">
+<node CREATED="1375362103820" ID="ID_1025748012" MODIFIED="1375362111307" TEXT="tct006">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+</node>
+<node CREATED="1375976750304" ID="ID_707483499" MODIFIED="1376040279787" TEXT="can release a dependency setting the field to null">
+<node CREATED="1376040257604" ID="ID_845317552" MODIFIED="1376040264866" TEXT="tct018">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
@@ -293,8 +332,38 @@
 </node>
 </node>
 </node>
-<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1353943999397" TEXT="promotion">
+<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1375455936881" TEXT="promotion">
 <icon BUILTIN="button_cancel"/>
+<node CREATED="1375455787177" ID="ID_1366326840" MODIFIED="1375455822969" TEXT="ImplicitPromote with same constraints">
+<node CREATED="1375455961672" ID="ID_192847866" MODIFIED="1375455970886" TEXT="tct007">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375455830648" ID="ID_541672399" MODIFIED="1375455849926" TEXT="Implicite Promote without same constraints">
+<node CREATED="1375455975544" ID="ID_247015520" MODIFIED="1375455985668" TEXT="tct008">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375455858594" ID="ID_293362952" MODIFIED="1375455882425" TEXT="Explicit Promote for implem, multiple relation">
+<node CREATED="1375455990181" ID="ID_685613716" MODIFIED="1375456001863" TEXT="tct009">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455891340" ID="ID_1730467482" MODIFIED="1375455908077" TEXT="Explicit Promote for spec, multiple relation">
+<node CREATED="1375456007222" ID="ID_1929849220" MODIFIED="1375456013512" TEXT="tct010">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455913237" ID="ID_610081806" MODIFIED="1375455933157" TEXT="Explicit promote for implem, single relation">
+<node CREATED="1375456423072" ID="ID_454250652" MODIFIED="1375456431583" TEXT="tct011">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1375455936882" ID="ID_1457806390" MODIFIED="1375455954349" TEXT="Explicit Promote for spec, single relation">
+<node CREATED="1375456435836" ID="ID_748240925" MODIFIED="1375456441623" TEXT="tct012">
+<icon BUILTIN="help"/>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1353075841416" ID="ID_1642355188" MODIFIED="1374563367000" POSITION="right" TEXT="OBRMan">
@@ -353,14 +422,47 @@
 </node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
-<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1353941826631" TEXT="grant">
-<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1353941936277" TEXT="when">
+<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1376396793310" TEXT="grant">
+<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1375976789516" TEXT="when">
+<node CREATED="1375949067088" ID="ID_16840619" MODIFIED="1375976524589" TEXT="grant when state match">
+<node CREATED="1375976490287" ID="ID_630096802" MODIFIED="1375976496637" TEXT="tct013">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976229841" ID="ID_1792765356" MODIFIED="1375976295883" TEXT="release when state does not match anymore">
+<node CREATED="1375976300492" ID="ID_1504990466" MODIFIED="1375976312848" TEXT="tct014">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1375976342464" TEXT="force release when state does not match">
+<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1375976357365" TEXT="tct015">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1353941936278" TEXT="implementation">
+</node>
+<node CREATED="1375976383370" ID="ID_1796401749" MODIFIED="1375976396456" TEXT="grant to external implementation">
+<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1375976404581" TEXT="tct016">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1353941936277" TEXT="dependency">
+</node>
+<node CREATED="1375976429563" ID="ID_277859218" MODIFIED="1375976442834" TEXT="grant when using resolve=exist">
+<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1375976449612" TEXT="tct017">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+</node>
+<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1376052066685" TEXT="implementation">
+<node CREATED="1376052043603" ID="ID_1896392184" MODIFIED="1376052051548" TEXT="tct019">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1376055153558" TEXT="dependency">
+<node CREATED="1376055128933" ID="ID_503309867" MODIFIED="1376055139452" TEXT="tct020">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1376396803788" ID="ID_25351214" MODIFIED="1376396810954" TEXT="deny">
+<node CREATED="1376396813119" ID="ID_1953532174" MODIFIED="1376396819042" TEXT="when">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
@@ -542,7 +644,9 @@
 </node>
 </node>
 <node CREATED="1372166673215" ID="ID_1193893964" MODIFIED="1372166675509" TEXT="external">
-<node CREATED="1374484141572" ID="ID_180143186" MODIFIED="1374484145336" TEXT="tct003"/>
+<node CREATED="1374484141572" ID="ID_180143186" MODIFIED="1375195228673" TEXT="tct003">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1372166619503" ID="ID_1293205806" MODIFIED="1372951295582" TEXT="creation">
@@ -553,12 +657,14 @@
 </node>
 </node>
 <node CREATED="1372166642799" ID="ID_190271305" MODIFIED="1374670019627" TEXT="eager">
-<node COLOR="#010101" CREATED="1372339312006" ID="ID_304605003" MODIFIED="1374485640866" TEXT="tc101">
+<node COLOR="#010101" CREATED="1372339312006" ID="ID_304605003" MODIFIED="1375195261621" TEXT="tc101">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1374223246971" TEXT="manual">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1372166645311" ID="ID_1680827557" MODIFIED="1375195270175" TEXT="manual">
+<node CREATED="1375195242500" ID="ID_1596983884" MODIFIED="1375195273957" TEXT="tct004">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
