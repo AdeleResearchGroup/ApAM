@@ -29,6 +29,7 @@
 		<module>LightingScenarioTest</module>
 		<module>apam-pax-composite-av</module>
 		<module>apam-pax-dynaman-grant</module>
+		<module>apam-pax-eldritch</module>
 
 	</modules>
 
