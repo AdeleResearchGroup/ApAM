@@ -101,10 +101,18 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void InjectionUpdateLinkForSetType_tc013() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		"fr.imag.adele.apam.pax.test.impl.S1Impl-tc013");
 
+	Implementation sansungImpl = CST.apamResolver.findImplByName(null,
+			"SamsungSwitch");
+
+	//This instance is created to avoid apam to instantiate automatically (done in case it doesnt find any instance available)
+	Instance sansungInstInitial = sansungImpl.createInstance(null, null);
+	
 	Instance s1Inst = s1Impl.createInstance(null, null);
 
+
+	
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
@@ -112,9 +120,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	int initialSize = s1.getEletronicInstancesInSet().size();
 
 	auxDisconectWires(s1Inst);
-
-	Implementation sansungImpl = CST.apamResolver.findImplByName(null,
-		"SamsungSwitch");
 
 	Instance sansungInst = sansungImpl.createInstance(null, null);
 
@@ -145,7 +150,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void InjectionUpdateLinkForArrayType_tc014() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		"fr.imag.adele.apam.pax.test.impl.S1Impl-tc014");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
 

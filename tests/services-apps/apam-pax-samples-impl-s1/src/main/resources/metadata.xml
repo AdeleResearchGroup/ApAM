@@ -59,6 +59,26 @@
 
     </implementation>
 
+    <implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl-tc013"
+        classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
+        specification="fr.imag.adele.apam.pax.test.iface.S1">
+
+        <callback onInit="start" onRemove="stop" />
+
+        <dependency field="eletronicInstancesInSet" />
+
+    </implementation>	
+
+   <implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl-tc014"
+        classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
+        specification="fr.imag.adele.apam.pax.test.iface.S1">
+
+        <callback onInit="start" onRemove="stop" />
+
+        <dependency field="eletronicInstancesInArray" />
+
+    </implementation>	
+
     <implementation name="HouseMeterSingletonNotShared"
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
         specification="eletronic-device-singleton-notshared">
