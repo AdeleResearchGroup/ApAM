@@ -156,9 +156,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	int initialSize = s1.getEletronicInstancesInArray().length;
 
 	for (Link wire : s1Inst.getRawLinks()) {
-
-	    s1Inst.removeLink(wire);
-
+		wire.remove();
 	}
 
 	Implementation sansungImpl = CST.apamResolver.findImplByName(null,

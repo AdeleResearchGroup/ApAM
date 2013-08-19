@@ -71,7 +71,6 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
-		config.add(packApamDynaMan());
 		config.add(packApamDistriMan());
 
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")

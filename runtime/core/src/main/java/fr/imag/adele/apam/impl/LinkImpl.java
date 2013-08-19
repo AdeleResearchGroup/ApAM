@@ -14,7 +14,9 @@
  */
 package fr.imag.adele.apam.impl;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Relation;
 
@@ -93,6 +95,13 @@ public class LinkImpl implements Link {
     public void remove() {
         source.removeLink(this);
         destination.removeInvLink(this);
+		
+        // Notify Dynamic managers that a link has been deleted. A new
+		// resolution can be possible now.
+		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+			manager.removedLink(this);
+		}
+
     }
 
 

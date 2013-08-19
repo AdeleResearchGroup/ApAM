@@ -44,7 +44,6 @@ public class MessageTest extends ExtensionAbstract {
 		// TODO Auto-generated method stub
 
 		List<Option> defaults = super.config();
-		defaults.add(0,packApamDynaMan());
 		
 		try {
 			defaults.add(bundle((new File(PathUtils.getBaseDir(),"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));

@@ -140,9 +140,9 @@ public abstract class ExtensionAbstract extends TestUtils {
 		return apamObrmanConfig;
 	}
 
-	protected CompositeOption packApamDynaMan() {
+	protected CompositeOption packApamConflictManager() {
 		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
-				mavenBundle("fr.imag.adele.apam", "dynaman")
+				mavenBundle("fr.imag.adele.apam", "manager.conflict")
 						.versionAsInProject());
 
 		return apamObrmanConfig;

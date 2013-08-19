@@ -106,9 +106,6 @@ public interface Component {
     //Returns all the Links leading to the current Component.
      public Set<Link> getInvLinks();
 
-     //remove that Link.
-     public void removeLink(Link link);
-
      /**
      * A new Link has to be instantiated between the current Component and the "to" Component, for the relation depName.
      * 

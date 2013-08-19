@@ -52,7 +52,6 @@ public class RelationTest extends ExtensionAbstract {
 	@Override
 	public List<Option> config() {
 		List<Option> addon = super.config();
-		addon.add(0,packApamDynaMan());
 		return addon;
 	}
 	

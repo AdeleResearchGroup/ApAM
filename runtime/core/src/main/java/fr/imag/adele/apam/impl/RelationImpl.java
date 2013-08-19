@@ -923,28 +923,36 @@ public class RelationImpl implements Relation {
 		ret.append(" from " + linkSource);
 		ret.append(" (creation = "+create+", resolve = "+resolve+")");
 		
-		if (!implementationConstraintFilters.isEmpty()) {
+		if (!mngImplementationConstraintFilters.isEmpty()) {
 			ret.append("\n         Implementation Constraints");
-			for (ApamFilter inj : implementationConstraintFilters) {
+			for (ApamFilter inj : mngImplementationConstraintFilters) {
 				ret.append("\n            " + inj);
+				if (!implementationConstraintFilters.contains(inj))
+					ret.append("[added by Manager]");
 			}
 		}
-		if (!instanceConstraintFilters.isEmpty()) {
+		if (!mngInstanceConstraintFilters.isEmpty()) {
 			ret.append("\n         Instance Constraints");
-			for (ApamFilter inj : instanceConstraintFilters) {
+			for (ApamFilter inj : mngInstanceConstraintFilters) {
 				ret.append("\n            " + inj);
+				if (!instanceConstraintFilters.contains(inj))
+					ret.append("[added by Manager]");
 			}
 		}
-		if (!implementationPreferenceFilters.isEmpty()) {
+		if (!mngImplementationPreferenceFilters.isEmpty()) {
 			ret.append("\n         Implementation Preferences");
-			for (ApamFilter inj : implementationPreferenceFilters) {
+			for (ApamFilter inj : mngImplementationPreferenceFilters) {
 				ret.append("\n            " + inj);
+				if (!implementationPreferenceFilters.contains(inj))
+					ret.append("[added by Manager]");
 			}
 		}
-		if (!instancePreferenceFilters.isEmpty()) {
+		if (!mngInstancePreferenceFilters.isEmpty()) {
 			ret.append("\n         Instance Preferences");
-			for (ApamFilter inj : instancePreferenceFilters) {
+			for (ApamFilter inj : mngInstancePreferenceFilters) {
 				ret.append("\n            " + inj);
+				if (!instancePreferenceFilters.contains(inj))
+					ret.append("[added by Manager]");
 			}
 		}
 		return ret.toString();

@@ -12,10 +12,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.dynamic.manager;
+package fr.imag.adele.apam.impl;
 
 import java.util.Set;
 
+import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -26,9 +27,6 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.impl.ApamResolverImpl;
-import fr.imag.adele.apam.impl.ComponentImpl;
-import fr.imag.adele.apam.impl.CompositeImpl;
 
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
@@ -55,7 +53,7 @@ public class PendingRequest {
 	/**
 	 * The resolver
 	 */
-	protected final ApamResolverImpl resolver;
+	protected final ApamResolver resolver;
 	
 	/**
 	 * The result of the resolution
@@ -73,12 +71,15 @@ public class PendingRequest {
 	private boolean isBlocked = false;
 	
 	/**
-	 * Whether 
+	 * Whether this request has been disposed, this happen for instance when the
+	 * source component is removed
 	 */
+	private boolean isDisposed = false;
+	
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Component source, Relation relation) {
+	public PendingRequest(ApamResolver resolver, Component source, Relation relation) {
 		this.resolver		= resolver;
 		
 		this.source			= source;
@@ -110,7 +111,7 @@ public class PendingRequest {
 	 * Whether this request was resolved by the last resolution retry
 	 */
 	private boolean isResolved() {
-		return resolution != null;
+		return resolution != null || isDisposed;
 	}
 	
 	/**
@@ -136,6 +137,11 @@ public class PendingRequest {
 			} catch (InterruptedException ignored) {
 			}
 		}
+	}
+
+	public synchronized void dispose() {
+		isDisposed = true;
+		this.notifyAll();
 	}
 
 	/**
@@ -177,6 +183,7 @@ public class PendingRequest {
 		}
 	}
 
+	
 	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
 	private synchronized void beginResolve() {
@@ -265,7 +272,7 @@ public class PendingRequest {
 		/*
 		 * If this request has blocked the creating thread we should retry the resolution to unblock it.
 		 * 
-		 * Otherwise we verify if this request has not been already resolved by this candidate ( possibly
+		 * Otherwise we verify if this request has not been already resolved by this candidate (possibly
 		 * in another thread) to avoid unnecessary resolves.
 		 */
 		
@@ -298,7 +305,7 @@ public class PendingRequest {
 				((Instance)resolution.getDestination()).getImpl().equals(candidate) )
 				return false;
 			*/
-			if (resolution.getDestination().getKind().equals(candidate))
+			if (resolution.getDestination().equals(candidate))
 				return false;
 			
 		}

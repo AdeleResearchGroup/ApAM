@@ -1,4 +1,4 @@
-package fr.imag.adele.dynamic.manager;
+package fr.imag.adele.apam.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,13 +65,20 @@ public class FutureInstance {
 					trigger.getInstanceConstraints());
 
 			RelationImpl parsedTrigger = new RelationImpl(triggerRelation);
-			parsedTrigger.computeFilters(null);
+			parsedTrigger.computeFilters(owner);
 			triggers.add(parsedTrigger);
 			counter++;
 		}
 
 	}
 
+	/**
+	 * The declaring composite
+	 */
+	public Composite getOwner() {
+		return owner;
+	}
+	
 	/**
 	 * Verifies whether all triggering conditions are satisfied, and in that case instantiate the instance in the APAM
 	 * state
@@ -145,7 +152,7 @@ public class FutureInstance {
 		 * 
 		 * TODO BUG We are initializing the properties of the instance, but we lost the relation overrides. 
 		 * We need to modify the API to allow specifying explicitly an instance declaration for
-		 * Implementation.craeteInstance.
+		 * Implementation.createInstance.
 		 */
 		isTriggered			= true;
 		implementation.createInstance(owner,properties);

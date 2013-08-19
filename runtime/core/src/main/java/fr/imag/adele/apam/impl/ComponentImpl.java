@@ -674,12 +674,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			// ((ImplementationImpl)
 			// getImpl()).removeUses(link.getDestination().getImpl());
 
-			// Notify Dynamic managers that a link has been deleted. A new
-			// resolution can be possible now.
-			for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
-				manager.removedLink(link);
-			}
-
 		} else {
 			logger.error("INTERNAL ERROR: link from " + this + " to " + link.getDestination() + " could not be removed in the real instance.");
 		}

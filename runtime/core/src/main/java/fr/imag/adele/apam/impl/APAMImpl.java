@@ -64,6 +64,7 @@ public class APAMImpl implements Apam {
      */
     private RelationManager	apamMan;
     private UpdateMan	updateMan;
+    private FailedResolutionManager	failureMan;
 
 	/**
 	 * The list of expected managers
@@ -89,9 +90,17 @@ public class APAMImpl implements Apam {
         
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
+        failureMan = new FailedResolutionManager();
+
+        DynaMan dynaMan = new DynaMan();
+
         ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
         ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is not in the main loop
-        ApamManagers.addDynamicManager(updateMan); 
+        ApamManagers.addRelationManager(failureMan, -3); // -2 to be sure it is not in the main loop
+        ApamManagers.addDynamicManager(updateMan);
+        
+        dynaMan.start(this);
+        failureMan.start(this);
 		try {
 			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
 		} catch (IOException e) {
@@ -236,8 +245,19 @@ public class APAMImpl implements Apam {
 	public RelationManager getApamMan() {
 		return apamMan;
 	}
+	
 	public RelationManager getUpdateMan() {
 		return updateMan;
+	}
+	
+	public RelationManager getFailedResolutionManager() {
+		return failureMan;
+	}
+	
+	public boolean isPredefinedManager(RelationManager manager) {
+		return	manager.equals(getApamMan()) || 
+				manager.equals(getUpdateMan()) || 
+				manager.equals(getFailedResolutionManager());
 	}
 
     /**

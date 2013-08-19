@@ -53,7 +53,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
     public List<Option> config() {
 	List<Option> addon = super.config();
 	addon.add(systemPackage("javax.xml.parsers"));
-	addon.add(0, packApamDynaMan());
+	addon.add(0, packApamConflictManager());
 	return addon;
     }
 

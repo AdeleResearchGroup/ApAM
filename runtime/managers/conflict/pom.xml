@@ -6,12 +6,12 @@
         <version>0.0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>dynaman</artifactId>
+    <artifactId>manager.conflict</artifactId>
 
     <packaging>bundle</packaging>
 
-    <name>Dynamic Manager For ApAM</name>
-    <description>The Dynamic Manager for APAM</description>
+    <name>Conflict Manager For ApAM</name>
+    <description>This manager handle conflict over non sharable services</description>
 
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-Description>
-                            Dynamic Manager DYNAMAN
+                            Conflict Manager For ApAM
                         </Bundle-Description>
                     </instructions>
                 </configuration>

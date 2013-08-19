@@ -427,7 +427,7 @@ public class ApamResolverImpl implements ApamResolver {
 					 */				
 					if (resolveExist) {
 						logger.error("create=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot instantiate. Resolve failed.");
-						return null ;
+						continue;
 					}
 
 					Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
@@ -505,23 +505,14 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
 
-		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
-
 		/*
-		 * If resolve = exist or internal, only ApamMan must be called
+		 * Get the list of external managers
 		 */
-		boolean resolveExternal = relation.getResolve() == ResolvePolicy.EXTERNAL ;
-		if (resolveExternal) {
-			for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
-				/*
-				 * Skip apamman and UpdateMan
-				 */
-				if (relationManager.getName().equals(CST.APAMMAN) || relationManager.getName().equals(CST.UPDATEMAN)) {
-					continue;
-				}
-				relationManager.getSelectionPath(source, relation, selectionPath);
-			}
+		List<RelationManager> externalPath = new ArrayList<RelationManager>();
+		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
+			relationManager.getSelectionPath(source, relation, externalPath);
 		}
+		
 		((RelationImpl)relation).computeFilters(source) ;
 		
 		if (!relation.isRelation()) { // It is a find
@@ -529,9 +520,26 @@ public class ApamResolverImpl implements ApamResolver {
 		} else
 			logger.info("Resolving " + relation);
 
-		// To select first in Apam
+		/*
+		 * Get the list of all managers, core and external
+		 */
+		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
+
 		selectionPath.add(0, apam.getApamMan());
 		selectionPath.add(0, apam.getUpdateMan());
+		
+
+		/*
+		 * If resolve = exist or internal, only predefined managers must be called
+		 */
+
+		boolean resolveExternal = relation.getResolve() == ResolvePolicy.EXTERNAL ;
+		if (resolveExternal) {
+			selectionPath.addAll(externalPath);
+		}
+		
+		selectionPath.add(apam.getFailedResolutionManager());
+		
 		return selectionPath;
 	}
 

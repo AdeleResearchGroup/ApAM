@@ -72,7 +72,6 @@ public class LightScenarioTest extends ExtensionAbstract {
     public List<Option> config() {
 
 	List<Option> defaults = super.config();
-	defaults.add(0, packApamDynaMan());
 	try {
 	    defaults.add(CoreOptions.bundle((new File(PathUtils.getBaseDir(),
 		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));

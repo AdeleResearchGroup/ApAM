@@ -64,7 +64,7 @@
 <!-- 		</dependency> -->
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>dynaman</artifactId>
+            <artifactId>manager.conflict</artifactId>
         </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
