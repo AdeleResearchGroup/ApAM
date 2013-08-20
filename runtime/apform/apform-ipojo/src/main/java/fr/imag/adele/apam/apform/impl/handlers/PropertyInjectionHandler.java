@@ -17,7 +17,6 @@ package fr.imag.adele.apam.apform.impl.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +30,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
@@ -113,6 +113,45 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 			}
 		}
 	}
+	
+	public void setApamComponent(Component component) {
+		
+		if (component == null)
+			return;
+		
+		System.out.println("APAM component created "+component);
+		
+		ApamAtomicComponentFactory implementation = (ApamAtomicComponentFactory) getFactory();
+		ImplementationDeclaration declaration = implementation.getDeclaration();
+
+		if (!(declaration instanceof AtomicImplementationDeclaration))
+			return;
+
+		AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) declaration;
+		for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
+
+			if (definition.getInjected() == InjectedPropertyPolicy.EXTERNAL)
+				continue;
+			
+			if (definition.getField() != null) {
+				FieldMetadata field = getPojoMetadata().getField(definition.getField());
+				
+				Object fieldValue	= getInstanceManager().getFieldValue(field.getFieldName());
+				
+				if (definition.getInjected() == InjectedPropertyPolicy.INTERNAL)
+					onSet(getInstanceManager().getPojoObject(), field.getFieldName(), fieldValue);
+				
+				if (definition.getInjected() == InjectedPropertyPolicy.BOTH) {
+					Object apamValue	= component.getPropertyObject(definition.getName());
+					
+					if (apamValue == null)
+						onSet(getInstanceManager().getPojoObject(), field.getFieldName(), fieldValue);
+				}
+
+			}
+
+		}		
+	}
 
 	@Override
 	public Object onGet(Object pojo, String fieldName, Object currentValue) {
@@ -146,53 +185,14 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     				return instance.getPropertyObject(property);
     			
     			/*
-    			 * For multi-valued property fields calculate the collection to inject
+    			 * For multi-valued property fields, convert the APAM value to a collection that can
+    			 * be injected into the field, and that track modifications 
     			 */
     			if (definition.isSet() ) {
 
     				@SuppressWarnings("unchecked")
-					Set<String> apamValue 		= (Set<String>) instance.getPropertyObject(property);
-    				Set<?> fieldValue 			= (Set<?>)currentValue;
-    				
-    				Set<String> newValue 		= null;
-    				
-        			/*
-        			 * For internal multi-valued property fields, the injected value is directly stored
-        			 * in the handler, so we don't need to get the APAM value.
-        			 * 
-        			 * However, we need to propagate all modifications of the collection to APAM, so we
-        			 * need to inject a collection bound to the APAM instance.
-        			 */
-        			if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL && fieldValue != null) {
-        				
-        				/*
-        				 * Small optimization to perform wrapping only once
-        				 */
-        				if (fieldValue instanceof BoundSet<?>) {
-        					BoundSet<?> injectedValue = (BoundSet<?>)fieldValue;
-        					if (injectedValue.getBoundInstance().equals(instance) && injectedValue.getBoundProperty().equals(definition))
-        						return currentValue;
-        				}
-        				
-        				/*
-        				 * Make a copy of the value of the field
-        				 */
-        				newValue = new HashSet<String>();
-        				for (Object element : fieldValue) {
-        					newValue.add(element.toString());
-						}
-        			}
-        			
-        			/*
-        			 * For non-internal multi-valued property fields the value is stored in APAM.
-        			 * 
-        			 */
-        			if (definition.getInjected()!=InjectedPropertyPolicy.INTERNAL && apamValue != null) {
-        				newValue = apamValue;
-        			}
-        				
-
-        			BoundSet<?> injectedValue = null;
+					Set<String> newValue 		= (Set<String>) instance.getPropertyObject(property);
+        			BoundSet<?> injectedValue	= null;
         			
     				if (definition.getBaseType().equals("int") && newValue != null) {
     					
@@ -276,31 +276,11 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     			String property		= definition.getName();
     			Instance instance 	= getInstanceManager().getApamComponent();
 
+ 
     			/*
-    			 * For non-internal multi-valued property fields, modification is not allowed
+    			 * If the filed has been modified, and the injection type is not EXTERNAL update the Apam value
     			 */
-    			if (definition.isSet() && definition.getInjected()!=InjectedPropertyPolicy.INTERNAL) {
-    				
-    				/*
-    				 * WARNING special case. This only happens when the field is initialized in the code and is accessed for
-    				 * the first time. iPojo sees the initial value in the code and because it is different from the value in
-    				 * APAM it triggers a onSet callback. For non-internal properties we simply ignore the initial value
-    				 */
-    				if (newValue != null && newValue instanceof BoundSet<?>) {
-    					BoundSet<?> injectedValue = (BoundSet<?>)newValue;
-    					if (injectedValue.getBoundInstance().equals(instance) && injectedValue.getBoundProperty().equals(definition))
-    						return;
-    				}
-
-    				throw new UnsupportedOperationException("Field "+definition.getField()+" is associated to a non-internal property ("+ definition.getName() + ") and can only be modified using the APAM API");
-    			}
-
-    			/*
-    			 * For primitive and internal multi-valued property fields, always update the APAM value
-    			 * to keep synchronization
-    			 */
-    			if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL || !definition.isSet()) {
-
+ 
         			if (newValue != null && newValue instanceof BoundSet<?>)
         				newValue = ((BoundSet<?>) newValue).unwrap();
 
@@ -312,12 +292,16 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
         			if (newValue == null && currentValue == null)
         				continue;
 
-        			if (newValue == null)
-        				((InstanceImpl)instance).removeProperty(property,true);
-        			
-        			if (newValue != null)
-        				((InstanceImpl)instance).setProperty(property, newValue, true);
-        			
+           			if (definition.getInjected() != InjectedPropertyPolicy.EXTERNAL) {
+
+	        			if (newValue == null)
+	        				((InstanceImpl)instance).removeProperty(property,true);
+	        			
+	        			if (newValue != null)
+	        				((InstanceImpl)instance).setProperty(property, newValue, true);
+        			}
+        			else {
+           				System.out.println("ERROR modification of external property "+definition.getName()+" by field"+definition.getField());
     			}
     			
     		} 
@@ -415,20 +399,6 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 			return backing;
 		}
 
-		/**
-		 * The instance bound to this set
-		 */
-		public Instance getBoundInstance() {
-			return instance;
-		}
-		
-		/**
-		 * The property bound to this set
-		 */
-		public PropertyDefinition getBoundProperty() {
-			return property;
-		}
-		
 		/**
 		 * Updates the associated property when the backing collection is changed
 		 */

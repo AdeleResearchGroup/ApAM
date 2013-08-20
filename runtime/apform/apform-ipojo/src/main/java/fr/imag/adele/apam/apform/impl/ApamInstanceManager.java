@@ -40,6 +40,7 @@ import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
@@ -396,6 +397,8 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 	        if (pojo == null)
 	        	return;
 
+            PropertyInjectionHandler handler = (PropertyInjectionHandler) 
+    				ApamInstanceManager.this.getHandler(ApamComponentFactory.APAM_NAMESPACE+":"+PropertyInjectionHandler.NAME);
 	        
             if (apamComponent != null) { // starting the instance
                 if (pojo instanceof ApamComponent) {
@@ -403,7 +406,9 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
                     serviceComponent.apamInit(this.apamComponent);
                 }
 
+                handler.setApamComponent(apamComponent);
                 fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent);
+                
                 return;
             }
             
@@ -418,10 +423,12 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
                 /*
                  * dispose this instance
                  */
+                handler.setApamComponent(apamComponent);
                 ApamInstanceManager.this.dispose();
                 
                 return;
-            } 
+            }
+            
     	}
     	
 		@Override
