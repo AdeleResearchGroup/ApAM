@@ -51,6 +51,14 @@ import fr.imag.adele.apam.util.CoreParser;
 
 @RunWith(JUnit4TestRunner.class)
 public class CompositeTest extends ExtensionAbstract {
+    
+    @Override
+    public List<Option> config() {
+	List<Option> addon = super.config();
+	addon.add(systemPackage("javax.xml.parsers"));
+	addon.add(0, packApamConflictManager());
+	return addon;
+    }    
 
     @Test
     public void CompositeTypeInstantiation_tc028() {
