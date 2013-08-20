@@ -186,7 +186,8 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 				/*
 				 * Add constraint to disallow access to non granted candidate instances
 				 */
-		        PendingRequest request = new PendingRequest(CST.apamResolver, client, relation);
+		        PendingRequest request = PendingRequest.isRetry() ? PendingRequest.current() : new PendingRequest(CST.apamResolver, client, relation);
+		        
 		        for (Instance candidate : container.getOwned(ownedDeclaration)) {
 					if (request.isSatisfiedBy(candidate)) {
 						relation.getMngInstanceConstraints().add("(! ("+CST.INSTNAME+" = "+candidate.getName()+"))");

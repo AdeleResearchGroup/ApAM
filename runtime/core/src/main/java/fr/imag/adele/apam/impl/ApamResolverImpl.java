@@ -506,7 +506,15 @@ public class ApamResolverImpl implements ApamResolver {
 	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
 
 		/*
-		 * Get the list of external managers
+		 * Get the list of external managers.
+		 * 
+		 * NOTE Notice that we invoke getSelctionPath on all managers (even if resolve policy
+		 * is specified EXTERNAL. In this way, managers can influence resolution, by adding
+		 * constraints, even if they do not perform resolution themselves.
+		 * 
+		 * TODO We should have two separate methods in managers: one for adding constraints 
+		 * and another for actually performing resolution. 
+		 * 
 		 */
 		List<RelationManager> externalPath = new ArrayList<RelationManager>();
 		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
