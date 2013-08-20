@@ -117,6 +117,18 @@
 				<module>tests</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
+			</properties>
+			<modules>
+				<module>runtime</module>
+				<module>plugins</module>
+				<module>tools</module>
+				<module>tests</module>
+			</modules>
+		</profile>
 
 		<!-- Profile used to build ApAM -->
 		<profile>
