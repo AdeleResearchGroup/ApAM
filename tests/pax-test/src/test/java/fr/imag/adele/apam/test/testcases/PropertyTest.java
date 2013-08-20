@@ -215,11 +215,15 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		s1.setStateNotInternal("changedByJavaInstance");
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
+		//All the following situation should remains unchanged since the field is an external (check the spec: https://docs.google.com/document/d/1JNffl2oNeS26HFbJ2OT-KnpvZnEYm5sja2XprsYG3Mo/edit#)
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertNotNull(s1.getStateNotInternal());
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), s1.getStateNotInternal().equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByApamAPI"));
 
 
 	}
@@ -1038,7 +1042,8 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBoth").equals("changedByApamAPI"));
 		
 		s1.setInjectedBoth("changedByJavaInstance");
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedBoth()==null?"":s1.getInjectedBoth()).equals("changedByJavaInstance"));
+		Assert.assertNotNull(s1.getInjectedBoth());
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"),s1.getInjectedBoth().equals("changedByJavaInstance"));
 		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedBoth").equals("changedByJavaInstance"));
 		
 		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedBoth").equals("changedByJavaInstance"));
@@ -1089,10 +1094,17 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertTrue(String.format(messageTemplace, " value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedExternal").equals("changedByApamAPI"));
 		
 		s1.setInjectedExternal("changedByJavaInstance");
-		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedExternal()==null?"":s1.getInjectedExternal()).equals("changedByJavaInstance"));
-		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedExternal").equals("changedByJavaInstance"));
 		
-		Assert.assertFalse(String.format(messageTemplace, "value should NOT be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedExternal").equals("changedByJavaInstance"));
+		Assert.assertNotNull(s1.getInjectedExternal());
+		
+		System.out.println("-----s1.getInjectedExternal():"+s1.getInjectedExternal());
+		
+		//Property should remain unchanged
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by java instance, but it changed when checking JavaInstance.myfield"), s1.getInjectedExternal().equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by java instance, but it changed when checking ApamInstance.getProperty()"), s1Inst.getProperty("injectedExternal").equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by java instance, but it changed when checking ApamInstance.getAllProperties()"), s1Inst.getAllProperties().get("injectedExternal").equals("changedByApamAPI"));
 	}
 	
 	@Test
@@ -1109,12 +1121,13 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		Assert.assertNull(String.format(messageTemplace, "initial value declared in the xml should be ignored for internal"),s1.getInjectedInternal());
 		s1Inst.setProperty("injectedInternal", "changedByApamAPI");
-		Assert.assertFalse(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty"), (s1.getInjectedInternal()==null?"":s1.getInjectedInternal()).equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty"), s1.getInjectedInternal()==null||s1.getInjectedInternal().equals("changedByApamAPI"));
 		Assert.assertNull(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedInternal"));		
 		Assert.assertNull(String.format(messageTemplace, " value should NOT be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedInternal"));
 		
 		s1.setInjectedInternal("changedByJavaInstance");
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getInjectedInternal()==null?"":s1.getInjectedInternal()).equals("changedByJavaInstance"));
+		Assert.assertNotNull(s1.getInjectedInternal());
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), s1.getInjectedInternal().equals("changedByJavaInstance"));
 		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("injectedInternal").equals("changedByJavaInstance"));
 		
 		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("injectedInternal").equals("changedByJavaInstance"));
@@ -1139,8 +1152,8 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		Assert.assertTrue(String.format(messageTemplace, "value declared in the xml should be used for both"),s1.getInjectedBothSetted().equals("default"));
 		
-		Assert.assertNotNull(String.format(messageTemplace, "value declared in the constructor should be kept if not setted in XML"),s1.getInjectedBothUnsetted());
-		Assert.assertTrue(String.format(messageTemplace, "value declared in the constructor should be kept if not setted in XML"),s1.getInjectedBothUnsetted().equals("Constructor defined value"));
+		Assert.assertNotNull(String.format(messageTemplace, "value declared in the constructor should be kept if not configured in XML"),s1.getInjectedBothUnsetted());
+		Assert.assertTrue(String.format(messageTemplace, "value declared in the constructor should be kept if not configured in XML"),s1.getInjectedBothUnsetted().equals("Constructor defined value"));
 	}
 	
 	
