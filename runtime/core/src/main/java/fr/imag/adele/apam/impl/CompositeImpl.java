@@ -196,9 +196,14 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
 			/*
 			 * main instance is never shared
-			 */
+			 *
+			 * NOTE Produces an error when an instance is automatically added to a composite application
+			 * 
+			 * 
 			mainInst.getDeclaration().setShared(false) ;
 			((InstanceImpl) mainInst).put(CST.SHARED, CST.V_FALSE);
+			
+			*/
 		}
 		
 		/*
