@@ -25,6 +25,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -41,7 +42,9 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.FailedResolutionManager;
 import fr.imag.adele.apam.impl.InstanceImpl;
+import fr.imag.adele.apam.impl.PendingRequest;
 
 
 /**
@@ -384,7 +387,19 @@ public class ContentManager  {
 		 */
 		for (Instance ownedInstance : getOwned(ownedDeclaration)) {
 			preempt(ownedDeclaration,ownedInstance);
+			
+			/*
+			 * Wake pending request that could be satisfied by the new grant
+			 */
+			FailedResolutionManager failureManager = (FailedResolutionManager) ApamManagers.getManager("FailedResolutionManager");
+			for (PendingRequest request : failureManager.getWaitingResolutions()) {
+				if (request.isSatisfiedBy(ownedInstance))
+					if (newGrant == null || match(newGrant,request))
+						request.resolve();
+			}
+
 		}
+		
 	}
 
 
@@ -584,6 +599,12 @@ public class ContentManager  {
 	}
 
 	
+	/**
+	 * verifies if the requested resolution matches the specified grant
+	 */
+	private static boolean match(GrantDeclaration grant, PendingRequest request) {
+		return match(grant,request.getSource(), request.getRelation());
+	}
 
 
 }

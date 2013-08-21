@@ -54,6 +54,15 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	 */
 	private final List<PendingRequest> waitingResolutions;
 	
+	public List<PendingRequest> getWaitingResolutions() {
+		return waitingResolutions;
+	}
+
+
+	public Apam getApam() {
+		return apam;
+	}
+
 	/**
 	 * A reference to the APAM machine
 	 */
@@ -369,6 +378,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		return null;
 	}
 
-
+	
 
 }
