@@ -413,7 +413,7 @@ public class ContentManager  {
 		
 		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
 		for (Link incoming : ownedInstance.getInvLinks()) {
-			if ( grant == null || !match(grant,incoming))
+			if ( grant != null && !match(grant,incoming))
 				incoming.remove();
 		}
 

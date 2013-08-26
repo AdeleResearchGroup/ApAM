@@ -921,7 +921,7 @@ public class RelationImpl implements Relation {
 			ret.append(" providing " + getTarget());
 
 		ret.append(" from " + linkSource);
-		ret.append(" (creation = "+create+", resolve = "+resolve+")");
+		ret.append(" (creation = "+create+", resolve = "+resolve+", missing policy = "+this.missingPolicy+")");
 		
 		if (!mngImplementationConstraintFilters.isEmpty()) {
 			ret.append("\n         Implementation Constraints");
