@@ -301,50 +301,58 @@ public class ApamResolverImpl implements ApamResolver {
 			return null;
 		}
 
-		// Will contain the solution .
-		Resolved resolved = null;
-
+		// Invoke managers for resolution
+		Resolved resolved = this.resolveByManagers(source, rel);
+		
 		// To remember it is a promotion
 		boolean isPromotion = false;
 		boolean promoHasConstraints = false;
-
+		
 		/*
 		 * Promotion control Only for instances
 		 */
-		if (source instanceof Instance && rel.isRelation()) {
+		if ((resolved == null || resolved.isEmpty())
+				&& source instanceof Instance 
+				&& rel.isRelation()) {
 			Composite compo = getClientComposite((Instance) source);
 			Relation promotionRelation = getPromotionRel((Instance) source, rel);
 
 			// if it is a promotion, get the composite relation targets.
 			if (promotionRelation != null) {
 				isPromotion = true;
+				//Check existing links
 				promoHasConstraints = promotionRelation.hasConstraints();
 				if (promotionRelation.isMultiple())
 					resolved = new Resolved(compo.getLinkDests(promotionRelation.getName()));
 				else
 					resolved = new Resolved(compo.getLinkDest(promotionRelation.getName()));
 
-				if (resolved.isEmpty()) // Maybe the composite did not resolved
-					// that relation so far.
+				// Maybe the composite did not resolved that relation so far.
+				if (resolved.isEmpty()) 
 					resolved = resolveLink(compo, promotionRelation);
-				if (resolved == null) {
-					logger.error("Failed to resolve " + rel.getTarget() + " from " + source + "(" + rel.getName() + ")");
-					return null;
-				}
 
 				// Select the sub-set that matches the dep constraints. No
 				// source visibility control (null).
 				// Adds the manager constraints and compute filters
-				computeSelectionPath(source, rel);
-				resolved = rel.getResolved(resolved, isPromotion);
+				if (resolved != null && !resolved.isEmpty()) {
+					computeSelectionPath(source, rel);
+					resolved = rel.getResolved(resolved, isPromotion);
+				}
+				
 			}
 		}
 
-		if (!isPromotion) {
-			resolved = this.resolveByManagers(source, rel);
+		/*
+		 * If managers could not resolve and relation cannot be promoted, give a chance to failure manager
+		 */
+		if (resolved == null || resolved.isEmpty()) {
+			resolved= apam.getFailedResolutionManager().resolveRelation(source, rel);
 		}
 
-		if (resolved == null) {
+		/*
+		 * If failure manager could not recover, just give up
+		 */
+		if (resolved == null || resolved.isEmpty()) {
 			logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source + "(relation " + rel.getName() + ")");
 			return null;
 		}
@@ -545,8 +553,6 @@ public class ApamResolverImpl implements ApamResolver {
 		if (resolveExternal) {
 			selectionPath.addAll(externalPath);
 		}
-		
-		selectionPath.add(apam.getFailedResolutionManager());
 		
 		return selectionPath;
 	}
