@@ -160,7 +160,7 @@ public class ContentManager  {
 	 * Get a thread safe (stack contained) copy of the current list of instances owned
 	 * for the specified ownership declaration
 	 */
-	public Collection<Instance> getOwned(OwnedComponentDeclaration ownedDeclaration) {
+	private Collection<Instance> getOwned(OwnedComponentDeclaration ownedDeclaration) {
 		synchronized (owned) {
 			return new ArrayList<Instance>(owned.get(ownedDeclaration));
 		}
@@ -260,6 +260,33 @@ public class ContentManager  {
 		}
 
 		((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
+	}
+
+	/**
+	 * Verify grants when a new resolution request is being resolved
+	 */
+	public synchronized void resolutionRequest(Component source, Relation relation) {
+		
+		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
+			
+			GrantDeclaration grant	= getCurrentGrant(ownedDeclaration);
+			boolean granted 		= grant == null || match(grant,source,relation);
+
+			/*
+			 * If the request is not granted, just let the resolution continue
+			 */
+			if (! granted)
+				continue;
+			
+			/*
+			 * preempt all the granted instances from their current clients, the resolution
+			 * should find the instance available
+			 */
+			for (Instance ownedInstance : getOwned(ownedDeclaration)) {
+				preempt(ownedDeclaration,ownedInstance);
+			}
+		}
+		
 	}
 
 	/**
@@ -369,6 +396,8 @@ public class ContentManager  {
 	 */
 	private void setCurrentGrant(OwnedComponentDeclaration ownedDeclaration, GrantDeclaration newGrant) {
 		
+		GrantDeclaration oldGrant = getCurrentGrant(ownedDeclaration);
+
 		/*
 		 * change current grant
 		 */
@@ -380,16 +409,23 @@ public class ContentManager  {
 		}
 
 		/*
-		 * preempt current users of all owned instances
+		 * preempt all clients that do not satisfy the new grant
 		 */
 		for (Instance ownedInstance : getOwned(ownedDeclaration)) {
 			preempt(ownedDeclaration,ownedInstance);
+		}
+		
+		/*
+		 * If there is no grant active, try to avoid starvation of waiting requests
+		 */
+		if ( oldGrant != null && newGrant == null) {
+			
 		}
 	}
 
 
 	/**
-	 * Preempt access to the specified instance from their current clients
+	 * Preempt access to the specified instance from all clients that no longer hold the grant
 	 * 
 	 */
 	private void preempt(OwnedComponentDeclaration ownedDeclaration, Instance ownedInstance) {
@@ -398,23 +434,15 @@ public class ContentManager  {
 		
 		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
 		for (Link incoming : ownedInstance.getInvLinks()) {
-			if ( grant == null || !match(grant,incoming))
+			if ( grant != null && !match(grant,incoming))
 				incoming.remove();
 		}
 
 	}
 
 	/**
-	 * verifies if the requested resolution is granted access to the specified owned instances
-	 */
-	public boolean isGranted(OwnedComponentDeclaration ownedDeclaration, Component source, Relation relation) {
-		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
-		return grant == null || match(grant,source,relation);
-	}
-
-
-	/**
-	 * The list of potential ownership's conflict between this content manager and the one specified in the parameter
+	 * The list of potential ownership's conflict between this content manager and the one specified
+	 * in the parameter
 	 * 
 	 */
 	public Set<OwnedComponentDeclaration> getConflictingDeclarations(ContentManager that) {

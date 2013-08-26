@@ -50,7 +50,6 @@ import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.PendingRequest;
 
 
 /**
@@ -158,7 +157,6 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	
 	/**
 	 * For owned instances that could match a resolution request, we must be sure that the grants are respected.
-	 * For all non matching requests, add constraints that disallow using the owned instances.
 	 */
 	@Override
 	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
@@ -175,25 +173,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
          * that could satisfy the request.
          */
         for (ContentManager container : getManagers()) {
-			for (OwnedComponentDeclaration ownedDeclaration : container.getOwned()) {
-				
-				/*
-				 * If  access is granted nothing to do.
-				 */
-				if (container.isGranted(ownedDeclaration, client, relation))
-					continue;
-				
-				/*
-				 * Add constraint to disallow access to non granted candidate instances
-				 */
-		        PendingRequest request = PendingRequest.isRetry() ? PendingRequest.current() : new PendingRequest(CST.apamResolver, client, relation);
-		        
-		        for (Instance candidate : container.getOwned(ownedDeclaration)) {
-					if (request.isSatisfiedBy(candidate)) {
-						relation.getMngInstanceConstraints().add("(! ("+CST.INSTNAME+" = "+candidate.getName()+"))");
-					}
-				}
-			}
+        	container.resolutionRequest(client, relation);
 		}
 	}
 	
