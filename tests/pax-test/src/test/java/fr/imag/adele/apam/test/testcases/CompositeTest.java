@@ -220,7 +220,7 @@ public class CompositeTest extends ExtensionAbstract {
     }
 
     @Test
-    public void ComponentMngtNoMainLocalInstance_tc0XX() {
+    public void ComponentMngtNoMainLocalInstance_tc120() {
 
 	final String messageTemplate = "Two composites A and B,  both without mainimpl, B depends on instances inside A, but A is marked as '<export instance='false' />'. %s";
 

@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1372164246267" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1377526782173" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1376388441000" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -326,6 +326,9 @@
 <node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354727817692" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1377526907522" ID="ID_27905778" MODIFIED="1377526945606" TEXT="test local declaration filtering when export instance=false and there is no mainimpl-tc0120">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1375189654903" ID="ID_736266460" MODIFIED="1375189755603" TEXT="even if a composite declares &apos;export implem=false&apos;, he should have access to it-tc118">
 <icon BUILTIN="button_ok"/>
@@ -522,7 +525,7 @@
 </node>
 </node>
 <node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client">
-<node CREATED="1373976941662" ID="ID_736034287" MODIFIED="1373976953313" TEXT="remote instance is injected">
+<node COLOR="#338800" CREATED="1373976941662" ID="ID_736034287" MODIFIED="1377526779057" TEXT="remote instance is injected">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
