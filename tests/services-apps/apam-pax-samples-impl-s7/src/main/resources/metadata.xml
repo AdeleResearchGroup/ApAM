@@ -413,7 +413,7 @@
         classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter18"
         specification="S07-specification-18">
         <relation name="con" field="injected" sourceKind="implementation"
-            targetKind="specification"
+            targetKind="implementation"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface18" />
         <definition name="instance-property" type="string" />
         <property name="implementation-property" value="ok" />
@@ -421,5 +421,28 @@
     
     <!-- END OF CASES -->
     
+
+    <!-- CASE-19 -->
+    <specification name="S07-specification-19"
+        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface19">
+        <relation name="con" sourceKind="instance"
+            targetKind="specification"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Interface19" />
+        <definition name="implementation-property" type="string" />
+        <property name="specification-property" type="string"
+            value="ok" />
+    </specification>
+
+    <implementation name="S07-implementation-19"
+        classname="fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter19"
+        specification="S07-specification-19">
+        <relation name="con" field="injected" sourceKind="implementation"
+            targetKind="specification"
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Interface19" />
+        <definition name="instance-property" type="string" />
+        <property name="implementation-property" value="ok" />
+    </implementation>
+    
+    <!-- END OF CASES -->
 
 </apam>
