@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /*
@@ -55,5 +56,28 @@ public class Resolved <T extends Component> {
 	
 	public boolean isEmpty () {
 		return singletonResolved == null && toInstantiate == null && (setResolved == null || setResolved.isEmpty()) ;
+	}
+	
+	public Resolved<T> merge(Resolved <T> that){
+		
+		Set<T>  merged =new HashSet<T>();
+		
+		if(singletonResolved!=null){
+			merged.add(singletonResolved);
+		}
+		
+		if(that.singletonResolved!=null){
+			merged.add(that.singletonResolved);
+		}
+
+		if(setResolved!=null){
+			merged.addAll(setResolved);
+		}
+		
+		if(that.setResolved!=null){
+			merged.addAll(that.setResolved);
+		}
+
+		return new Resolved<T>(merged);
 	}
 }
