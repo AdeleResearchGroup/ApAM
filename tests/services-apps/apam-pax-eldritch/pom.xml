@@ -3,7 +3,7 @@
     <parent>
         <artifactId>services</artifactId>
         <groupId>fr.imag.adele.apam.tests.app</groupId>
-        <version>0.0.4</version>
+        <version>0.0.5-SNAPSHOT</version>
     </parent>
     <artifactId>apam-pax-eldritch</artifactId>
     <packaging>bundle</packaging>
