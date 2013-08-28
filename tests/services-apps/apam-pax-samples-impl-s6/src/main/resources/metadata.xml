@@ -83,8 +83,6 @@
 		
 	</implementation>
 
-
-
 	<!-- /CASE 10 -->
 
 	<!-- CASE 11 -->
@@ -103,15 +101,44 @@
 
 	<!-- /CASE 11 -->
 
+	<!-- CASE 12 --> 
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-12-child" shared="false">
+		<definition name="property-subject-b" type="string" />
+	</specification>
+
+	<implementation name="impl-case-12-child" 
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-12-child">
+		
+	</implementation>
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-12">
+		
+	</specification>
+
+	<implementation name="impl-case-12" 
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-12">
+		<property name="property-subject-b" type="string" value="man"/>
+		<dependency specification="spec-case-12-child" field="s6" name="case12child" />
+	</implementation>
+
+	<!-- /CASE 12 -->
+
 	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
-		specification="fr.imag.adele.apam.pax.test.iface.S6">
-		<dependency implementation="impl-case-01" field="s6" />
+		specification="fr.imag.adele.apam.pax.test.iface.S6" >
+		<dependency implementation="impl-case-12" field="s6" name="to-case-12" />
 		<definition name="property-case-01" type="string" value="$impl-case-01$property-subject-b"/>
 		<definition name="property-case-03" type="string" value="$impl-case-03$property-subject-b"/>
 		<definition name="property-case-08" type="string" value="$impl-case-08$property-subject-b"/>
 		<definition name="property-case-09" type="string" value="\$impl-case-09.$property-subject-b"/>
 		<definition name="property-case-10" type="string" value="$impl\.case\.10.$property-subject-b"/>
+		<definition name="property-case-12" type="{string}" value="$this.to-case-12.case12child$property-subject-b"/>
+		<definition name="property-case-13" type="{string}" value="$impl-case-12.members.case12child$property-subject-b"/>
 		<definition name="function-case-01" type="string" value="@functionCall"/>
 		<definition name="function-case-02" type="string" value="\@functionCall"/>
 

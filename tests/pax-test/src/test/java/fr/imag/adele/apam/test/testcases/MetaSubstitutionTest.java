@@ -17,11 +17,12 @@ package fr.imag.adele.apam.test.testcases;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -115,6 +116,107 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		String message=String.format(templace,subjectA.getProperty("property-case-09"),"$impl-case-09.$property-subject-b");
 		
 		Assert.assertTrue(message,subjectA.getProperty("property-case-09").equals("$impl-case-09.$property-subject-b"));
+		
+	}
+	
+	@Test
+	public void SubstitutionReachingMultipleNodes_tc122() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+				"impl-case-12-child");
+		Instance instanceAlpha=implementationAlpha.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
+		
+		Implementation implementationBravo=CST.apamResolver.findImplByName(null,
+				"impl-case-12-child");
+		
+		Instance instanceBravo=implementationBravo.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
+		
+		Implementation implementationCharlie=CST.apamResolver.findImplByName(null,
+				"impl-case-12");
+		Instance instanceCharlie=implementationCharlie.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
+		
+		Implementation implementationDelta=CST.apamResolver.findImplByName(null,
+				"impl-case-12");
+		Instance instanceDelta=implementationDelta.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
+		
+		//Instance of the subject-a (parent)
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		//Force the field to be injected
+		S6Impl s6parent=(S6Impl)subjectA.getServiceObject();
+		s6parent.getS6();
+
+		//Force the field to be injected
+		Instance middleInstance=auxListInstanceReferencedBy(s6parent.getS6());
+		S6Impl s6middle=(S6Impl)middleInstance.getServiceObject();
+		s6middle.getS6();
+		
+		//Force the field to be injected
+		Instance childInstance=auxListInstanceReferencedBy(s6middle.getS6());
+		S6Impl s6child=(S6Impl)childInstance.getServiceObject();
+		s6child.getS6();
+		
+		auxListProperties("\t", subjectA);
+		
+		Assert.assertTrue(String.format("Substitution did not find the correct value when navigating through multiple nodes (Expecting %s as property, but found %s)",
+				subjectA.getProperty("property-case-12"),childInstance.getProperty("property-subject-b")),
+				subjectA.getProperty("property-case-12").equals(childInstance.getProperty("property-subject-b")));
+		
+	}
+	
+	@Test
+	public void SubstitutionReachingMultipleNodesWithMembersKeyWord_tc123() {
+
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+				"impl-case-12-child");
+		Instance instanceAlpha=implementationAlpha.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
+		
+		Implementation implementationBravo=CST.apamResolver.findImplByName(null,
+				"impl-case-12-child");
+		
+		Instance instanceBravo=implementationBravo.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
+		
+		Implementation implementationCharlie=CST.apamResolver.findImplByName(null,
+				"impl-case-12");
+		Instance instanceCharlie=implementationCharlie.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
+		
+		Implementation implementationDelta=CST.apamResolver.findImplByName(null,
+				"impl-case-12");
+		Instance instanceDelta=implementationDelta.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
+		
+		//Instance of the subject-a (parent)
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		//Force the field to be injected
+		S6Impl s6parent=(S6Impl)subjectA.getServiceObject();
+		s6parent.getS6();
+
+		//Force the field to be injected
+		Instance middleInstance=auxListInstanceReferencedBy(s6parent.getS6());
+		S6Impl s6middle=(S6Impl)middleInstance.getServiceObject();
+		s6middle.getS6();
+		
+		//Force the field to be injected
+		Instance childInstance=auxListInstanceReferencedBy(s6middle.getS6());
+		S6Impl s6child=(S6Impl)childInstance.getServiceObject();
+		s6child.getS6();
+		
+		auxListProperties("\t", subjectA);
+
+		System.err.println(subjectA.getProperty("property-case-13"));
+		Set<String> properties=(Set<String>)subjectA.getPropertyObject("property-case-13");
+		
+		
+		Assert.assertTrue(String.format("Trying to reach all instance of a given implementation using 'members' keyword in substitution should result two instances but at least one is missing: %s",instanceAlpha.getProperty("property-subject-b")),
+				properties.contains(instanceAlpha.getProperty("property-subject-b") ));
+		
+		Assert.assertTrue(String.format("Trying to reach all instance of a given implementation using 'members' keyword in substitution should result two instances but at least one is missing: %s",instanceBravo.getProperty("property-subject-b")),
+				properties.contains(instanceBravo.getProperty("property-subject-b")));
 		
 	}
 	

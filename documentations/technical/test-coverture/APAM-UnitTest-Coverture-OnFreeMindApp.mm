@@ -121,8 +121,11 @@
 <node CREATED="1365595005815" ID="ID_1423059910" MODIFIED="1365595037123" TEXT="escaping character of metasubstitution for property &apos;$&apos;-tc095">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1372336648374" ID="ID_289840574" MODIFIED="1372766385376" TEXT="reach multiple level (not only one)">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1372336648374" ID="ID_289840574" MODIFIED="1377678300895" TEXT="navigating multiple nodes and fetch a property-tc122">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1377678303905" ID="ID_756516455" MODIFIED="1377678332649" TEXT="retrieving all instances properties of a given impl using members keyword-tc123">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1376388442600" ID="ID_1956479739" MODIFIED="1376388595561" TEXT="internal(deprecated but compatible)">
