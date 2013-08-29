@@ -128,6 +128,20 @@
 
 	<!-- /CASE 12 -->
 
+	<!-- CASE 16 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-16">
+		
+	</specification>
+
+	<implementation name="impl-case-16" 
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-16">
+	</implementation>
+
+	<!-- /CASE 16 -->
+
 	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
@@ -139,11 +153,37 @@
 		<definition name="property-case-10" type="string" value="$impl\.case\.10.$property-subject-b"/>
 		<definition name="property-case-12" type="{string}" value="$this.to-case-12.case12child$property-subject-b"/>
 		<definition name="property-case-13" type="{string}" value="$impl-case-12.members.case12child$property-subject-b"/>
+		<definition name="property-case-14" type="string" value="$this.to-case-12.compotype$name"/>
 		<definition name="function-case-01" type="string" value="@functionCall"/>
 		<definition name="function-case-02" type="string" value="\@functionCall"/>
-
 	</implementation>
 
+	<composite name="subject-b-composite">
+	</composite>
 
+	<composite name="subject-c-composite">
+	</composite>
+
+	<composite name="subject-d-composite">
+	</composite>
+
+	<implementation name="subject-b"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="fr.imag.adele.apam.pax.test.iface.S6" >
+		<definition name="property-case-14" type="string" value="$this.compotype$name"/>
+	</implementation>
+
+	<implementation name="subject-c"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="fr.imag.adele.apam.pax.test.iface.S6" >
+		<definition name="property-case-15" type="string" value="$this.composite$name"/>
+	</implementation>
+
+	<implementation name="subject-d"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="fr.imag.adele.apam.pax.test.iface.S6" >
+		<dependency implementation="impl-case-16" field="s6" />
+		<definition name="property-case-16" type="string" value="$impl-case-16.group$name"/>
+	</implementation>
 
 </apam>

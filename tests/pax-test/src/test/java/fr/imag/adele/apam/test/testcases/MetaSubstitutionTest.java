@@ -29,6 +29,8 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.implS6.S6Impl;
@@ -167,7 +169,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void SubstitutionReachingMultipleNodesWithMembersKeyWord_tc123() {
+	public void SubstitutionReachingMultipleNodesWithMembersKeyword_tc123() {
 
 		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
 				"subject-a");
@@ -217,6 +219,70 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 		Assert.assertTrue(String.format("Trying to reach all instance of a given implementation using 'members' keyword in substitution should result two instances but at least one is missing: %s",instanceBravo.getProperty("property-subject-b")),
 				properties.contains(instanceBravo.getProperty("property-subject-b")));
+		
+	}
+	
+	
+	@Test
+	public void SubstitutionReachingMultipleNodesWithKeywordCompositeType_tc124() {
+
+		Implementation subjectBimpl = CST.apamResolver.findImplByName(null,
+				"subject-b");
+		
+		CompositeType subjectBCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+				"subject-b-composite");
+		Composite subjectBComposite=(Composite)subjectBCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
+		
+		//Instance of the subject-a (parent)
+		Instance subjectB = subjectBimpl.createInstance(subjectBComposite, null);
+		
+		auxListProperties("\t", subjectB);
+
+		System.err.println(subjectB.getProperty("property-case-14"));
+		
+		Assert.assertTrue(String.format("Using metasubstituion to retrieve the name of the compositetype in which a given component is in did not fetch the right composite (%s)",subjectB.getProperty("property-case-14")),
+				subjectB.getProperty("property-case-14").equals(subjectBCompositeType.getProperty("name")));
+		
+	}
+	
+	@Test
+	public void SubstitutionReachingMultipleNodesWithKeywordComposite_tc125() {
+
+		Implementation subjectCimpl = CST.apamResolver.findImplByName(null,
+				"subject-c");
+		
+		CompositeType subjectCCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+				"subject-c-composite");
+		Composite subjectCComposite=(Composite)subjectCCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
+		
+		//Instance of the subject-a (parent)
+		Instance subjectC = subjectCimpl.createInstance(subjectCComposite, null);
+		
+		auxListProperties("\t", subjectC);
+
+		System.err.println(subjectC.getProperty("property-case-15"));
+		
+		Assert.assertTrue(String.format("Using metasubstituion to retrieve the name of the composite in which a given component is in did not fetch the right composite (%s)",subjectC.getProperty("property-case-15")),
+				subjectC.getProperty("property-case-15").equals(subjectCComposite.getProperty("name")));
+		
+	}
+	
+	@Test
+	public void SubstitutionReachingMultipleNodesWithKeywordGroup_tc126() {
+
+		Implementation subjectDimpl = CST.apamResolver.findImplByName(null,
+				"subject-d");
+		
+		CompositeType subjectCCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+				"subject-d-composite");
+		Composite subjectDComposite=(Composite)subjectCCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
+		
+		//Instance of the subject-a (parent)
+		Instance subjectD = subjectDimpl.createInstance(subjectDComposite, null);
+		
+		auxListProperties("\t", subjectD);
+		
+		Assert.assertTrue("Trying to recover the name of the group, but the name found do not correspond to the real group of the implem",subjectD.getProperty("property-case-16").equals("spec-case-16"));
 		
 	}
 	
