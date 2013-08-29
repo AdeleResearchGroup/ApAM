@@ -162,6 +162,8 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 		auxListProperties("\t", subjectA);
 		
+		System.err.println("-->"+subjectA.getProperty("property-case-12"));
+		
 		Assert.assertTrue(String.format("Substitution did not find the correct value when navigating through multiple nodes (Expecting %s as property, but found %s)",
 				subjectA.getProperty("property-case-12"),childInstance.getProperty("property-subject-b")),
 				subjectA.getProperty("property-case-12").equals(childInstance.getProperty("property-subject-b")));
@@ -265,6 +267,42 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		Assert.assertTrue(String.format("Using metasubstituion to retrieve the name of the composite in which a given component is in did not fetch the right composite (%s)",subjectC.getProperty("property-case-15")),
 				subjectC.getProperty("property-case-15").equals(subjectCComposite.getProperty("name")));
 		
+	}
+	
+	@Test
+	public void SubstitutionReachingMultipleNodesWithKeywordComposite_tc127() {
+
+		CompositeType subjectECompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+				"subject-e-composite");
+		Composite subjectEComposite=(Composite)subjectECompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
+		
+		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+				"impl-case-17");
+		Instance instanceEcho=implementationAlpha.createInstance(subjectEComposite, null);
+		
+		Implementation subjectCimpl = CST.apamResolver.findImplByName(null,
+				"subject-e");
+		
+		//Instance of the subject-a (parent)
+		Instance subjectE = subjectCimpl.createInstance(null, null);
+		S6Impl s6=(S6Impl) subjectE.getServiceObject();
+		
+		//Force injection
+		s6.getS6();
+		
+		auxListProperties("\t", subjectE);
+		
+		String parentProperty=subjectE.getProperty("property-case-17-parent-composite");
+		String dependencyProperty=subjectE.getProperty("property-case-17-dep-composite");
+		
+		String template="Using metasubstitution, with components in different composites , %s";
+		
+		Assert.assertTrue(String.format(template,"although the dependency do not correspond to the correct one"),dependencyProperty.equals(subjectEComposite.getName()));
+		
+		Assert.assertTrue(String.format(template,"although the parent do not correspond the correct one"),parentProperty==null);
+		
+		Assert.assertTrue(String.format(template,"although checking a dependency property we vefiried that the value do not match with the right one"),subjectE.getProperty("property-case-17-dep-property").equals(instanceEcho.getProperty("property-case-17")));
+				
 	}
 	
 	@Test
