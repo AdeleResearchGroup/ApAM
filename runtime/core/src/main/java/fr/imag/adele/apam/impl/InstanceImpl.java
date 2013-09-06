@@ -229,7 +229,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		 * 
 		 */
 		for (Link incoming : this.getInvLinks()) {
-			if (! incoming.getSource().canSee(this))
+			if (! incoming.isPromotion() && ! incoming.getSource().canSee(this))
 				incoming.remove();
 		}
 

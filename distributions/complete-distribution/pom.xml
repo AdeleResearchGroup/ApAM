@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-basic-distribution</artifactId>
-		<version>0.0.4-SNAPSHOT</version>
+		<version>0.0.5-SNAPSHOT</version>
        		<relativePath>../basic-distribution/pom.xml</relativePath>
 	</parent>
 
@@ -26,11 +26,6 @@
 
 	<!-- Project dependencies -->
 	<dependencies>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>upnp.apam.discovery</artifactId>
-			<version>${apam.current.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>histman</artifactId>

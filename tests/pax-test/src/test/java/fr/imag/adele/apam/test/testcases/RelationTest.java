@@ -40,6 +40,7 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter13;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter15;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter17;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter18;
+import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter19;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -675,9 +676,44 @@ public class RelationTest extends ExtensionAbstract {
 		
 		String messageTemplate="Declaring a relation from source %s to target %s, instantiated object of the type %s which is not the targetKind expected.";
 				
-		Assert.assertTrue(String.format(messageTemplate,"Implementation","Specification",instance.getServiceObject()),
+		Assert.assertTrue(String.format(messageTemplate,"Instance","Implementation",instance.getServiceObject()),
 						  dependency.getInjected().getProperty("instance-property") == null && 
 						  dependency.getInjected().getProperty("implementation-property") != null && 
+						  dependency.getInjected().getProperty("specification-property") != null);
+
+	}
+	
+	@Test
+	public void RelationSourceInstanceTargetSpecification_tc121() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"S07-implementation-19");
+
+		Instance instance = implementation.createInstance(null,
+				new HashMap(){{put("instance-property","ok");}});//Collections.<String, String> emptyMap()
+
+		S07ImplementationImporter19 dependency = (S07ImplementationImporter19) instance
+				.getServiceObject();
+
+		auxListProperties(dependency.getInjected());
+
+		auxListInstances();
+
+		ComponentImpl ci=(ComponentImpl)instance;
+		
+		Assert.assertTrue(String.format("Only one link should have been created, but %s links were found",ci.getLocalLinks().size()),ci.getLocalLinks().size()==1);
+		
+		for(Link link:ci.getLocalLinks()){
+			
+			validateSourceTargetTypes(link.getSource(),link.getDestination(),Instance.class,Specification.class);
+			
+		}
+		
+		String messageTemplate="Declaring a relation from source %s to target %s, instantiated object of the type %s which is not the targetKind expected.";
+				
+		Assert.assertTrue(String.format(messageTemplate,"Instance","Specification",instance.getServiceObject()),
+						  dependency.getInjected().getProperty("instance-property") == null && 
+						  dependency.getInjected().getProperty("implementation-property") == null && 
 						  dependency.getInjected().getProperty("specification-property") != null);
 
 	}

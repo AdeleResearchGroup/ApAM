@@ -508,7 +508,7 @@ public class Substitute {
 	    try {
 		ret.add(ApamFilter.newInstanceApam(sf, component));
 	    } catch (Exception e) {
-		logger.error("Invalif filter " + sf + " for component "
+		logger.error("Invalid filter " + sf + " for component "
 			+ component.getName());
 	    }
 	}
@@ -533,7 +533,7 @@ public class Substitute {
 	    try {
 		ret.add(ApamFilter.newInstanceApam(sf, component));
 	    } catch (Exception e) {
-		logger.error("Invalif filter " + sf + " for component "
+		logger.error("Invalid filter " + sf + " for component "
 			+ component.getName());
 	    }
 	}

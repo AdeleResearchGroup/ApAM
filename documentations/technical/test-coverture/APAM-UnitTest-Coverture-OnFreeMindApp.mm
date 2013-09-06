@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1372164246267" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1377768742779" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1376388441000" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -121,8 +121,35 @@
 <node CREATED="1365595005815" ID="ID_1423059910" MODIFIED="1365595037123" TEXT="escaping character of metasubstitution for property &apos;$&apos;-tc095">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1372336648374" ID="ID_289840574" MODIFIED="1372766385376" TEXT="reach multiple level (not only one)">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1372336648374" ID="ID_289840574" MODIFIED="1377678300895" TEXT="navigating multiple nodes and fetch a property-tc122">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1377766087524" ID="ID_1244823929" MODIFIED="1377766091612" TEXT="keywords">
+<node CREATED="1377766093854" ID="ID_1575573910" MODIFIED="1377766096733" TEXT="members">
+<node CREATED="1377678303905" ID="ID_756516455" MODIFIED="1377766112819" TEXT="retrieving all instances properties-tc123">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1377766124557" ID="ID_1883006111" MODIFIED="1377766127773" TEXT="compositeType">
+<node CREATED="1377770250509" ID="ID_319202240" MODIFIED="1377770373260" TEXT="tc124">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1377766116110" ID="ID_453968716" MODIFIED="1377766118092" TEXT="composite">
+<node CREATED="1377770258590" ID="ID_1399565520" MODIFIED="1377770373260" TEXT="tc125">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1377776761631" ID="ID_759037545" MODIFIED="1377776790412" TEXT="check child in different composite than the parent">
+<node CREATED="1377776781408" ID="ID_20797654" MODIFIED="1377776793595" TEXT="tc127">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1377766120510" ID="ID_723068219" MODIFIED="1377766122868" TEXT="group">
+<node CREATED="1377770268941" ID="ID_491615451" MODIFIED="1377770373259" TEXT="tc126">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1376388442600" ID="ID_1956479739" MODIFIED="1376388595561" TEXT="internal(deprecated but compatible)">
@@ -140,7 +167,7 @@
 </node>
 </node>
 <node CREATED="1376388442600" ID="ID_1552635339" MODIFIED="1376402698138" TEXT="injected(new spec for internal)">
-<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1376402641492" TEXT="both">
+<node CREATED="1353066277318" ID="ID_665294319" MODIFIED="1377769534690" TEXT="both">
 <node CREATED="1376402559981" ID="ID_1832949702" MODIFIED="1376402605058" TEXT="tct021">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -266,11 +293,6 @@
 <node CREATED="1353076557752" ID="ID_533005585" MODIFIED="1354295361281" TEXT="should be possible find an impl by its name-tc027">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1375362057733" ID="ID_1688355282" MODIFIED="1376040278899" TEXT="preference should be resolved if a new instance that matchs appears)">
-<node CREATED="1375362103820" ID="ID_1025748012" MODIFIED="1375362111307" TEXT="tct006">
-<icon BUILTIN="button_cancel"/>
-</node>
-</node>
 </node>
 <node CREATED="1375976750304" ID="ID_707483499" MODIFIED="1376040279787" TEXT="can release a dependency setting the field to null">
 <node CREATED="1376040257604" ID="ID_845317552" MODIFIED="1376040264866" TEXT="tct018">
@@ -326,42 +348,44 @@
 <node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354727817692" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1377526907522" ID="ID_27905778" MODIFIED="1377526945606" TEXT="test local declaration filtering when export instance=false and there is no mainimpl-tc0120">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1375189654903" ID="ID_736266460" MODIFIED="1375189755603" TEXT="even if a composite declares &apos;export implem=false&apos;, he should have access to it-tc118">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
-<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1375455936881" TEXT="promotion">
-<icon BUILTIN="button_cancel"/>
-<node CREATED="1375455787177" ID="ID_1366326840" MODIFIED="1375455822969" TEXT="ImplicitPromote with same constraints">
-<node CREATED="1375455961672" ID="ID_192847866" MODIFIED="1375455970886" TEXT="tct007">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1377604438643" TEXT="promotion">
+<node CREATED="1375455787177" ID="ID_1366326840" MODIFIED="1377604410506" TEXT="ImplicitPromote with same constraints">
+<node CREATED="1375455961672" ID="ID_192847866" MODIFIED="1377604414219" TEXT="tct007">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375455830648" ID="ID_541672399" MODIFIED="1375455849926" TEXT="Implicite Promote without same constraints">
-<node CREATED="1375455975544" ID="ID_247015520" MODIFIED="1375455985668" TEXT="tct008">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1375455975544" ID="ID_247015520" MODIFIED="1377604418762" TEXT="tct008">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375455858594" ID="ID_293362952" MODIFIED="1375455882425" TEXT="Explicit Promote for implem, multiple relation">
-<node CREATED="1375455990181" ID="ID_685613716" MODIFIED="1375456001863" TEXT="tct009">
-<icon BUILTIN="help"/>
+<node CREATED="1375455990181" ID="ID_685613716" MODIFIED="1377604423474" TEXT="tct009">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375455891340" ID="ID_1730467482" MODIFIED="1375455908077" TEXT="Explicit Promote for spec, multiple relation">
-<node CREATED="1375456007222" ID="ID_1929849220" MODIFIED="1375456013512" TEXT="tct010">
-<icon BUILTIN="help"/>
+<node CREATED="1375456007222" ID="ID_1929849220" MODIFIED="1377604427938" TEXT="tct010">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375455913237" ID="ID_610081806" MODIFIED="1375455933157" TEXT="Explicit promote for implem, single relation">
-<node CREATED="1375456423072" ID="ID_454250652" MODIFIED="1375456431583" TEXT="tct011">
-<icon BUILTIN="help"/>
+<node CREATED="1375456423072" ID="ID_454250652" MODIFIED="1377604431434" TEXT="tct011">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375455936882" ID="ID_1457806390" MODIFIED="1375455954349" TEXT="Explicit Promote for spec, single relation">
-<node CREATED="1375456435836" ID="ID_748240925" MODIFIED="1375456441623" TEXT="tct012">
-<icon BUILTIN="help"/>
+<node CREATED="1375456435836" ID="ID_748240925" MODIFIED="1377604435330" TEXT="tct012">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -381,14 +405,7 @@
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>
 <node CREATED="1354295480125" ID="ID_636002140" MODIFIED="1354295482817" POSITION="right" TEXT="Dynaman">
-<node CREATED="1354295512491" ID="ID_1461131113" MODIFIED="1354296124150" TEXT="contentMngt">
 <node CREATED="1354296022283" ID="ID_575669862" MODIFIED="1354296024413" TEXT="dependency">
-<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1354296137392" TEXT="wait-tc039">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353947943098" ID="ID_1719612626" MODIFIED="1354296188208" TEXT="exception-tc040">
-<icon BUILTIN="button_ok"/>
-</node>
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1354296263222" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-tc041">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -407,73 +424,6 @@
 <node CREATED="1354198903458" ID="ID_1062819824" MODIFIED="1354296333568" TEXT="implementation-tc043">
 <icon BUILTIN="button_ok"/>
 </node>
-</node>
-</node>
-</node>
-<node CREATED="1353316599105" ID="ID_209507505" MODIFIED="1354295510574" TEXT="dependency">
-<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1354296436925" TEXT="fail=&quot;wait&quot;-tc044">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1354296460414" TEXT="fail=&quot;exception&quot;-tc045">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1355740402996" ID="ID_426046800" MODIFIED="1355740431603" TEXT="fail=&quot;exception&quot;, using a type present in JRE-tc052">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-<node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
-<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1376396793310" TEXT="grant">
-<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1375976789516" TEXT="when">
-<node CREATED="1375949067088" ID="ID_16840619" MODIFIED="1375976524589" TEXT="grant when state match">
-<node CREATED="1375976490287" ID="ID_630096802" MODIFIED="1375976496637" TEXT="tct013">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-<node CREATED="1375976229841" ID="ID_1792765356" MODIFIED="1375976295883" TEXT="release when state does not match anymore">
-<node CREATED="1375976300492" ID="ID_1504990466" MODIFIED="1375976312848" TEXT="tct014">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1375976342464" TEXT="force release when state does not match">
-<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1375976357365" TEXT="tct015">
-<icon BUILTIN="button_cancel"/>
-</node>
-</node>
-<node CREATED="1375976383370" ID="ID_1796401749" MODIFIED="1375976396456" TEXT="grant to external implementation">
-<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1375976404581" TEXT="tct016">
-<icon BUILTIN="button_cancel"/>
-</node>
-</node>
-<node CREATED="1375976429563" ID="ID_277859218" MODIFIED="1375976442834" TEXT="grant when using resolve=exist">
-<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1375976449612" TEXT="tct017">
-<icon BUILTIN="button_cancel"/>
-</node>
-</node>
-</node>
-<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1376052066685" TEXT="implementation">
-<node CREATED="1376052043603" ID="ID_1896392184" MODIFIED="1376052051548" TEXT="tct019">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1376055153558" TEXT="dependency">
-<node CREATED="1376055128933" ID="ID_503309867" MODIFIED="1376055139452" TEXT="tct020">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-</node>
-<node CREATED="1376396803788" ID="ID_25351214" MODIFIED="1376396810954" TEXT="deny">
-<node CREATED="1376396813119" ID="ID_1953532174" MODIFIED="1376396819042" TEXT="when">
-<icon BUILTIN="button_cancel"/>
-</node>
-</node>
-<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354296536032" TEXT="specification-tc046">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1354297652923" ID="ID_41966136" MODIFIED="1354628609824" TEXT="dispute between dependency and composite with own, own should have priority-tc047">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1354635868184" ID="ID_123141354" MODIFIED="1354635996473" TEXT="dispute one instance between a composite and an own in another, when the instance is already inside one composite-tc048">
-<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -522,7 +472,7 @@
 </node>
 </node>
 <node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client">
-<node CREATED="1373976941662" ID="ID_736034287" MODIFIED="1373976953313" TEXT="remote instance is injected">
+<node COLOR="#338800" CREATED="1373976941662" ID="ID_736034287" MODIFIED="1377526779057" TEXT="remote instance is injected">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
@@ -604,8 +554,10 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1372768348604" ID="ID_1449760738" MODIFIED="1375184817610" TEXT="specification">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1372768348604" ID="ID_1449760738" MODIFIED="1377606830019" TEXT="specification">
+<node CREATED="1377606820920" ID="ID_1706844104" MODIFIED="1377606827011" TEXT="tc121">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
@@ -669,6 +621,82 @@
 </node>
 </node>
 <node CREATED="1372261224582" ID="ID_1892269130" MODIFIED="1372261333537" TEXT="there is inheritance from spec-&gt;implem in relation declaration-tc100">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1377768722126" ID="ID_1536363215" MODIFIED="1377768724529" POSITION="right" TEXT="ConflictMan">
+<node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
+<node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1376396793310" TEXT="grant">
+<node CREATED="1353941838409" ID="ID_1542384783" MODIFIED="1375976789516" TEXT="when">
+<node CREATED="1375949067088" ID="ID_16840619" MODIFIED="1375976524589" TEXT="grant when state match">
+<node CREATED="1375976490287" ID="ID_630096802" MODIFIED="1375976496637" TEXT="tct013">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976229841" ID="ID_1792765356" MODIFIED="1375976295883" TEXT="release when state does not match anymore">
+<node CREATED="1375976300492" ID="ID_1504990466" MODIFIED="1375976312848" TEXT="tct014">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1375976342464" TEXT="force release when state does not match">
+<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1375976357365" TEXT="tct015">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375976383370" ID="ID_1796401749" MODIFIED="1375976396456" TEXT="grant to external implementation">
+<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1375976404581" TEXT="tct016">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1375976429563" ID="ID_277859218" MODIFIED="1375976442834" TEXT="grant when using resolve=exist">
+<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1375976449612" TEXT="tct017">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+</node>
+<node CREATED="1353941847895" ID="ID_244811444" MODIFIED="1376052066685" TEXT="implementation">
+<node CREATED="1376052043603" ID="ID_1896392184" MODIFIED="1376052051548" TEXT="tct019">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1353941853959" ID="ID_1830084137" MODIFIED="1376055153558" TEXT="dependency">
+<node CREATED="1376055128933" ID="ID_503309867" MODIFIED="1376055139452" TEXT="tct020">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1376396803788" ID="ID_25351214" MODIFIED="1376396810954" TEXT="deny">
+<node CREATED="1376396813119" ID="ID_1953532174" MODIFIED="1376396819042" TEXT="when">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354296536032" TEXT="specification-tc046">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1354297652923" ID="ID_41966136" MODIFIED="1354628609824" TEXT="dispute between dependency and composite with own, own should have priority-tc047">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1354635868184" ID="ID_123141354" MODIFIED="1354635996473" TEXT="dispute one instance between a composite and an own in another, when the instance is already inside one composite-tc048">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1377768743550" ID="ID_1732994660" MODIFIED="1377768747115" POSITION="left" TEXT="FailureManager">
+<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1354296137392" TEXT="wait-tc039">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353316599105" ID="ID_209507505" MODIFIED="1354295510574" TEXT="dependency">
+<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1354296436925" TEXT="fail=&quot;wait&quot;-tc044">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1354296460414" TEXT="fail=&quot;exception&quot;-tc045">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1355740402996" ID="ID_426046800" MODIFIED="1355740431603" TEXT="fail=&quot;exception&quot;, using a type present in JRE-tc052">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1353947943098" ID="ID_1719612626" MODIFIED="1354296188208" TEXT="exception-tc040">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

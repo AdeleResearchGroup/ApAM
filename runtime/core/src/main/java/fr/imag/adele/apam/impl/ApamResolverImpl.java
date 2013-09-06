@@ -209,7 +209,7 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
-		if (mainInst.isUsed() || (mainInst instanceof Composite)) {
+		if (mainInst.isUsed()) { //|| (mainInst instanceof Composite)
 			return mainInst.getComposite();
 		}
 
