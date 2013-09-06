@@ -47,6 +47,7 @@ public class CST {
 	public static final String SPECIFICATION 		= "specification";
 	public static final String IMPLEMENTATION 		= "implementation";
 	public static final String INSTANCE 			= "instance";
+	public static final String APAM_PREFIX 	= "apam-";
 	public static final String DEFINITION_PREFIX 	= "definition-";
 	public static final String PROVIDE_PREFIX 		= "provide-";
 	public static final String REQUIRE_PREFIX 		= "require-";
@@ -71,7 +72,7 @@ public class CST {
 
 	// These prefix cannot be used by users because they would conflict in the
 	// OBR.
-	public static final String[] reservedPrefix = { CST.DEFINITION_PREFIX,
+	public static final String[] reservedPrefix = { CST.APAM_PREFIX, CST.DEFINITION_PREFIX,
 		CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX };
 
 	public static final String[] notInheritedAttribute = {NAME,
@@ -115,6 +116,7 @@ public class CST {
 
 
 	// Managers
+	// TODO : Some of these are optional manager that should not be there (distriman, obrman for instance)
 	public static final String APAMMAN   = "APAMMAN";
 	public static final String CONFMAN   = "CONFMAN";
 	public static final String DYNAMAN   = "DYNAMAN";

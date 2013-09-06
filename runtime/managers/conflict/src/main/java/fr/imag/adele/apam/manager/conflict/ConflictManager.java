@@ -50,6 +50,7 @@ import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.PendingRequest;
 
 
 /**
@@ -160,7 +161,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	 */
 	@Override
 	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
-        selPath.add(selPath.size(),this);
+        
         
         if (! relation.getTargetKind().equals(ComponentKind.INSTANCE))
         	return;
@@ -172,8 +173,13 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
          * WARNING Notice that this is a global validation, irrespective of composites. We verify all visible instances
          * that could satisfy the request.
          */
+        
+        PendingRequest request = PendingRequest.isRetry() ? 
+        								PendingRequest.current() : 
+        								new PendingRequest(CST.apamResolver, client, relation);
+        								
         for (ContentManager container : getManagers()) {
-        	container.resolutionRequest(client, relation);
+        	container.verifyGrant(request);
 		}
 	}
 	

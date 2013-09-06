@@ -559,6 +559,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     }
 
     @Test
+    @Ignore
     public void PreferenceResolutionAfterInjection_tct006()
 	    throws InvalidSyntaxException {
 

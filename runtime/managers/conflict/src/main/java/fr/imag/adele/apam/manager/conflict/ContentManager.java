@@ -25,6 +25,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -41,7 +42,9 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.FailedResolutionManager;
 import fr.imag.adele.apam.impl.InstanceImpl;
+import fr.imag.adele.apam.impl.PendingRequest;
 
 
 /**
@@ -263,27 +266,23 @@ public class ContentManager  {
 	}
 
 	/**
-	 * Verify grants when a new resolution request is being resolved
+	 * Verify if a resolution request has access granted, and preempt current
+	 * users if needed
 	 */
-	public synchronized void resolutionRequest(Component source, Relation relation) {
+	public void verifyGrant(PendingRequest request) {
 		
 		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
 			
 			GrantDeclaration grant	= getCurrentGrant(ownedDeclaration);
-			boolean granted 		= grant == null || match(grant,source,relation);
+			boolean granted 		= grant == null || match(grant,request);
 
 			/*
-			 * If the request is not granted, just let the resolution continue
-			 */
-			if (! granted)
-				continue;
-			
-			/*
-			 * preempt all the granted instances from their current clients, the resolution
-			 * should find the instance available
+			 * preempt all the granted instances from their current clients, when
+			 * resolution proceeds it should find the instance available
 			 */
 			for (Instance ownedInstance : getOwned(ownedDeclaration)) {
-				preempt(ownedDeclaration,ownedInstance);
+				if (granted && request.isSatisfiedBy(ownedInstance))
+					preempt(ownedDeclaration,ownedInstance);
 			}
 		}
 		
@@ -396,8 +395,6 @@ public class ContentManager  {
 	 */
 	private void setCurrentGrant(OwnedComponentDeclaration ownedDeclaration, GrantDeclaration newGrant) {
 		
-		GrantDeclaration oldGrant = getCurrentGrant(ownedDeclaration);
-
 		/*
 		 * change current grant
 		 */
@@ -415,12 +412,6 @@ public class ContentManager  {
 			preempt(ownedDeclaration,ownedInstance);
 		}
 		
-		/*
-		 * If there is no grant active, try to avoid starvation of waiting requests
-		 */
-		if ( oldGrant != null && newGrant == null) {
-			
-		}
 	}
 
 
@@ -438,6 +429,36 @@ public class ContentManager  {
 				incoming.remove();
 		}
 
+		/*
+		 * Wake pending request that could be satisfied by the new grant
+		 */
+		FailedResolutionManager failureManager = (FailedResolutionManager) ApamManagers.getManager("FailedResolutionManager");
+		for (PendingRequest request : failureManager.getWaitingRequests()) {
+			if (request.isSatisfiedBy(ownedInstance))
+				
+				/*
+				 * If there is a new active grant,wake up matching request 
+				 */
+				if (grant != null && match(grant,request)) {
+					request.resolve();
+				}
+			
+				/*
+				 * If there is no active grant, accord temporary access to waiting 
+				 * requests to avoid starvation (even if this means preempting an
+				 * existing user)
+				 */
+				if (grant == null) {
+					
+					for (Link incoming : ownedInstance.getInvLinks()) {
+						incoming.remove();
+					}
+					
+					request.resolve();
+				}
+					
+		}
+		
 	}
 
 	/**
@@ -612,6 +633,12 @@ public class ContentManager  {
 	}
 
 	
+	/**
+	 * verifies if the requested resolution matches the specified grant
+	 */
+	private static boolean match(GrantDeclaration grant, PendingRequest request) {
+		return match(grant,request.getSource(), request.getRelation());
+	}
 
 
 }
