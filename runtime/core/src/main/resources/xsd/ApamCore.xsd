@@ -115,6 +115,8 @@
                 </xs:documentation>
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="definition" type="DefinitionType" />
+            
                 <xs:element name="property" type="PropertyDefType" />
                 <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
