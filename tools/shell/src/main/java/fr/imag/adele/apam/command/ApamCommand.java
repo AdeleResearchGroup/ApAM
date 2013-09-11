@@ -617,6 +617,8 @@ public class ApamCommand {
 
 		//Properties
 		printProperties(out, indent, (ComponentImpl) elem);
+		out.println(elem.getApformComponent().getDeclaration()
+			.printDeclaration(indent));
 
 		out.println();
 	}
@@ -661,8 +663,6 @@ public class ApamCommand {
 			out.println(indent + "      " + impl);
 		}
 		//		printProperties(out, indent, (ComponentImpl) specification);
-		out.println(specification.getApformSpec().getDeclaration()
-				.printDeclaration(indent));
 
 	}
 
@@ -751,9 +751,6 @@ public class ApamCommand {
 		}
 
 		//		printProperties(out, indent, (ComponentImpl) impl);
-
-		out.println(impl.getApformImpl().getDeclaration()
-				.printDeclaration(indent));
 	}
 
 	/**
