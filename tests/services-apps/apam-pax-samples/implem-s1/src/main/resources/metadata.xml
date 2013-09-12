@@ -1,0 +1,22 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
+    <implementation name="implem-s1-tct026"
+        classname="fr.imag.adele.apam.tests.app.Dummy" specification="specs-s1-tct026">
+
+        <property name="def2-specs-s1" value="final-value" />
+        
+        <property name="def5-specs-s1" value="final-value" />
+        
+        
+        <property name="def0-implem-s1" type="string"
+            value="final-value" />
+
+        <definition name="def1-implem-s1" type="string" value="default-value" />
+        <property name="def1-implem-s1" value="final-value" />
+
+    </implementation>
+
+</apam>

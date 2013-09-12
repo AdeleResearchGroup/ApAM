@@ -41,7 +41,7 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="definition" type="DefinitionType" />
 
-                <xs:element name="property" type="PropertyType">
+                <xs:element name="property" type="PropertyDefType">
                     <xs:annotation>
                         <xs:documentation>A property of the
                             specification, this property will be set as
@@ -275,32 +275,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="PropertyType">
-        <xs:complexContent>
-            <xs:extension base="PropertyValueType">
-                <xs:attribute name="type" type="xs:string"
-                    use="required">
-                    <xs:annotation>
-                        <xs:documentation> Type of the property.
-                            Basic
-                            types are 'int' (value is a signed integer),
-                            'string' (value is
-                            a string of characters),
-                            'boolean' (value is
-                            "true" or "false""),
-                            enumeration (comma separated list of string,
-                            ex "red, green, blue"). It can
-                            also be a set
-                            of values : {string} or {int}
-                            or
-                            {enumeration}.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="PropertyDefType">

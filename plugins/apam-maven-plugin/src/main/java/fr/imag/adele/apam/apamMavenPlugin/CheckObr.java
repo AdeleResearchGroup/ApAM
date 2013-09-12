@@ -545,14 +545,24 @@ public class CheckObr {
 	if (!Attribute.validAttr(ent.getName(), attr))
 	    return null;
 
-	if (ent.getGroup() != null
-		&& ent.getGroup().getProperties().get(attr) != null) {
+	String defAttr = null;
+	String inheritedvalue=null;
+
+	ApamCapability parent = ent;
+
+	while (parent != null && inheritedvalue==null) {
+	    if(defAttr==null)
+		defAttr = parent.getAttrDefinition(attr);
+	    if(parent!=ent)
+		inheritedvalue= parent.getProperty(attr);
+	    parent = parent.getGroup();
+	}
+	
+	if (inheritedvalue != null) {
 	    error("Cannot redefine attribute \"" + attr + "\"");
 	    return null;
 	}
-
-	String defAttr = ent.getAttrDefinition(attr);
-
+	
 	if (defAttr == null) {
 	    error("In " + ent.getName() + ", attribute \"" + attr
 		    + "\" used but not defined.");
