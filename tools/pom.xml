@@ -10,6 +10,7 @@
   <modules>
   	<module>shell</module>
   	<module>dependencies-distriman</module>
+  	<module>apam-gogo-shell</module>
       	<!--<module>jmx</module>-->
   </modules>
   <name>Tools projects for ApAM</name>
