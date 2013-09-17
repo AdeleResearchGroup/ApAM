@@ -81,7 +81,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	public void start() {
 		//to load the initial OBR before to register
-		newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
+//		newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
 		ApamManagers.addRelationManager(this, 3);
 		// logger.info("[OBRMAN] started");
 	}

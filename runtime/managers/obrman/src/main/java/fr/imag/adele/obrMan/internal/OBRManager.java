@@ -341,8 +341,10 @@ public class OBRManager {
 			if (ObrUtil.LOCAL_MAVEN_REPOSITORY.equals(key)) {
 				// Add the obr repository located in the local maven repository
 				Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
+
 				if (localMavenOBRRepo) {
 					URL localMavenObrUrl = findLocalMavenRepository();
+					
 					if (localMavenObrUrl==null){
 						logger.error("localRepository not found in : " + settings);
 					}
@@ -355,6 +357,7 @@ public class OBRManager {
 			} else if (ObrUtil.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
 				// Add obr repositories declared in the osgi configuration file
 				Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
+				
 				if (osgiRepo) {
 					String repos = obrMan.getDeclaredOSGiOBR();
 					if (repos != null) {
@@ -363,12 +366,14 @@ public class OBRManager {
 				}
 			} else if (ObrUtil.REPOSITORIES.equals(key)) {
 				// Add obr repositories declared in the composite
+
 				declaredRepositories
 				.addAll(getRepositoriesFromArray(repoAdmin, obrModel.getProperty(key).split("\\s+")));
 
 			} else if (ObrUtil.COMPOSITES.equals(key)) {
 				// look for obr repositories in other composites
 				String[] otherCompositesRepositories = obrModel.getProperty(key).split("\\s+");
+
 				for (String compoTypeName : otherCompositesRepositories) {
 					OBRManager manager = obrMan.getOBRManager(compoTypeName);
 					if (manager != null) {
