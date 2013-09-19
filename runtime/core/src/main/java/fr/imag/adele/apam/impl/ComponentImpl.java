@@ -1127,14 +1127,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		// value=".." />
 		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
 		if (definition != null) 
-		    return definition;
-//		{
-//			if (definition.isLocal()) {
-//				return definition;
-//			} else {
-//				return null;
-//			}
-//		}
+		{
+			if (definition.isLocal()) {
+				return definition;
+			} else {
+				return null;
+			}
+		}
 
 		Component group = this.getGroup();
 		while (group != null) {
