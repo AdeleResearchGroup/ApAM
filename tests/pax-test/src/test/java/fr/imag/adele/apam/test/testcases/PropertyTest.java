@@ -81,18 +81,22 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void testPropertyDefinitionSpec_tct026() {
 
-	System.out.println("Testing Specification properties");
+	System.out.println("Testing Specification properties defined");
 	Specification specsS1 = CST.apamResolver.findSpecByName(null,
 		"specs-s1-tct026");
+
 	for (int i = 0; i <= 6; i++)
-	    if (!specsS1.setProperty("def" + i + "-specs-s1", "test-prop"))
-	    // if property is not settable, it must be final
-	    {
-		System.out.println("def" + i + "-specs-s1 is not settable");
 		Assert.assertEquals(" Property def" + i
-			+ "-specs-s1 is not defined", "final-value",
-			specsS1.getProperty("def" + i + "-specs-s1"));
-	    }
+			+ "-specs-s1 is not defined", "def" + i + "-specs-s1",
+			specsS1.getDeclaration().getPropertyDefinition("def" + i + "-specs-s1").getName());
+	
+	System.out.println("Testing Specification properties setted");
+	Assert.assertEquals(" Property def0-specs-s1 is not setted", "final-value",
+		specsS1.getProperty("def0-specs-s1"));
+	Assert.assertEquals(" Property def1-specs-s1 is not setted", "final-value",
+		specsS1.getProperty("def1-specs-s1"));
+	
+
     }
 
     @Test
@@ -100,6 +104,7 @@ public class PropertyTest extends ExtensionAbstract {
 		
 	    System.out.println("Testing Implementation properties");
 	    Implementation implemS1 = CST.apamResolver.findImplByName(null, "implem-s1-tct026");
+	    System.out.println("*********-->"+implemS1.getAllPropertiesString());
 	    for(int i=0; i<=6; i++)
 		if(!implemS1.setProperty("def"+i+"-specs-s1", "test-prop"))
 		    // if property is not settable, it must be final
@@ -129,15 +134,15 @@ public class PropertyTest extends ExtensionAbstract {
 		"instance-s1-tct026");			
 	auxListInstances();
 
-	for (int i = 0; i <= 6; i++)
-	    if (!instanceS1.setProperty("def" + i + "-specs-s1", "test-prop"))
-	    // if property is not settable, it must be final
-	    {
-		System.out.println("def" + i + "-specs-s1 is not settable");
-		Assert.assertEquals(" Property def" + i
-			+ "-specs-s1 is not defined", "final-value",
-			instanceS1.getProperty("def" + i + "-specs-s1"));
-	    }
+//	for (int i = 0; i <= 6; i++)
+//	    if (!instanceS1.setProperty("def" + i + "-specs-s1", "test-prop"))
+//	    // if property is not settable, it must be final
+//	    {
+//		System.out.println("def" + i + "-specs-s1 is not settable");
+//		Assert.assertEquals(" Property def" + i
+//			+ "-specs-s1 is not defined", "final-value",
+//			instanceS1.getProperty("def" + i + "-specs-s1"));
+//	    }
 	    // TODO test the properties defined at this level
 
 	// System.out.println(specsS1.getProperty("def"+i+"-specs-s1"));//getDeclaration().getPropertyDefinition("def"+i+"-specs-s1"));

@@ -361,6 +361,7 @@ public class CoreMetadataParser implements CoreParser {
 		AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name,specification,reflection);
 		parseComponent(element, declaration);
 
+
 		/*
 		 *  Parse message producer method interception
 		 */
@@ -1171,6 +1172,8 @@ public class CoreMetadataParser implements CoreParser {
 			// if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
 			//if (component instanceof SpecificationDeclaration) {
 			String type = parseString(component.getName(), property, ATT_TYPE, false);
+//			if (type==null && component.getPropertyDefinition(name)!=null)
+//			    type=component.getPropertyDefinition(name).getType();
 			if (type != null) {
 				String field = parseString(component.getName(), property, CoreMetadataParser.ATT_FIELD, false);
 				String callback = parseString(component.getName(), property, CoreMetadataParser.ATT_METHOD, false);

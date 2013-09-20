@@ -887,7 +887,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public Object getPropertyObject(String attribute) {
-		return Substitute.substitute(attribute, get(attribute), this);
+	    Object value=get(attribute);
+	    if(value==null && getDeclaration()!=null)
+		value=getDeclaration().getProperty(attribute);
+	    
+		return Substitute.substitute(attribute, value, this);
 	}
 
 	/**
