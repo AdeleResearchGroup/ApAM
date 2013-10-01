@@ -13,15 +13,15 @@
 	<implementation name="MetasubstitutionStringTest"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6">
-		<definition name="surname" type="string" value="goethe"/>
-		<definition name="givenname" type="string" value="johann"/>
+		<definition name="surname" type="string" default="goethe"/>
+		<definition name="givenname" type="string" default="johann"/>
 
-		<definition name="meta_string_retrieve" type="string" value="$.$surname"/>
-		<definition name="meta_string_prefix" type="string" value="$pre+.$surname"/>
-		<definition name="meta_string_suffix" type="string" value="$.$surname+post"/>
-		<definition name="meta_string_prefix_suffix" type="string" value="$pre+.$surname+post"/>
+		<definition name="meta_string_retrieve" type="string" default="$.$surname"/>
+		<definition name="meta_string_prefix" type="string" default="$pre+.$surname"/>
+		<definition name="meta_string_suffix" type="string" default="$.$surname+post"/>
+		<definition name="meta_string_prefix_suffix" type="string" default="$pre+.$surname+post"/>
 
-		<definition name="meta_string_retrieve_merging" type="string" value="$.$givenname"/>
+		<definition name="meta_string_retrieve_merging" type="string" default="$.$givenname"/>
 
 	</implementation>
 
@@ -29,7 +29,7 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-01">
-		<definition name="property-subject-b" type="string" value="value-spec"/>
+		<definition name="property-subject-b" type="string" default="value-spec"/>
 	</specification>
 
 	<implementation name="impl-case-01"
@@ -44,7 +44,7 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-03">
-		<definition name="property-subject-b" type="string" value="value-spec"/>
+		<definition name="property-subject-b" type="string" default="value-spec"/>
 	</specification>
 
 	<implementation name="impl-case-03"
@@ -59,7 +59,7 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-08">
-		<definition name="property-subject-b" type="string" value="value-impl"/>
+		<definition name="property-subject-b" type="string" default="value-impl"/>
 	</specification>
 
 	<implementation name="impl-case-08"
@@ -74,7 +74,8 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-10">
-		<property name="property-subject-b" type="string" value="value-impl"/>
+		<definition name="property-subject-b" type="string" />
+		<property name="property-subject-b" value="value-impl"/>
 	</specification>
 
 	<implementation name="impl.case.10"
@@ -89,13 +90,13 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-11">
-		<definition name="property-subject-b-spec" type="string" value="mydefault" />
+		<definition name="property-subject-b-spec" type="string" default="mydefault" />
 	</specification>
 
 	<implementation name="impl-case-11"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="spec-case-11">
-		<definition name="property-subject-b" type="string" value="" />
+		<definition name="property-subject-b" type="string" default="" />
 
 	</implementation>
 
@@ -122,7 +123,10 @@
 	<implementation name="impl-case-12" 
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="spec-case-12">
-		<property name="property-subject-b" type="string" value="man"/>
+		
+		<definition name="property-subject-b" type="string"/>
+		<property name="property-subject-b"   value="man"/>
+		
 		<dependency specification="spec-case-12-child" field="s6" name="case12child" />
 	</implementation>
 
@@ -152,7 +156,7 @@
 	<implementation name="impl-case-17" 
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="spec-case-17">
-		<definition name="property-case-17" type="string" value="value-for-case-17"/>
+		<definition name="property-case-17" type="string" default="value-for-case-17"/>
 	</implementation>
 
 	<!-- /CASE 17 -->
@@ -161,18 +165,18 @@
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
 		<dependency implementation="impl-case-12" field="s6" name="to-case-12" />
-		<definition name="property-case-01" type="string" value="$impl-case-01$property-subject-b"/>
-		<definition name="property-case-03" type="string" value="$impl-case-03$property-subject-b"/>
-		<definition name="property-case-08" type="string" value="$impl-case-08$property-subject-b"/>
-		<definition name="property-case-09" type="string" value="\$impl-case-09.$property-subject-b"/>
-		<definition name="property-case-10" type="string" value="$impl\.case\.10.$property-subject-b"/>
-		<definition name="property-case-12" type="string" value="$this.to-case-12.case12child$property-subject-b"/>
+		<definition name="property-case-01" type="string" default="$impl-case-01$property-subject-b"/>
+		<definition name="property-case-03" type="string" default="$impl-case-03$property-subject-b"/>
+		<definition name="property-case-08" type="string" default="$impl-case-08$property-subject-b"/>
+		<definition name="property-case-09" type="string" default="\$impl-case-09.$property-subject-b"/>
+		<definition name="property-case-10" type="string" default="$impl\.case\.10.$property-subject-b"/>
+		<definition name="property-case-12" type="string" default="$this.to-case-12.case12child$property-subject-b"/>
 
-		<definition name="function-case-01" type="string" value="@functionCall"/>
-		<definition name="function-case-02" type="string" value="\@functionCall"/>
+		<definition name="function-case-01" type="string" default="@functionCall"/>
+		<definition name="function-case-02" type="string" default="\@functionCall"/>
 
-		<definition name="property-case-13" type="{string}" value="$impl-case-12.members.case12child$property-subject-b"/>
-		<definition name="property-case-14" type="string" value="$this.to-case-12.compotype$name"/>
+		<definition name="property-case-13" type="{string}" default="$impl-case-12.members.case12child$property-subject-b"/>
+		<definition name="property-case-14" type="string" default="$this.to-case-12.compotype$name"/>
 
 	</implementation>
 
@@ -191,20 +195,20 @@
 	<implementation name="subject-b"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
-		<definition name="property-case-14" type="string" value="$this.compotype$name"/>
+		<definition name="property-case-14" type="string" default="$this.compotype$name"/>
 	</implementation>
 
 	<implementation name="subject-c"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
-		<definition name="property-case-15" type="string" value="$this.composite$name"/>
+		<definition name="property-case-15" type="string" default="$this.composite$name"/>
 	</implementation>
 
 	<implementation name="subject-d"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
 		<dependency implementation="impl-case-16" field="s6" />
-		<definition name="property-case-16" type="string" value="$impl-case-16.group$name"/>
+		<definition name="property-case-16" type="string" default="$impl-case-16.group$name"/>
 	</implementation>
 
 	<implementation name="subject-e"
@@ -212,9 +216,9 @@
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
 		<dependency implementation="impl-case-17" field="s6" name="impl-case-17"/>
 
-		<definition name="property-case-17-dep-composite" type="string" value="$this.impl-case-17.composite$name"/>
-		<definition name="property-case-17-parent-composite" type="string" value="$this.composite$name"/>
-		<definition name="property-case-17-dep-property" type="string" value="$this.impl-case-17$property-case-17"/>
+		<definition name="property-case-17-dep-composite" type="string" default="$this.impl-case-17.composite$name"/>
+		<definition name="property-case-17-parent-composite" type="string" default="$this.composite$name"/>
+		<definition name="property-case-17-dep-property" type="string" default="$this.impl-case-17$property-case-17"/>
 
 	</implementation>
 

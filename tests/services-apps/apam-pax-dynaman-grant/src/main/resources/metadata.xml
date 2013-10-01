@@ -32,7 +32,7 @@
     <implementation name="DayState"
         classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
         <definition name="TimeOfDay" field="state" internal="true"
-            type="morning, afternoon, night" value="night" />
+            type="morning, afternoon, night" default="night" />
     </implementation>
 
 
@@ -93,7 +93,7 @@
     <implementation name="DayState_15"
         classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
         <definition name="TimeOfDay_15" field="state"
-            internal="true" type="morning, afternoon, night" value="night" />
+            internal="true" type="morning, afternoon, night" default="night" />
     </implementation>
 
 
@@ -122,7 +122,7 @@
     <implementation name="DayState_17"
         classname="fr.imag.adele.apam.pax.test.grant.impl.DayState">
         <definition name="TimeOfDay_17" field="state"
-            internal="true" type="morning, afternoon, night" value="night" />
+            internal="true" type="morning, afternoon, night" default="night" />
     </implementation>
 
     <implementation name="ToolManager_17"
