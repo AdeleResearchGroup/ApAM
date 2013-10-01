@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.3-SNAPSHOT</version>
+		<version>0.0.5-SNAPSHOT</version>
 	</parent>
 
 
@@ -30,7 +30,7 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>0.0.3-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S4</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
