@@ -356,17 +356,6 @@ public class Substitute {
 	// Source is currently the target ! Do no check the attr
 	if (attr != null) {
 	    st = source.getAttrType(attr);
-	    // If it is the group that defined the attribute,
-	    // the substitution must be computed from the definition level
-	    // (because of links "group" and "members")
-	    // the value must be the same at all levels
-	    Component group = source.getGroup();
-	    while (group != null) {
-		if (source.getGroup().getAttrType(attr) == null)
-		    break;
-		source = group;
-		group = group.getGroup();
-	    }
 	}
 
 	SplitSub sub = split(value);
