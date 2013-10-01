@@ -4,14 +4,13 @@
   	<parent>
 		<artifactId>apam-tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.3-SNAPSHOT</version>
+		<version>0.0.5-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
   <artifactId>APAM-Tests-Old</artifactId>
   <packaging>pom</packaging>
   <modules>
-  	<module>mainApam</module>
   	<module>S1</module>
   	<module>S2</module>
   	<module>S3</module>
@@ -26,16 +25,18 @@
   	<module>TestAttrSpec</module>
   	<module>TestAttrImpl</module> 
   	<module>TestDependency</module>
+  	<module>mainApam</module>
+	
   	<!-- <module>TestPromotion</module> -->
   	<module>TestCompile</module>
-  	<module>SpellCtxt</module>
+  	<!--<module>SpellCtxt</module>
   	<module>SpellGui</module>
   	<module>SpellChecker</module>
   	<module>SpellDico</module>
   	<module>SpellConsole</module>
   	<module>SpellSimple</module>
   	<module>SpellLocale</module>
-  	<module>SpellDicoFR</module>
+  	<module>SpellDicoFR</module>-->
   </modules>
 
 </project>
