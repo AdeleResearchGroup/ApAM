@@ -99,10 +99,14 @@ public class CST {
 	public static final String REL_COMPOSITE= "composite";
 	public static final String REL_COMPOTYPE= "compotype";
 	public static final String REL_APPLI 	= "appli";
-//	public static final String REL_SPEC 	= "spec";
+	public static final String REL_SPEC 	= "spec";
+	public static final String REL_IMPL 	= "impl";
+	public static final String REL_INST 	= "inst";
+	public static final String REL_IMPLS 	= "impls";
+	public static final String REL_INSTS 	= "insts";
 
 	public static final String[] finalRelations = { 
-		REL_GROUP, REL_MEMBERS, REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE
+		REL_GROUP, REL_MEMBERS, REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE, REL_SPEC, REL_IMPL, REL_INST, REL_IMPLS, REL_INSTS	
 	};
 
 	public static boolean isFinalRelation (String attr) {
