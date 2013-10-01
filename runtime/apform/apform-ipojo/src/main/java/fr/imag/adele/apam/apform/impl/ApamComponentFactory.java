@@ -337,14 +337,6 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
                 addProvidedServiceSpecification(providedInterface.getJavaType());
             }
 
-            /*
-             * add all local properties of the component to the description
-             */
-            for (PropertyDefinition definition  : factory.declaration.getPropertyDefinitions()) {
-            	if (definition.isLocal())
-            		addProperty(definition.getName(), definition.getDefaultValue(), true);
-            }
-
         }
 
         /**

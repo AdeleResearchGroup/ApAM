@@ -54,11 +54,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	 */
 	private final List<PendingRequest> waitingResolutions;
 	
-	public List<PendingRequest> getWaitingResolutions() {
-		return waitingResolutions;
-	}
-
-
 	public Apam getApam() {
 		return apam;
 	}
@@ -66,7 +61,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	/**
 	 * A reference to the APAM machine
 	 */
-	@SuppressWarnings("unused")
 	private Apam apam;
 	
 	
@@ -306,6 +300,14 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		resolveWaitingRequests(component);
 	}
 
+	/**
+	 * Get a thread-safe (stack confined) copy of the waiting requests
+	 */
+	public List<PendingRequest> getWaitingRequests() {
+		synchronized (waitingResolutions) {
+			return new ArrayList<PendingRequest>(waitingResolutions);
+		}
+	}
 
 	/**
 	 * Add a new pending request in the waiting list
@@ -326,14 +328,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		}
 	}
 	
-	/**
-	 * Get a thread-safe (stack confined) copy of the waiting requests
-	 */
-	private List<PendingRequest> getWaitingRequests() {
-		synchronized (waitingResolutions) {
-			return new ArrayList<PendingRequest>(waitingResolutions);
-		}
-	}
 	
 	
 	/**

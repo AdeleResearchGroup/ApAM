@@ -4,16 +4,17 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
     <specification name="specs-s1-tct026">
-        <property name="def0-specs-s1" type="string" value="final-value" />
+        <definition name="def0-specs-s1" type="string" />
+        <property name="def0-specs-s1" value="final-value" />
 
-        <definition name="def1-specs-s1" type="string" value="default-value" />
+        <definition name="def1-specs-s1" type="string" default="default-value" />
         <property name="def1-specs-s1" value="final-value" />
 
-        <definition name="def2-specs-s1" type="string" value="default-value" />
+        <definition name="def2-specs-s1" type="string" default="default-value" />
 
-        <definition name="def3-specs-s1" type="string" value="default-value" />
+        <definition name="def3-specs-s1" type="string" default="default-value" />
 
-        <definition name="def4-specs-s1" type="string" value="default-value" />
+        <definition name="def4-specs-s1" type="string" default="default-value" />
 
         <definition name="def5-specs-s1" type="string" />
 

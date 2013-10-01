@@ -20,7 +20,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 	<specification name="APP1_S2_SPEC" interfaces="{fr.imag.adele.apam.app1.s2.spec.S2}"  >
-			<property name="application" value="app1" type="string"/>
+			<definition name="application" type="string"/>
+			<property name="application" value="app1"/>
 			<definition name="vendor" type="string"/>
 			<dependency specification="APP1_S3_SPEC"/>
 	</specification>

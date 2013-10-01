@@ -132,6 +132,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_INTERFACES          = "interfaces";
 	private static final String  ATT_MESSAGES            = "messages";
 	private static final String  ATT_TYPE                = "type";
+	private static final String  ATT_DEFAULT             = "default";
 	private static final String  ATT_VALUE               = "value";
 	private static final String  ATT_FIELD               = "field";
 	private static final String  ATT_INTERNAL            = "internal";
@@ -1098,14 +1099,10 @@ public class CoreMetadataParser implements CoreParser {
 	 */
 	private void parsePropertyDefinitions(Element element, ComponentDeclaration component) {
 
-//		if (component instanceof InstanceDeclaration)
-//			return;
-
 		/*
 		 *	Skip the optional enclosing list 
 		 */
-		for (Element definitions : optional(element
-				.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
+		for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
 			parsePropertyDefinitions(definitions, component);
 		}
 
@@ -1113,18 +1110,21 @@ public class CoreMetadataParser implements CoreParser {
 
 			String name = parseString(component.getName(),definition, CoreMetadataParser.ATT_NAME);
 			String type = parseString(component.getName(),definition, CoreMetadataParser.ATT_TYPE);
-			String defaultValue = parseString(component.getName(),definition, CoreMetadataParser.ATT_VALUE, false);
-			if (!(component instanceof InstanceDeclaration)) {
-				String field = parseString(component.getName(),definition, CoreMetadataParser.ATT_FIELD, false);
-				String callback = parseString(component.getName(),definition, CoreMetadataParser.ATT_METHOD, false);
-				InjectedPropertyPolicy injected=parseInjectedPropertyPolicy(component.getName(),definition);
-				component.getPropertyDefinitions().add(
-					new PropertyDefinition(component, name, type, defaultValue, field, callback, injected, false));
-				
-			} else
-				component.getPropertyDefinitions().add(
-					new PropertyDefinition(component, name, type, defaultValue, null, null, null, false));
+			String defaultValue = parseString(component.getName(),definition, CoreMetadataParser.ATT_DEFAULT, false);
 			
+			String field 					= null;
+			String callback 				= null;
+			InjectedPropertyPolicy injected	= null;
+			
+			if ( component instanceof AtomicImplementationDeclaration) {
+				field 		= parseString(component.getName(),definition, CoreMetadataParser.ATT_FIELD, false);
+				callback 	= parseString(component.getName(),definition, CoreMetadataParser.ATT_METHOD, false);
+				injected	= parseInjectedPropertyPolicy(component.getName(),definition);
+			
+			} 
+			
+			component.getPropertyDefinitions().add(	new PropertyDefinition(component, name, type, defaultValue, field, callback, injected));
+
 		}
 	}
 	
@@ -1166,21 +1166,6 @@ public class CoreMetadataParser implements CoreParser {
 			String value = parseString(component.getName(),property, ATT_VALUE);
 			component.getProperties().put(name, value);
 
-			/**
-			 * Special case for specification. The type is in the property, we generate a definition for it.
-			 */
-			// if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
-			//if (component instanceof SpecificationDeclaration) {
-			String type = parseString(component.getName(), property, ATT_TYPE, false);
-//			if (type==null && component.getPropertyDefinition(name)!=null)
-//			    type=component.getPropertyDefinition(name).getType();
-			if (type != null) {
-				String field = parseString(component.getName(), property, CoreMetadataParser.ATT_FIELD, false);
-				String callback = parseString(component.getName(), property, CoreMetadataParser.ATT_METHOD, false);
-				InjectedPropertyPolicy injected=parseInjectedPropertyPolicy(component.getName(),property);
-				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, field, callback, injected, true));
-			}
-			//}
 		}
 	}
 

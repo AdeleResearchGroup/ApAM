@@ -158,11 +158,10 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	
 	/**
 	 * For owned instances that could match a resolution request, we must be sure that the grants are respected.
-	 * For all non matching requests, add constraints that disallow using the owned instances.
 	 */
 	@Override
 	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
-        selPath.add(selPath.size(),this);
+        
         
         if (! relation.getTargetKind().equals(ComponentKind.INSTANCE))
         	return;
@@ -174,26 +173,13 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
          * WARNING Notice that this is a global validation, irrespective of composites. We verify all visible instances
          * that could satisfy the request.
          */
+        
+        PendingRequest request = PendingRequest.isRetry() ? 
+        								PendingRequest.current() : 
+        								new PendingRequest(CST.apamResolver, client, relation);
+        								
         for (ContentManager container : getManagers()) {
-			for (OwnedComponentDeclaration ownedDeclaration : container.getOwned()) {
-				
-				/*
-				 * If  access is granted nothing to do.
-				 */
-				if (container.isGranted(ownedDeclaration, client, relation))
-					continue;
-				
-				/*
-				 * Add constraint to disallow access to non granted candidate instances
-				 */
-		        PendingRequest request = PendingRequest.isRetry() ? PendingRequest.current() : new PendingRequest(CST.apamResolver, client, relation);
-		        
-		        for (Instance candidate : container.getOwned(ownedDeclaration)) {
-					if (request.isSatisfiedBy(candidate)) {
-						relation.getMngInstanceConstraints().add("(! ("+CST.INSTNAME+" = "+candidate.getName()+"))");
-					}
-				}
-			}
+        	container.verifyGrant(request);
 		}
 	}
 	

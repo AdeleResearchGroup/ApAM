@@ -93,12 +93,7 @@ public class PropertyDefinition {
      */
     private final InjectedPropertyPolicy injected;
     
-    /**
-     * Whether this is property defined at the same level
-     */
-    private final boolean local;
-
-    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, String callback, InjectedPropertyPolicy injected, boolean local) {
+    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, String callback, InjectedPropertyPolicy injected) {
 
         assert component != null;
         assert name != null;
@@ -115,7 +110,6 @@ public class PropertyDefinition {
         this.field 			= field;
         this.callback		= callback;
         this.injected 		= injected ;
-        this.local 			= local ;
     }
 
 	private static String isSetAttrType (String type) {
@@ -167,13 +161,6 @@ public class PropertyDefinition {
 	 */
     public InjectedPropertyPolicy getInjected () {
     	return injected ;
-    }
-
-	/**
-	 * get the internal property
-	 */
-    public boolean isLocal () {
-    	return local ;
     }
 
     /**

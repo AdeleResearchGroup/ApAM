@@ -163,7 +163,7 @@ public class ContentManager  {
 	 * Get a thread safe (stack contained) copy of the current list of instances owned
 	 * for the specified ownership declaration
 	 */
-	public Collection<Instance> getOwned(OwnedComponentDeclaration ownedDeclaration) {
+	private Collection<Instance> getOwned(OwnedComponentDeclaration ownedDeclaration) {
 		synchronized (owned) {
 			return new ArrayList<Instance>(owned.get(ownedDeclaration));
 		}
@@ -263,6 +263,29 @@ public class ContentManager  {
 		}
 
 		((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
+	}
+
+	/**
+	 * Verify if a resolution request has access granted, and preempt current
+	 * users if needed
+	 */
+	public void verifyGrant(PendingRequest request) {
+		
+		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
+			
+			GrantDeclaration grant	= getCurrentGrant(ownedDeclaration);
+			boolean granted 		= grant == null || match(grant,request);
+
+			/*
+			 * preempt all the granted instances from their current clients, when
+			 * resolution proceeds it should find the instance available
+			 */
+			for (Instance ownedInstance : getOwned(ownedDeclaration)) {
+				if (granted && request.isSatisfiedBy(ownedInstance))
+					preempt(ownedDeclaration,ownedInstance);
+			}
+		}
+		
 	}
 
 	/**
@@ -383,28 +406,17 @@ public class ContentManager  {
 		}
 
 		/*
-		 * preempt current users of all owned instances
+		 * preempt all clients that do not satisfy the new grant
 		 */
 		for (Instance ownedInstance : getOwned(ownedDeclaration)) {
 			preempt(ownedDeclaration,ownedInstance);
-			
-			/*
-			 * Wake pending request that could be satisfied by the new grant
-			 */
-			FailedResolutionManager failureManager = (FailedResolutionManager) ApamManagers.getManager("FailedResolutionManager");
-			for (PendingRequest request : failureManager.getWaitingResolutions()) {
-				if (request.isSatisfiedBy(ownedInstance))
-					if (newGrant == null || match(newGrant,request))
-						request.resolve();
-			}
-
 		}
 		
 	}
 
 
 	/**
-	 * Preempt access to the specified instance from their current clients
+	 * Preempt access to the specified instance from all clients that no longer hold the grant
 	 * 
 	 */
 	private void preempt(OwnedComponentDeclaration ownedDeclaration, Instance ownedInstance) {
@@ -417,19 +429,41 @@ public class ContentManager  {
 				incoming.remove();
 		}
 
+		/*
+		 * Wake pending request that could be satisfied by the new grant
+		 */
+		FailedResolutionManager failureManager = (FailedResolutionManager) ApamManagers.getManager("FailedResolutionManager");
+		for (PendingRequest request : failureManager.getWaitingRequests()) {
+			if (request.isSatisfiedBy(ownedInstance))
+				
+				/*
+				 * If there is a new active grant,wake up matching request 
+				 */
+				if (grant != null && match(grant,request)) {
+					request.resolve();
+				}
+			
+				/*
+				 * If there is no active grant, accord temporary access to waiting 
+				 * requests to avoid starvation (even if this means preempting an
+				 * existing user)
+				 */
+				if (grant == null) {
+					
+					for (Link incoming : ownedInstance.getInvLinks()) {
+						incoming.remove();
+					}
+					
+					request.resolve();
+				}
+					
+		}
+		
 	}
 
 	/**
-	 * verifies if the requested resolution is granted access to the specified owned instances
-	 */
-	public boolean isGranted(OwnedComponentDeclaration ownedDeclaration, Component source, Relation relation) {
-		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
-		return grant == null || match(grant,source,relation);
-	}
-
-
-	/**
-	 * The list of potential ownership's conflict between this content manager and the one specified in the parameter
+	 * The list of potential ownership's conflict between this content manager and the one specified
+	 * in the parameter
 	 * 
 	 */
 	public Set<OwnedComponentDeclaration> getConflictingDeclarations(ContentManager that) {

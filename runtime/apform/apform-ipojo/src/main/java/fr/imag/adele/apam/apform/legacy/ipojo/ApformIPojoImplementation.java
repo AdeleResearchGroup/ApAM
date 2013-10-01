@@ -90,7 +90,7 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 		for(PropertyDescription  property : factory.getComponentDescription().getProperties()) {
 			if (property.isImmutable()) {
 				declaration.getPropertyDefinitions().add(
-						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, InjectedPropertyPolicy.INTERNAL, true));
+						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, InjectedPropertyPolicy.INTERNAL));
 				declaration.getProperties().put(property.getName(), property.getValue());
 			}
 		}

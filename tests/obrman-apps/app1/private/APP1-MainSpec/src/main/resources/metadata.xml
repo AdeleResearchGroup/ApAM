@@ -19,7 +19,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<specification name="APP1_MAIN_SPEC" interfaces="{fr.imag.adele.apam.app1.main.spec.App1MainSpec}"  >
-			<property name="application" value="app1" type="string"/>
+			<definition name="application" type="string"/>
+			<property name="application" value="app1"/>
 			<definition name="vendor" type="string"/>
 	</specification>
 

@@ -16,9 +16,9 @@
         <callback onInit="start" onRemove="stop" />
 
         <definition name="stateInternal" field="stateInternal"
-            type="string" internal="true" value="default" />
+            type="string" internal="true" default="default" />
         <definition name="stateNotInternal" field="stateNotInternal"
-            type="string" internal="false" value="default" />
+            type="string" internal="false" default="default" />
 
         <dependency field="s2" />
         <dependency field="s3" />
@@ -116,15 +116,15 @@
         <property name="voltage" value="220" />
         <property name="hasDisplay" value="false" />
         <property name="made" value="china" />
-        <definition name="property-01" value="default-01"
+        <definition name="property-01" default="default-01"
             type="string" />
-        <definition name="property-02" value="default-02"
+        <definition name="property-02" default="default-02"
             type="string" />
-        <definition name="property-03" value="default-03"
+        <definition name="property-03" default="default-03"
             type="string" />
-        <definition name="property-04" value="default-04"
+        <definition name="property-04" default="default-04"
             type="string" />
-        <definition name="property-05" value="default-05"
+        <definition name="property-05" default="default-05"
             type="string" />
 
     </implementation>
@@ -133,13 +133,13 @@
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
         specification="eletronic-device">
         <definition name="fooSetValuedSimple"
-            type="{Linux, Windows, Android, IOS, AmigaOS}" value="{Linux, Windows, Android, IOS}" />
+            type="{Linux, Windows, Android, IOS, AmigaOS}" default="{Linux, Windows, Android, IOS}" />
 
         <definition name="fooSetNonValued"
-            type="{Linux, Windows, Android, IOS,AmigaOS}" value="{Linux, Windows, Android, IOS}" />
+            type="{Linux, Windows, Android, IOS,AmigaOS}" default="{Linux, Windows, Android, IOS}" />
 
         <definition name="barEnumValuedSimple"
-            type="Linux, Windows, Android, IOS, AmigaOS" value="Linux" />
+            type="Linux, Windows, Android, IOS, AmigaOS" default="Linux" />
 
         <definition name="barEnumNonValuedSimple"
             type="Linux, Windows, Android, IOS,AmigaOS" />
@@ -150,69 +150,82 @@
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
         specification="eletronic-device">
         <definition name="OS"
-            type="{Linux, Windows, Android, IOS,AmigaOS}" value="{Linux, Windows, Android, IOS}" />
+            type="{Linux, Windows, Android, IOS,AmigaOS}" default="{Linux, Windows, Android, IOS}" />
         <definition name="OSUnordered"
-            type="{Linux, Windows, Android,IOS,AmigaOS}" value="{IOS, Windows, Linux,Android}" />
+            type="{Linux, Windows, Android,IOS,AmigaOS}" default="{IOS, Windows, Linux,Android}" />
         <definition name="OSLessElements"
-            type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, IOS}" />
+            type="{Linux, Windows, Android,IOS,AmigaOS}" default="{Linux, Windows, IOS}" />
         <definition name="OSMoreElements"
-            type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, Android,IOS,AmigaOS}" />
+            type="{Linux, Windows, Android,IOS,AmigaOS}" default="{Linux, Windows, Android,IOS,AmigaOS}" />
 
-        <property name="setInt" type="{int}" value="{12,15,254, 0}" />
-        <property name="setIntUnordered" type="{int}" value="{254,15,12,0}" />
-        <property name="setIntLessElements" type="{int}" value="{12,15, 0}" />
-        <property name="setIntMoreElements" type="{int}"
-            value="{12,15,254, 0,27}" />
+        <definition name="setInt" type="{int}"/>
+        <property name="setInt" value="{12,15,254, 0}" />
+        
+        <definition name="setIntUnordered" type="{int}"/>
+        <property name="setIntUnordered"   value="{254,15,12,0}" />
+        
+        <definition name="setIntLessElements" type="{int}"/>
+        <property name="setIntLessElements"   value="{12,15, 0}" />
+        
+        <definition name="setIntMoreElements" type="{int}"/>
+        <property name="setIntMoreElements"   value="{12,15,254, 0,27}" />
 
-        <property name="setInteger" type="{integer}" value="{12,15,254, 0}" />
-        <property name="setIntegerUnordered" type="{integer}"
-            value="{254,15,12,0}" />
-        <property name="setIntegerLessElements" type="{integer}"
-            value="{12,15, 0}" />
-        <property name="setIntegerMoreElements" type="{integer}"
-            value="{12,15,254, 0,27}" />
+        <definition name="setInteger" type="{int}"/>
+        <property name="setInteger"   value="{12,15,254, 0}" />
 
-        <property name="setString" type="{string}"
-            value="{doubt,grows,with,knowledge}" />
-        <property name="setStringUnordered" type="{string}"
-            value="{with,doubt,knowledge,grows}" />
-        <property name="setStringLessElements" type="{string}"
-            value="{doubt,grows,knowledge}" />
-        <property name="setStringMoreElements" type="{string}"
-            value="{doubt,and,uncertainties,grows,with,knowledge}" />
+        <definition name="setIntegerUnordered" type="{int}"/>
+        <property name="setIntegerUnordered"   value="{254,15,12,0}" />
+
+        <definition name="setIntegerLessElements" type="{int}"/>
+        <property name="setIntegerLessElements"   value="{12,15, 0}" />
+
+        <definition name="setIntegerMoreElements" type="{int}"/>
+        <property name="setIntegerMoreElements"   value="{12,15,254, 0,27}" />
+
+        <definition name="setString" type="{string}"/>
+        <property name="setString"   value="{doubt,grows,with,knowledge}" />
+            
+        <definition name="setStringUnordered" type="{string}"/>
+        <property name="setStringUnordered"   value="{with,doubt,knowledge,grows}" />
+
+        <definition name="setStringLessElements" type="{string}"/>
+        <property name="setStringLessElements"    value="{doubt,grows,knowledge}" />
+
+        <definition name="setStringMoreElements" type="{string}"/>
+        <property name="setStringMoreElements"   value="{doubt,and,uncertainties,grows,with,knowledge}" />
     </implementation>
 
     <implementation name="PropertyInjectionSwitch"
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch"
         specification="eletronic-device">
         <definition name="OS" field="OS"
-            type="{Linux, Windows, Android, IOS,AmigaOS}" value="{Linux, Windows, Android, IOS}"
+            type="{Linux, Windows, Android, IOS,AmigaOS}" default="{Linux, Windows, Android, IOS}"
             internal="false" />
         <definition name="setInt" field="setInt" type="{int}"
-            internal="false" value="{12,15,254, 100}" />
+            internal="false" default="{12,15,254, 100}" />
         <definition name="setString" field="setString" type="{string}"
-            internal="false" value="{doubt,grows,with,knowledge}" />
+            internal="false" default="{doubt,grows,with,knowledge}" />
     </implementation>
 
     <implementation name="PropertyChangeNotification"
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch"
         specification="eletronic-device">
         <definition field="state" name="state" type="string"
-            value="toto" method="stateChanged" />
+            default="toto" method="stateChanged" />
     </implementation>
 
     <implementation name="PropertyTypeIntChangeNotification"
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch"
         specification="eletronic-device">
         <definition field="state" name="state" type="int"
-            value="0" method="stateChanged" />
+            default="0" method="stateChanged" />
     </implementation>
 
     <implementation name="PropertyTypeBooleanChangeNotification"
         classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch"
         specification="eletronic-device">
         <definition field="state" name="state" type="boolean"
-            value="false" method="stateChanged" />
+            default="false" method="stateChanged" />
     </implementation>
 
     <implementation name="LgSwitch"
@@ -299,13 +312,13 @@
         <callback onInit="start" onRemove="stop" />
         
         <definition name="injectedInternal" field="injectedInternal"
-            type="string" injected="internal" value="default" />
+            type="string" injected="internal" default="default" />
         <definition name="injectedExternal" field="injectedExternal"
-            type="string" injected="external" value="default" />
+            type="string" injected="external" default="default" />
         <definition name="injectedBoth" field="injectedBoth" type="string"
-            injected="both" value="default" />
+            injected="both" default="default" />
         <definition name="injectedBothByDefault" field="injectedBothByDefault"
-            type="string" value="default" />
+            type="string" default="default" />
     </implementation>
     
     <implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl_tct025"
@@ -314,11 +327,11 @@
         <callback onInit="start" onRemove="stop" />
         
         <definition name="injectedInternal" field="injectedInternal"
-            type="string" injected="internal" value="default" />
+            type="string" injected="internal" default="default" />
         <definition name="injectedExternal" field="injectedExternal"
-            type="string" injected="external" value="default" />
+            type="string" injected="external" default="default" />
         <definition name="injectedBothSetted" field="injectedBothSetted" type="string"
-            injected="both" value="default" />
+            injected="both" default="default" />
         <definition name="injectedBothUnsetted" field="injectedBothUnsetted"
             type="string" />
     </implementation>

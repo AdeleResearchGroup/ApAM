@@ -19,10 +19,10 @@
         <property name="def3-specs-s1" value="final-value"/>
         <property name="def6-specs-s1" value="final-value"/>
         
-        <property name="def0-instance-s1" type="string"
-            value="final-value" />
+        <definition name="def0-instance-s1" type="string"/>
+        <property name="def0-instance-s1"   value="final-value" />
 
-        <definition name="def1-instance-s1" type="string" value="default-value" />
+        <definition name="def1-instance-s1" type="string" default="default-value" />
         <property name="def1-instance-s1" value="final-value" />
         
 

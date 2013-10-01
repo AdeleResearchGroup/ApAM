@@ -28,8 +28,9 @@
             targetKind="implementation"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface01" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-01"
@@ -53,8 +54,8 @@
             targetKind="specification"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface02" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-02"
@@ -77,8 +78,8 @@
             targetKind="instance"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface03" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"  value="ok" />
     </specification>
 
     <implementation name="S07-implementation-03"
@@ -122,8 +123,8 @@
             targetKind="instance"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface04" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-05"
@@ -147,8 +148,8 @@
             targetKind="instance"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface06" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-06"
@@ -405,8 +406,8 @@
             targetKind="implementation"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface18" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-18"
@@ -429,8 +430,8 @@
             targetKind="specification"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface19" />
         <definition name="implementation-property" type="string" />
-        <property name="specification-property" type="string"
-            value="ok" />
+        <definition name="specification-property" type="string"/>
+        <property name="specification-property"   value="ok" />
     </specification>
 
     <implementation name="S07-implementation-19"
