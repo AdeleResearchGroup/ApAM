@@ -69,14 +69,14 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
-			<version>${project-version}</version>
+			<version>0.0.5</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S4</artifactId>
-			<version>${project-version}</version>
+			<version>0.0.5</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
