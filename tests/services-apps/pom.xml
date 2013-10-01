@@ -30,6 +30,7 @@
 		<module>apam-pax-composite-av</module>
 		<module>apam-pax-dynaman-grant</module>
 		<module>apam-pax-eldritch</module>
+		<module>apam-pax-samples</module>
 
 	</modules>
 

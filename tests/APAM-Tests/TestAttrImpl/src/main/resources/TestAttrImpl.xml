@@ -86,7 +86,18 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$location" /> -->
 <!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationf" /> -->
 <!-- 		<property name="fd3metaEnumLoc" type="exit, b, garage, bedroom" value="$prefixx+S2Impl.S4_2$location+sufixx" /> -->
-		<property name="metaEnumLoc8" type="{exit, entrance, garage, bedroom}" value="$S2Impl.members.S4_2$location" />
+		<property name="metaEnumLoc81" type="{exit, entrance, garage, bedroom}" value="$S2Impl.insts.S4_2$location" />
+		<property name="metaEnumLoc82" type="{exit, entrance, garage, bedroom}" value="$S2Impl.members.S4_2$location" />
+		<property name="metaEnumLoc83" type="{exit, entrance, garage, bedroom}" value="$S2Impl.impl.insts.S4_2$location" />
+
+		<property name="metaLoc1" type="{string}" value="$this$name" />
+		<property name="metaLoc2" type="{string}" value="$this.insts$name" />
+		<property name="metaLoc3" type="{string}" value="$this.spec$name" />
+		<property name="metaLoc4" type="{string}" value="$this.impl$name" />
+		<property name="metaLoc5" type="{string}" value="$this.impls$name" />
+		<property name="metaLoc6" type="{string}" value="$this.specs$name" />
+		<property name="metaLoc5" type="{string}" value="$this.insts.impl.insts$name" />
+		<property name="metaLoc6" type="{string}" value="$this.impl.spec.impls$name" />
 <!-- 		<property name="metaEnumLoc" type="{string}" value="$S2Impl.S4_2$location" /> -->
 
 		<property name="d6metaEnumLoc"  type="{string}" value="$.members.s2$setstring" />

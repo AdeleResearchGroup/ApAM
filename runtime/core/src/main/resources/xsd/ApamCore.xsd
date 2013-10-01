@@ -68,7 +68,7 @@
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
 
-                <xs:element name="property" type="PropertyDefType">
+                <xs:element name="property" type="PropertyType">
                     <xs:annotation>
                         <xs:documentation> A property of the
                             implementation, this property will be set as
@@ -115,7 +115,9 @@
                 </xs:documentation>
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="property" type="PropertyDefType" />
+                <xs:element name="definition" type="DefinitionType" />
+            
+                <xs:element name="property" type="PropertyType" />
                 <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
             </xs:choice>
@@ -137,7 +139,7 @@
                 </xs:documentation>
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="property" type="PropertyDefType" />
+                <xs:element name="property" type="PropertyType" />
                 <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
             </xs:choice>
@@ -157,7 +159,7 @@
                 </xs:documentation>
             </xs:annotation>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="property" type="PropertyDefType" />
+                <xs:element name="property" type="PropertyType" />
                 <xs:element name="definition" type="DefinitionType" />
                 <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
@@ -233,7 +235,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="value" type="xs:string" use="optional">
+        <xs:attribute name="default" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation> Default value of the property.
                 </xs:documentation>
@@ -259,7 +261,7 @@
     </xs:complexType>
 
 
-    <xs:complexType name="PropertyValueType">
+    <xs:complexType name="PropertyType">
 
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
@@ -275,57 +277,6 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="PropertyType">
-        <xs:complexContent>
-            <xs:extension base="PropertyValueType">
-                <xs:attribute name="type" type="xs:string"
-                    use="required">
-                    <xs:annotation>
-                        <xs:documentation> Type of the property.
-                            Basic
-                            types are 'int' (value is a signed integer),
-                            'string' (value is
-                            a string of characters),
-                            'boolean' (value is
-                            "true" or "false""),
-                            enumeration (comma separated list of string,
-                            ex "red, green, blue"). It can
-                            also be a set
-                            of values : {string} or {int}
-                            or
-                            {enumeration}.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="PropertyDefType">
-        <xs:complexContent>
-            <xs:extension base="PropertyValueType">
-                <xs:attribute name="type" type="xs:string"
-                    use="optional">
-                    <xs:annotation>
-                        <xs:documentation> Type of the property.
-                            Basic
-                            types are 'int' (value is a signed integer),
-                            'string' (value is
-                            a string of characters),
-                            'boolean' (value is
-                            "true" or "false""),
-                            enumeration (comma separated list of string,
-                            ex "red, green, blue"). It can
-                            also be a set
-                            of values : {string} or {int}
-                            or
-                            {enumeration}.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
 
 
 
@@ -469,7 +420,7 @@
 
     <xs:complexType name="StartType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="property" type="PropertyValueType" />
+            <xs:element name="property" type="PropertyType" />
             <xs:element name="dependency" type="RelationType" />
             <xs:element name="trigger" type="TriggerType"
                 minOccurs="0" maxOccurs="1" />

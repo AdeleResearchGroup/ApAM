@@ -1,0 +1,31 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
+    <apam-instance name="instance-s1-tct026"
+        implementation="implem-s1-tct026">
+        
+<!--  These must not work (cannot redefine attribute) -->     
+<!--         <property name="def1-specs-s1" value="final value" />    -->
+<!--         <property name="def2-specs-s1" value="final-value" />         -->
+<!--         <property name="def5-specs-s1" value="final-value" /> -->
+        
+<!--  These must not work (allready defined in the group) -->    
+<!--         <definition name="def1-specs-s1" type="string" value="final value" /> -->
+<!--         <definition name="def2-specs-s1" type="string" value="final-value"/> -->
+<!--         <definition name="def5-specs-s1" type="string" value="final-value" /> -->
+        
+        <property name="def3-specs-s1" value="final-value"/>
+        <property name="def6-specs-s1" value="final-value"/>
+        
+        <property name="def0-instance-s1" type="string"
+            value="final-value" />
+
+        <definition name="def1-instance-s1" type="string" value="default-value" />
+        <property name="def1-instance-s1" value="final-value" />
+        
+
+    </apam-instance>
+
+</apam>

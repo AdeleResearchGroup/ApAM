@@ -116,16 +116,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean isAncestorOf(Component member) {
-		
+
 		assert member != null;
-		
+
 		Component ancestor = member.getGroup();
 		while (ancestor != null && !ancestor.equals(this))
 			ancestor = ancestor.getGroup();
-		
+
 		return ancestor != null;
 	}
-	
+
 	/**
 	 * Whether this component is a descendant of the specified component
 	 */
@@ -134,7 +134,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		assert group != null;
 		return group.isAncestorOf(this);
 	}
-	
+
 	/**
 	 * To be called when the object is fully loaded and chained.
 	 * Terminate the generic initialization : computing the dependencies, and the properties
@@ -145,7 +145,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		initializeProperties (initialProperties) ;
 		initializeResources () ;
 	}
-	
+
 	/**
 	 * Provided a component, compute its effective relations, adding group
 	 * constraint and flags. It is supposed to be correct !! No failure expected
@@ -157,7 +157,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * 
 	 */
 	private void initializeDependencies() {
-		
+
 		/*
 		 * First we need to compute the list of relations that must be locally defined in this component.
 		 * We consider locally defined relation declarations and overridden inherited relations.
@@ -172,7 +172,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		Component group = this;
 		while (group != null) {
-			
+
 			for (RelationDeclaration relationDeclaration : group.getDeclaration().getDependencies()) {
 
 				/*
@@ -191,7 +191,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 						matchOverride = true;
 					}
 				}
-				
+
 				/*
 				 * Process locally declared and inherited overridden relations 
 				 */
@@ -201,7 +201,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				}
 
 			}
-			
+
 			group	= group.getGroup();
 		}
 
@@ -209,19 +209,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 * Define all the local relations of this component
 		 */
 		for (RelationDeclaration relationDeclaration : localRelations) {
-			
+
 			/*
 			 * Local declarations may be partial definitions, we need to compute the complete declaration by
 			 * refining the ancestor definition. 
 			 */
 			Relation base		= this.getRelation(relationDeclaration.getIdentifier());
 			relationDeclaration = (base == null) ? relationDeclaration : ((RelationImpl)base).refinedBy(relationDeclaration);
-			
+
 			relations.put(relationDeclaration.getIdentifier(), new RelationImpl(relationDeclaration));
 		}
 
 	}
-	
+
 	/**
 	 * Given a relation declared in this component, checks if the provided override relation 
 	 * matches the relation declaration.
@@ -238,26 +238,26 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		boolean match = (this instanceof Instance);
 		if (!match)
 			return false ;
-		
+
 		//Check if Ids are compatible
 		match = relation.getIdentifier().matches(override.getIdentifier()); 
 		if (!match)
 			return false ;
-		
+
 		//Check if override source matches this component or one of its ancestors
 		//If no source id is specified in the override  it is considered to always
 		//match
-		
+
 		match 	= (override.getSourceName() == null) ;
 		Component group = this;
 		while (group != null && !match) {
 			match	= group.getName().matches(override.getSourceName()); 
 			group	= group.getGroup();
 		}
-		
+
 		if (!match) 
 			return false ;
-		
+
 		/*
 		 * Check if targets are compatible
 		 * Same target: the same specification, the same implementation or same resource name with a matching
@@ -265,10 +265,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		// same nature: direct comparison
 		match = relation.getTarget().getClass().equals(override.getTarget().getClass()) && 
 				relation.getTarget().getName().matches(override.getTarget().getName());
-		
+
 		return match;
 	}
-	
+
 
 	private void initializeResources () {
 		Set<ResourceReference> resources = getDeclaration().getProvidedResources() ;
@@ -353,7 +353,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		else  if (this instanceof Instance) {
 			put (CST.INSTNAME, apform.getDeclaration().getName()) ;
 			if (this instanceof Composite) {
-				
+
 				Composite composite = (Composite)this;
 				put(CST.APAM_COMPOSITE, CST.V_TRUE);
 				if (composite.getMainInst() != null)
@@ -417,13 +417,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	//=================================== Links =========
 	/**
 	 * returns the connections towards the service instances actually used.
-	 * return only APAM links. for SAM links the sam instance
+	 * return only APAM links. 
 	 */
 	@Override
 	public Set<Component> getLinkDests(String depName) {
 		if (depName == null || depName.isEmpty()) return null ;
 		Set<Component> dests = new HashSet<Component>();
-		
+
 		if (CST.isFinalRelation(depName)) {
 			if (depName.equals(CST.REL_GROUP)) {
 				dests.add(getGroup()) ;
@@ -452,10 +452,54 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 					dests.addAll(((CompositeType)this).getImpls()) ;
 				return dests ;
 			}
+			
+			if (depName.equals(CST.REL_SPEC)) {
+				if (this instanceof Specification)
+					dests.add(this) ;
+				else if (this instanceof Implementation)
+					dests.add(((Implementation)this).getSpec()) ;
+				else if (this instanceof Instance)
+					dests.add(((Instance)this).getSpec()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_IMPL)) {
+				if (this instanceof Implementation)
+					dests.add(this) ; 
+				else if	(this instanceof Instance)
+					dests.add(((Instance)this).getImpl()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_INST)) {
+				if (this instanceof Instance)
+					dests.add(this) ;
+				return dests ;
+			}
+
+			
+			if (depName.equals(CST.REL_IMPLS)) {
+				if (this instanceof Specification)
+					dests.addAll(this.getMembers()) ;
+				else if (this instanceof Implementation)
+					dests.addAll(((Implementation)this).getSpec().getMembers()) ;
+				else dests.addAll(((Instance)this).getSpec().getMembers()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_INSTS)) {
+				if (this instanceof Implementation)
+					dests.addAll(this.getMembers()) ;
+				else if	(this instanceof Instance)
+					dests.addAll(((Instance)this).getImpl().getMembers()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_INST)) {
+				if (this instanceof Instance)
+					dests.add(this) ;
+				return dests ;
+			}
 
 			return dests ;
 		}
-		
+
 		for (Link link : getLinks(depName)) {
 			if (link.getName().equals(depName)) {
 				dests.add(link.getDestination());
@@ -506,7 +550,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public Set<Link> getLocalLinks() {
 		return Collections.unmodifiableSet(links);
 	}
-	
+
 	/**
 	 * Return all the link of that names, but do not resolve if nore are found
 	 * @param relName
@@ -525,8 +569,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 		return dests;
 	}
-	
-	
+
+
 	/**
 	 * Inherits and resolve
 	 */
@@ -542,9 +586,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
 		}
-		
-//		if (!rel.isLazy()) 
-//			return dests ;
+
+		//		if (!rel.isLazy()) 
+		//			return dests ;
 
 		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
@@ -605,7 +649,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("CreateLink: cannot create predefine relation " + dep.getName());
 			return false;
 		}
-		
+
 		if ((to == null) || (dep == null)) {
 			logger.error("CreateLink: Source or target are null ");
 			return false;
@@ -646,13 +690,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		/*
 		 * if "to" is an instance in the unused pull, move it to the from composite.
 		 */
-//		if (dep.isWire() && this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
-	    if (this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
-				((InstanceImpl) to).setOwner(((Instance) this).getComposite());
+		//		if (dep.isWire() && this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
+		if (this instanceof Instance && to instanceof Instance && !((Instance) to).isUsed()) 
+			((InstanceImpl) to).setOwner(((Instance) this).getComposite());
 
 		//TODO What to do if it is a link towards an unused implem or spec ? Nothing ? 
 		//TODO Does isUsed (and shared) limited to the wires ?
-//			else if (to instanceof Implementation) && !((Implementation) to).isUsed() ?????
+		//			else if (to instanceof Implementation) && !((Implementation) to).isUsed() ?????
 
 
 		// Notify Dynamic managers that a new link has been created
@@ -824,31 +868,31 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public Set<Relation> getRelations() {
 		Set<Relation> relations = new HashSet<Relation>();
 		Set<String> processed 	= new HashSet<String>();
-		
+
 		Component group = this;
 		while (group != null) {
-			
+
 			for (Relation relation : group.getLocalRelations()) {
 				if (! processed.contains(relation.getName())) {
 					relations.add(relation);
 					processed.add(relation.getName());
 				}
 			}
-			
+
 			group = group.getGroup();
 		}
 
 		// Looking for composite definitions.
 		if (this instanceof Instance) {
 			CompositeType comptype = ((Instance) this).getComposite().getCompType();
-			
+
 			for (Relation relation : comptype.getCtxtRelations(this)) {
 				if (! processed.contains(relation.getName())) {
 					relations.add(relation);
 					processed.add(relation.getName());
 				}
 			}
-			
+
 		}
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
@@ -860,7 +904,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				}
 			}
 		}
-		
+
 		return relations;
 	}
 
@@ -887,7 +931,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public Object getPropertyObject(String attribute) {
-		return Substitute.substitute(attribute, get(attribute), this);
+		Object value=get(attribute);
+		if(value==null && getDeclaration()!=null)
+			value=getDeclaration().getProperty(attribute);
+
+		return Substitute.substitute(attribute, value, this);
 	}
 
 	/**
@@ -943,7 +991,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 */
 		Object oldValue = get(attr);
 		put(attr,value);
-		
+
 		for (Link incoming : getInvLinks()) {
 			//If still valid, do nothing
 			if (incoming.hasConstraints() && !isValidLink (incoming)) {
@@ -953,13 +1001,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
 			}
 		}
-		
+
 		if (oldValue == null) remove(attr); else put(attr,oldValue);
-		
+
 		// does the change, notifies managers, changes the platform and propagate to
 		// members
 		this.propagate(attr, val);
-		
+
 		return true;
 	}
 
@@ -1053,7 +1101,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public boolean removeProperty(String attr) {
 		return removeProperty(attr, false);
 	}
-	
+
 	/**
 	 * Warning: to be used only by Apform for removing internal attributes. Only
 	 * Inhibits the message "Attribute " + attr +
@@ -1126,7 +1174,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		// Check if it is a local definition: <property name="..." type="..."
 		// value=".." />
 		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
-		if (definition != null) {
+		if (definition != null) 
+		{
 			if (definition.isLocal()) {
 				return definition;
 			} else {

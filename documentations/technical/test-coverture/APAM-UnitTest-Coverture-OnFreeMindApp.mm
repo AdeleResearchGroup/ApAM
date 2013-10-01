@@ -2,10 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1377768742779" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1376388441000" TEXT="Property">
-<node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
-<icon BUILTIN="button_ok"/>
-</node>
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1378970321313" TEXT="Property">
 <node CREATED="1353066255334" ID="ID_95062722" MODIFIED="1354294354650" TEXT="Configured using api by initial parameter-tc002">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -191,6 +188,20 @@
 <node CREATED="1376404455147" ID="ID_1200361768" MODIFIED="1376404462046" TEXT="tct_025">
 <icon BUILTIN="button_cancel"/>
 </node>
+</node>
+</node>
+<node CREATED="1378970330558" ID="ID_1088903044" MODIFIED="1378970347172" TEXT="property inheritance">
+<node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1378998304466" ID="ID_715000360" MODIFIED="1378998362449" TEXT="definition of properties at spec level - tct026 (in progress)">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1378998304466" ID="ID_1120594267" MODIFIED="1378998409653" TEXT="definition of properties at implem level - tct027 (in progress // bugs in the core)">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1378998304466" ID="ID_1555166557" MODIFIED="1378998417087" TEXT="definition of properties at instance level - tct028 (in progress // bugs in the core)">
+<icon BUILTIN="help"/>
 </node>
 </node>
 </node>

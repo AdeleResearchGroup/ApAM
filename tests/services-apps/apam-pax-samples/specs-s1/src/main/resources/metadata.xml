@@ -1,0 +1,24 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
+    <specification name="specs-s1-tct026">
+        <property name="def0-specs-s1" type="string" value="final-value" />
+
+        <definition name="def1-specs-s1" type="string" value="default-value" />
+        <property name="def1-specs-s1" value="final-value" />
+
+        <definition name="def2-specs-s1" type="string" value="default-value" />
+
+        <definition name="def3-specs-s1" type="string" value="default-value" />
+
+        <definition name="def4-specs-s1" type="string" value="default-value" />
+
+        <definition name="def5-specs-s1" type="string" />
+
+        <definition name="def6-specs-s1" type="string" />
+
+    </specification>
+
+</apam>

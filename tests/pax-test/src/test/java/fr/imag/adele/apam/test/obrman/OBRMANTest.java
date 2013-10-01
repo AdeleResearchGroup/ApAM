@@ -68,7 +68,8 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test 
     public void testRootModel() {
 	
-    	obrmanhelper.waitForIt(1000);
+    	obrmanhelper.waitForIt(3000);
+    	auxListInstances();
         int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
         try {
