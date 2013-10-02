@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
+  	<parent>
 		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.5-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
-
-	<artifactId>MainApam</artifactId>
+	
+	
+	<artifactId>TestAttrImpl</artifactId>
+	
 	<packaging>bundle</packaging>
-	<name>MainApam</name>
-	<description>test du main</description>
+	<name>TestAttrImpl</name>
 
 	<build>
 		<plugins>
@@ -25,6 +25,7 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
+			
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
@@ -35,19 +36,15 @@
 							<goal>apam-bundle</goal>
 						</goals>
 						<configuration>
-							<metadata>src/main/resources/mainApam.xml</metadata>
+							<metadata>src/main/resources/TestAttrImpl.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
@@ -57,7 +54,14 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>S1</artifactId>
+			<artifactId>TestAttrSpec</artifactId>
+			<version>${project.version}</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S2Impl</artifactId>
 			<version>${project.version}</version>
 			<type>bundle</type>
 			<scope>compile</scope>
@@ -71,17 +75,11 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>S5</artifactId>
-			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>TestAttrSpec</artifactId>
+			<artifactId>S4</artifactId>
 			<version>${project.version}</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
 </project>

@@ -15,16 +15,17 @@
 
 -->
 <!-- <apam xmlns="fr.imag.adele.apam" > -->
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1" > <!-- specification="S1" -->
-		<dependency id="S2" field="s2Spec" />
+		<dependency name="S2" field="s2Spec" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" 	field="s2Interf" />
 		<!--  plante sur ce field: ne trouve pas son type?? -->
 		
-		<dependency specification="S3" id="S3Multiple"  multiple="true">
+		<dependency specification="S3" name="S3Multiple"  multiple="true">
 			<interface field="s3List" />
 			<interface field="s3ListBis" />
 		</dependency>
@@ -38,16 +39,16 @@
 		<dependency field="s2Inst" implementation="S2Impl" />  
 		<dependency field="s2Impl" targetKind="implementation" specification="S2" /> 
 		<dependency field="s2Specif"  targetKind="specification" specification="S2" /> 
-		<dependency field="s3Insts" targetKind="instance" specification="S3" id="ids3Insts" /> 
+		<dependency field="s3Insts" targetKind="instance" specification="S3" name="ids3Insts" /> 
 		
 		<!--  Links -->
-		<dependency sourceKind="instance" targetKind="implementation" specification="S2" id="linkS2"/> 
-		<dependency sourceKind="implementation" targetKind="implementation" specification="S2" id="testID" /> 
-		<dependency sourceKind="specification" targetKind="implementation" specification="S3" id="testIDS3" /> 
-		<dependency targetKind="specification" interface="fr.imag.adele.apam.test.s2.S2" id="spec2interf" /> 
+		<dependency sourceKind="instance" targetKind="implementation" specification="S2" name="linkS2"/> 
+		<dependency sourceKind="implementation" targetKind="implementation" specification="S2" name="testID" /> 
+		<dependency sourceKind="specification" targetKind="implementation" specification="S3" name="testIDS3" /> 
+		<dependency targetKind="specification" interface="fr.imag.adele.apam.test.s2.S2" name="spec2interf" /> 
 <!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2" targetKind="implementation"  multiple="true"/>  -->
-		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2" targetKind="implementation"  /> 
-		<dependency implementation="S2Impl" id="withoutkinds" multiple="true"/> 
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" name="towardInterfS2" targetKind="implementation"  /> 
+		<dependency implementation="S2Impl" name="withoutkinds" multiple="true"/> 
 		
 	</implementation>
 
