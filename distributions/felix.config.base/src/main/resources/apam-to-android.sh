@@ -88,14 +88,7 @@ echo "/system/bin/dalvikvm -Xbootclasspath:/system/framework/core.jar  -classpat
 echo
 echo XXXX
 echo Setting configuration files
-echo You may add dalvik packages to \"org.osgi.framework.system.pa
-                       41 rue des Mathématiques
-Adresse postale :      BP 53 38041 Grenoble Cedex 9
-Tel (33) 4 76 63 57 49  Fax (33) 4 76 63 56 86
- 
-
-Absente le mercredi
-ckages.extra\"
+echo You may add dalvik packages to \"org.osgi.framework.system.packages.extra\"
 echo (depending on your own bundle needs)
 echo XXXX
 cp conf/* android-apam/conf/
