@@ -43,7 +43,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- 		<property name="s1b" value="xyze=" /> -->
 <!-- 		<property name="OS" value="pas bon" /> -->
 		<property name="testEnumere" value="v2" />
-		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" value="bidon"/>
 <!-- 		<definition name="s1c" field="fieldAttrS1c" type="string" value="bidon"/> -->
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />

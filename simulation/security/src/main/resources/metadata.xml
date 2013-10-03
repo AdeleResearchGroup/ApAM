@@ -43,7 +43,7 @@
 	-->
 	<implementation name="SecurityStateManager" classname="fr.imag.adele.apam.application.security.SecurityStateManager">
 		<callback onInit="start"/>
-		<definition name="state" type="normal,fire,intrusion" field="stateProperty" internal="true" />
+		<definition name="state" type="normal,fire,intrusion" field="stateProperty" injected="internal" />
 	</implementation>
 
 	<!--
@@ -97,7 +97,7 @@
 	-->
 	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
 		<callback onInit="start"/>
-		<definition name="emergency" type="emergency,normal" field="stateProperty" internal="true" />
+		<definition name="emergency" type="emergency,normal" field="stateProperty" injected="internal" />
 		<dependency name="emergencyEvents" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
 	</implementation>
 	
