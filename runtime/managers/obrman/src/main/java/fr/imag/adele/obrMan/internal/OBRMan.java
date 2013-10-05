@@ -50,7 +50,6 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.impl.CompositeTypeImpl;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -81,7 +80,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	public void start() {
 		//to load the initial OBR before to register
-//		newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
+		//		newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
 		ApamManagers.addRelationManager(this, 3);
 		// logger.info("[OBRMAN] started");
 	}
@@ -94,88 +93,131 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	static List<String> onLoadingResource = new ArrayList<String>();
 
+	public boolean bundleExists (String bundleName) {
+		Bundle[] bundles = m_context.getBundles();
+		for (Bundle bundle : bundles) {
+			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(bundleName)) {
+				if (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING) {
+					return true ;
+				}
+				return false ;
+			}
+		}
+		return false ;
+	}
+
+	
 	/**
-	 * Instal ans instantiate the selected bundle, and return the component. If
-	 * forced = false (default) does not try to install if the component is
-	 * allready existing.
-	 * 
-	 * @param selected
+	 * Deploy and return the component, if possible. Null if failed.
+	 *  if :
+	 *          the component we are looking for is existing (maybe arrived in the mean time), 
+	 *          		return it
+	 *          the bundle does not exist currently : 
+	 *          		deploy, wait for the component and return it
+	 * 			the bundle is already deployed and active : 
+	 *              	it is not the version we are looking for : do nothing and return false
+	 * 					wait for the component and return it
+	 *          the bundle is starting :
+	 *          		wait for the component and return it.
+	 *          the bundle is installed but is not started : 
+	 *          		try to start it, wait for the component and return it, if failed, return null
+	 *          
+	 * @param selected : the selected bundle and component(s)
 	 * @return
 	 */
 	private Component installInstantiate(Selected selected) {
 		if (selected == null)
 			return null;
+		
+		/*
+		 * If the component exists, maybe arrived in the mean time, 
+		 * or from another bundle or in another version, do nothing		
+		 */ 
+		fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(selected.getComponentName());
+		if (c != null) 
+			return c;
 
-		String name = selected.getComponentName();
-		fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
-		// Check if already deployed
-		if (c == null) {
-
-			if (bundleInactif(selected.resource.getSymbolicName())) {
-				logger.info("The bundle " + selected.resource.getSymbolicName() + " is already installed!");
-				return null;
-			}
-			// deploy selected resource
-			boolean deployed = selected.obrManager.deployInstall(selected);
-			if (!deployed) {
-				System.err.print("could not install resource ");
-				ObrUtil.printRes(selected.resource);
-				return null;
-			}
-			// waiting for the component to be ready in Apam.
-			c = CST.componentBroker.getWaitComponent(name, timeout);
-			if (c != null && c instanceof Implementation) {
-				for (String instanceName : selected.getInstancesOfSelectedImpl()) {
-					CST.componentBroker.getWaitComponent(instanceName, timeout);
-				}
-			}
-
-
-		} else { // do not install twice.
-			// It is a logical deployment. The already existing component is not
-			// visible !
-			// System.err.println("Logical deployment of : " + name +
-			// " found by OBRMAN but allready deployed.");
-		}
-
-		return c;
-
-	}
-
-
-	/**
-	 * return false if the bundle does not exist in OSGi (therefore can be deployed)
-	 *              if it exist and is starting or has been started (we should wait for the component to arrive). 
-	 * return true  if it exists but not active and cannot be started. Do not deploy.
-	 * @param symbolicName
-	 * @return
-	 */
-	public boolean bundleInactif(String symbolicName) {
-		Bundle[] bunldes = m_context.getBundles();
-		for (Bundle bundle : bunldes) {
-			//It is there, do nothing
-			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(symbolicName)) {
-				if (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING || bundle.getState() == Bundle.UNINSTALLED) {
-					return false;
-				}
-				//If only installed, try to start it. Successful or not, do not try to deploy.
-				if (bundle.getState() == Bundle.INSTALLED || bundle.getState() == Bundle.RESOLVED ) {
-					try {
-						bundle.start() ;
-					} catch (BundleException e) {
-						logger.info("The bundle " + bundle.getSymbolicName() + " is installed but cannot be started!");
-						return true ;
-					}
-					//Starting failed. No solution : cannot be deployed and cannot be started. Make as if failed
-					logger.info("The bundle " + bundle.getSymbolicName() + " is installed and has been be started!");
-					return false ;
-				} 
-				
+		/*
+		 *  Check if the bundle is already existing 
+		*/
+		Bundle[] bundles = m_context.getBundles();
+		Bundle theBundle = null ;
+		String bundleName = selected.resource.getSymbolicName() ;
+		for (Bundle bundle : bundles) {
+			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(bundleName)) {
+				theBundle = bundle ;
+				break ;
 			}
 		}
-		//It does not exist: deploy it.
-		return false;
+
+		/*
+		 * Normal case : bundle does not exist : deploy, wait and return the component
+		 */
+		if (theBundle == null) {
+			if (!deploy(selected))
+				//deployment failed
+				return null ;
+			return waitAndReturnComponent (selected) ;
+		}
+		
+		/*
+		 * 	the bundle is already deployed and active : 
+		 * 		it is not the version we are looking for. 
+		 *        	Do nothing and return false
+		 * 	It may be active or starting if started in parallel by another thread ... OK
+		 * 	   		wait for the component and return it.
+		 */
+		if (theBundle.getState() == Bundle.ACTIVE || theBundle.getState() == Bundle.STARTING) {
+			if (theBundle.getVersion().equals(selected.resource.getVersion()))
+				return waitAndReturnComponent (selected) ;	
+			logger.error ("Bundle " + selected.getComponentName() + " is already installed under version " 
+				+ theBundle.getVersion() + " while trying to deploy version " + selected.resource.getVersion()) ;
+			return null ;
+		}
+
+		 /*
+		  * the bundle is installed but is not started : 
+		  * try to start it, wait for the component and return it, if failed, return null
+		  */
+		if (theBundle.getState() == Bundle.INSTALLED || theBundle.getState() == Bundle.RESOLVED ) {
+			try {
+				theBundle.start() ;
+			} catch (BundleException e) {
+				//Starting failed. No solution : cannot be deployed and cannot be started. Make as if failed
+				logger.info("The bundle " + theBundle.getSymbolicName() + " is installed but cannot be started!");
+				return null ;
+			}
+			
+			logger.info("The bundle " + theBundle.getSymbolicName() + " is installed and has been be started!");
+			return waitAndReturnComponent (selected) ;			
+		} 
+		return null ;
 	}
+
+	private boolean deploy (Selected selected) {
+		boolean deployed = selected.obrManager.deployInstall(selected);
+		if (!deployed) {
+			System.err.print("could not install resource ");
+			ObrUtil.printRes(selected.resource);
+		}
+		return deployed ;
+	}
+	
+	private Component waitAndReturnComponent (Selected selected) {
+		// waiting for the component to be ready in Apam.
+		Component c = CST.componentBroker.getWaitComponent(selected.getComponentName(), timeout);
+		
+		/*
+		 * In fact, we are waiting for its instances; they are "arriving"; wait for them
+		 */
+		if (c != null && c instanceof Implementation) {
+			for (String instanceName : selected.getInstancesOfSelectedImpl()) {
+				CST.componentBroker.getWaitComponent(instanceName, timeout);
+			}
+		}
+		return c ;
+	}
+
 
 	@Override
 	public String getName() {

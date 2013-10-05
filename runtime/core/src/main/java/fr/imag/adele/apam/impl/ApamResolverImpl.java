@@ -209,6 +209,10 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
+		if (mainInst.equals(CompositeImpl.getRootInstance())) {
+			return CompositeImpl.getRootInstance();
+		}
+		
 		if (mainInst.isUsed()) { //|| (mainInst instanceof Composite)
 			return mainInst.getComposite();
 		}
@@ -301,6 +305,10 @@ public class ApamResolverImpl implements ApamResolver {
 			return null;
 		}
 
+		Composite compo = null;
+		if (source instanceof Instance	&& rel.isRelation())
+			compo = getClientComposite((Instance) source);
+
 		// Invoke managers for resolution
 		Resolved resolved = this.resolveByManagers(source, rel);
 		
@@ -311,10 +319,8 @@ public class ApamResolverImpl implements ApamResolver {
 		/*
 		 * Promotion control Only for instances
 		 */
-		if ((resolved == null || resolved.isEmpty())
-				&& source instanceof Instance 
-				&& rel.isRelation()) {
-			Composite compo = getClientComposite((Instance) source);
+		if ((resolved == null || resolved.isEmpty()) && compo != null ) {
+
 			Relation promotionRelation = getPromotionRel((Instance) source, rel);
 
 			// if it is a promotion, get the composite relation targets.

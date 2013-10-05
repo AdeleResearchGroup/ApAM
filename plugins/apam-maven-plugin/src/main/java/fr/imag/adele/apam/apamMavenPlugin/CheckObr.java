@@ -131,8 +131,7 @@ public class CheckObr {
 	 * returned. Then the attributes pertaining to the entity above are added.
 	 * Then the final attributes
 	 * 
-	 * @param component
-	 *            the component to check
+	 * @param component the component to check
 	 */
 	public static Map<String, Object> getValidProperties(
 			ComponentDeclaration component) {
@@ -145,27 +144,27 @@ public class CheckObr {
 		if (entCap == null)
 			return ret; // should never happen.
 
-		// return the valid attributes
+		/*
+		 *  return the valid attributes
+		 */
 		for (String attr : properties.keySet()) {
 			String defAttr = getDefAttr(entCap, attr, properties.get(attr));
 			if (defAttr == null)
 				continue;
-			Object val = Attribute.checkAttrType(attr, properties.get(attr),
-					defAttr);
+			Object val = Attribute.checkAttrType(attr, properties.get(attr), defAttr);
 			if (val == null) {
 				setFailedParsing(true);
 				continue;
 			}
-			// checkSubstitute (ComponentDeclaration component, String attr,
-			// String type, String defaultValue)
-			// if (checkSubstitute(component, attr, defAttr,
-			// properties.get(attr))) {
+			// checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue)
+			// if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
 			ret.put(attr, val);
 			// }
 		}
 
-		// add the attribute coming from "above" if not already instantiated and
-		// heritable
+		/*
+		 *  add the attribute coming from "above" if not already instantiated and heritable
+		 */
 		ApamCapability group = entCap.getGroup();
 		if (group != null && group.getProperties() != null) {
 			if (group.dcl instanceof ImplementationDeclaration
@@ -221,8 +220,7 @@ public class CheckObr {
 		if (defaultValue == null)
 			defaultValue = "";
 
-		ApamCapability group = ApamCapability
-				.get(component.getGroupReference());
+		ApamCapability group = ApamCapability.get(component.getGroupReference());
 
 		// redefinition check
 		if (group != null) {
@@ -619,16 +617,17 @@ public class CheckObr {
 			parent = parent.getGroup();
 		}
 
-		if (inheritedvalue != null) {
-			error("Cannot redefine attribute \"" + attr + "\"");
-			return null;
-		}
-
 		if (defAttr == null) {
 			error("In " + ent.getName() + ", attribute \"" + attr
 					+ "\" used but not defined.");
 			return null;
 		}
+		
+		if (inheritedvalue != null && !inheritedvalue.equals(parent.getAttrDefault(attr))) {
+			error("Cannot redefine attribute \"" + attr + "\"");
+			return null;
+		}
+
 		return defAttr;
 	}
 

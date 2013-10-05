@@ -401,12 +401,13 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
     				ApamInstanceManager.this.getHandler(ApamComponentFactory.APAM_NAMESPACE+":"+PropertyInjectionHandler.NAME);
 	        
             if (apamComponent != null) { // starting the instance
+                handler.setApamComponent(apamComponent);
+
                 if (pojo instanceof ApamComponent) {
                     ApamComponent serviceComponent = (ApamComponent) pojo;
                     serviceComponent.apamInit(this.apamComponent);
                 }
 
-                handler.setApamComponent(apamComponent);
                 fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent);
                 
                 return;

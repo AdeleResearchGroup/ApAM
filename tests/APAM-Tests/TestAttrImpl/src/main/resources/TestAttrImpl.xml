@@ -43,7 +43,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- 		<property name="s1b" value="xyze=" /> -->
 <!-- 		<property name="OS" value="pas bon" /> -->
 		<property name="testEnumere" value="v2" />
-		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" default="bidon"/>
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" default="bidon"/>
 <!-- 		<definition name="s1c" field="fieldAttrS1c" type="string" default="bidon"/> -->
 		<definition name="S1toS2Final-Bool" type="boolean" default="true" />
 		<definition name="S1toS2Final-String1" type="string"  />
@@ -155,8 +155,9 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 </implementation>
 
 
-	<apam-instance implementation="S2Impl" name="S2_Instance" />
-		
-		
+	<apam-instance implementation="TestAttr" name="TestAttr-Mine" >
+			<property name="locationInst" value="kitchen" />
+			<property name="s1c" value="5" />
+	</apam-instance>
 </apam>
 

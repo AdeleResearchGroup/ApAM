@@ -29,6 +29,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="s1c" type="string" />
 		<definition name="fieldAttr" type="string" />
 <!-- 		<definition name="fieldAttr" type="string" value="specdefVal"/> -->
+		<definition name="locationInst" type="living, kitchen, bedroom"	default="kitchen" />
 		
 		<definition name="s1i" type="int" />
 		<definition name="setint" type="{int}" />

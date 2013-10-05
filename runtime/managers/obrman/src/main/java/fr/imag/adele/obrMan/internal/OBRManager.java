@@ -32,6 +32,7 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +142,7 @@ public class OBRManager {
 		return getBestCandidate(allSelected);
 	}
 
+	
 	@SuppressWarnings("unchecked")
 	public Set<Selected> lookForAll(String capability, String filterStr, Relation dep) { //Set<ApamFilter> constraints) {
 		if (filterStr == null)
@@ -158,9 +160,9 @@ public class OBRManager {
 		try {
 			ApamFilter filter = ApamFilter.newInstance(filterStr);
 			for (Resource res : allResources) {
-				if (obrMan.bundleInactif(res.getSymbolicName())){
-					continue;
-				}
+//				if (obrMan.bundleExists(res.getSymbolicName())){
+//					continue;
+//				}
 				Capability[] capabilities = res.getCapabilities();
 				ComponentKind candidateKind;
 				for (Capability aCap : capabilities) {
