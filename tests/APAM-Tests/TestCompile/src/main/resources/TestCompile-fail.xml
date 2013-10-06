@@ -86,7 +86,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		instantiable="false" shared="false">  <!--  all possible characteristics  -->
 
 		<!-- 	The state for composites -->
-		<definition name="houseState" field="state" internal="true"
+		<definition name="houseState" field="state" injected="internal"
 			type="{empty, night, vacation, emergency, threat}" value="busy" />
 			
 		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />

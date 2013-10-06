@@ -83,10 +83,8 @@
                     <xs:annotation>
                         <xs:documentation> A property definition, it
                             must be valued by the instance.
-                            if the
-                            internal is true, the value of
-                            the property
-                            can be set only by the field
+                            if the injected = internal, the value of
+                            the property can be set only by the field
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -284,11 +282,6 @@
         <xs:complexContent>
             <xs:extension base="DefinitionType">
 
-                <!-- internal is a deprecated (kept for compatibility, prefer 
-                    injected) attribute internal=true means injected=internal, internal=false 
-                    means injected=external, if attribute not present means injected=both -->
-                <xs:attribute name="internal" type="xs:boolean"
-                    use="optional" />
                 <xs:attribute name="injected"
                     type="fieldInjectionStrategyType" use="optional" />
 

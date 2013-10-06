@@ -8,7 +8,7 @@
 	governing permissions and limitations under the License. apam light: iCASA.BinaryLight -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 	<implementation name="SimulatedSmokeDetector"
@@ -34,7 +34,7 @@
 		<ipojo:requires field="manager" />
 		<callback onInit="start" onRemove="stop" />
 
-		<definition name="location" type="string" field="location" internal="true" />
+		<definition name="location" type="string" field="location" injected="internal" />
 
 		<definition name="fault" value="no" type="string" />
 		<definition name="state" value="activated" type="string" />

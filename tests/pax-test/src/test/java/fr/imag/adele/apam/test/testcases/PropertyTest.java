@@ -317,7 +317,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-	String messageTemplace = "for a property type internal='false', the %s";
+	String messageTemplace = "for a property type injected='external', the %s";
 
 	Assert.assertTrue(String.format(messageTemplace,
 		"initial value declared in the xml should NOT be ignored"), s1
@@ -1349,7 +1349,7 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertyDefinitionInjectedBothProperty_tc021() {
+    public void PropertyDefinitionInjectedBothProperty_tct021() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
@@ -1404,7 +1404,7 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertyDefinitionInjectedBothByDefaultProperty_tc022() {
+    public void PropertyDefinitionInjectedBothByDefaultProperty_tct022() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
@@ -1462,7 +1462,7 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertyDefinitionInjectedExternalProperty_tc023() {
+    public void PropertyDefinitionInjectedExternalProperty_tct023() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
@@ -1525,7 +1525,7 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertyDefinitionInjectedInternalProperty_tc024() {
+    public void PropertyDefinitionInjectedInternalProperty_tct024() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
@@ -1579,7 +1579,7 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertyDefinitionInjectedPropertyDefinedInConstructor_tc025() {
+    public void PropertyDefinitionInjectedPropertyDefinedInConstructor_tct025() {
 
 	Implementation s1Impl = CST.apamResolver.findImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct025");

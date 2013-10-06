@@ -208,7 +208,7 @@ public class MainApam implements Runnable, ApamComponent {
 		classname="fr.imag.adele.apam.test.testAttrImpl.TestAttrImpl" specification="STestAttr">
 		<property name="spec-name" value="yyy"  />
 		<property name="testEnumere" value="v2" />
-		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
 		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />

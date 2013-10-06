@@ -33,6 +33,6 @@
 		<definition name="fault" value="no" type="string" />
 		<definition name="state" value="activated" type="string"/>
 		
-		<definition name="location" type="string" field="location" internal="true" />
+		<definition name="location" type="string" field="location" injected="internal" />
 	</implementation>
 </apam>
