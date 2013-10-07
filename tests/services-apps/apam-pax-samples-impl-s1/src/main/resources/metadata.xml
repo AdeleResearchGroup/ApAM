@@ -331,8 +331,8 @@
         <definition name="injectedExternal" field="injectedExternal"
             type="string" injected="external" default="default" />
         <definition name="injectedBothSetted" field="injectedBothSetted" type="string"
-            injected="external" default="default" />
-        <definition name="injectedBothUnsetted" field="injectedBothUnsetted"
+             default="default" />
+        <definition name="injectedBothUnsetted" field="injectedBothUnsetted" 
             type="string" />
     </implementation>
     

@@ -171,30 +171,28 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void SubstitutionReachingMultipleNodesWithMembersKeyword_tc123() {
+	public void SubstitutionReachingMultipleNodesWithInstsKeyword_tc123() {
 
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
-				"subject-a");
-		
-		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+		Implementation implementationCase12Child=CST.apamResolver.findImplByName(null,
 				"impl-case-12-child");
-		Instance instanceAlpha=implementationAlpha.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
+		Instance instanceAlpha=implementationCase12Child.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
+		Instance instanceBravo=implementationCase12Child.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
 		
-		Implementation implementationBravo=CST.apamResolver.findImplByName(null,
-				"impl-case-12-child");
-		
-		Instance instanceBravo=implementationBravo.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
-		
-		Implementation implementationCharlie=CST.apamResolver.findImplByName(null,
+		Implementation implementationCase12=CST.apamResolver.findImplByName(null,
 				"impl-case-12");
-		Instance instanceCharlie=implementationCharlie.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
+		Instance instanceCharlie=implementationCase12.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
+		Instance instanceDelta=implementationCase12.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
 		
-		Implementation implementationDelta=CST.apamResolver.findImplByName(null,
-				"impl-case-12");
-		Instance instanceDelta=implementationDelta.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
+		
+		instanceCharlie.getLink("case12child");
+		instanceDelta.getLink("case12child");
 		
 		//Instance of the subject-a (parent)
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+			"subject-a");		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		
 		
 		//Force the field to be injected
 		S6Impl s6parent=(S6Impl)subjectA.getServiceObject();
@@ -294,19 +292,20 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 		String parentProperty=subjectE.getProperty("property-case-17-parent-composite");
 		String dependencyProperty=subjectE.getProperty("property-case-17-dep-composite");
+		System.out.println("parentProperty -->"+parentProperty+" | subjectEComposite.getName() -->"+subjectE.getComposite().getName());
 		
 		String template="Using metasubstitution, with components in different composites , %s";
 		
 		Assert.assertTrue(String.format(template,"although the dependency do not correspond to the correct one"),dependencyProperty.equals(subjectEComposite.getName()));
 		
-		Assert.assertTrue(String.format(template,"although the parent do not correspond the correct one"),parentProperty==null);
+		Assert.assertTrue(String.format(template,"although the parent do not correspond the correct one"),parentProperty.equals(subjectE.getComposite().getName()));
 		
 		Assert.assertTrue(String.format(template,"although checking a dependency property we vefiried that the value do not match with the right one"),subjectE.getProperty("property-case-17-dep-property").equals(instanceEcho.getProperty("property-case-17")));
 				
 	}
 	
 	@Test
-	public void SubstitutionReachingMultipleNodesWithKeywordGroup_tc126() {
+	public void SubstitutionReachingMultipleNodesWithKeywordSpec_tc126() {
 
 		Implementation subjectDimpl = CST.apamResolver.findImplByName(null,
 				"subject-d");

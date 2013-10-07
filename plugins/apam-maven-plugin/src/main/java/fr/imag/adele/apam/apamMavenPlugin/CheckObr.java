@@ -676,6 +676,8 @@ public class CheckObr {
 		for (String rel : navigation) {
 			if (CST.isFinalRelation(rel)) {
 				source = getCapFinalRelation(source, rel);
+				if (source==null) 
+				    return ApamCapability.trueCap;
 				continue;
 			}
 
