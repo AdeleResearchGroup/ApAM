@@ -1134,7 +1134,10 @@ public class CoreMetadataParser implements CoreParser {
 	    String value=parseString(componentName,element, CoreMetadataParser.ATT_INJECTED, false);
 	    InjectedPropertyPolicy injected;
 		injected=InjectedPropertyPolicy.getPolicy(value);
-		return injected;
+		
+		if(value==null)
+		    return InjectedPropertyPolicy.BOTH;
+		else return injected;
 	}
 
 	/**
