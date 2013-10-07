@@ -142,18 +142,8 @@ public class Attribute {
 			return null ;
 
 		if (value instanceof String) {
-			// Check if a substitution
-			//if ((((String)value).indexOf('$') != -1)) {
-			if (((String)value).charAt(0) == '$' || ((String)value).charAt(0) == '@') {
-				//it is a substitution : value must be a string with at least a "$"
-				return value ;
-			}
-//			//It is a function substitution. Return as is.
-//			if (((String)value).charAt(0) == '@') {
-//			//if (((String)value).indexOf('@') != -1) {
-//				return value ;
-//			}
-
+			if (Substitute.isSubstitution(value)) 
+				return (value) ;
 			//It is not a substitution, with a string as value
 			return checkAttrTypeString (attribute, (String)value, aType) ;
 		}

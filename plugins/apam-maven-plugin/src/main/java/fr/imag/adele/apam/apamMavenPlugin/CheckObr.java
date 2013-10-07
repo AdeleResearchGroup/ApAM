@@ -25,6 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
@@ -34,6 +39,7 @@ import fr.imag.adele.apam.declarations.ConstrainedReference;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -49,6 +55,7 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.CoreMetadataParser;
@@ -133,6 +140,76 @@ public class CheckObr {
 	 * 
 	 * @param component the component to check
 	 */
+
+	/* Code in initializeProperty in COmponentyImpl
+	 * 
+	 * 		//First add the valid attributes.
+		for ( Map.Entry<String,String> entry : props.entrySet()) {
+			PropertyDefinition def = validDef (entry.getKey(), true) ;
+			if (def != null) {
+				Object val = Attribute.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
+				if (val != null) {
+					put (entry.getKey(), val) ;
+				}
+			}
+		}
+
+		//then add those coming from its group, avoiding overloads.
+		ComponentImpl group = (ComponentImpl)getGroup () ;
+		if (group != null) {
+			for (String attr : group.getAllProperties().keySet()) {
+				if (get(attr) == null)
+					put (attr, ((ComponentImpl)group).get(attr)) ;
+			}
+		}
+
+		// /*
+	 * Add the default values specified in the group for properties not
+	 * explicitly specified
+		 // 
+		if (group != null) {
+			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && definition.getInjected()!=InjectedPropertyPolicy.INTERNAL) {
+					Object val = Attribute.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
+					if (val != null)
+						put (definition.getName(),val) ;
+				}
+			}
+		}
+
+		// 
+	 * Set the attribute for the final attributes
+		// 
+		put (CST.SHARED, Boolean.toString(isShared())) ;
+		put (CST.SINGLETON, Boolean.toString(isSingleton())) ;
+		put (CST.INSTANTIABLE, Boolean.toString(isInstantiable())) ;
+
+		// /*
+	 * Finally add the specific attributes. Should be the only place where instanceof is used.
+		// 
+		put (CST.NAME, apform.getDeclaration().getName()) ;
+		if (this instanceof Specification) {
+			put (CST.SPECNAME, apform.getDeclaration().getName()) ;
+		}
+		else if (this instanceof Implementation) {
+			put (CST.IMPLNAME, apform.getDeclaration().getName()) ;
+			if (this instanceof CompositeType) {
+				put(CST.APAM_COMPOSITETYPE, CST.V_TRUE);
+			}
+		}
+		else  if (this instanceof Instance) {
+			put (CST.INSTNAME, apform.getDeclaration().getName()) ;
+			if (this instanceof Composite) {
+
+				Composite composite = (Composite)this;
+				put(CST.APAM_COMPOSITE, CST.V_TRUE);
+				if (composite.getMainInst() != null)
+					put(CST.APAM_MAIN_INSTANCE, composite.getMainInst().getName());
+			}
+		}
+
+	 */
+
 	public static Map<String, Object> getValidProperties(
 			ComponentDeclaration component) {
 		// the attributes to return
@@ -157,9 +234,9 @@ public class CheckObr {
 				continue;
 			}
 			// checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue)
-			// if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
-			ret.put(attr, val);
-			// }
+			if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
+				ret.put(attr, val);
+			}
 		}
 
 		/*
@@ -214,6 +291,55 @@ public class CheckObr {
 
 		return ret;
 	}
+
+	/**
+	 * Checks if the attribute / values pair is valid for the component ent. If
+	 * a final attribute, it is ignored but returns null. (cannot be set).
+	 * 
+	 * For "integer" returns an Integer object, otherwise it is the string
+	 * "value"
+	 * 
+	 * @param entName
+	 * @param attr
+	 * @param value
+	 * @param groupProps
+	 * @param superGroupProps
+	 * @return
+	 */
+	private static String getDefAttr(ApamCapability ent, String attr,
+			String value) {
+		if (Attribute.isFinalAttribute(attr))
+			return null;
+		if (!Attribute.validAttr(ent.getName(), attr))
+			return null;
+
+		String defAttr = null;
+		String inheritedvalue=null;
+
+		ApamCapability parent = ent;
+
+		while (parent != null && inheritedvalue==null) {
+			if(defAttr==null)
+				defAttr = parent.getAttrDefinition(attr);
+			if(parent!=ent)
+				inheritedvalue= parent.getProperty(attr);
+			parent = parent.getGroup();
+		}
+
+		if (defAttr == null) {
+			error("In " + ent.getName() + ", attribute \"" + attr
+					+ "\" used but not defined.");
+			return null;
+		}
+
+		if (inheritedvalue != null && !inheritedvalue.equals(parent.getAttrDefault(attr))) {
+			error("Cannot redefine attribute \"" + attr + "\"");
+			return null;
+		}
+
+		return defAttr;
+	}
+
 
 	public static boolean checkProperty(ComponentDeclaration component,
 			String name, String type, String defaultValue) {
@@ -465,21 +591,21 @@ public class CheckObr {
 	private static ApamCapability getCapFinalRelation(ApamCapability source, String depName) {
 		if (!CST.isFinalRelation(depName)) 
 			return null ;
-		
-		//should be removed ??
-		if (depName.equals(CST.REL_GROUP)) {
-			return source.getGroup();
-		}
-		//Should be removed ??
-		if (depName.equals(CST.REL_MEMBERS)) {
-			if (source.dcl instanceof SpecificationDeclaration) {
-				return buildDummyImplem(source) ;
-			}
-			if (source.dcl instanceof ImplementationDeclaration) {
-				return buildDummyInst(source);
-			}
-			return null;
-		}
+
+//		//should be removed ??
+//		if (depName.equals(CST.REL_GROUP)) {
+//			return source.getGroup();
+//		}
+//		//Should be removed ??
+//		if (depName.equals(CST.REL_MEMBERS)) {
+//			if (source.dcl instanceof SpecificationDeclaration) {
+//				return buildDummyImplem(source) ;
+//			}
+//			if (source.dcl instanceof ImplementationDeclaration) {
+//				return buildDummyInst(source);
+//			}
+//			return null;
+//		}
 
 		if (depName.equals(CST.REL_SPEC)) {
 			if (source.dcl instanceof SpecificationDeclaration) 
@@ -555,14 +681,13 @@ public class CheckObr {
 
 			RelationDeclaration depDcl = getRelationDefinition(source.dcl, rel);
 			if (depDcl == null) {
-				error("relation " + rel + " undefined for "
+				error("Relation " + rel + " undefined for "
 						+ source.dcl.getReference().getKind() + " "
-						+ source.dcl.getName());
+						+ source.dcl.getName() + " in substitution : \"" + defaultValue + "\"");
 				return null;
 			}
 
-			ComponentReference<?> targetComponent = depDcl.getTarget().as(
-					ComponentReference.class);
+			ComponentReference<?> targetComponent = depDcl.getTarget().as(ComponentReference.class);
 			if (targetComponent == null) { // it is an interface or message
 				// target. Cannot check.
 				warning(depDcl.getTarget().getName()
@@ -574,7 +699,7 @@ public class CheckObr {
 			source = ApamCapability.get(targetComponent.getName());
 			if (source == null) {
 				error("Component " + targetComponent.getName()
-						+ " not found in substitution : " + defaultValue);
+						+ " not found in substitution : \"" + defaultValue + "\"");
 				return null;
 			}
 		}
@@ -583,53 +708,6 @@ public class CheckObr {
 
 	}
 
-	/**
-	 * Checks if the attribute / values pair is valid for the component ent. If
-	 * a final attribute, it is ignored but returns null. (cannot be set).
-	 * 
-	 * For "integer" returns an Integer object, otherwise it is the string
-	 * "value"
-	 * 
-	 * @param entName
-	 * @param attr
-	 * @param value
-	 * @param groupProps
-	 * @param superGroupProps
-	 * @return
-	 */
-	private static String getDefAttr(ApamCapability ent, String attr,
-			String value) {
-		if (Attribute.isFinalAttribute(attr))
-			return null;
-		if (!Attribute.validAttr(ent.getName(), attr))
-			return null;
-
-		String defAttr = null;
-		String inheritedvalue=null;
-
-		ApamCapability parent = ent;
-
-		while (parent != null && inheritedvalue==null) {
-			if(defAttr==null)
-				defAttr = parent.getAttrDefinition(attr);
-			if(parent!=ent)
-				inheritedvalue= parent.getProperty(attr);
-			parent = parent.getGroup();
-		}
-
-		if (defAttr == null) {
-			error("In " + ent.getName() + ", attribute \"" + attr
-					+ "\" used but not defined.");
-			return null;
-		}
-		
-		if (inheritedvalue != null && !inheritedvalue.equals(parent.getAttrDefault(attr))) {
-			error("Cannot redefine attribute \"" + attr + "\"");
-			return null;
-		}
-
-		return defAttr;
-	}
 
 	/**
 	 * An implementation has the following provide; check if consistent with the

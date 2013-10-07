@@ -286,8 +286,9 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (impl.getProperty("autoSet"), "Z-3, Z-2") ;
 		assertEquals (inst.getProperty("autoSet"), "Z-3, Z-2") ;
 
+		//is it allowed to set an attribute at the level of its definition ? If YES, it should be equal.
 		impl.setProperty("S1toS2Final-String1", "falseVal") ;
-		assertNotEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
+		assertEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
 		
 		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;

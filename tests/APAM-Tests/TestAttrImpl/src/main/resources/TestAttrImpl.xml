@@ -56,20 +56,39 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="locSetInt" type="{int}"/>
 		<property   name="locSetInt" value="1, 2, 3, 55" />
 
-
-		<definition name="metaStr" type="string" default="$$S1toS2Final-String1"/>
-		<definition name="metaS1i" type="int" default="$$s1i"/>
+<!--  Les erreurs -->
 <!-- 		<definition name="fmetaStr" type="boolean" default="$$S1toS2Final-String1"/> -->
 <!-- 		<definition name="fmetaS1i" type="string" default="$$s1i"/> -->
 <!-- 		<definition name="fmetaS1ifalse" type="int" default="$$s1ifalsee"/> -->
-		<definition name="metaBool" type="boolean" default="$$S1toS2Final-Bool"/>
 <!-- 		<definition name="metaBool2" type="bool" default="$$S1toS2Final-Bool"/> -->
+<!-- 		<definition name="metaEnumLoc2" type="living, kitchen, bedroom" default="$aaaa$location+bbbb" /> -->
+<!-- 		<definition name="fd2metaStr" type="string" /> -->
+<!-- 		<property name="fd2metaStr" value="$prefixx+$c+sufixx"/> -->
+<!-- 		<definition name="fd2metaS1i" type="{int}" /> -->
+<!-- 		<property name="fd2metaS1i"  value="$S2Impl$intSet"/> -->
+<!-- 		<definition name="fd2metaBool" type="boolean" /> -->
+<!-- 		<property name="fd2metaBool" value="$prefixx+S2Impl$bmissing"/> -->
+<!-- 		<definition name="metaEnumLoc" type="{string}" /> -->
+<!-- 		<property name="metaEnumLoc" value="$S2Impl.S4_2$location" /> -->
+<!-- 		<definition name="d2xmetaEnumLoc" type="exit, entrance, garage, bedroom" /> -->
+<!-- 		<property name="d2xmetaEnumLoc"  value="$.s2.s4_2$locationSingle" /> -->
+<!-- 		<definition name="dxxxmetaEnumLoc" type="{exit, entrance, garage, bedroom}"  /> -->
+<!-- 		<property name="dxxxmetaEnumLoc" value="$S2Impl.S4_2$locationSingle" /> -->
+<!-- 		<definition name="mfd2metaStr" type="string" default="$this.insts.mauvais$name"  /> -->
+<!-- 		<property name="mauvais"  value="$S2_Instance.S4_2$b" /> -->
+<!-- 		<property name="d5metaEnumLoc"  value="$S2_Instance.S4_2$locationSingle" /> -->
+<!-- 		<property name="d21metaEnumLoc" value="$destinations de S4-2+S2Impl.impls.S4_2$name" /> -->
+<!-- 		<property name="d2m2etaEnumLoc"  value="$destinations de s2+S2Impl.spec.impls.S3$name" /> -->
+
+
+<!-- Correct -->
+		<definition name="metaStr" type="string" default="$$S1toS2Final-String1"/>
+		<definition name="metaS1i" type="int" default="$$s1i"/>
+		<definition name="metaBool" type="boolean" default="$$S1toS2Final-Bool"/>
 		<definition name="metaEnumLoc" type="string" default="$aaaa+$location+bbbb" />
 		<definition name="metaEnumLocbis" type="living, kitchen, bedroom" default="$$location" />
-<!-- 		<definition name="metaEnumLoc2" type="living, kitchen, bedroom" default="$aaaa$location+bbbb" /> -->
 		<definition name="metaEnumLoc3" type="{string}" default="$aaaa+.$location+bbbb" />
 		<definition name="metaEnumSet" type="{f1, f2, f3, f4}" />
-
 		<definition name="dmetaStr" type="string" />
 		<property   name="dmetaStr" value="$$S1toS2Final-String1"/>
 		<definition name="dmetaS1i" type="int" />
@@ -81,31 +100,19 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="dmetaEnumSet" type="{f1, f2, f3, f4}" />
 		<property name="dmetaEnumSet" value="$$enumeration"/>
 
-<!-- 		<property name="fd2metaStr" type="string" value="$prefixx+$c+sufixx"/> -->
-<!-- 		<property name="fd2metaStr" type="string" value="$prefixx+$c+sufixx"/> -->
-<!-- 		<property name="fd2metaS1i" type="{int}" value="$S2Impl$intSet"/> -->
-<!-- 		<property name="fd2metaS1i" type="{int}" value="$S2Impl$intSet"/> -->
+
 		<definition name="d2metaBool" type="boolean"/>
 		<property name="d2metaBool"  value="$S2Impl$b"/>
 		<definition name="mauvais" type="boolean" />
-		<property name="mauvais"  value="$S2_Instance.S4_2$b" />
 		<definition name="d5metaEnumLoc" type="exit, entrance, garage, bedroom" />
-		<property name="d5metaEnumLoc"  value="$S2_Instance.S4_2$locationSingle" />
-<!-- 		<property name="fd2metaBool" type="boolean" value="$prefixx+S2Impl$bmissing"/> -->
 		<definition name="d2metaEnumLoc" type="{exit, entrance, garage, bedroom}" />
-		<property name="d2metaEnumLoc" value="$S2Impl.members.S4_2$locationSingle" />
+		<property name="d2metaEnumLoc" value="$S2Impl.impls.S4_2$locationSingle" />
 		<definition name="d21metaEnumLoc" type="{string}"  />
-		<property name="d21metaEnumLoc" value="$destinations de S4-2+S2Impl.members.S4_2$name" />
 		<definition name="d2m2etaEnumLoc" type="{string}"  />
-		<property name="d2m2etaEnumLoc"  value="$destinations de s2+S2Impl.members.S3$name" />
-<!-- 		<property name="fd2metaEnumLoc" type="exit, x, garage, bedroom" value="$S2Impl.S4_2$locationSingle" /> -->
-<!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$location" /> -->
-<!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationf" /> -->
-<!-- 		<property name="fd3metaEnumLoc" type="exit, b, garage, bedroom" value="$prefixx+S2Impl.S4_2$location+sufixx" /> -->
 		<definition name="metaEnumLoc81" type="{exit, entrance, garage, bedroom}"  />
 		<property name="metaEnumLoc81"  value="$S2Impl.insts.S4_2$location" />
 		<definition name="metaEnumLoc82" type="{exit, entrance, garage, bedroom}" />
-		<property name="metaEnumLoc82"  value="$S2Impl.members.S4_2$location" />
+		<property name="metaEnumLoc82"  value="$S2Impl.impl.S4_2$location" />
 		<definition name="metaEnumLoc83" type="{exit, entrance, garage, bedroom}" />
 		<property name="metaEnumLoc83"  value="$S2Impl.impl.insts.S4_2$location" />
 
@@ -125,18 +132,15 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<property name="metaLoc7" value="$this.insts.impl.insts$name" />
 		<definition name="metaLoc8" type="{string}" />
 		<property name="metaLoc8"  value="$this.impl.spec.impls$name" />
-<!-- 		<property name="metaEnumLoc" type="{string}" value="$S2Impl.S4_2$location" /> -->
 
 		<definition name="d6metaEnumLoc"  type="{string}"  />
-		<property name="d6metaEnumLoc"  value="$.members.s2$setstring" />
+		<property name="d6metaEnumLoc"  value="$.insts.s2$setstring" />
 		<definition name="d6metaEnumLoc6" type="{string}"  />
-		<property name="d6metaEnumLoc6" value="$xxx+.members.s2$setstring+YYY" />
+		<property name="d6metaEnumLoc6" value="$xxx+.insts.s2$setstring+YYY" />
 		<definition name="d6metaEnumLoc2" type="{string}"  />
-		<property name="d6metaEnumLoc2"  value="$aaaa+this.members.s2$setstring+bbbb" />
+		<property name="d6metaEnumLoc2"  value="$aaaa+this.insts.s2$setstring+bbbb" />
 		<definition name="d6metaEnumLoc4" type="{string}" />
-		<property name="d6metaEnumLoc4"  value="$this.members.s2$setstring" />
-<!-- 		<property name="d2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$.s2.s4_2$locationSingle" /> -->
-<!-- 		<property name="d5metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$locationSingle" /> -->
+		<property name="d6metaEnumLoc4"  value="$this.insts.s2$setstring" />
 
 	<definition name="funcTest" type="string" default="@fonctionTest" />
 	<definition name="funcTestSet" type="{string}" default="@fonctionTestSet" />

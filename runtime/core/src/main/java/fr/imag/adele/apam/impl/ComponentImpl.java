@@ -466,14 +466,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	private Set<Component> getFInalLinkDests (String depName) {
 
 			Set<Component> dests = new HashSet<Component>() ;
-			if (depName.equals(CST.REL_GROUP)) {
-				dests.add(getGroup()) ;
-				return dests ;
-			}
-			if (depName.equals(CST.REL_MEMBERS)) {
-				dests.addAll(getMembers()) ;
-				return dests ;
-			}
+//			if (depName.equals(CST.REL_GROUP)) {
+//				dests.add(getGroup()) ;
+//				return dests ;
+//			}
+//			if (depName.equals(CST.REL_MEMBERS)) {
+//				dests.addAll(getMembers()) ;
+//				return dests ;
+//			}
 			if (depName.equals(CST.REL_COMPOSITE)) {
 				if (this instanceof Instance)
 					dests.add(((Instance)this).getComposite()) ;

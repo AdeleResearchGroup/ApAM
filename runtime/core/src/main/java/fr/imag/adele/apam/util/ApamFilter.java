@@ -1280,7 +1280,7 @@ public class ApamFilter /* implements Filter */ {
 					 */
 					string = Util.toStringAttrValue(Substitute.substitute(null, string, component)) ;
 					if (string == null) {
-						System.err.println("Substitution failed. Attribute not set: " + filterstring);
+						logger.debug("Substitution failed. Attribute not set: " + filterstring);
 						string ="Null" ;
 					}
 					return new ApamFilter(ApamFilter.EQUAL, attr,
