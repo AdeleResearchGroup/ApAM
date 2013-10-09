@@ -152,19 +152,20 @@ public abstract class ExtensionAbstract extends TestUtils {
 		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
 				//version as in project
 				org.ops4j.pax.exam.CoreOptions.repositories(
+					"http://repo.maven.apache.org/maven2/",
+					"https://maven.java.net/content/repositories/releases/",
+					"https://repository.apache.org/content/groups/public",
+					"https://repository.apache.org/content/groups/snapshots",
+					
 						"http://repository.springsource.com/maven/bundles/release",
 						"http://repository.springsource.com/maven/bundles/external",
-						"http://repo.maven.apache.org/maven2/",
 						"http://repository.ow2.org/nexus/content/repositories/snapshots",
 						"http://repository.ow2.org/nexus/content/repositories/releases",
 						"http://repository.ow2.org/nexus/content/sites/ow2-utilities",
 						"http://repository.ow2.org/nexus/content/repositories/thirdparty",
 						"http://repository.ow2.org/nexus/content/repositories/ow2-legacy",
-						"http://repository.ow2.org/nexus/content/groups/public",
-						"https://maven.java.net/content/repositories/releases/",
-						"https://repository.apache.org/content/groups/public",
-						"https://repository.apache.org/content/groups/snapshots"),
-//				mavenBundle("fr.imag.adele.apam", "dependencies-distriman").versionAsInProject()
+						"http://repository.ow2.org/nexus/content/groups/public"),
+						
 				mavenBundle("org.ow2.asm", "asm-all").version("4.1"),
 				mavenBundle("javax.mail", "com.springsource.javax.mail").version("1.4.1"),
 				mavenBundle("javax.wsdl", "com.springsource.javax.wsdl").version("1.6.1"),
@@ -172,34 +173,17 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("org.apache.xml", "com.springsource.org.apache.xml.resolver").version("1.2.0"),
 				mavenBundle("org.dom4j", "com.springsource.org.dom4j").version("1.6.1"),
 				mavenBundle("joda-time", "joda-time").version("1.6.2"),
-				//mavenBundle("org.ow2.chameleon.commons.cxf", "cxf-bundle-minimal").version("2.5.2-0002"),
 				mavenBundle("org.apache.cxf", "cxf-bundle-minimal").version("2.5.2"),
 				mavenBundle("com.google.guava", "guava").version("13.0-rc1"),	
 				mavenBundle("javax.ws.rs", "javax.ws.rs-api").version("2.0-m09"),	
-				mavenBundle("org.eclipse.jetty", "jetty-continuation").version("7.6.8.v20121106"),
-				mavenBundle("org.eclipse.jetty", "jetty-http").version("7.6.8.v20121106"),
-				mavenBundle("org.eclipse.jetty", "jetty-io").version("7.6.8.v20121106"),
-				mavenBundle("org.eclipse.jetty", "jetty-server").version("7.6.8.v20121106"),
-				mavenBundle("org.eclipse.jetty", "jetty-util").version("7.6.8.v20121106"),
 				mavenBundle("javax.ws.rs", "jsr311-api").version("1.1"),
 				mavenBundle("org.apache.neethi", "neethi").version("3.0.2"),
-				mavenBundle("org.apache.felix", "org.apache.felix.configadmin").version("1.2.8"),
-				mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").version("3.2.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.gogo.command").version("0.12.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime").version("0.10.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.gogo.shell").version("0.10.0"),
 				mavenBundle("org.apache.felix", "org.apache.felix.http.jetty").version("2.2.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.ipojo.annotations").version("1.8.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.ipojo.api").version("1.6.0"),
-				mavenBundle("org.apache.felix", "org.apache.felix.ipojo.arch.gogo").version("1.0.1"),
-				mavenBundle("org.apache.felix", "org.apache.felix.ipojo.manipulator").version("1.8.0"),
 				mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.opensaml").version("2.4.1_1"),
 				mavenBundle("org.apache.ws.xmlschema", "xmlschema-core").version("2.0"),
 				mavenBundle("org.codehaus.jackson", "jackson-core-asl").version("1.9.12"),
 				mavenBundle("org.codehaus.jackson", "jackson-mapper-asl").version("1.9.12"),				
-				mavenBundle("org.codehaus.jettison", "jettison").version("1.3.3"),
-				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject(),
-				mavenBundle("org.apache.felix", "org.apache.felix.main").version("1.8.0")
+				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject()
 				
 				);
 		
