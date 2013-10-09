@@ -36,6 +36,8 @@ import fr.imag.adele.apam.util.Util;
 public class MainApam implements Runnable, ApamComponent {
 	// injected
 	Apam apam;
+	S1 testPerf ;
+	S1 testPerfPrefere ;
 
 	public void assertTrue (boolean test) {
 		if (!test) {
@@ -677,6 +679,78 @@ public class MainApam implements Runnable, ApamComponent {
 		s11.callS1("createAppli-3");
 
 	}
+	
+	public void testPerfLink () {
+		System.out.println("=========== start testPerfLink test");
+		Implementation impl= CST.apamResolver.findImplByName(null,"S2Impl");
+		int nb = 1000;
+		Long deb = System.nanoTime();
+		for (int i = 0; i< nb; i++) {
+			impl.setProperty("debit", 5) ;
+		}
+		long fin = System.nanoTime();
+		long duree = (fin - deb)/1000000 ;
+		System.err.println("duree de " + nb + " appels a setproperty : " + duree + " milli secondess");
+
+		Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");
+		Instance s1_0 = implS1.createInstance(null, null);
+		Instance s1_1 = implS1.createInstance(null, null);
+		
+		s1_0.setProperty("debit", 10) ;
+		s1_1.setProperty("debit", 5) ;
+		
+		System.out.println("testPerf dest initital " + testPerf.toString());
+
+		deb = System.nanoTime();
+		nb = 100 ;
+		for (int i=0; i < 100 ; i++) {
+			s1_0.setProperty("debit", 10) ;
+			s1_1.setProperty("debit", 2) ;
+			testPerf.callS1("") ;
+			
+			s1_0.setProperty("debit", 2) ;		
+			s1_1.setProperty("debit", 10) ;
+			testPerf.callS1("") ;
+
+		}
+		fin = System.nanoTime();
+		duree = (fin - deb)/1000000 ;
+		System.out.println("duree de " + nb + " appels a 4 setproperty avec changement de dependance : " + duree + " milli secondess");
+
+	
+		deb = System.nanoTime();
+		nb = 100 ;
+		for (int i=0; i < 100 ; i++) {
+			s1_0.setProperty("debit", 10) ;
+			s1_1.setProperty("debit", 2) ;
+			
+			s1_1.setProperty("debit", 10) ;
+			s1_0.setProperty("debit", 2) ;
+		}
+		fin = System.nanoTime();
+		duree = (fin - deb)/1000000 ;
+		System.out.println("Sans appel, duree de " + nb + " 4 setproperty avec changement de dependance : " + duree + " milli secondess");
+
+		/*
+		 * preferences
+		 */
+		testPerfPrefere.callS1("") ;
+		deb = System.nanoTime();
+		nb = 100 ;
+		for (int i=0; i < 100 ; i++) {
+			s1_0.setProperty("debit", 10) ;
+			s1_1.setProperty("debit", 2) ;
+			testPerfPrefere.callS1("") ;
+			
+			s1_1.setProperty("debit", 10) ;
+			s1_0.setProperty("debit", 2) ;
+			testPerfPrefere.callS1("") ;
+		}
+		fin = System.nanoTime();
+		duree = (fin - deb)/1000000 ;
+		System.out.println("Preferences : duree de " + nb + " appels a 4 setproperty avec changement de dependance : " + duree + " milli secondess");
+		
+	}
 
 	@Override
 	public void run() {
@@ -687,9 +761,12 @@ public class MainApam implements Runnable, ApamComponent {
 //		//testCompoURL () ;
 //		testCreateCompoRootS1toS2Final () ;
 //		testCreateCompoBySpec () ;
-		testInitialAttributes () ;
-		testSettingAttributes () ;
+
+//		testInitialAttributes () ;
+//		testSettingAttributes () ;
+
 //		testImplemWithoutSpec () ;
+		testPerfLink  () ;
 	}
 
 

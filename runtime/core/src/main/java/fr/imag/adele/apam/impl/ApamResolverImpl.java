@@ -406,13 +406,13 @@ public class ApamResolverImpl implements ApamResolver {
 			boolean deployed = false;
 			
 			boolean resolveExist = relation.getResolve() == ResolvePolicy.EXIST ;
-
+			String mess = "" ;
 			for (RelationManager manager : selectionPath) {
 				if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 					deployed = true;
 				}
-				logger.debug(manager.getName() + "  ");
-
+				//logger.debug(manager.getName() + "  ");
+				mess += manager.getName() + "  " ;
 				// Does the real job
 				res = manager.resolveRelation(source, relation);
 				if (res == null || res.isEmpty())
@@ -432,7 +432,7 @@ public class ApamResolverImpl implements ApamResolver {
 				 */
 				if (res.toInstantiate != null) {
 					if (relation.getTargetKind() != ComponentKind.INSTANCE) {
-						logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
+						logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
 						continue;
 					}
 
@@ -440,18 +440,24 @@ public class ApamResolverImpl implements ApamResolver {
 					 * If resolveExist, we cannot instanciate.
 					 */				
 					if (resolveExist) {
-						logger.error("create=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot instantiate. Resolve failed.");
+						logger.error(mess + "create=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot instantiate. Resolve failed.");
 						continue;
 					}
 
 					Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
 					Instance inst = res.toInstantiate.createInstance(compo, null);
-					if (inst == null) { // may happen if impl is non
-						// instantiable
-						logger.error("Failed creating instance of " + res.toInstantiate);
+					if (inst == null) { // may happen if impl is non instantiable
+						logger.error(mess + "Failed creating instance of " + res.toInstantiate);
 						continue;
 					}
-					logger.info("Instantiated " + inst);
+					
+					if (!relation.matchRelation(inst)) {
+						logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints") ;
+						((ComponentImpl)inst).unregister() ;
+						continue ;
+					}
+					
+					logger.info(mess + "Instantiated " + inst);
 					if (relation.isMultiple()) {
 						Set<Instance> insts = new HashSet<Instance>();
 						insts.add(inst);
@@ -466,27 +472,27 @@ public class ApamResolverImpl implements ApamResolver {
 				 */
 				if (relation.isMultiple()) {
 					if (res.setResolved == null || res.setResolved.isEmpty()) {
-						logger.info("manager " + manager + " returned an empty result. Should be null.");
+						logger.info(mess + "manager " + manager + " returned an empty result. Should be null.");
 						continue;
 					}
 					if (((Component) res.setResolved.iterator().next()).getKind() != relation.getTargetKind()) {
-						logger.error("Manager " + manager + " returned objects of the bad type for relation " + relation);
+						logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relation);
 						continue;
 					}
-					logger.info("Selected : " + res.setResolved);
+					logger.info(mess + "Selected : " + res.setResolved);
 					return res;
 				}
 
 				// Result is a singleton
 				if (res.singletonResolved == null) {
-					logger.info("manager " + manager + " returned an empty result. ");
+					logger.info(mess + "manager " + manager + " returned an empty result. ");
 					continue;
 				}
 				if (res.singletonResolved.getKind() != relation.getTargetKind()) {
-					logger.error("Manager " + manager + " returned objects of the bad type for relation " + relation);
+					logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relation);
 					continue;
 				}
-				logger.info("Selected : " + res.singletonResolved);
+				logger.info(mess + "Selected : " + res.singletonResolved);
 				return res;
 			}
 		}

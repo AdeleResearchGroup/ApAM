@@ -30,6 +30,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="S2Simple"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2"
 		interfaces="{fr.imag.adele.apam.test.s2.S2}">
+			<definition name="debit" type="int" default="2"/>
 
 			<definition name="S2Implm" type="string"/>
 			<definition name="S2Impl-Enum" type="{X-1, X-2, X-3}"/>
@@ -66,6 +67,9 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="S2Impl"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2">
+		
+		<definition name="debit" type="int" default="2"/>
+		
 		<dependency field="s4_1" name="S4_1"/>
 		<dependency field="s4_2" specification="S4" name="S4_2"/>
 		<dependency field="s3s" implementation="S3Impl" name="S3Mult"/>

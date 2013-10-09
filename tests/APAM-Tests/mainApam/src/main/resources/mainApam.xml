@@ -20,6 +20,16 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
 			<dependency field="apam" />
+			<dependency field="testPerf" >
+				<constraints>
+					<instance filter="(debit >= 5)"/>
+				</constraints>
+			</dependency>
+			<dependency field="testPerfPrefere" >
+				<preferences>
+					<instance filter="(debit >= 5)"/>
+				</preferences>
+			</dependency>
 	</implementation>
 
 	<implementation name="Promotions"  classname="fr.imag.adele.apam.mainApam.Promotions" >
