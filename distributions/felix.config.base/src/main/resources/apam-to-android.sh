@@ -82,7 +82,7 @@ echo
 echo XXXX
 echo Creating script felix-android.sh
 echo XXXX
-echo "/system/bin/dalvikvm -Xbootclasspath:/system/framework/core.jar  -classpath bin/felix.jar org.apache.felix.main.Main" > android-apam/felix-android.sh
+echo "/system/bin/dalvikvm -classpath bin/felix.jar org.apache.felix.main.Main" > android-apam/felix-android.sh
 
 
 echo
