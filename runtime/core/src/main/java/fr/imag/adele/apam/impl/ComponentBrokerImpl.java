@@ -395,13 +395,18 @@ public class ComponentBrokerImpl implements ComponentBroker{
 
 	public static void disappearedComponent(Component component) {
 		try {
+			/*
+			 * in case it is an Apam unregister that produced the disappear, first check if it exists in Apam ...
+			 */
 			if (component instanceof Specification) {
-				specifications.remove(component);
+				if (!specifications.remove(component))
+					return ;
 				((SpecificationImpl)component).unregister(); 	
 				return ;
 			}
 			if (component instanceof Implementation) {
-				implementations.remove(component);
+				if (!implementations.remove(component))
+					return ;
 				if (component instanceof CompositeType) {
 					((CompositeTypeImpl) component).unregister();
 					return ;
@@ -410,12 +415,14 @@ public class ComponentBrokerImpl implements ComponentBroker{
 				return ;
 			}
 			if (component instanceof Instance) {
-				instances.remove(component);
+				if (!instances.remove(component))
+					return ;
 				if (component instanceof Composite) {
 					((CompositeImpl)component).unregister();
 					return ;
 				}
 				((InstanceImpl)component).unregister () ;
+				return ;
 			}
 			logger.debug("Unknown component " + component + " cannot delete") ;
 		} finally {

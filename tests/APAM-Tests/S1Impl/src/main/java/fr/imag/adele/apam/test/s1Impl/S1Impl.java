@@ -120,6 +120,11 @@ public class S1Impl implements S1, Runnable, ApamComponent {
 		//        s4.callS4_final("From S1Impl external");
 	}
 
+	@Override
+	public String getName () {
+		return "S1Impl" ;
+	}
+
 
 	public void run() {
 		System.out.println("=== executing  s1.callS1(\"From S1Impl \") ");

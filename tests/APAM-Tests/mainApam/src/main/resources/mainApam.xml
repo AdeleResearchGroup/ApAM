@@ -20,7 +20,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
 			<dependency field="apam" />
-			<dependency field="testPerf" >
+			<dependency field="testPerf" fail="wait" resolve="exist">
 				<constraints>
 					<instance filter="(debit >= 5)"/>
 				</constraints>

@@ -1023,8 +1023,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			if (incoming.hasConstraints() && !isValidLink (incoming)) {
 				//remove
 				incoming.remove();
-				//recreate
-				CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
+				//recreate. Why ?
+				//CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
 			}
 		}
 

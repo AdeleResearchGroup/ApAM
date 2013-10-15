@@ -38,6 +38,9 @@ public class MainApam implements Runnable, ApamComponent {
 	Apam apam;
 	S1 testPerf ;
 	S1 testPerfPrefere ;
+	static Instance s1_0 ;
+	static Instance s1_1 ;
+	static int cpt = 0 ;
 
 	public void assertTrue (boolean test) {
 		if (!test) {
@@ -272,8 +275,8 @@ public class MainApam implements Runnable, ApamComponent {
 
 		System.out.println("=========== start testing setting attributes");
 
-//		<property   name="autoString" value="aValue" type="string"/>
-//		<property   name="autoSet" value="Z-1, Z-2" type="{Z-0, Z-1, Z-2, Z-3}"/>
+		//		<property   name="autoString" value="aValue" type="string"/>
+		//		<property   name="autoSet" value="Z-1, Z-2" type="{Z-0, Z-1, Z-2, Z-3}"/>
 
 		//setting auto defined attributes
 		assertEquals (impl.getProperty("autoString"), "aValue") ;
@@ -291,7 +294,7 @@ public class MainApam implements Runnable, ApamComponent {
 		//is it allowed to set an attribute at the level of its definition ? If YES, it should be equal.
 		impl.setProperty("S1toS2Final-String1", "falseVal") ;
 		assertEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
-		
+
 		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;
 		assertTrue (spec.getProperty("xxx") == null) ;
@@ -346,14 +349,14 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("s1i"), "5");
 		impl.setProperty("s1i", "5, 7, 55,985"); // Ok
 		assertNotEquals(impl.getProperty("s1i"), "5, 7, 55,985");
-		
+
 		//		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
 
 		//		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
 		//		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
 
 		boolean ok  ;
-		
+
 		assertTrue ( inst.match("(s1i>=4)")) ;
 		assertTrue (!inst.match("(s1i<=4)")) ;
 		assertTrue (!inst.match("(s1i>=6)")) ;
@@ -378,10 +381,10 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("fieldAttr"), s);
 		inst.setProperty("fieldAttr", "a Value") ;
 		assertEquals(inst.getProperty("fieldAttr"), s);
-		
+
 		//Refining spec attribute with a field
-		
-		
+
+
 
 
 
@@ -391,32 +394,32 @@ public class MainApam implements Runnable, ApamComponent {
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
-		
-		
+
+
 		impl.setProperty("setInt", "7, 055"); // for match tests
-		
+
 		System.out.println("\n");
 		System.out.println("setInt value is : " + inst.getProperty("setInt"));
-		
+
 		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
 		assertTrue (!inst.match("(setInt *> 5, 7, 55,985)")) ;
 		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
-//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+		//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
 
 		Set<Integer> setInt = new HashSet<Integer> () ;
 		setInt.add(5) ;
 		setInt.add(985) ;
 		impl.setProperty("setInt", setInt); // for match tests
-		
+
 		System.out.println("\n");
 		System.out.println("setInt value is : " + inst.getProperty("setInt"));
-		
+
 		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
 		assertTrue (!inst.match("(setInt *> 5, 7, 55,985)")) ;
-//		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
-//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+		//		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
+		//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
 
-		
+
 		inst.setProperty("OS", "Android, Linux, IOS") ; // ok
 		System.out.println("OS=" + inst.getProperty("OS"));
 		assertEquals(inst.getProperty("OS"), "Android, Linux, IOS");
@@ -431,8 +434,8 @@ public class MainApam implements Runnable, ApamComponent {
 		assertNotEquals(inst.getProperty("OS"), "Android, Linux, IOS");
 		assertTrue(impl.getProperty("OS") == null);
 
-		
-		
+
+
 		System.out.println("\n");
 		System.out.println("OS value is : " + inst.getProperty("OS"));
 		System.out.println("toto does not exist. Its value is null");
@@ -556,7 +559,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("S1toS2Final-location"), "FinalLiving, FinalKitchen");
 		System.out.println("=========== start testing setting attributes");
 
-/*
+		/*
 		System.out.println("=========== start test Remove Attributes");
 		inst.removeProperty ("name") ;
 		assertTrue (inst.getProperty("name") != null) ;
@@ -611,7 +614,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue (inst.getProperty("S1-Attr") == null) ;
 
 		System.out.println("=========== passed test Remove Attributes");
-*/
+		 */
 
 		System.out.println("=========== passed testSettingAttributes\n\n");
 
@@ -679,7 +682,7 @@ public class MainApam implements Runnable, ApamComponent {
 		s11.callS1("createAppli-3");
 
 	}
-	
+
 	public void testPerfLink () {
 		System.out.println("=========== start testPerfLink test");
 		Implementation impl= CST.apamResolver.findImplByName(null,"S2Impl");
@@ -693,37 +696,57 @@ public class MainApam implements Runnable, ApamComponent {
 		System.err.println("duree de " + nb + " appels a setproperty : " + duree + " milli secondess");
 
 		Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");
-		Instance s1_0 = implS1.createInstance(null, null);
-		Instance s1_1 = implS1.createInstance(null, null);
-		
+		s1_0 = implS1.createInstance(null, null);
+		s1_1 = implS1.createInstance(null, null);
+
 		s1_0.setProperty("debit", 10) ;
 		s1_1.setProperty("debit", 5) ;
-		
+
 		System.out.println("testPerf dest initital " + testPerf.toString());
 
 		deb = System.nanoTime();
 		nb = 100 ;
-		for (int i=0; i < 100 ; i++) {
-			s1_0.setProperty("debit", 10) ;
-			s1_1.setProperty("debit", 2) ;
-			testPerf.callS1("") ;
-			
-			s1_0.setProperty("debit", 2) ;		
-			s1_1.setProperty("debit", 10) ;
-			testPerf.callS1("") ;
-
+		String dest = "" ;
+		String oldName = "";
+		Object sync = new Object() ;
+		//		for (int i=0; i < 100 ; i++) {
+		//			s1_0.setProperty("debit", 10) ;
+		//			s1_1.setProperty("debit", 2) ;
+		synchronized (sync) {			
+			try {
+				while (true) {
+					sync.wait (80) ;
+//					if (testPerf == null) {
+//						System.out.println("Linked to nobody");
+//						continue ;
+//					}
+					dest = testPerf.getName() ;
+					if (! dest.equals(oldName)) {
+						System.out.println("Linked to " + dest) ;
+						oldName = dest ;
+					}
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		//			s1_0.setProperty("debit", 2) ;		
+		//			s1_1.setProperty("debit", 10) ;
+		//			testPerf.callS1("") ;
+
+
 		fin = System.nanoTime();
 		duree = (fin - deb)/1000000 ;
 		System.out.println("duree de " + nb + " appels a 4 setproperty avec changement de dependance : " + duree + " milli secondess");
 
-	
+
 		deb = System.nanoTime();
 		nb = 100 ;
 		for (int i=0; i < 100 ; i++) {
 			s1_0.setProperty("debit", 10) ;
 			s1_1.setProperty("debit", 2) ;
-			
+
 			s1_1.setProperty("debit", 10) ;
 			s1_0.setProperty("debit", 2) ;
 		}
@@ -741,7 +764,7 @@ public class MainApam implements Runnable, ApamComponent {
 			s1_0.setProperty("debit", 10) ;
 			s1_1.setProperty("debit", 2) ;
 			testPerfPrefere.callS1("") ;
-			
+
 			s1_1.setProperty("debit", 10) ;
 			s1_0.setProperty("debit", 2) ;
 			testPerfPrefere.callS1("") ;
@@ -749,31 +772,75 @@ public class MainApam implements Runnable, ApamComponent {
 		fin = System.nanoTime();
 		duree = (fin - deb)/1000000 ;
 		System.out.println("Preferences : duree de " + nb + " appels a 4 setproperty avec changement de dependance : " + duree + " milli secondess");
-		
+
+	}
+
+	private void changeProperties () {
+		Object syncp = new Object() ;
+		synchronized (syncp) {
+			try {
+				while (true) {
+					syncp.wait (100) ;
+					if (s1_0 != null) {
+						s1_0.setProperty("debit", 10);
+						System.out.println( "s1_0 = 10");
+					}
+					syncp.wait (100) ;					
+					if (s1_1 != null) {
+						s1_1.setProperty("debit", 2);
+						System.out.println("s1_1 = 2");
+					}
+					
+					syncp.wait (100) ;
+					if (s1_0 != null) {
+						s1_0.setProperty("debit", 2);
+						System.out.println( "s1_0 = 2");
+					}
+					syncp.wait (100) ;					
+					if (s1_1 != null) {
+						s1_1.setProperty("debit", 10);
+						System.out.println("s1_1 = 10");
+					}
+
+				
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	@Override
 	public void run() {
 
-		System.out.println("Starting new mainApam " );
+		String sync = "" ;
+//		synchronized (sync) {		
+			System.out.println("Starting new mainApam " + cpt);
+			if (cpt == 0) {
+				cpt ++ ;
+				new Thread(this, "MainApam change Properties").start();
+				testPerfLink  () ;
+			} else {
+				changeProperties() ;
+			}
+//		}
+		//		testFindImplByName () ;
+		//		//testCompoURL () ;
+		//		testCreateCompoRootS1toS2Final () ;
+		//		testCreateCompoBySpec () ;
 
-//		testFindImplByName () ;
-//		//testCompoURL () ;
-//		testCreateCompoRootS1toS2Final () ;
-//		testCreateCompoBySpec () ;
+		//		testInitialAttributes () ;
+		//		testSettingAttributes () ;
 
-//		testInitialAttributes () ;
-//		testSettingAttributes () ;
-
-//		testImplemWithoutSpec () ;
-		testPerfLink  () ;
+		//		testImplemWithoutSpec () ;
 	}
 
 
 
 	@Override
 	public void apamInit(Instance apamInstance) {
-		new Thread(this, "APAM test").start();
+		new Thread(this, "MainApam perftest").start();
 	}
 
 	@Override
@@ -783,12 +850,12 @@ public class MainApam implements Runnable, ApamComponent {
 
 	public void wiredFor(String resource) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void unWiredFor(String resource) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

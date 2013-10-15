@@ -19,29 +19,52 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s2.S2;
 
-public class S1ImplEmpty implements S1, ApamComponent {
-    S2 s2;
-    String theFieldAttr ;
-    String name = "unset" ;
+public class S1ImplEmpty implements S1, Runnable, ApamComponent {
+	S2 s2;
+	String theFieldAttr ;
+	String name = "unset" ;
+	Instance apamInstance ;
+
+	@Override
+	public String getName () {
+		return name ;
+	}
+
 
 	@Override
 	public void callS1(String s) {
-        System.out.println(name + " called " );
-//		theFieldAttr = s ;
-//        s2.callS2("From S1toS2Final" ) ;
+		System.out.println(name + " called " );
+	}
+
+	public void run () {
+//		String sync = "" ;
+		System.out.println("Started S1ImplEmpty");
+//		synchronized (sync) {
+//			try {
+//				while (true) {
+//					sync.wait (100) ;
+//					apamInstance.setProperty("debit", 10);
+//					System.out.println(name + " 10");
+//					sync.wait (100) ;
+//					apamInstance.setProperty("debit", 2);
+//					System.out.println(name + " 2");
+//				}
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
 	}
 
 	@Override
 	public void apamInit(Instance apamInstance) {
-		System.out.println("Started S1ImplEmpty");
+		this.apamInstance = apamInstance ;
 		name = apamInstance.getName() ;
-//		theFieldAttr = "initial set by program" ;
+//		new Thread(this, "S1 Empty loop").start();
 	}
 
 	@Override
 	public void apamRemove() {
-		// TODO Auto-generated method stub
-		
 	}
 
 

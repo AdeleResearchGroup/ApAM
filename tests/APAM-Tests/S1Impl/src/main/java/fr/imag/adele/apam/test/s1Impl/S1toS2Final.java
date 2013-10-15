@@ -42,5 +42,9 @@ public class S1toS2Final implements S1, ApamComponent {
 		
 	}
 
+	@Override
+	public String getName () {
+		return "S1toS2Final" ;
+	}
 
 }
