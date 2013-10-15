@@ -38,6 +38,7 @@ import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.impl.handlers.MessageProviderHandler;
 import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionHandler;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
@@ -80,6 +81,11 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      * The corresponding component declaration
      */
     protected ComponentDeclaration  declaration;
+
+    /**
+     * If the declaration can not be loaded this is the cause
+     */
+    protected ConfigurationException  declarationError;
     
 	/**
 	 * The associated Apform component
@@ -169,33 +175,75 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
     protected abstract boolean hasInstrumentedCode();
 
     /**
+     * Computes required handlers.
+     */
+	@Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List getRequiredHandlerList() {
+
+    	List<RequiredHandler> requiredHandlers = (List<RequiredHandler>) super.getRequiredHandlerList();
+
+        /*
+         * APAM do not use a handler for each element in the metadata, so we need to override the default
+         * behavior
+         */
+        for (Iterator<RequiredHandler> handlers = requiredHandlers.iterator(); handlers.hasNext();) {
+            RequiredHandler handlerDescription = handlers.next();
+            String namespace = handlerDescription.getNamespace();
+            if ( namespace != null && APAM_NAMESPACE.equals(namespace))
+                handlers.remove();
+        }
+    	
+        /*
+         *  Parse metadata to get APAM core declaration
+         *
+         *  TODO change parser to accept a single declaration instead of a list of
+         *  declarations
+         */
+		try {
+			Element root = new Element("apam", APAM_NAMESPACE);
+			root.addElement(m_componentMetadata);
+
+			CoreParser parser = new CoreMetadataParser(root, this);
+			List<ComponentDeclaration> declarations = parser.getDeclarations(this);
+
+			this.declaration = declarations.get(0);
+
+		} catch (Exception e) {
+			this.declaration		= null;
+			this.declarationError 	= new ConfigurationException(e.getLocalizedMessage());
+			return requiredHandlers;
+		}
+
+		/*
+		 * Calculate the minimal set of handlers based on the component declaration
+		 */
+		if (this.declaration instanceof AtomicImplementationDeclaration) {
+			AtomicImplementationDeclaration componentDeclaration = (AtomicImplementationDeclaration) this.declaration;
+
+			if (MessageProviderHandler.isRequired(componentDeclaration))
+				requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
+
+			if (RelationInjectionHandler.isRequired(componentDeclaration))
+				requiredHandlers.add(new RequiredHandler(RelationInjectionHandler.NAME, APAM_NAMESPACE));
+			
+			if (PropertyInjectionHandler.isRequired(componentDeclaration))
+				requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
+		}
+
+        return requiredHandlers;
+    }
+
+    /**
      * Verify implementation declaration
      */
     @Override
     public void check(Element element) throws ConfigurationException {
-
         if (hasInstrumentedCode())
             super.check(element);
-
-        /*
-           *  Parse metadata to get APAM core declaration.
-           *
-           *  TODO change parser to accept a single declaration instead of a list of
-           *  declarations
-           */
-        try {
-            Element root = new Element("apam",APAM_NAMESPACE);
-            root.addElement(m_componentMetadata);
-
-            CoreParser parser = new CoreMetadataParser(root, this);
-            List<ComponentDeclaration> declarations = parser.getDeclarations(this);
-            
-            this.declaration = declarations.get(0);
-        }
-        catch (IllegalArgumentException e) {
-            throw new ConfigurationException(e.getLocalizedMessage());
-        }
-
+        
+        if (this.declaration == null)
+        	throw this.declarationError;
     }
 
     /**
@@ -271,33 +319,6 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      * Creates a new native APAM instance, if this component represents an instantiable entity.
      */
     protected abstract ApamInstanceManager createApamInstance(IPojoContext context, HandlerManager[] handlers);
-    
-    /**
-     * Computes required handlers.
-     */
-    @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List getRequiredHandlerList() {
-    	
-        List<RequiredHandler> requiredHandlers = (List<RequiredHandler>) super.getRequiredHandlerList();
-
-        /*
-           * APAM uses a single handler to manage several concerns, override default behavior
-           * an register the APAM handler
-           */
-        for (Iterator<RequiredHandler> handlers = requiredHandlers.iterator(); handlers.hasNext();) {
-            RequiredHandler handlerDescription = handlers.next();
-            String namespace = handlerDescription.getNamespace();
-            if ( namespace != null && APAM_NAMESPACE.equals(namespace))
-                handlers.remove();
-        }
-
-        requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
-        requiredHandlers.add(new RequiredHandler(RelationInjectionHandler.NAME, APAM_NAMESPACE));
-        requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
-
-        return requiredHandlers;
-    }
     
     /**
      * Gets the component type description.

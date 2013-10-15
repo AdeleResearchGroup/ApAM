@@ -76,7 +76,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 
     
     
-    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RequirerInstrumentation injection) throws ClassNotFoundException {
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RelationInjectionHandler handler, RequirerInstrumentation injection) throws ClassNotFoundException {
         
     	assert injection.getRequiredResource() instanceof InterfaceReference;
     	

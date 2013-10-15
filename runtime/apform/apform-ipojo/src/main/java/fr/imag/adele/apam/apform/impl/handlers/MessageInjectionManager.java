@@ -77,6 +77,11 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * The source component of the relation
 	 */
     private final ApamComponentFactory  component;
+
+    /**
+     * The relation injection handler
+     */
+    private final RelationInjectionHandler handler;
     
     /**
      * The associated resolver
@@ -139,12 +144,13 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     private ApAMQueue<?> fieldBuffer;
     
     
-    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RequirerInstrumentation injection) throws ConfigurationException {
+    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjectionHandler handler, RequirerInstrumentation injection) throws ConfigurationException {
         
         assert injection.getRequiredResource() instanceof MessageReference;
         
         this.component  = component;
         this.instance   = instance;
+        this.handler	= handler;
         this.injection  = injection;
         
         if (injection instanceof RequirerInstrumentation.MessageConsumerCallback) {
@@ -247,11 +253,6 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         
     }
     
-    @SuppressWarnings("unchecked")
-    private <T extends Handler> T getHandler(String namespace, String handlerId) {
-        return (T) getHandler(instance,namespace,handlerId);
-    }
-    
     /**
      * Handle modification of the injected field
      */
@@ -290,7 +291,6 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * 
 	 */
     private WireAdmin getWireAdmin() {
-        RelationInjectionHandler handler = getHandler(ApamComponentFactory.APAM_NAMESPACE,RelationInjectionHandler.NAME);
         return handler.getWireAdmin();
     }
 
@@ -372,8 +372,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
                 properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
                 properties.put("service.pid",consumerId);
                 
-                MessageProviderHandler providerHandler = getHandler(ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
-                consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
+                consumer = handler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             
             targetServices.add((Instance)target);

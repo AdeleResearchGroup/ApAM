@@ -145,7 +145,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     }
 
     /**
-     * The list of reflection to perform in this implementation for handling dependencies
+     * The list of instrumentations to perform in this implementation for handling dependencies
      */
     public Set<RequirerInstrumentation> getRequirerInstrumentation() {
         return requirerInstrumentations;

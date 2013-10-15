@@ -49,6 +49,23 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 	 */
 	public static final String NAME = "properties";
 
+	/**
+	 * Whether this handler is required for the specified configuration
+	 */
+	public static boolean isRequired(AtomicImplementationDeclaration componentDeclaration) {
+		
+		for (PropertyDefinition definition : componentDeclaration.getPropertyDefinitions()) {
+
+			if (definition.getField() != null)
+				return true;
+
+			if (definition.getCallback() != null)
+				return true;
+		}
+		
+    	return false;
+	}
+	
 	@Override
 	public void initializeComponentFactory(ComponentTypeDescription typeDesc, Element metadata) throws ConfigurationException {
 
@@ -118,8 +135,6 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 		
 		if (component == null)
 			return;
-		
-		System.out.println("APAM component created "+component);
 		
 		ApamAtomicComponentFactory implementation = (ApamAtomicComponentFactory) getFactory();
 		ImplementationDeclaration declaration = implementation.getDeclaration();
