@@ -14,12 +14,14 @@
       limitations under the License.
 
 -->
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<specification name="S4" interfaces="{fr.imag.adele.apam.test.s4.S4}"> <!-- messages="MS4" -->
-		<property name="test-spec" value="coucou" type="string" />
-		<definition name="b" type="boolean" value="true" />
+		<definition name="test-spec" type="string" />
+		<property name="test-spec" value="coucou"  />
+		<definition name="b" type="boolean" default="true" />
 		<definition name="c" type="string" />
 		<definition name="locationSingle" type="exit, entrance, garage, bedroom" />
 		<definition name="location" type="{exit, entrance, garage, bedroom}" />

@@ -16,9 +16,9 @@
         <callback onInit="start" onRemove="stop" />
 
         <definition name="stateInternal" field="stateInternal"
-            type="string" internal="true" default="default" />
+            type="string" injected="internal" default="default" />
         <definition name="stateNotInternal" field="stateNotInternal"
-            type="string" internal="false" default="default" />
+            type="string" injected="external" default="default" />
 
         <dependency field="s2" />
         <dependency field="s3" />
@@ -200,11 +200,11 @@
         specification="eletronic-device">
         <definition name="OS" field="OS"
             type="{Linux, Windows, Android, IOS,AmigaOS}" default="{Linux, Windows, Android, IOS}"
-            internal="false" />
+            injected="external" />
         <definition name="setInt" field="setInt" type="{int}"
-            internal="false" default="{12,15,254, 100}" />
+            injected="external" default="{12,15,254, 100}" />
         <definition name="setString" field="setString" type="{string}"
-            internal="false" default="{doubt,grows,with,knowledge}" />
+            injected="external" default="{doubt,grows,with,knowledge}" />
     </implementation>
 
     <implementation name="PropertyChangeNotification"
@@ -331,8 +331,8 @@
         <definition name="injectedExternal" field="injectedExternal"
             type="string" injected="external" default="default" />
         <definition name="injectedBothSetted" field="injectedBothSetted" type="string"
-            injected="both" default="default" />
-        <definition name="injectedBothUnsetted" field="injectedBothUnsetted"
+             default="default" />
+        <definition name="injectedBothUnsetted" field="injectedBothUnsetted" 
             type="string" />
     </implementation>
     

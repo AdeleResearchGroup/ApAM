@@ -247,6 +247,17 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		
+		<repository>
+			<id>apache public</id>
+			<url>https://repository.apache.org/content/groups/public</url>
+		</repository>		
+		
+		<repository>
+			<id>Maven Central repository</id>
+			<url>http://repo.maven.apache.org/maven2</url>
+		</repository>		
+		
 		<!-- Spring Repository -->
 		<repository>
 			<id>com.springsource.repository.bundles.release</id>

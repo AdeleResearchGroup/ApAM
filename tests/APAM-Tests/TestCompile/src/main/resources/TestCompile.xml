@@ -138,7 +138,7 @@
 		singleton="false" instantiable="false" shared="false">  <!-- all possible characteristics -->
 
 		<!-- The state for composites -->
-		<definition name="houseState" field="state" internal="true"
+		<definition name="houseState" field="state" injected="internal"
 			type="{empty, night, vacation, emergency, threat}" value="night" />
 
 		<definition name="location" type="exit, entrance, garage, bedroom" />

@@ -293,13 +293,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (initialProperties != null)
 			props.putAll(initialProperties);
 
-		ComponentImpl group = (ComponentImpl)getGroup () ;
-
-		//First eliminate the attributes which are not valid.
+		//First add the valid attributes.
 		for ( Map.Entry<String,String> entry : props.entrySet()) {
 			PropertyDefinition def = validDef (entry.getKey(), true) ;
 			if (def != null) {
-				//At initialization, all valid attributes are ok for specs
 				Object val = Attribute.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
 				if (val != null) {
 					put (entry.getKey(), val) ;
@@ -308,6 +305,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		//then add those coming from its group, avoiding overloads.
+		ComponentImpl group = (ComponentImpl)getGroup () ;
 		if (group != null) {
 			for (String attr : group.getAllProperties().keySet()) {
 				if (get(attr) == null)
@@ -326,7 +324,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 					if (val != null)
 						put (definition.getName(),val) ;
 				}
-
 			}
 		}
 
@@ -422,17 +419,61 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public Set<Component> getLinkDests(String depName) {
 		if (depName == null || depName.isEmpty()) return null ;
-		Set<Component> dests = new HashSet<Component>();
 
-		if (CST.isFinalRelation(depName)) {
-			if (depName.equals(CST.REL_GROUP)) {
-				dests.add(getGroup()) ;
-				return dests ;
+		if (CST.isFinalRelation(depName)) 
+			return getFInalLinkDests (depName) ;
+
+		Set<Component> dests = new HashSet<Component>();
+		for (Link link : getLinks(depName)) {
+			if (link.getName().equals(depName)) {
+				dests.add(link.getDestination());
 			}
-			if (depName.equals(CST.REL_MEMBERS)) {
-				dests.addAll(getMembers()) ;
-				return dests ;
+		}
+		return dests;
+	}
+
+	/**
+	 * No resolution
+	 * @param depName
+	 * @return
+	 */
+	public Set<Component> getRawLinkDests(String depName) {
+		if (depName == null || depName.isEmpty()) return null ;
+
+		if (CST.isFinalRelation(depName)) 
+			return getFInalLinkDests (depName) ;
+
+		Set<Component> dests = new HashSet<Component>();
+		for (Link link : getRawLinks()) {
+			if (link.getName().equals(depName)) {
+				dests.add(link.getDestination());
 			}
+		}
+		return dests;
+	}
+
+	/**
+	 * resolve
+	 */
+	@Override
+	public Component getLinkDest(String depName) {
+		Link link = getLink(depName) ;
+		return (link == null) ? null : link.getDestination() ;
+	}
+
+	
+	
+	private Set<Component> getFInalLinkDests (String depName) {
+
+			Set<Component> dests = new HashSet<Component>() ;
+//			if (depName.equals(CST.REL_GROUP)) {
+//				dests.add(getGroup()) ;
+//				return dests ;
+//			}
+//			if (depName.equals(CST.REL_MEMBERS)) {
+//				dests.addAll(getMembers()) ;
+//				return dests ;
+//			}
 			if (depName.equals(CST.REL_COMPOSITE)) {
 				if (this instanceof Instance)
 					dests.add(((Instance)this).getComposite()) ;
@@ -496,34 +537,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 					dests.add(this) ;
 				return dests ;
 			}
-
 			return dests ;
 		}
-
-		for (Link link : getLinks(depName)) {
-			if (link.getName().equals(depName)) {
-				dests.add(link.getDestination());
-			}
-		}
-		return dests;
-	}
-
-	/**
-	 * resolve
-	 */
-	@Override
-	public Component getLinkDest(String depName) {
-		Link link = getLink(depName) ;
-		return (link == null) ? null : link.getDestination() ;
-	}
-
+	
 	/**
 	 * WARNING : no resolution
 	 */
 	@Override
 	public Set<Component> getRawLinkDests() {
 		Set<Component> dests = new HashSet<Component>();
-		for (Link link : getRawLinks()) {
+		
+		for (Link link : getRawLinks()) {			
 			dests.add(link.getDestination());
 		}
 		return dests;
@@ -932,8 +956,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public Object getPropertyObject(String attribute) {
 		Object value=get(attribute);
-		if(value==null && getDeclaration()!=null)
-			value=getDeclaration().getProperty(attribute);
+		if (value == null) return null ;
+		//all attributes, including default values are already there
+//		if(value==null && getDeclaration()!=null)
+//			value=getDeclaration().getProperty(attribute);
 
 		return Substitute.substitute(attribute, value, this);
 	}
@@ -979,7 +1005,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Object val = Attribute.checkAttrType(attr, value, def.getType());
 		if (val == null)
 			return false;
-
+		
 		/*
 		 * Force recalculation of dependencies that may have been invalidated by
 		 * the property change. This must be done before notification and propagation,
@@ -1171,12 +1197,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	public PropertyDefinition getAttrDefinition(String attr) {
 
-		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
-		if (definition != null) {
-			return definition;
-		}
+//		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
+//		if (definition != null) {
+//			return definition;
+//		}
 
-		Component group = this.getGroup();
+		PropertyDefinition definition = null ;
+		Component group = this ; //.getGroup();
 		while (group != null) {
 			definition = group.getDeclaration().getPropertyDefinition(attr);
 			if (definition != null)
@@ -1207,39 +1234,44 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	public PropertyDefinition validDef(String attr, boolean forced) {
 		if (Attribute.isFinalAttribute(attr)) {
-			logger.error("Cannot redefine final attribute \"" + attr + "\"");
+			logger.error("In " + this + ", cannot redefine final attribute \"" + attr + "\"");
 			return null;
 		}
 
 		if (Attribute.isReservedAttributePrefix(attr)) {
-			logger.error("ERROR: in " + this + ", attribute\"" + attr + "\" is reserved");
-			return null;
-		}
-
-		Component group = this.getGroup();
-
-		// if the same attribute exists above, it is a redefinition.
-		if (group != null && group.getProperty(attr) != null) {
-			logger.error("Cannot redefine attribute \"" + attr + "\"");
+			logger.error("In " + this + ", attribute\"" + attr + "\" is reserved");
 			return null;
 		}
 
 		PropertyDefinition definition = this.getAttrDefinition(attr);
-
 		if (definition == null) {
-			logger.error("Attribute \"" + attr + "\" is undefined.");
+			logger.error("In " + this + ", attribute \"" + attr + "\" is undefined.");
 			return null;
 		}
 
-		// there is a definition for attr
+		/*
+		 * Internal field attributes cannot be set
+		 */
 		if (definition.getInjected()==InjectedPropertyPolicy.INTERNAL && !forced) {
-			logger.error("Attribute " + attr + " is an internal field attribute and cannot be set.");
+			logger.error("In " + this + ", attribute \"" + attr + "\" is an internal field attribute and cannot be set.");
 			return null;
+		}
+
+		/*
+		 *  if the same attribute exists above, it is a redefinition.
+		 */
+		ComponentImpl group = (ComponentImpl)this.getGroup();
+		if (group != null && group.get(attr) != null) {
+			//If the attribute above is the default value, it is allowed to change it
+			if (! group.get(attr).equals(definition.getDefaultValue())) {
+				logger.error("In " + this + ", cannot redefine attribute \"" + attr + "\"");
+				return null;
+			}
 		}
 
 		return definition;
-		// return Attribute.checkAttrType(attr, value, definition.getType());
 	}
+	
 
 	public boolean isSubstitute(String attr) {
 		PropertyDefinition def = getDeclaration().getPropertyDefinition(attr);

@@ -14,12 +14,14 @@
       limitations under the License.
 
 -->
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<specification name="S5" interfaces="{fr.imag.adele.apam.test.s5.S5}">
-		<property name="s5-spec" value="coucous5" type="string" />
-		<definition name="s5b" type="boolean" value="true" />
+		<definition name="s5-spec"  type="string" />
+		<property name="s5-spec" value="coucous5" />
+		<definition name="s5b" type="boolean" default="true" />
 		<definition name="s5c" type="string" />
 		<definition name="state" type="{threat, emergency, normal, ok, caCraint}" />
 	</specification>

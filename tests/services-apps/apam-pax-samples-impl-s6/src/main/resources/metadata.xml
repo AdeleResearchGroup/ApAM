@@ -132,39 +132,10 @@
 
 	<!-- /CASE 12 -->
 
-	<!-- CASE 16 -->
-
-	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
-		name="spec-case-16">
-		
-	</specification>
-
-	<implementation name="impl-case-16" 
-		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
-		specification="spec-case-16">
-	</implementation>
-
-	<!-- /CASE 16 -->
-
-	<!-- CASE 17 -->
-
-	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
-		name="spec-case-17">
-		
-	</specification>
-
-	<implementation name="impl-case-17" 
-		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
-		specification="spec-case-17">
-		<definition name="property-case-17" type="string" default="value-for-case-17"/>
-	</implementation>
-
-	<!-- /CASE 17 -->
-
 	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
-		<dependency implementation="impl-case-12" field="s6" name="to-case-12" />
+		<relation  implementation="impl-case-12" field="s6" name="to-case-12" />
 		<definition name="property-case-01" type="string" default="$impl-case-01$property-subject-b"/>
 		<definition name="property-case-03" type="string" default="$impl-case-03$property-subject-b"/>
 		<definition name="property-case-08" type="string" default="$impl-case-08$property-subject-b"/>
@@ -175,12 +146,42 @@
 		<definition name="function-case-01" type="string" default="@functionCall"/>
 		<definition name="function-case-02" type="string" default="\@functionCall"/>
 
-		<definition name="property-case-13" type="{string}" default="$impl-case-12.members.case12child$property-subject-b"/>
+		<definition name="property-case-13" type="{string}" default="$impl-case-12.insts.case12child$property-subject-b"/>
+        <!-- $impl-case-12.members.case12child$property-subject-b  -->
 		<definition name="property-case-14" type="string" default="$this.to-case-12.compotype$name"/>
 
 	</implementation>
 
-	<composite name="subject-b-composite">
+    <!-- CASE 16 -->
+
+    <specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+        name="spec-case-16">
+        
+    </specification>
+
+    <implementation name="impl-case-16" 
+        classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+        specification="spec-case-16">
+    </implementation>
+
+    <!-- /CASE 16 -->
+
+    <!-- CASE 17 -->
+
+    <specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+        name="spec-case-17">
+        
+    </specification>
+
+    <implementation name="impl-case-17" 
+        classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+        specification="spec-case-17">
+        <definition name="property-case-17" type="string" default="value-for-case-17"/>
+    </implementation>
+
+    <!-- /CASE 17 -->
+    
+    	<composite name="subject-b-composite">
 	</composite>
 
 	<composite name="subject-c-composite">
@@ -208,7 +209,7 @@
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
 		<dependency implementation="impl-case-16" field="s6" />
-		<definition name="property-case-16" type="string" default="$impl-case-16.group$name"/>
+		<definition name="property-case-16" type="string" default="$impl-case-16.spec$name"/>
 	</implementation>
 
 	<implementation name="subject-e"
@@ -216,9 +217,9 @@
 		specification="fr.imag.adele.apam.pax.test.iface.S6" >
 		<dependency implementation="impl-case-17" field="s6" name="impl-case-17"/>
 
-		<definition name="property-case-17-dep-composite" type="string" default="$this.impl-case-17.composite$name"/>
-		<definition name="property-case-17-parent-composite" type="string" default="$this.composite$name"/>
-		<definition name="property-case-17-dep-property" type="string" default="$this.impl-case-17$property-case-17"/>
+		<definition name="property-case-17-dep-composite" type="string" default="$this.inst.impl-case-17.composite$name"/>
+		<definition name="property-case-17-parent-composite" type="string" default="$this.inst.composite$name"/>
+		<definition name="property-case-17-dep-property" type="string" default="$this.inst.impl-case-17$property-case-17"/>
 
 	</implementation>
 

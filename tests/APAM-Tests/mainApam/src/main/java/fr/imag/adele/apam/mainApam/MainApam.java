@@ -208,7 +208,7 @@ public class MainApam implements Runnable, ApamComponent {
 		classname="fr.imag.adele.apam.test.testAttrImpl.TestAttrImpl" specification="STestAttr">
 		<property name="spec-name" value="yyy"  />
 		<property name="testEnumere" value="v2" />
-		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
 		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
@@ -286,8 +286,9 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (impl.getProperty("autoSet"), "Z-3, Z-2") ;
 		assertEquals (inst.getProperty("autoSet"), "Z-3, Z-2") ;
 
+		//is it allowed to set an attribute at the level of its definition ? If YES, it should be equal.
 		impl.setProperty("S1toS2Final-String1", "falseVal") ;
-		assertNotEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
+		assertEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
 		
 		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;

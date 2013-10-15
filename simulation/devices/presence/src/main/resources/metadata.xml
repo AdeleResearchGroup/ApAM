@@ -38,7 +38,7 @@
 
 		<callback onInit="start" onRemove="stop" />
 
-		<definition name="location" type="string" field="location" internal="true" />
+		<definition name="location" type="string" field="location" injected="internal" />
 
 		<definition name="fault" value="no" type="string" />
 		<definition name="state" value="activated" type="string" />

@@ -135,7 +135,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_DEFAULT             = "default";
 	private static final String  ATT_VALUE               = "value";
 	private static final String  ATT_FIELD               = "field";
-	private static final String  ATT_INTERNAL            = "internal";
 	private static final String  ATT_INJECTED            = "injected";
 	private static final String  ATT_MULTIPLE            = "multiple";
 	private static final String  ATT_SOURCE              = "source";
@@ -1129,20 +1128,16 @@ public class CoreMetadataParser implements CoreParser {
 	}
 	
 	/**
-	 * Parse the strategy for field synchronization (compatible with deprecated internal=true attribute) 
+	 * Parse the strategy for field synchronization (NOT compatible with deprecated internal=true attribute) 
 	 */
 	private InjectedPropertyPolicy parseInjectedPropertyPolicy(String componentName,Element element) {
 	    String value=parseString(componentName,element, CoreMetadataParser.ATT_INJECTED, false);
 	    InjectedPropertyPolicy injected;
-		if(value==null ||value.trim().length()==0 ||value.equals(CoreParser.UNDEFINED) )
-		    if(parseisDefinedBoolean(componentName,element, CoreMetadataParser.ATT_INTERNAL)) {
-		    	if(parseBoolean(componentName,element, CoreMetadataParser.ATT_INTERNAL, false, false))
-		    	    injected=InjectedPropertyPolicy.INTERNAL;
-		    	else
-		    	    injected=InjectedPropertyPolicy.EXTERNAL;
-		    } else injected=InjectedPropertyPolicy.BOTH;
-		else injected=InjectedPropertyPolicy.getPolicy(value);
-		return injected;
+		injected=InjectedPropertyPolicy.getPolicy(value);
+		
+		if(value==null)
+		    return InjectedPropertyPolicy.BOTH;
+		else return injected;
 	}
 
 	/**

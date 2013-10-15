@@ -243,7 +243,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		}
 
 		// recalculer les declarations d'attribut et de relships contextuelles
-		((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
+		//((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
 
 	}
 

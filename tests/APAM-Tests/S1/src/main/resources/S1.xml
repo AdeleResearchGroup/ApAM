@@ -14,16 +14,18 @@
       limitations under the License.
 
 -->
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
 <!-- 			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/> -->
-			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
-			<definition name="s1b" type="boolean" value="true" />
+			<definition name="S1-Enum"  type="{s1-1, s1-2, s1-3}"/>
+			<property name="S1-Enum" value="s1-2" />
+			<definition name="s1b" type="boolean" default="true" />
 			<definition name="s1c" type="string" />
 			<definition name="s1i" type="int" />
-			<definition name="location" type="{living, kitchen, bedroom}" value="bedroom" />
+			<definition name="location" type="{living, kitchen, bedroom}" default="bedroom" />
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 			<dependency specification="S2" />

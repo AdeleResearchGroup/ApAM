@@ -221,7 +221,7 @@
 	<!-- Les implems de DepS2 -->
 	<implementation name="Impl1" 
 		classname="apam.test.dependency.S2Simple" specification="DepS2">
-		<definition name="fieldAttr" field="theFieldAttr" internal="true"
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal"
 			type="string" value="bidon" />
 		<definition name="1-Bool" type="boolean" value="true" />
 		<definition name="1-String" type="string" />

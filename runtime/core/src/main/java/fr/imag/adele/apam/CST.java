@@ -93,8 +93,8 @@ public class CST {
 	public static final String V_FALSE = "false";
 
 	//Relations that cannot be changed nor set by users
-	public static final String REL_GROUP 	= "group";
-	public static final String REL_MEMBERS 	= "members";
+//	public static final String REL_GROUP 	= "group";
+//	public static final String REL_MEMBERS 	= "members";
 	public static final String REL_CONTAINS	= "contains";
 	public static final String REL_COMPOSITE= "composite";
 	public static final String REL_COMPOTYPE= "compotype";
@@ -106,7 +106,7 @@ public class CST {
 	public static final String REL_INSTS 	= "insts";
 
 	public static final String[] finalRelations = { 
-		REL_GROUP, REL_MEMBERS, REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE, REL_SPEC, REL_IMPL, REL_INST, REL_IMPLS, REL_INSTS	
+		REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE, REL_SPEC, REL_IMPL, REL_INST, REL_IMPLS, REL_INSTS	
 	};
 
 	public static boolean isFinalRelation (String attr) {
