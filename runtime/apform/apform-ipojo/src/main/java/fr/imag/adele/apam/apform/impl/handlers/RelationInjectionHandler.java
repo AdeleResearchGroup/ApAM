@@ -54,6 +54,25 @@ public class RelationInjectionHandler extends ApformHandler {
         return wireAdmin;
     }
 
+	/**
+	 * Whether this handler is required for the specified configuration
+	 */
+	public static boolean isRequired(AtomicImplementationDeclaration componentDeclaration) {
+		
+    	for (RelationDeclaration relation : componentDeclaration.getDependencies()) {
+    		
+    		if (!relation.getInstrumentations().isEmpty())
+    			return true;
+    		
+        	for (RelationDeclaration.Event trigger : RelationDeclaration.Event.values()) {
+        		if (!relation.getCallback(trigger).isEmpty())
+        			return true;
+        	}    		
+    	}
+    	
+    	return false;
+	}
+
     /**
      * (non-Javadoc)
      * 
@@ -93,10 +112,10 @@ public class RelationInjectionHandler extends ApformHandler {
             try {
 
                 if (interfaceReference != null)
-                    interceptor = new InterfaceInjectionManager(getFactory(), getInstanceManager(), injection);
+                    interceptor = new InterfaceInjectionManager(getFactory(), getInstanceManager(), this, injection);
 
                 if (messageReference != null)
-                    interceptor = new MessageInjectionManager(getFactory(), getInstanceManager(), injection);
+                    interceptor = new MessageInjectionManager(getFactory(), getInstanceManager(), this, injection);
 
                 if (interceptor == null)
                     continue;

@@ -406,7 +406,9 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
                     serviceComponent.apamInit(this.apamComponent);
                 }
 
-                handler.setApamComponent(apamComponent);
+                if (handler != null)
+                	handler.setApamComponent(apamComponent);
+                
                 fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent);
                 
                 return;
@@ -423,7 +425,9 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
                 /*
                  * dispose this instance
                  */
-                handler.setApamComponent(apamComponent);
+                if (handler != null)
+                	handler.setApamComponent(null);
+                
                 ApamInstanceManager.this.dispose();
                 
                 return;

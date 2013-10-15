@@ -96,6 +96,19 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	 */
 	private List<Wire> wires;
 	
+	/**
+	 * Whether this handler is required for the specified configuration
+	 */
+	public static boolean isRequired(AtomicImplementationDeclaration componentDeclaration) {
+		
+    	for (ProviderInstrumentation providerInstrumentation : componentDeclaration.getProviderInstrumentation()) {
+    		if (providerInstrumentation instanceof ProviderInstrumentation.MessageProviderMethodInterception)
+    			return true;
+    	}
+    	
+    	return false;
+	}
+	
     /**
      * (non-Javadoc)
      * 
