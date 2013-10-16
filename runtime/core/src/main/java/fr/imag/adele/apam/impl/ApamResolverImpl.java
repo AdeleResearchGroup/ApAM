@@ -458,7 +458,8 @@ public class ApamResolverImpl implements ApamResolver {
 						continue;
 					}
 					
-					if (!relation.matchRelation(inst)) {
+					//if (!relation.matchRelation(inst)) { xx
+					if (!relation.matchRelationConstraints(inst)) {
 						logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints") ;
 						((ComponentImpl)inst).unregister() ;
 						continue ;
