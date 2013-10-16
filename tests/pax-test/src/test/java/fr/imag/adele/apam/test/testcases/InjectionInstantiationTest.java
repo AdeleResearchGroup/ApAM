@@ -158,7 +158,12 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-	int initialSize = s1.getEletronicInstancesInArray().length;
+	Eletronic[] eletronicInstancesInArray = s1.getEletronicInstancesInArray();
+	int initialSize = 0;
+	
+	if(eletronicInstancesInArray != null)
+	    initialSize=eletronicInstancesInArray.length;
+	
 
 	for (Link wire : s1Inst.getRawLinks()) {
 		wire.remove();
