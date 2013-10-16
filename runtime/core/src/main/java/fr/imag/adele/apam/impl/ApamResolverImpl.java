@@ -398,9 +398,16 @@ public class ApamResolverImpl implements ApamResolver {
 	private Resolved<?> resolveByManagers(Component source, Relation relation) {
 
 		try {
-			// Transform the relation constraints into filters after
-			// interpreting the substitutions.
+			//Compute selection path and constraints added by managers
 			List<RelationManager> selectionPath = computeSelectionPath(source, relation);
+			// Transform the relation constraints into filters after interpreting the substitutions.
+			((RelationImpl)relation).computeFilters(source) ;
+			
+			if (!relation.isRelation()) { // It is a find
+				logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
+			} else
+				logger.info("Resolving " + relation);
+			
 
 			Resolved<?> res = null;
 			boolean deployed = false;
@@ -540,14 +547,7 @@ public class ApamResolverImpl implements ApamResolver {
 		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
 			relationManager.getSelectionPath(source, relation, externalPath);
 		}
-		
-		((RelationImpl)relation).computeFilters(source) ;
-		
-		if (!relation.isRelation()) { // It is a find
-			logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
-		} else
-			logger.info("Resolving " + relation);
-
+				
 		/*
 		 * Get the list of all managers, core and external
 		 */

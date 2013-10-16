@@ -335,7 +335,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	}
 
 	public void removeInst(Instance instance) {
-		assert instance != null && instances.contains(instance);
 		instances.remove(instance);
 	}
 
