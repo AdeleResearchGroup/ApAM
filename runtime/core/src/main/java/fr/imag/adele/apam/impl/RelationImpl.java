@@ -449,8 +449,17 @@ public class RelationImpl implements Relation {
 		if (!linkSource.canSee(target))
 			return false;
 
+		/*
+		 * target definition is a specification, an implementation or instance by name
+		 */
 		if (getTarget() instanceof ComponentReference<?>) {
-			return target.getName().equals(getTarget().getName());
+			Component group = target ;
+			while (group != null) {
+				if (group.getName().equals(getTarget().getName()))
+					return true ;
+				group = group.getGroup() ;
+			}
+			return false;
 		}
 
 		// if (dep.getTarget() instanceof ResourceReference) {
