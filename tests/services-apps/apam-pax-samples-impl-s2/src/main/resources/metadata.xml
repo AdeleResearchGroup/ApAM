@@ -20,7 +20,7 @@
         <dependency field="outter">
             <constraints>
                 <implementation
-                    filter="(name=fr.imag.adele.apam.pax.test.implS2.S2OutterImpl)" />
+                    filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2OutterImpl)" />
             </constraints>
         </dependency>
     </implementation>
@@ -31,7 +31,7 @@
         <dependency field="middle">
             <constraints>
                 <implementation
-                    filter="(name=fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl)" />
+                    filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl)" />
             </constraints>
         </dependency>
     </implementation>
