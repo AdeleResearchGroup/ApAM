@@ -23,6 +23,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -46,6 +47,12 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject());
 		neu.add(packApamShell());
 		return neu;
+	}
+	
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
 	}
 	
 	@Test

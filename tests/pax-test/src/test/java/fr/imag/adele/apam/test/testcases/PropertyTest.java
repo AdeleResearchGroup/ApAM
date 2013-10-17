@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -45,6 +46,12 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class PropertyTest extends ExtensionAbstract {
+    
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
+	}    
 
     /**
      * Ensures that inherited properties cannot be changed and inherited

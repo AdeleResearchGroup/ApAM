@@ -64,10 +64,7 @@ public class LightScenarioTest extends ExtensionAbstract {
     Instance myKitchen;
     Set<String> theoricLinks;
 
-    @Inject
-    @Filter(timeout = 60000)
-    Apam apam;
-
+    
     @Override
     public List<Option> config() {
 
@@ -87,6 +84,7 @@ public class LightScenarioTest extends ExtensionAbstract {
     @Override
     public void setUp() {
 	super.setUp();
+	apam.waitForIt(1000);
 	ApamResolver resolver = CST.apamResolver;
 	theoricLinks = new HashSet<String>();
 

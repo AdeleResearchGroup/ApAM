@@ -24,6 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +57,14 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	addon.add(0, packApamConflictManager());
 	return addon;
     }
+    
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
+	}
 
+    
     @Test
     public void CompositeContentMngtDependencyFailWait_tc039() {
 

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -58,8 +59,16 @@ public class CompositeTest extends ExtensionAbstract {
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());
 	return addon;
-    }    
-
+    
+    
+    }
+    
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
+	}
+    
     @Test
     public void CompositeTypeInstantiation_tc028() {
 

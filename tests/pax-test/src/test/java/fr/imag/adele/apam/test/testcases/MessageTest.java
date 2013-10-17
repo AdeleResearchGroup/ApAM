@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -39,6 +40,12 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class MessageTest extends ExtensionAbstract {
 
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
+	}
+	
 	@Override
 	public List<Option> config() {
 		// TODO Auto-generated method stub

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -74,7 +75,14 @@ public class RelationTest extends ExtensionAbstract {
 		
 	}
 	
+	@Before
+	public void waitforApam() {
+		apam.waitForIt(1000);
+	    
+	}
+	
 	private static void validateSourceTargetTypes(Component source,Component target,Class expectedSource,Class expectedTarget){
+
 		
 		//Source
 		Assert.assertTrue(String.format("Source is not of the type %s",expectedSource.getSimpleName()),expectedSource.isInstance(source) );
@@ -85,6 +93,7 @@ public class RelationTest extends ExtensionAbstract {
 	
 	@Test
 	public void RelationSourceImplementationTargetImplementation_tc097() {
+
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"S07-implementation-01");
@@ -123,7 +132,7 @@ public class RelationTest extends ExtensionAbstract {
 				"S07-implementation-02");
 
 		Instance instance = implementation.createInstance(null,
-				Collections.<String, String> emptyMap());
+				null);
 
 		S07ImplementationImporter02 dependency = (S07ImplementationImporter02) instance
 				.getServiceObject();
@@ -153,6 +162,7 @@ public class RelationTest extends ExtensionAbstract {
 
 	@Test
 	public void RelationSourceImplementationTargetInstance_tc099() {
+
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"S07-implementation-03");
