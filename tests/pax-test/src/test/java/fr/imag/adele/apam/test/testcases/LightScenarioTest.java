@@ -20,10 +20,12 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -68,7 +70,10 @@ public class LightScenarioTest extends ExtensionAbstract {
     @Override
     public List<Option> config() {
 
-	List<Option> defaults = super.config();
+	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("LightingScenarioTest", "fr.imag.adele.apam.test.lights");
+	
+	List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
 	try {
 	    defaults.add(CoreOptions.bundle((new File(PathUtils.getBaseDir(),
 		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
@@ -77,7 +82,6 @@ public class LightScenarioTest extends ExtensionAbstract {
 	    Assert.assertTrue("Error deploying WireAdmin", false);
 	}
 	
-	defaults.add(CoreOptions.mavenBundle("fr.imag.adele.apam.test.lights","LightingScenarioTest").versionAsInProject());
 	return defaults;
     }
 

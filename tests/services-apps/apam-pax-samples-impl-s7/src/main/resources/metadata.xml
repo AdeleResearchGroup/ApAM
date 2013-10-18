@@ -133,7 +133,7 @@
         <relation name="con" field="injected" sourceKind="implementation"
             targetKind="instance"
             interface="fr.imag.adele.apam.pax.test.implS7.S07Interface04"
-            creation="eager" />
+            creation="eager"/>
         <definition name="instance-property" type="string" />
         <property name="implementation-property" value="ok" />
     </implementation>
@@ -176,7 +176,7 @@
         specification="S07-specification-07">
         <relation name="con" field="injected" sourceKind="specification"
             targetKind="instance"
-            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency" />
+            interface="fr.imag.adele.apam.pax.test.implS7.S07Dependency"/>
     </implementation>
 
 

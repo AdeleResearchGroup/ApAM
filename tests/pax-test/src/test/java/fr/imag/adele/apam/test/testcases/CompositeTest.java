@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,22 +56,23 @@ public class CompositeTest extends ExtensionAbstract {
     
     @Override
     public List<Option> config() {
-	List<Option> addon = super.config();
+	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
+	
+	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());
 	return addon;
     
     
     }
-    
-	@Before
-	public void waitforApam() {
-		apam.waitForIt(1000);
-	    
-	}
+
     
     @Test
     public void CompositeTypeInstantiation_tc028() {
+//	apam.waitForIt(200000);
 
 	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
 		null, "S2Impl-composite-1");
@@ -88,10 +90,10 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void FetchImplThatHasComposite_tc029() {
 
-	CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct1 = (CompositeType) CST.apamResolver.findComponentByName(
 		null, "S2Impl-composite-1");
 
-	apam.waitForIt(2000);
+//	apam.waitForIt(2000);
 
 	CompositeType ct2 = (CompositeType) CST.apamResolver.findImplByName(
 		null, "S2Impl-composite-2");
@@ -194,6 +196,7 @@ public class CompositeTest extends ExtensionAbstract {
 	final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. "
 		+ "Both IA and IB have an attribute that depends on the specification X. "
 		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
+
 
 	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 		null, "composite-a-local-instance");

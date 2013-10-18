@@ -14,13 +14,18 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
+
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -34,7 +39,20 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class ConstraintTest extends ExtensionAbstract{
+
+    @Override
+    public List<Option> config() {
+	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
 	
+	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
+	return addon;
+    
+    
+    }
+    
+    
 	@Test
 	public void ConstraintsCheckingImplementation_tc009() {
 

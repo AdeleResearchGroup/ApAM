@@ -17,7 +17,7 @@
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="outter">
+        <dependency field="outter" resolve="internal">
             <constraints>
                 <implementation
                     filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2OutterImpl)" />
@@ -28,7 +28,7 @@
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2InnerImpl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2InnerImpl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="middle">
+        <dependency field="middle" resolve="internal">
             <constraints>
                 <implementation
                     filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl)" />
@@ -70,7 +70,7 @@
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="deadMansSwitch">
+        <dependency field="deadMansSwitch" resolve="internal">
         </dependency>
     </implementation>
 
@@ -78,7 +78,7 @@
         name="fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager"
         classname="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="deadMansSwitch" specification="eletronic-device">
+        <dependency field="deadMansSwitch" specification="eletronic-device" resolve="internal">
         </dependency>
     </implementation>
 

@@ -19,6 +19,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -40,20 +41,18 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class MetaSubstitutionTest extends ExtensionAbstract {
 
-	@Override
-	public List<Option> config(){
-		List<Option> neu=super.config();
-		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-iface").versionAsInProject());
-		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject());
-		neu.add(packApamShell());
-		return neu;
-	}
+
 	
-	@Before
-	public void waitforApam() {
-		apam.waitForIt(1000);
-	    
-	}
+	    @Override
+	    public List<Option> config() {
+		Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s6", "fr.imag.adele.apam.tests.services");
+		mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
+		
+		List<Option> addon = super.config(mapOfRequiredArtifacts,false);
+		return addon;
+	    }	
+
 	
 	@Test
 	public void SubstitutionGetPropertyString_tc089() {
