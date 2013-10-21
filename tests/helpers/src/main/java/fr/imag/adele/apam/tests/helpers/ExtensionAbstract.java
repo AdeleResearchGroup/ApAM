@@ -68,6 +68,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     protected ComponentBroker broker;
 
+
     protected static Option[] configuration = null;
 
     public List<Option> config() {
@@ -93,6 +94,17 @@ public abstract class ExtensionAbstract extends TestUtils {
 	config.add(junitBundles());
 	config.add(packDebugConfiguration());
 	config.add(vmOption("-ea"));
+	
+	File ref_conf = new File("conf/root.OBRMAN.cfgo");
+	File use_conf = new File("conf/root.OBRMAN.cfg");
+	
+	if(startObrMan) {
+	    if (!use_conf.exists())
+		ref_conf.renameTo(use_conf);
+	}
+	else
+	    if (use_conf.exists())
+		use_conf.renameTo(ref_conf);	
 
 	return config;
     }
@@ -348,6 +360,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 	apam = new ApAMHelper(context);
 	broker = CST.componentBroker;
 	logger.info("[Run Test : " + name.getMethodName() + "]");
+	
+	
 	apam.waitForIt(1000);
     }
 

@@ -185,7 +185,7 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-own-specification" main="group-a"
+	<composite name="composite-a-own-specification"
 		singleton="true">
 		<contentMngt>
 			<own specification="eletronic-device" property="voltage" value="110" />
@@ -244,7 +244,7 @@
 		<dependency field="c" />
 	</implementation>
 
-	<composite name="composite-a-start-by-specification" main="group-a"
+	<composite name="composite-a-start-by-specification"
 		singleton="true">
 		<contentMngt>
 			<start implementation="group-b-started-by-trigger" name="creates-B">
@@ -255,7 +255,7 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-start-by-implementation" main="group-a"
+	<composite name="composite-a-start-by-implementation"
 		singleton="true">
 		<contentMngt>
 			<start implementation="group-b-started-by-trigger" name="creates-B">

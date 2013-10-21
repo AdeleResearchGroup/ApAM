@@ -57,6 +57,7 @@ public class CompositeTest extends ExtensionAbstract {
     @Override
     public List<Option> config() {
 	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
@@ -124,6 +125,7 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositeTypeRetrieveServiceObject_tc030() {
+	apam.waitForIt(500);
 
 	CompositeType composite = CST.apam.createCompositeType(null,
 		"eletronic-device-compotype", null, "philipsSwitch",
@@ -642,7 +644,7 @@ public class CompositeTest extends ExtensionAbstract {
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(2000);
+	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = CST.apamResolver.findInstByName(ctAV00,
@@ -714,7 +716,7 @@ public class CompositeTest extends ExtensionAbstract {
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(2000);
+	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = CST.apamResolver.findInstByName(ctAV02,
@@ -761,7 +763,7 @@ public class CompositeTest extends ExtensionAbstract {
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(2000);
+	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = CST.apamResolver.findInstByName(ctAV03,
@@ -808,7 +810,7 @@ public class CompositeTest extends ExtensionAbstract {
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(2000);
+	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = CST.apamResolver.findInstByName(ctAV02,
@@ -850,7 +852,7 @@ public class CompositeTest extends ExtensionAbstract {
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(2000);
+	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = CST.apamResolver.findInstByName(ctAV03,

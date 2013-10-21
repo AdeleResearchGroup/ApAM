@@ -55,6 +55,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
     public List<Option> config() {
 	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
 	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
 	
 	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
