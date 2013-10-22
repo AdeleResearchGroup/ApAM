@@ -15,95 +15,119 @@
 package fr.imag.adele.apam.impl;
 
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
+import fr.imag.adele.apam.Resolved;
 
 public class LinkImpl implements Link {
-    private final ComponentImpl source;
-    private final ComponentImpl destination;
+	private final ComponentImpl source;
+	private final ComponentImpl destination;
 	private final boolean hasConstraints;
 	private final boolean isPromotion;
-	private final Relation definition ;
-//	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
-//	private final boolean isWire;
-//	private final boolean isInjected;
+	private final RelToResolve relToResolve ;
+	//	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
+	//	private final boolean isWire;
+	//	private final boolean isInjected;
 
-    /**
-     * Warning, only creates a Link object. Does not chain that link in the client and provider.
-     * Must be called only from createLink in ComponentImpl.
-     * 
-     * @param from
-     * @param to
-     * @param depName
-     * @param hasConstraints : true if the relation has constraints
-     * @param wire true if it is a wire
-     */
-	public LinkImpl(Component from, Component to, Relation dep, boolean hasConstraints, boolean isPromotion) {
-        source = (ComponentImpl) from;
-        destination = (ComponentImpl) to;
-        this.hasConstraints = hasConstraints ;
-        definition = dep ;
-        this.isPromotion = isPromotion ;
-//		this.isWire = dep.isWire();
-//		this.isInjected = dep.isInjected();
-//		this.depName = dep.getIdentifier();
-    }
+	/**
+	 * Warning, only creates a Link object. Does not chain that link in the client and provider.
+	 * Must be called only from createLink in ComponentImpl.
+	 * 
+	 * @param from
+	 * @param to
+	 * @param depName
+	 * @param hasConstraints : true if the relation has constraints
+	 * @param wire true if it is a wire
+	 */
+	public LinkImpl(Component from, Component to, RelToResolve dep, boolean hasConstraints, boolean isPromotion) {
+		source = (ComponentImpl) from;
+		destination = (ComponentImpl) to;
+		this.hasConstraints = hasConstraints ;
+		relToResolve = dep ;
+		this.isPromotion = isPromotion ;
+		//		this.isWire = dep.isWire();
+		//		this.isInjected = dep.isInjected();
+		//		this.depName = dep.getIdentifier();
+	}
 
-    @Override
-    public Component getSource() {
-        return source;
-    }
+	@Override
+	public Component getSource() {
+		return source;
+	}
 
-    @Override
-    public Component getDestination() {
-        return destination;
-    }
+	@Override
+	public Component getDestination() {
+		return destination;
+	}
 
-    @Override
-    public String getName() {
-        return definition.getName();
-    }
+	@Override
+	public String getName() {
+		return relToResolve.getName();
+	}
 
 
-    @Override
-    public boolean hasConstraints() {
-        return hasConstraints;
-    }
-    @Override
-    public boolean isPromotion () {
-        return isPromotion;
-    }
+	@Override
+	public boolean hasConstraints() {
+		return hasConstraints;
+	}
+	@Override
+	public boolean isPromotion () {
+		return isPromotion;
+	}
 
 
 	@Override
 	public boolean isWire() {
-		return definition.isWire();
+		return relToResolve.isWire();
 	}
 
 	@Override
 	public boolean isInjected() {
-		return definition.isInjected();
+		return relToResolve.isInjected();
 	}
-	
-	@Override
-    public Relation getDefinition () {
-    	return definition ;
-    }
 
-    public void remove() {
-        source.removeLink(this);
-        destination.removeInvLink(this);
-		
-        // Notify Dynamic managers that a link has been deleted. A new
+	@Override
+	public RelationDefinition getRelDefinition () {
+		return relToResolve.getRelationDefinition() ;
+	}
+
+	public void remove() {
+		source.removeLink(this);
+		destination.removeInvLink(this);
+
+		// Notify Dynamic managers that a link has been deleted. A new
 		// resolution can be possible now.
 		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
 			manager.removedLink(this);
 		}
 
-    }
+	}
 
+	@Override
+	public void reevaluate (boolean force, boolean eager) {
+		boolean removed = true ;
+		if (force) 
+			remove () ;
+		else {
+			if (hasConstraints() 
+					&& ! this.getRelToResolve().matchRelationConstraints(this.getDestination())) {
+				remove();
+			} 
+
+			else {
+				if (! ((RelationDefinitionImpl)this.getRelDefinition()).isStaticImplemConstraints()
+						|| ((RelationDefinitionImpl)this.getRelDefinition()).isStaticImplemConstraints())
+					remove () ;
+			}
+			removed = false ;
+		}
+		if (removed && eager)
+			CST.apamResolver.resolveLink (getSource(), getRelDefinition()) ;		
+	}
 
 	@Override
 	public String toString() {
@@ -111,6 +135,11 @@ public class LinkImpl implements Link {
 		if (isInjected()) ret = (isWire()) ? "wire " : " Ilink " ;
 		else ret = "link " ;
 		return ret + getName() + " from " + source + " to " + destination ;
+	}
+
+	@Override
+	public RelToResolve getRelToResolve() {
+		return relToResolve;
 	}
 
 }

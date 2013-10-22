@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager.ComponentBundle;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -123,7 +123,7 @@ public class OBRManager {
 	 * @return the pair capability,
 	 */
 
-	/* private */public Selected lookFor(String capability, String filterStr, Relation dep) {
+	/* private */public Selected lookFor(String capability, String filterStr, RelToResolve dep) {
 
 		// Take care of preferences !
 		if (filterStr == null) {
@@ -144,7 +144,7 @@ public class OBRManager {
 
 	
 	@SuppressWarnings("unchecked")
-	public Set<Selected> lookForAll(String capability, String filterStr, Relation dep) { //Set<ApamFilter> constraints) {
+	public Set<Selected> lookForAll(String capability, String filterStr, RelToResolve dep) { //Set<ApamFilter> constraints) {
 		if (filterStr == null)
 			new Exception("no filter in lookfor all").printStackTrace();
 
@@ -200,7 +200,7 @@ public class OBRManager {
 		return ComponentKind.COMPONENT ;
 	}
 
-	public Selected lookForPref(String capability, Relation dep, Set<Selected> candidates) {
+	public Selected lookForPref(String capability, RelToResolve dep, Set<Selected> candidates) {
 		Selected winner = lookForPrefInt(capability, dep, candidates) ;
 		if (winner == null)
 			return null;
@@ -220,7 +220,7 @@ public class OBRManager {
 	 * At the end, if n > 1 return one arbitrarily.
 	 *
 	 */
-	public Selected lookForPrefInt(String capability, Relation dep, Set<Selected> candidates) {
+	public Selected lookForPrefInt(String capability, RelToResolve dep, Set<Selected> candidates) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 		// Trace preference filter
 		//		logFilterConstraintPreferences(null, dep, false);
@@ -257,7 +257,7 @@ public class OBRManager {
 	}
 
 
-	private void logFilterConstraintPreferences(String filterStr, Relation dep) {
+	private void logFilterConstraintPreferences(String filterStr, RelToResolve dep) {
 		StringBuffer debugMessage = new StringBuffer();
 		if (dep.isMultiple()) {
 			debugMessage.append("OBR: looking for all " + dep.getTargetKind() + " matching " + filterStr);

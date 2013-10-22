@@ -32,6 +32,19 @@ public interface Link {
 
 	public boolean isInjected();
 	
-	public Relation getDefinition () ;
+	public RelationDefinition getRelDefinition () ;
+	
+	public RelToResolve getRelToResolve () ;
+
+	/**
+	 * re evaluate the link. A link is automaticaly reevaluated if the target disapers 
+	 * or if its properties are changed; or if the source properties are changed and contraints use substitution.
+	 * 
+	 * If the current link does not satifies the link contraints, it is broken.
+
+	 * @param force : remove the link even if currently valid. Usefull to re interpret preferences.
+	 * @param eager : once the link deleted, the relation is resolved again immediately. 
+	 */
+	public void reevaluate (boolean force, boolean eager) ;
 
 }

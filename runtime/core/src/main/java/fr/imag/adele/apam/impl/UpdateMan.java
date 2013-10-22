@@ -29,7 +29,7 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
@@ -190,7 +190,7 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
+	public void getSelectionPath(Component client, RelToResolve dep, List<RelationManager> selPath) {
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	// }
 
 	@Override
-	public Resolved<?> resolveRelation(Component client, Relation dep) {
+	public Resolved<?> resolveRelation(Component client, RelToResolve dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 

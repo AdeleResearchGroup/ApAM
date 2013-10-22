@@ -54,7 +54,8 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -62,7 +63,7 @@ import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.RelationImpl;
+import fr.imag.adele.apam.impl.RelToResolveImpl;
 
 @Instantiate
 @org.apache.felix.ipojo.annotations.Component(public_factory = false, immediate = true, name = "apam.universal.shell")
@@ -593,8 +594,8 @@ public class ApamCommand {
 		out.println(indent + "----- [ " + elem.getKind() + " " + elem.getName() + " ] -----");
 
 		out.println(indent + "Relation declarations :");
-		for (Relation relation : elem.getRelations()) {
-			out.println(indent + "       " + relation.getName() + ": " + relation);
+		for (RelationDefinition relToResolve : elem.getRelations()) {
+			out.println(indent + "       " + relToResolve.getName() + ": " + relToResolve);
 		}
 		//Links
 		String w;

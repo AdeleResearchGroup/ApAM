@@ -39,13 +39,13 @@ public interface RelationManager extends Manager {
 	 * 
 	 * @param client
 	 *            the client asking for a resolution
-	 * @param relation
+	 * @param relToResolve
 	 *            the relation to resolve. It contains the target type and name;
 	 *            and the constraints.
 	 * @param selPath
 	 *            the managers currently involved in this resolution.
 	 */
-	public void getSelectionPath(Component source, Relation relation,  List<RelationManager> selPath);
+	public void getSelectionPath(Component source, RelToResolve relToResolve,  List<RelationManager> selPath);
 
 	/**
 	 * Performs a complete resolution of the relation.
@@ -60,7 +60,7 @@ public interface RelationManager extends Manager {
 	 * @param client
 	 *            the instance asking for the resolution (and where to create
 	 *            implementation, if needed). Cannot be null.
-	 * @param relation
+	 * @param relToResolve
 	 *            a relation declaration containing the type and name of the
 	 *            relation target. It can be -the specification Name (new
 	 *            SpecificationReference (specName)) -an implementation name
@@ -73,7 +73,7 @@ public interface RelationManager extends Manager {
 	 * @return the implementations if resolved, null otherwise
 	 * @return in insts, the valid instances, null if none.
 	 */
-	public Resolved<?> resolveRelation(Component source, Relation relation);
+	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve);
 
 	/**
 	 * Once the resolution terminated, either successful or not, the managers

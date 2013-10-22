@@ -115,7 +115,7 @@ public interface Component {
      * @param promotion true if it is a promotion
      * @return  true if the link has been created
      */
-     public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion);
+     public boolean createLink(Component to, RelToResolve dep, boolean hasConstraints, boolean promotion);
     
 	// ================== Relationships =================
 
@@ -126,26 +126,26 @@ public interface Component {
 
 	// True if the component matches the constraints contained in the relation
 	// filters
-	public boolean matchRelationConstraints(Relation dep);
+	public boolean matchRelationConstraints(RelToResolve dep);
 
 	// True if the component matches the Target of this relation
-	public boolean matchRelationTarget(Relation dep);
+	public boolean matchRelationTarget(RelToResolve dep);
 
 	// True if the component matches the relation (target and constraints)
-	public boolean matchRelation(Relation dep);
+	public boolean matchRelation(RelToResolve dep);
 
 	// Get the relation that can be applied to this component with this id,
 	// including those coming from composite if any.
 	//null if not defined
-	public Relation getRelation(String id);
+	public RelationDefinition getRelation(String id);
 
 	//Get all the dependencies that can be applied to this component, including those coming from composite if any.
 	//Empty if none
-	public Set<Relation> getRelations();
+	public Set<RelationDefinition> getRelations();
 
 	//Get all the dependencies defined at that component level. 
 	//Empty if none. Return an unmodifiable collection of dependencies
-	public Collection<Relation> getLocalRelations();
+	public Collection<RelationDefinition> getLocalRelations();
 	
 	
 	//==================== Properties =============

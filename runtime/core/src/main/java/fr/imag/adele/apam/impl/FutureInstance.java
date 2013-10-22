@@ -8,7 +8,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
@@ -16,7 +16,7 @@ import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.impl.RelationImpl;
+import fr.imag.adele.apam.impl.RelToResolveImpl;
 
 /**
  * This class represents the declaration of an instance that must be dynamically created, as a result of a triggering
@@ -31,7 +31,7 @@ public class FutureInstance {
 	private final Implementation 		implementation;
 	private final String				name;
 	private final Map<String,String>	properties;
-	private final List<Relation>		triggers;
+	private final List<RelToResolve>		triggers;
 	
 	private boolean						isTriggered;
 
@@ -55,7 +55,7 @@ public class FutureInstance {
 		 */
 
 		int counter = 1;
-		triggers = new ArrayList<Relation>();
+		triggers = new ArrayList<RelToResolve>();
 		for (ConstrainedReference trigger : declaration.getTriggers()) {
 
 			RelationDeclaration triggerRelation = new RelationDeclaration(declaration.getReference(), "trigger-" + counter, trigger.getTarget(), false);
@@ -64,8 +64,8 @@ public class FutureInstance {
 			triggerRelation.getInstanceConstraints().addAll(
 					trigger.getInstanceConstraints());
 
-			RelationImpl parsedTrigger = new RelationImpl(triggerRelation);
-			parsedTrigger.computeFilters(owner);
+			RelToResolveImpl parsedTrigger = new RelToResolveImpl(owner, triggerRelation);
+			//parsedTrigger.computeFilters(owner);
 			triggers.add(parsedTrigger);
 			counter++;
 		}
@@ -95,7 +95,7 @@ public class FutureInstance {
 		 * evaluate all triggering conditions
 		 */
 		boolean satisfied = true;
-		for (Relation trigger : triggers) {
+		for (RelToResolve trigger : triggers) {
 
 			/*
 			 * evaluate the specified trigger

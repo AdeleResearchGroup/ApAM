@@ -37,7 +37,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -105,14 +105,14 @@ public class OSGiMan implements RelationManager {
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
+	public void getSelectionPath(Component client, RelToResolve relToResolve, List<RelationManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public Resolved<?> resolveRelation(Component client, Relation relation) {
+	public Resolved<?> resolveRelation(Component client, RelToResolve relToResolve) {
 		
-		InterfaceReference target = relation.getTarget().as(InterfaceReference.class);
+		InterfaceReference target = relToResolve.getTarget().as(InterfaceReference.class);
 		if (target == null)
 			return null;
 		
@@ -160,12 +160,12 @@ public class OSGiMan implements RelationManager {
 			/*
 			 * TODO BUG Evaluate constraints on implementations
 			 */
-			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+			if (relToResolve.getTargetKind() == ComponentKind.IMPLEMENTATION) {
 				
 				if (implementations.isEmpty())
 					return null;
 				
-				return relation.isMultiple() ? 
+				return relToResolve.isMultiple() ? 
 						new Resolved<Implementation> (implementations) :
 						new Resolved<Implementation> (implementations.iterator().next()) ;
 			}
@@ -173,12 +173,12 @@ public class OSGiMan implements RelationManager {
 			/*
 			 * TODO BUG Evaluate constraints on instances
 			 */
-			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
+			if (relToResolve.getTargetKind() == ComponentKind.INSTANCE) {
 				
 				if (instances.isEmpty())
 					return null;
 				
-				return relation.isMultiple() ?
+				return relToResolve.isMultiple() ?
 						new Resolved<Instance> (instances) :
 						new Resolved<Instance> (instances.iterator().next()) ;
 			}

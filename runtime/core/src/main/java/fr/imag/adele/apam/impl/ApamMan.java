@@ -27,7 +27,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
@@ -71,7 +71,7 @@ public class ApamMan implements RelationManager {
 
 
 	@Override
-	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
+	public void getSelectionPath(Component client, RelToResolve dep, List<RelationManager> selPath) {
 	}
 
 	@Override
@@ -99,45 +99,45 @@ public class ApamMan implements RelationManager {
 	 * 
 	 */
 	@Override
-	public Resolved<?> resolveRelation(Component source, Relation relation) {
+	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve) {
 
 		Set<Implementation> impls = null ;
-		String name = relation.getTarget().getName();
+		String name = relToResolve.getTarget().getName();
 
 		/*
 		 * First analyze the component references
 		 */
-		if (relation.getTarget() instanceof SpecificationReference) {
+		if (relToResolve.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
 				//logger.debug("No spec with name " + name + " from component" + source);
 				return null;
 			}
-			if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+			if (relToResolve.getTargetKind() == ComponentKind.SPECIFICATION) {
 				return new Resolved<Specification> (spec) ;
 			}
 			impls = spec.getImpls();
-		} else 	if (relation.getTarget() instanceof ImplementationReference) {
+		} else 	if (relToResolve.getTarget() instanceof ImplementationReference) {
 			Implementation impl = CST.componentBroker.getImpl(name);
 			if (impl == null) {
 				return null;
 			}
-			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+			if (relToResolve.getTargetKind() == ComponentKind.IMPLEMENTATION) {
 				return new Resolved<Implementation> (impl) ;
 			}
 			impls = new HashSet<Implementation> () ;
 			impls.add(impl) ;
-		} else if  (relation.getTarget() instanceof InstanceReference) {
+		} else if  (relToResolve.getTarget() instanceof InstanceReference) {
 			Instance inst = CST.componentBroker.getInst(name);
 			if (inst == null) {
 				return null;
 			}
-			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
+			if (relToResolve.getTargetKind() == ComponentKind.INSTANCE) {
 				return new Resolved<Instance> (inst) ;
 			}
 			return null ;
-		} else if (relation.getTarget() instanceof ComponentReference<?>) {
-			System.err.println("Invalid target reference : "+relation.getTarget());
+		} else if (relToResolve.getTarget() instanceof ComponentReference<?>) {
+			System.err.println("Invalid target reference : "+relToResolve.getTarget());
 			return null ;
 		}
 
@@ -147,16 +147,16 @@ public class ApamMan implements RelationManager {
 		 * It is either already resolved, or the implems are in impls.
 		 * Now Resolve by resource.
 		 */
-		else if (relation.getTarget() instanceof ResourceReference) {
-			if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+		else if (relToResolve.getTarget() instanceof ResourceReference) {
+			if (relToResolve.getTargetKind() == ComponentKind.SPECIFICATION) {
 				Set <Specification> specs = new HashSet<Specification> () ;
 				for (Specification spec : CST.componentBroker.getSpecs()) {
 					if (spec.getDeclaration().getProvidedResources().contains(
-							((ResourceReference) relation.getTarget()))) {
+							((ResourceReference) relToResolve.getTarget()))) {
 						specs.add(spec) ;
 					}
 				}
-				return relation.getResolved(specs,false);
+				return relToResolve.getResolved(specs,false);
 			}
 			
 			/*
@@ -166,7 +166,7 @@ public class ApamMan implements RelationManager {
 			impls = new HashSet<Implementation> () ;
 			for (Implementation impl : CST.componentBroker.getImpls()) {
 				if (impl.getDeclaration().getProvidedResources().contains(
-						((ResourceReference) relation.getTarget()))) {
+						((ResourceReference) relToResolve.getTarget()))) {
 					impls.add(impl) ;
 				}
 			}
@@ -177,8 +177,8 @@ public class ApamMan implements RelationManager {
 			return null ;
 
 		//If TargetKind is implem, select the good one(s)
-		if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
-			return relation.getResolved(impls, false);
+		if (relToResolve.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+			return relToResolve.getResolved(impls, false);
 		}
 
 		/*
@@ -192,7 +192,7 @@ public class ApamMan implements RelationManager {
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() 
 						&& source.canSee(inst)
-						&& inst.matchRelationConstraints(relation)) {
+						&& inst.matchRelationConstraints(relToResolve)) {
 					insts.add(inst) ;
 				}
 			}
@@ -202,9 +202,9 @@ public class ApamMan implements RelationManager {
 			/*
 			 * If relation is singleton, select the best instance.
 			 */
-			if (relation.isMultiple())
+			if (relToResolve.isMultiple())
 				return new Resolved<Instance> (insts) ;
-			return new Resolved<Instance>(relation.getPrefered(insts));
+			return new Resolved<Instance>(relToResolve.getPrefered(insts));
 		}
 		
 		//No instance available, return the preferred implementation, it will be instantiated.
@@ -217,7 +217,7 @@ public class ApamMan implements RelationManager {
 			 */
 			Set<Implementation> valid = new HashSet<Implementation> ();
 			for (Implementation impl : impls) {
-				if (relation.matchRelationConstraints(ComponentKind.IMPLEMENTATION, impl.getAllProperties()))
+				if (relToResolve.matchRelationConstraints(ComponentKind.IMPLEMENTATION, impl.getAllProperties()))
 					valid.add(impl) ;
 			}
 //				boolean matchAll = true;
@@ -235,7 +235,7 @@ public class ApamMan implements RelationManager {
 			if (valid.isEmpty()) 
 				return null ;
 
-			return new Resolved <Instance> (relation.getPrefered(valid), true);
+			return new Resolved <Instance> (relToResolve.getPrefered(valid), true);
 //		}
 
 	}

@@ -33,7 +33,8 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ManagerModel;
@@ -122,7 +123,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	private Set<CompositeType>	imports		= Collections.newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 	private Set<CompositeType>	invImports	= Collections.newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
-	private static Map<String, Relation> ctxtDependencies = new HashMap <String, Relation> () ;
+	private static Map<String, RelationDefinition> ctxtDependencies = new HashMap <String, RelationDefinition> () ;
 
 	/**
 	 * This is an special constructor only used for the root type of the system 
@@ -231,7 +232,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		for (RelationDeclaration relation : ((CompositeDeclaration) this
 				.getDeclaration()).getContextualDependencies()) {
 			// Build the corresponding relation and attach it to the component
-			ctxtDependencies.put(relation.getIdentifier(), new RelationImpl(relation));
+			ctxtDependencies.put(relation.getIdentifier(), new RelationDefinitionImpl (relation));
 		}
 
 		/*
@@ -413,13 +414,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	 * @param id
 	 * @return
 	 */
-	public Relation getCtxtRelation (Component source, String id) {
-		Relation dep = ctxtDependencies.get(id) ;
+	public RelationDefinition getCtxtRelation (Component source, String id) {
+		RelationDefinition dep = ctxtDependencies.get(id) ;
 		if (dep == null) 
 			return null ;
 		Component group = source ;
 		while (group != null) {
-			if (group.getName().equals(dep.getLinkSource().getName())
+			if (group.getName().equals(dep.getCtxtSourceName())
+//					getLinkSource().getName())
 					&& 	source.getKind() == dep.getSourceKind())
 				return dep ;
 		}
@@ -436,16 +438,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	 * @param id
 	 * @return
 	 */
-	public Set<Relation> getCtxtRelations (Component source) {
-		Set<Relation> deps = new HashSet<Relation> () ; 
+	public Set<RelationDefinition> getCtxtRelations (Component source) {
+		Set<RelationDefinition> deps = new HashSet<RelationDefinition> () ; 
 
 		Component group ;
-		for (Relation dep : ctxtDependencies.values()) {
+		for (RelationDefinition dep : ctxtDependencies.values()) {
 			if (source.getKind() == dep.getSourceKind())
 				continue ;
 			group = source ;
 			while (group != null) {
-				if (group.getName().equals(dep.getLinkSource().getName()))
+				if (group.getName().equals(dep.getCtxtSourceName()))
 					deps.add(dep) ;
 			}
 		}

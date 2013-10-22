@@ -34,7 +34,7 @@ import com.google.common.collect.Sets;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -44,7 +44,7 @@ import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.impl.EndpointRegistrationImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
-import fr.imag.adele.apam.impl.RelationImpl;
+import fr.imag.adele.apam.impl.RelToResolveImpl;
 
 /**
  * User: barjo Date: 18/12/12 Time: 14:15
@@ -218,7 +218,7 @@ public class CxfEndpointFactory {
 		
 		//((RelationImpl)client.getApamComponent().getRelation(dependency.getIdentifier()))
 		
-		RelationImpl rel=new RelationImpl(dependency);
+		RelToResolveImpl rel=new RelToResolveImpl(dependency);
 		rel.computeFilters(client.getApamComponent());
 		
 		Resolved resolved = apamMan.resolveRelation(client.getApamComponent(), rel);

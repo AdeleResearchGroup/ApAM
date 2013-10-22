@@ -35,7 +35,8 @@ import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
@@ -63,7 +64,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	private CompositeType firstDeployed ;
 
 	//Set of Dependencies
-	private Map<String, Relation> relations = new HashMap<String, Relation> () ;
+	private Map<String, RelationDefinition> relDef = new HashMap<String, RelationDefinition> () ;
 
 	protected final Set<Link> links = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
 	protected final Set<Link> invlinks = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
@@ -214,10 +215,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			 * Local declarations may be partial definitions, we need to compute the complete declaration by
 			 * refining the ancestor definition. 
 			 */
-			Relation base		= this.getRelation(relationDeclaration.getIdentifier());
-			relationDeclaration = (base == null) ? relationDeclaration : ((RelationImpl)base).refinedBy(relationDeclaration);
+			RelationDefinition base		= this.getRelation(relationDeclaration.getIdentifier());
+			relationDeclaration = (base == null) ? relationDeclaration : ((RelationDefinitionImpl)base).refinedBy(relationDeclaration);
 
-			relations.put(relationDeclaration.getIdentifier(), new RelationImpl(relationDeclaration));
+			relDef.put(relationDeclaration.getIdentifier(), new RelationDefinitionImpl(relationDeclaration));
 		}
 
 	}
@@ -605,7 +606,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return dests;
 
 		//None are present. Try to resolve
-		Relation rel = getRelation (relName) ;
+		RelationDefinition rel = getRelation (relName) ;
 		if (rel == null) {
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
@@ -652,7 +653,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		//None are present. Try to resolve
-		Relation rel = getRelation (relName) ;
+		RelationDefinition rel = getRelation (relName) ;
 		if (rel == null) {
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
@@ -664,7 +665,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
 	@Override
-	public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
+	public boolean createLink(Component to, RelToResolve dep, boolean hasConstraints, boolean promotion) {
 		// Not a relation
 		if (!dep.isRelation())
 			return true;
@@ -861,8 +862,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @return
 	 */
 	@Override
-	public Relation getRelation(String id) {
-		Relation dep = null;
+	public RelationDefinition getRelation(String id) {
+		RelationDefinition dep = null;
 		Component group = this;
 		while (group != null) {
 			dep = ((ComponentImpl) group).getLocalRelation(id);
@@ -889,17 +890,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public Set<Relation> getRelations() {
-		Set<Relation> relations = new HashSet<Relation>();
+	public Set<RelationDefinition> getRelations() {
+		Set<RelationDefinition> relDefs = new HashSet<RelationDefinition>();
 		Set<String> processed 	= new HashSet<String>();
 
 		Component group = this;
 		while (group != null) {
 
-			for (Relation relation : group.getLocalRelations()) {
-				if (! processed.contains(relation.getName())) {
-					relations.add(relation);
-					processed.add(relation.getName());
+			for (RelationDefinition relDef : group.getLocalRelations()) {
+				if (! processed.contains(relDef.getName())) {
+					relDefs.add(relDef);
+					processed.add(relDef.getName());
 				}
 			}
 
@@ -910,37 +911,37 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (this instanceof Instance) {
 			CompositeType comptype = ((Instance) this).getComposite().getCompType();
 
-			for (Relation relation : comptype.getCtxtRelations(this)) {
-				if (! processed.contains(relation.getName())) {
-					relations.add(relation);
-					processed.add(relation.getName());
+			for (RelationDefinition relDef : comptype.getCtxtRelations(this)) {
+				if (! processed.contains(relDef.getName())) {
+					relDefs.add(relDef);
+					processed.add(relDef.getName());
 				}
 			}
 
 		}
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
-				for (Relation relation : comptype.getCtxtRelations(this)) {
-					if (! processed.contains(relation.getName())) {
-						relations.add(relation);
-						processed.add(relation.getName());
+				for (RelationDefinition relDef : comptype.getCtxtRelations(this)) {
+					if (! processed.contains(relDef.getName())) {
+						relDefs.add(relDef);
+						processed.add(relDef.getName());
 					}
 				}
 			}
 		}
 
-		return relations;
+		return relDefs;
 	}
 
 
 
-	protected Relation getLocalRelation(String id) {
-		return relations.get(id);
+	protected RelationDefinition getLocalRelation(String id) {
+		return relDef.get(id);
 	}
 
 	@Override
-	public Collection<Relation> getLocalRelations() {
-		return Collections.unmodifiableCollection(relations.values());
+	public Collection<RelationDefinition> getLocalRelations() {
+		return Collections.unmodifiableCollection(relDef.values());
 	}
 
 	/**
@@ -1027,6 +1028,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				//CST.apamResolver.resolveLink (incoming.getSource(), incoming.getDefinition()) ;
 			}
 		}
+		
+		//If outgoing constraints have substitution, the link may be now invalid
+		for (Link outgoing : getLocalLinks()) {
+			if (!!!((RelationDefinitionImpl)outgoing.getRelDefinition()).isStaticImplemConstraints()
+				|| ((RelationDefinitionImpl)outgoing.getRelDefinition()).isStaticImplemConstraints())
+				outgoing.remove () ;
+		}
 
 		if (oldValue == null) remove(attr); else put(attr,oldValue);
 
@@ -1037,16 +1045,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return true;
 	}
 
-	private boolean isValidLink (Link incoming) {
-		Component source = incoming.getSource() ;
-		Relation relation = incoming.getDefinition() ;
-		try {
-			((RelationImpl)relation).computeFilters(source) ;
-			return relation.matchRelationConstraints(incoming.getDestination());
-		}
-		finally {
-			((RelationImpl)relation).resetFilters() ;
-		}
+	/**
+	 * The link keeps the relToResolve used for its resolution.
+	 * @param incoming
+	 * @return
+	 */
+	public boolean isValidLink (Link incoming) {
+		RelToResolve relToResolve = incoming.getRelToResolve() ;
+		return relToResolve.matchRelationConstraints(incoming.getDestination());
 	}
 
 	/**
@@ -1301,17 +1307,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public boolean matchRelationConstraints(Relation dep) {
+	public boolean matchRelationConstraints(RelToResolve dep) {
 		return dep.matchRelationConstraints(dep.getTargetKind(), this.getAllProperties());
 	}
 
 	@Override
-	public boolean matchRelationTarget(Relation dep) {
+	public boolean matchRelationTarget(RelToResolve dep) {
 		return dep.matchRelationTarget(this);
 	}
 
 	@Override
-	public boolean matchRelation(Relation dep) {
+	public boolean matchRelation(RelToResolve dep) {
 		return dep.matchRelation(this);
 	}
 

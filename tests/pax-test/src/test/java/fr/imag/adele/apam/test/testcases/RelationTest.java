@@ -19,9 +19,11 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.ComponentImpl;
+import fr.imag.adele.apam.impl.RelToResolveImpl;
 import fr.imag.adele.apam.pax.test.implS7.S07CustomException;
 import fr.imag.adele.apam.pax.test.implS7.S07Implem14;
 import fr.imag.adele.apam.pax.test.implS7.S07Implem16;
@@ -637,7 +639,8 @@ public class RelationTest extends ExtensionAbstract {
 		Assert.assertEquals("No relations should have been created (no instance of dependency existing)",
 			0, instance.getRawLinks().size());
 		
-		instance.createLink(instancedep, instance.getRelation("testexist02"), false, false);
+		RelToResolve rel = new RelToResolveImpl(instance, instance.getRelation("testexist02"));
+		instance.createLink(instancedep, rel, false, false);
 
 		testResolutionExceptionCase16(instance);
 		auxListInstances();

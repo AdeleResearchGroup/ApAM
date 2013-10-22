@@ -11,8 +11,10 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.util.ApamFilter;
 
-public interface Relation  {
+public interface RelToResolve  {
 
+	//the associated relation
+	public RelationDefinition getRelationDefinition () ;
 
 	/**
 	 * return true if the component matches the constraints of that relation.
@@ -119,7 +121,7 @@ public interface Relation  {
 	
 	public <T extends Component> T getPrefered (Set<T> candidates) ;
 
-	public boolean matchRelation(Instance compoInst, Relation compoDep) ;
+//	public boolean matchRelation(Instance compoInst, RelToResolve compoDep) ;
 
 }
 
