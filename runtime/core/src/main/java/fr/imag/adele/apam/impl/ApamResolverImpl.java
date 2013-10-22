@@ -559,61 +559,58 @@ public class ApamResolverImpl implements ApamResolver {
 		return null;
 	}
 
-	/**
-	 * Before to resolve an implementation (i.e. to select one of its instance),
-	 * this method is called to know which managers are involved, and what are
-	 * the constraints and preferences set by the managers to this resolution.
-	 * 
-	 * @param compTypeFrom
-	 *            : the origin of this resolution.
-	 * @param impl
-	 *            : the implementation to resolve.
-	 * @param constraints
-	 *            : the constraints added by the managers. A (empty) set must be
-	 *            provided as parameter.
-	 * @param preferences
-	 *            : the preferences added by the managers. A (empty) list must
-	 *            be provided as parameter.
-	 * @return : the managers that will be called for that resolution.
-	 */
-	private List<RelationManager> computeSelectionPath(Component source, RelToResolve relToResolve) {
-
-		/*
-		 * Get the list of external managers.
-		 * 
-		 * NOTE Notice that we invoke getSelctionPath on all managers (even if resolve policy
-		 * is specified EXTERNAL. In this way, managers can influence resolution, by adding
-		 * constraints, even if they do not perform resolution themselves.
-		 * 
-		 * TODO We should have two separate methods in managers: one for adding constraints 
-		 * and another for actually performing resolution. 
-		 * 
-		 */
-		List<RelationManager> externalPath = new ArrayList<RelationManager>();
-		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
-			relationManager.getSelectionPath(source, relToResolve, externalPath);
-		}
-				
-		/*
-		 * Get the list of all managers, core and external
-		 */
-		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
-
-		selectionPath.add(0, apam.getApamMan());
-		selectionPath.add(0, apam.getUpdateMan());
-		
-
-		/*
-		 * If resolve = exist or internal, only predefined managers must be called
-		 */
-
-		boolean resolveExternal = relToResolve.getResolve() == ResolvePolicy.EXTERNAL ;
-		if (resolveExternal) {
-			selectionPath.addAll(externalPath);
-		}
-		
-		return selectionPath;
-	}
+//	/**
+//	 * Before to resolve an implementation (i.e. to select one of its instance),
+//	 * this method is called to know which managers are involved, and what are
+//	 * the constraints and preferences set by the managers to this resolution.
+//	 * 
+//	 * @param compTypeFrom
+//	 *            : the origin of this resolution.
+//	 * @param impl
+//	 *            : the implementation to resolve.
+//	 * @param constraints
+//	 *            : the constraints added by the managers. A (empty) set must be
+//	 *            provided as parameter.
+//	 * @param preferences
+//	 *            : the preferences added by the managers. A (empty) list must
+//	 *            be provided as parameter.
+//	 * @return : the managers that will be called for that resolution.
+//	 */
+//	private List<RelationManager> computeSelectionPath(Component source, RelToResolve relToResolve) {
+//
+//		/*
+//		 * Get the list of external managers.
+//		 * 
+//		 * NOTE Notice that we invoke getSelctionPath on all managers (even if resolve policy
+//		 * is specified EXTERNAL. In this way, managers can influence resolution, by adding
+//		 * constraints, even if they do not perform resolution themselves.
+//		 * 
+//		 */
+//		List<RelationManager> externalPath = new ArrayList<RelationManager>();
+//		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
+//			relationManager.getSelectionPath(source, relToResolve, externalPath);
+//		}
+//				
+//		/*
+//		 * Get the list of all managers, core and external
+//		 */
+//		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
+//
+//		selectionPath.add(0, apam.getApamMan());
+//		selectionPath.add(0, apam.getUpdateMan());
+//		
+//
+//		/*
+//		 * If resolve = exist or internal, only predefined managers must be called
+//		 */
+//
+//		boolean resolveExternal = relToResolve.getResolve() == ResolvePolicy.EXTERNAL ;
+//		if (resolveExternal) {
+//			selectionPath.addAll(externalPath);
+//		}
+//		
+//		return selectionPath;
+//	}
 
 	/**
 	 * Impl is either unused or deployed (and therefore also unused). 

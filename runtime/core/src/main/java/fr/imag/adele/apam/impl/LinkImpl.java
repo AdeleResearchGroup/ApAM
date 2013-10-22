@@ -21,7 +21,6 @@ import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationDefinition;
-import fr.imag.adele.apam.Resolved;
 
 public class LinkImpl implements Link {
 	private final ComponentImpl source;

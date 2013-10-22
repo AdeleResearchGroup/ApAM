@@ -2,13 +2,11 @@
 package fr.imag.adele.apam;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.MissingPolicy;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 //import fr.imag.adele.apam.util.ApamFilter;

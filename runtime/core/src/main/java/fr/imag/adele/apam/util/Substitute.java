@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.impl.ComponentImpl;

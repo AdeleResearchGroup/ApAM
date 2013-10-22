@@ -179,7 +179,7 @@ public class ApamFilter /* implements Filter */ {
 	 *             case variants of the same key name.
 	 *             
 	 */
-	//	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public boolean match(Map map) {
 		return match0(new CaseInsensitiveMap<Object>(map));
 	}

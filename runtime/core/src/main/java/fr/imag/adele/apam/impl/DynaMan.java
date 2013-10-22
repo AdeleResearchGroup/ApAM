@@ -22,22 +22,17 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.DynamicManager;
-import fr.imag.adele.apam.PropertyManager;
-import fr.imag.adele.apam.RelationDefinition;
-
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Instance;
-
 import fr.imag.adele.apam.CompositeType;
-
-import fr.imag.adele.apam.RelToResolve;
-import fr.imag.adele.apam.declarations.CreationPolicy;
+import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.PropertyManager;
+import fr.imag.adele.apam.RelationDefinition;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 

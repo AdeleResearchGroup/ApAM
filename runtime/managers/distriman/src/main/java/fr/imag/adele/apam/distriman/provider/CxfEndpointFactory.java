@@ -218,8 +218,8 @@ public class CxfEndpointFactory {
 		
 		//((RelationImpl)client.getApamComponent().getRelation(dependency.getIdentifier()))
 		
-		RelToResolveImpl rel=new RelToResolveImpl(dependency);
-		rel.computeFilters(client.getApamComponent());
+		RelToResolveImpl rel=new RelToResolveImpl(client.getApamComponent(), dependency);
+		//rel.computeFilters(client.getApamComponent());
 		
 		Resolved resolved = apamMan.resolveRelation(client.getApamComponent(), rel);
 		

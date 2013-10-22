@@ -9,7 +9,7 @@ import fr.imag.adele.apam.impl.RelToResolveImpl;
 public class RemoteDependency extends RelToResolveImpl {
 
 	public RemoteDependency(RelationDeclaration dd,Component comp){
-		super(dd);
+		super(comp, dd);
 	}
 
 }
