@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.apform.impl.handlers;
 
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -348,7 +349,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	}
 	
 	@Override
-	public void onExit(Object pojo, Method method, Object returnedObj) {
+	public void onExit(Object pojo, Member method, Object returnedObj) {
 	    super.onExit(pojo, method, returnedObj);
 	    if (returnedObj instanceof Message){
 	        push((Message<?>)returnedObj);

@@ -36,6 +36,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
+import fr.imag.adele.apam.test.testcases.RelationTest;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreParser;
@@ -236,6 +237,25 @@ public class OBRMANTest extends ExtensionAbstract{
 
     	
     }
+    
+    @Test
+    public void RelationLinkResolveExternal_tct003() {
+	Implementation implementation = CST.apamResolver.findImplByName(null,
+		"S07-implementation-14ter");
 
+	Instance instance = implementation.createInstance(null,
+		Collections.<String, String> emptyMap());
+
+	// Test should success on external bundle resolution
+	auxListInstances();
+	org.junit.Assert
+		.assertFalse(
+			"No exception should be raised as the dependency can be resolved externally",
+			RelationTest.testResolutionExceptionCase14(instance, 3));
+	Assert.assertEquals("Only one relation should have been created : ", 1,
+		instance.getRawLinks().size());
+
+    }
+    
 
 }

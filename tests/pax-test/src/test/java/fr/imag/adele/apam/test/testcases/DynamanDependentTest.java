@@ -19,11 +19,13 @@ import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,17 +53,31 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Override
     public List<Option> config() {
-	List<Option> addon = super.config();
+	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
+	
+	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
+
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());
 	return addon;
     }
+   
 
+    
     @Test
     public void CompositeContentMngtDependencyFailWait_tc039() {
+	
+	
+	apam.waitForIt(10000);
+	
 
 	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 		null, "composite-a-fail-wait");
+	apam.waitForIt(10000);
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 

@@ -19,9 +19,12 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -39,11 +42,16 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class MessageTest extends ExtensionAbstract {
 
+
 	@Override
 	public List<Option> config() {
-		// TODO Auto-generated method stub
-
-		List<Option> defaults = super.config();
+		Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-m1",
+		"fr.imag.adele.apam.tests.messages");
+		mapOfRequiredArtifacts.put("apam-pax-samples-msg",
+		"fr.imag.adele.apam.tests.messages");
+		
+		List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
 		
 		try {
 			defaults.add(bundle((new File(PathUtils.getBaseDir(),"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));

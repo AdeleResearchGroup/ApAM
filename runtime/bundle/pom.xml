@@ -42,10 +42,10 @@
                             fr.imag.adele.apam.apform.impl.handlers
                         </Export-Package>
                         <IPOJO-Extension>
-                            implementation:fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory,
-                            composite:fr.imag.adele.apam.apform.impl.ApamCompositeFactory,
-                            specification:fr.imag.adele.apam.apform.impl.ApamSpecificationFactory,
-                            apam-instance:fr.imag.adele.apam.apform.impl.ApamInstanceDeclaration
+                            fr.imag.adele.apam implementation:fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory,
+                            fr.imag.adele.apam composite:fr.imag.adele.apam.apform.impl.ApamCompositeFactory,
+                            fr.imag.adele.apam specification:fr.imag.adele.apam.apform.impl.ApamSpecificationFactory,
+                            fr.imag.adele.apam apam-instance:fr.imag.adele.apam.apform.impl.ApamInstanceDeclaration                             
                             <!-- TODO instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration,
                                        : In iPojo 1.8.0 component type extension identifiers are matched without
                                        considering the namespace. This definition will then conflict with iPojo

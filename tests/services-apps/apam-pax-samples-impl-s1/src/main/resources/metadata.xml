@@ -50,7 +50,7 @@
 
         </dependency>
 
-        <dependency field="simpleDevice110v">
+        <dependency field="simpleDevice110v" resolve="internal">
             <constraints>
                 <implementation filter="(manufacturer=philips)" />
                 <implementation filter="(voltage=110)" />
@@ -265,7 +265,7 @@
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
         <dependency field="s2" added="bindWithInstance"
-            removed="unbindWithInstance" />
+            removed="unbindWithInstance" resolve="internal" />
         <!-- This is the correct one, but its not implemented <dependency 
             field="s2" added="start" removed="stop" /> -->
     </implementation>
@@ -273,13 +273,13 @@
     <implementation name="S1Impl-removed-callback-with-no-constraint"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" removed="unbindWithInstance" />
+        <dependency field="s2" removed="unbindWithInstance" resolve="internal" />
     </implementation>
 
     <implementation name="S1Impl-removed-callback-with-constraint"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" removed="unbindWithInstance">
+        <dependency field="s2" removed="unbindWithInstance" resolve="internal">
             <constraints>
                 <instance filter="(defined-property=expected)" />
             </constraints>
@@ -290,7 +290,7 @@
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
         <dependency field="s2" added="bindWithoutInstance"
-            removed="unbindWithoutInstance" />
+            removed="unbindWithoutInstance" resolve="internal" />
     </implementation>
 
     <!-- For tct018 No regression test, behavior to release dependency when 
