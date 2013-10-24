@@ -212,8 +212,6 @@ public class RelToResolveImpl implements RelToResolve {
 
 		if (!isInitialized) {
 			computeFilters() ;
-			//			logger.error("Filters not computed");
-			//			return false;
 		}
 
 		//Instance must match both implementation and instance constraints ???
@@ -412,8 +410,6 @@ public class RelToResolveImpl implements RelToResolve {
 	}
 
 
-
-
 	@Override
 	public ComponentKind getSourceKind() {
 		return relationDefinition.getSourceKind();
@@ -428,13 +424,8 @@ public class RelToResolveImpl implements RelToResolve {
 
 	@Override
 	public boolean hasConstraints() {
-
 		return !allImplementationConstraintFilters.isEmpty()
 				|| !allInstanceConstraintFilters.isEmpty() ;
-		//				|| !implementationConstraintFilters.isEmpty()
-		//				|| !instanceConstraintFilters.isEmpty();
-
-
 	}
 
 
@@ -660,6 +651,12 @@ public class RelToResolveImpl implements RelToResolve {
 			}
 		}
 		return ret.toString();
+	}
+
+	@Override
+	public boolean hasPreferences () {
+		return !allImplementationPreferenceFilters.isEmpty() 
+				|| !allInstancePreferenceFilters.isEmpty() ; 
 	}
 
 	@Override

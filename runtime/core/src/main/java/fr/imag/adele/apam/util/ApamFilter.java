@@ -1287,10 +1287,10 @@ public class ApamFilter /* implements Filter */ {
 					 * If it is a substitution, substitute.
 					 * If component is null, we are only checking that it has substitutions or not.
 					 */
-					if (Substitute.isSubstitution(string) && component == null) {
-						string = "###It is an Apam Substitution" ;
-					}
-					else {
+//					if (Substitute.isSubstitution(string) && component == null) {
+//						string = "###It is an Apam Substitution" ;
+//					}
+//					else {
 						string = Util.toStringAttrValue(Substitute.substitute(null, string, component)) ;
 						if (string == null) {
 							logger.debug("Substitution failed. Attribute not set: " + filterstring);
@@ -1299,7 +1299,7 @@ public class ApamFilter /* implements Filter */ {
 						return new ApamFilter(ApamFilter.EQUAL, attr,
 								((String) string).trim());
 					}
-				}
+//				}
 				return new ApamFilter(ApamFilter.SUBSTRING, attr,
 						string);
 			}

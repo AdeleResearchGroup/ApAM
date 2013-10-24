@@ -333,7 +333,7 @@ public class Substitute {
 				|| (!(valueObject instanceof String)))
 			return valueObject;
 
-		String value = (String) valueObject;
+		String value = ((String) valueObject).trim();
 		if (value.startsWith("\\$") || value.startsWith("\\@"))
 			return value.substring(1);
 

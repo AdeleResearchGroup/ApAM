@@ -20,7 +20,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="S1ImplEmpty"
 		classname="fr.imag.adele.apam.test.s1Impl.S1ImplEmpty" specification="S1" > 
-		<definition name="debit" type="int" default="2"/>
+		<definition name="debit" type="int" default="10"/>
 	</implementation>
 
 </apam>

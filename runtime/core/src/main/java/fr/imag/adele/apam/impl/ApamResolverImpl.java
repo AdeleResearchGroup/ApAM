@@ -398,8 +398,6 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	private Resolved<?> resolveByManagers(RelToResolve relToResolve) {
 
-//		try {
-			
 			/*
 			 * Get the list of external managers.
 			 * 
@@ -437,17 +435,6 @@ public class ApamResolverImpl implements ApamResolver {
 				selectionPath.addAll(externalPath);
 			}
 
-			//===================
-			
-			//Compute selection path and constraints added by managers
-			//List<RelationManager> selectionPath = computeSelectionPath(source, relToResolve);
-			// Transform the relation constraints into filters after interpreting the substitutions.
-			
-			//RelToResolve relToResolve = new RelToResolveImpl (source, relation, mngImplementationConstraints, mngInstanceConstraints)
-			//((RelToResolveImpl)relToResolve).computeFilters(source) ;
-			
-			//relToResolve = new RelToResolve (source, relation, mngConstraints, mngPreference) ;
-			
 			if (!relToResolve.isRelation()) { // It is a find
 				logger.info("Looking for " + relToResolve.getTargetKind() + " " + relToResolve.getTarget().getName());
 			} else
@@ -503,7 +490,6 @@ public class ApamResolverImpl implements ApamResolver {
 						continue;
 					}
 					
-					//if (!relation.matchRelation(inst)) { xx
 					if (!relToResolve.matchRelationConstraints(inst)) {
 						logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints") ;
 						((ComponentImpl)inst).unregister() ;
@@ -548,13 +534,6 @@ public class ApamResolverImpl implements ApamResolver {
 				logger.info(mess + "Selected : " + res.singletonResolved);
 				return res;
 			}
-//		}
-//		// To be sure to reset the filters set in computeSelectionPath
-//		finally {
-//			((RelToResolveImpl) relToResolve).resetFilters();
-//		}
-
-
 		// No solution found
 		return null;
 	}
