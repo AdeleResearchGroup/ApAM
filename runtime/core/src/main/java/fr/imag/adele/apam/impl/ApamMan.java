@@ -186,13 +186,19 @@ public class ApamMan implements RelationManager {
 		 * target (type and name only). We are looking for instances. 
 		 * Take all the instances of these implementations satisfying the relation
 		 * constraints and visibility.
-		 */		
+		 */
+		
+		//Fast track : if looking for one instance and no preferences, return the first valid instance
+		boolean fast = 	(! relToResolve.isMultiple() && ! relToResolve.hasPreferences())  ;
+
 		Set<Instance> insts = new HashSet<Instance> () ; 
 		for (Implementation impl : impls) {
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() 
 						&& source.canSee(inst)
 						&& inst.matchRelationConstraints(relToResolve)) {
+					if (fast) 
+						return new Resolved<Instance> (inst) ;
 					insts.add(inst) ;
 				}
 			}
@@ -207,37 +213,18 @@ public class ApamMan implements RelationManager {
 			return new Resolved<Instance>(relToResolve.getPrefered(insts));
 		}
 		
-		//No instance available, return the preferred implementation, it will be instantiated.
-//		if (insts == null  ||insts.isEmpty()) {
 			/*
 			 *  Keep only the implementations satisfying the constraints of the relation
-//			 *  
-//			 *  TODO NOTE We can not use relation.getResolved because it checks the target 
-//			 *  kind, so we do filtering here. This must be refactored into RelationImpl
 			 */
 			Set<Implementation> valid = new HashSet<Implementation> ();
 			for (Implementation impl : impls) {
 				if (relToResolve.matchRelationConstraints(ComponentKind.IMPLEMENTATION, impl.getAllProperties()))
 					valid.add(impl) ;
 			}
-//				boolean matchAll = true;
-//				for (ApamFilter constraint : relation.getAllImplementationConstraintFilters()) {
-//					if (!constraint.match(impl.getAllProperties())) {
-//						matchAll = false;
-//						break;
-//					}
-//				}
-//				
-//				if (matchAll)
-//					valid.add(impl);
-//			}
-//			
 			if (valid.isEmpty()) 
 				return null ;
 
 			return new Resolved <Instance> (relToResolve.getPrefered(valid), true);
-//		}
-
 	}
 
 

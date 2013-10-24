@@ -1032,14 +1032,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//If outgoing constraints have substitution, the link may be now invalid
 		for (Link outgoing : getLocalLinks()) {
 			if (!!!((RelationDefinitionImpl)outgoing.getRelDefinition()).isStaticImplemConstraints()
-				|| ((RelationDefinitionImpl)outgoing.getRelDefinition()).isStaticImplemConstraints())
+				|| !!!((RelationDefinitionImpl)outgoing.getRelDefinition()).isStaticInstConstraints())
 				outgoing.remove () ;
 		}
 
+		//WARNING : undo the change because propagate needs the initial state
 		if (oldValue == null) remove(attr); else put(attr,oldValue);
 
-		// does the change, notifies managers, changes the platform and propagate to
-		// members
+		// does the change, notifies managers, changes the platform and propagate to members
 		this.propagate(attr, val);
 
 		return true;

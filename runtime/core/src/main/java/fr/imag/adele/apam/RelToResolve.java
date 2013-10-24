@@ -120,6 +120,9 @@ public interface RelToResolve  {
 	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion) ;
 	
 	public <T extends Component> T getPrefered (Set<T> candidates) ;
+	
+	public boolean hasPreferences () ;
+
 
 //	public boolean matchRelation(Instance compoInst, RelToResolve compoDep) ;
 

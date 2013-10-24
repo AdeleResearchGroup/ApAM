@@ -18,6 +18,22 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
+	<implementation name="W"  classname="fr.imag.adele.apam.mainApam.perfWire" >
+			<dependency field="apam" />
+			<dependency field="testPerf" resolve="exist">
+				<constraints>
+					<instance filter="(debit >= 5)"/>
+				</constraints>
+			</dependency>
+			<dependency field="testReaction" resolve="exist">
+				<constraints>
+					<instance filter="(debit >= $$need)"/>
+				</constraints>
+			</dependency>
+			<definition name="need" type="int" default="7"/>
+	</implementation>
+
+
 	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
 			<dependency field="apam" />
 			<dependency field="testPerf" fail="wait" resolve="exist">
