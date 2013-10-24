@@ -23,6 +23,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 
+
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -43,8 +44,12 @@ import org.ops4j.pax.exam.options.CompositeOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
+
 import org.slf4j.LoggerFactory;
+
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.Level;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ComponentBroker;
@@ -62,7 +67,8 @@ public abstract class ExtensionAbstract extends TestUtils {
     @Inject
     public BundleContext context;
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+//    private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     public ApAMHelper apam;
 
@@ -72,6 +78,11 @@ public abstract class ExtensionAbstract extends TestUtils {
     protected static Option[] configuration = null;
 
     public List<Option> config() {
+	
+
+	
+	
+	
 	return config(null, true);
 
     }
@@ -106,6 +117,9 @@ public abstract class ExtensionAbstract extends TestUtils {
 	    if (use_conf.exists())
 		use_conf.renameTo(ref_conf);	
 
+
+	
+	
 	return config;
     }
 
@@ -127,6 +141,8 @@ public abstract class ExtensionAbstract extends TestUtils {
     }
 
     protected CompositeOption packInitialConfig() {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.WARN);
 
 	String logpath = "file:" + PathUtils.getBaseDir() + "/log/logback.xml";
 	File log = new File(logpath);
@@ -135,11 +151,9 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 	CompositeOption initial = new DefaultCompositeOption(frameworkProperty(
 		"org.osgi.service.http.port").value("8080"), cleanCaches(),
-		when(includeLog).useOptions(
-			systemProperty("logback.configurationFile").value(
-				logpath)), systemProperty(
-			"org.ops4j.pax.logging.DefaultServiceLog.level").value(
-			"NONE"));
+		systemProperty("logback.configurationFile").value(logpath),
+		systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN")
+			);
 
 	return initial;
     }
@@ -247,12 +261,11 @@ public abstract class ExtensionAbstract extends TestUtils {
     }
 
     protected CompositeOption packLog() {
-	CompositeOption logConfig = new DefaultCompositeOption(mavenBundle(
-		"ch.qos.logback", "logback-core").versionAsInProject(),
-		mavenBundle("ch.qos.logback", "logback-classic")
-			.versionAsInProject(), mavenBundle("org.slf4j",
-			"slf4j-api").versionAsInProject(), mavenBundle(
-			"org.apache.felix", "org.apache.felix.log").version(
+	CompositeOption logConfig = new DefaultCompositeOption(
+		mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
+		mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
+		mavenBundle("org.slf4j","slf4j-api").versionAsInProject(),
+			mavenBundle("org.apache.felix", "org.apache.felix.log").version(
 			"1.0.1"));
 
 	return logConfig;
@@ -347,7 +360,6 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     @Configuration
     public Option[] apamConfig() {
-
 	Option conf[] = config().toArray(new Option[0]);
 
 	configuration = conf;
@@ -359,8 +371,7 @@ public abstract class ExtensionAbstract extends TestUtils {
     public void setUp() {
 	apam = new ApAMHelper(context);
 	broker = CST.componentBroker;
-	logger.info("[Run Test : " + name.getMethodName() + "]");
-	
+	logger.info("***[Run Test : " + name.getMethodName() + "]***");
 	
 	apam.waitForIt(1000);
     }
