@@ -72,12 +72,9 @@ public class DynamanDependentTest extends ExtensionAbstract {
     public void CompositeContentMngtDependencyFailWait_tc039() {
 	
 	
-	apam.waitForIt(10000);
-	
 
 	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 		null, "composite-a-fail-wait");
-	apam.waitForIt(10000);
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 

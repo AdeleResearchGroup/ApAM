@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -246,7 +247,7 @@
             <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>fr.imag.adele.apam.tests.services</groupId>
             <artifactId>specs-s1</artifactId>
@@ -259,13 +260,13 @@
             <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>fr.imag.adele.apam.tests.services</groupId>
             <artifactId>instance-s1</artifactId>
             <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
-        
+
 
         <dependency>
             <groupId>fr.imag.adele.apam.tests.services</groupId>
@@ -301,14 +302,14 @@
             <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>fr.imag.adele.apam.tests.app</groupId>
             <artifactId>apam-pax-dynaman-grant</artifactId>
             <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <artifactId>apam-universal-shell</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
@@ -328,6 +329,12 @@
             <scope>test</scope>
             <type>pom</type>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -418,11 +425,6 @@
             <groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId> <artifactId>APP2-Spec</artifactId> 
             <version>${project.version}</version> <scope>test</scope> </dependency> -->
         <!-- Log -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.2</version>
-        </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -461,11 +463,11 @@
                 <directory>models</directory>
                 <filtering>true</filtering>
                 <includes>
-                <include>**/*</include>
-            </includes>
-        </resource>
-        </resources>    
-    
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
