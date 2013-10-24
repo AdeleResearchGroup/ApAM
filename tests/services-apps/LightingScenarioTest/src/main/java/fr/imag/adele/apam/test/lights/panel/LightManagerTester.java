@@ -123,7 +123,7 @@ public class LightManagerTester implements ActionListener {
      * CallBack method on dependency resolution
      */
     public void removeButton(Instance inst) {
-	SimpleButton btn = (SimpleButton) inst;
+	SimpleButton btn = (SimpleButton) inst.getServiceObject();
 	logger.debug("removeButton(SimpleButton button : " + btn.getName()
 		+ " in " + btn.getLocation() + ")");
 	rebuildButtonsColumn();
@@ -135,7 +135,7 @@ public class LightManagerTester implements ActionListener {
      * @param light
      */
     public void newLight(Instance inst) {
-	BinaryLight light = (BinaryLight) inst;
+	BinaryLight light = (BinaryLight) inst.getServiceObject();
 	logger.debug("newLight(Instance light : " + light.getName() + " in "
 		+ light.getLocation() + ")");
 	rebuildLightsColumn();
@@ -145,7 +145,7 @@ public class LightManagerTester implements ActionListener {
      * CallBack method on dependency resolution
      */
     public void removeLight(Instance inst) {
-	BinaryLight light = (BinaryLight) inst;
+	BinaryLight light = (BinaryLight) inst.getServiceObject();
 	logger.debug("removeLight(Instance light : " + light.getName() + " in "
 		+ light.getLocation() + ")");
 	rebuildLightsColumn();
