@@ -22,19 +22,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch;
@@ -71,11 +67,11 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyInheritedCannotBeChanged_tc001() {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null, null);
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -100,7 +96,7 @@ public class PropertyTest extends ExtensionAbstract {
     public void testPropertyDefinitionSpec_tct026() {
 
 	System.out.println("Testing Specification properties defined");
-	Specification specsS1 = CST.apamResolver.findSpecByName(null,
+	Specification specsS1 = waitForSpecByName(null,
 		"specs-s1-tct026");
 
 	for (int i = 0; i <= 6; i++)
@@ -121,7 +117,7 @@ public class PropertyTest extends ExtensionAbstract {
 	public void testPropertyDefinitionImplem_tct027() {
 		
 	    System.out.println("Testing Implementation properties");
-	    Implementation implemS1 = CST.apamResolver.findImplByName(null, "implem-s1-tct026");
+	    Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
 	    System.out.println("*********-->"+implemS1.getAllPropertiesString());
 	    for(int i=0; i<=6; i++)
 		if(!implemS1.setProperty("def"+i+"-specs-s1", "test-prop"))
@@ -146,9 +142,9 @@ public class PropertyTest extends ExtensionAbstract {
 	System.out.println("Testing Instance properties");
 
 	auxListInstances();
-	Implementation implemS1 = CST.apamResolver.findImplByName(null, "implem-s1-tct026");
+	Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
 	auxListInstances();
-	Instance instanceS1 = CST.apamResolver.findInstByName(null,
+	Instance instanceS1 = waitForInstByName(null,
 		"instance-s1-tct026");			
 	auxListInstances();
 
@@ -173,7 +169,7 @@ public class PropertyTest extends ExtensionAbstract {
 	// }
 
 	//
-	// ComponentDeclaration implemS1 = CST.apamResolver.findImplByName(null,
+	// ComponentDeclaration implemS1 = waitForImplByName(null,
 	// "implem-s1-tct026").getDeclaration();
 	// for(int i=0; i<=6; i++)
 	// Assert.assertNotNull(" Property def"+i+"-specs-s1 is not defined",
@@ -187,7 +183,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyConfiguredWithInitialParameter_tc002() {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 
 	Map<String, String> initialProperties = new HashMap<String, String>() {
@@ -228,7 +224,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyConfiguredWithSetProperty_tc003() {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 
 	Map<String, String> initialProperties = new HashMap<String, String>() {
@@ -268,7 +264,7 @@ public class PropertyTest extends ExtensionAbstract {
 
     @Test
     public void PropertyDefinitionInternalTrueTypeStringProperty_tc004() {
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -328,7 +324,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInternalFalseTypeStringProperty_tc004() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -397,7 +393,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionIsVisibleWithValPropertySetXML_tc005() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -422,7 +418,7 @@ public class PropertyTest extends ExtensionAbstract {
     public void PropertiesDataTypeAndLDAPFilteringForIntegers_tc006()
 	    throws InvalidSyntaxException {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -471,7 +467,7 @@ public class PropertyTest extends ExtensionAbstract {
     public void PropertiesDataTypeAndLDAPFilteringForBoolean_tc007()
 	    throws InvalidSyntaxException {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -506,7 +502,7 @@ public class PropertyTest extends ExtensionAbstract {
     public void PropertiesDataTypeAndLDAPFilteringForString_tc008()
 	    throws InvalidSyntaxException {
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -552,7 +548,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	final String propertyName = "setInt";
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 
 	Object RawType = implementation.getPropertyObject(propertyName);
@@ -579,7 +575,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	final String propertyName = "setInteger";
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 
 	Object RawType = implementation.getPropertyObject(propertyName);
@@ -606,7 +602,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	final String propertyName = "setString";
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 
 	Object RawType = implementation.getPropertyObject(propertyName);
@@ -631,7 +627,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertiesInjectionIntegerIntoSetDataType_tc079() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyInjectionSwitch");
 
 	Instance instance = implementation.createInstance(null, null);
@@ -681,7 +677,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertiesInjectionStringIntoSetDataType_tc080() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyInjectionSwitch");
 
 	Instance instance = implementation.createInstance(null, null);
@@ -731,7 +727,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertiesInjectionEnumIntoSetDataType_tc081() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyInjectionSwitch");
 
 	Instance instance = implementation.createInstance(null, null);
@@ -781,7 +777,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSuperSet_Integer_tc057() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -816,7 +812,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSuperSet_Enum_tc058() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -850,7 +846,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSuperSet_String_tc059() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -885,7 +881,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSubSet_Integer_tc060() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -920,7 +916,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSubSet_Enum_tc061() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -954,7 +950,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyFilterOSGiImplementationSubSet_String_tc062() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecFilterSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -989,7 +985,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyChangeNoticationCallback_tc063() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyChangeNotification");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1014,7 +1010,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyChangeNoticationCallbackCalledOnce_tc064() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyChangeNotification");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1041,7 +1037,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeBracesNoCommaInTheEnd_tc065() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1065,7 +1061,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeBracesCommaInTheEnd_tc066() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1089,7 +1085,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeBorderElements_tc067() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1113,7 +1109,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeMiddleElements_tc068() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1137,7 +1133,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeOneMiddleOneBorderElement_tc069() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1161,7 +1157,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeNoBracesComma_tc070() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1185,7 +1181,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertySetTypeNoBracesNoComma_tc071() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1209,7 +1205,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyEnumTypeSimpleValueNoTrick_tc072() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1233,7 +1229,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyEnumTypeSimpleValueSpaceAfter_tc073() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1257,7 +1253,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyEnumTypeSimpleValueSpaceBefore_tc074() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"SpecEnumVersusSetTestSwitch");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1285,7 +1281,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	Integer propertyValue = Integer.valueOf(734);
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyTypeIntChangeNotification");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1329,7 +1325,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	Boolean propertyValue = Boolean.TRUE;
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"PropertyTypeBooleanChangeNotification");
 	Instance inst = implementation.createInstance(null, null);
 
@@ -1369,7 +1365,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInjectedBothProperty_tct021() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -1424,7 +1420,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInjectedBothByDefaultProperty_tct022() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -1482,7 +1478,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInjectedExternalProperty_tct023() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -1545,7 +1541,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInjectedInternalProperty_tct024() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -1599,7 +1595,7 @@ public class PropertyTest extends ExtensionAbstract {
     @Test
     public void PropertyDefinitionInjectedPropertyDefinedInConstructor_tct025() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct025");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);

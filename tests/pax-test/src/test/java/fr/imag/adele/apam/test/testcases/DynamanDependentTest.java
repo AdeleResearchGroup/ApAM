@@ -25,14 +25,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -73,7 +71,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	
 	
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-fail-wait");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
@@ -96,10 +94,10 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtDependencyFailException_tc040() {
 
-	CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctroot = (CompositeType) waitForImplByName(
 		null, "composite-a-fail-exception");
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-fail-exception");
 
 	Composite composite_root = (Composite) ctroot
@@ -167,7 +165,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void CompositeWithEagerDependency_tc041() {
-	CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct1 = (CompositeType) waitForImplByName(
 		null, "S2Impl-composite-eager");
 
 	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
@@ -181,7 +179,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	Composite instanceComposite = (Composite) ct1.createInstance(null,
 		new HashMap<String, String>());
 
-	Implementation implS2 = CST.apamResolver.findImplByName(null,
+	Implementation implS2 = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.implS2.S2Impl");
 
 	Instance instance = implS2.createInstance(instanceComposite, null);
@@ -217,7 +215,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
-	CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct1 = (CompositeType) waitForImplByName(
 		null, "S2Impl-composite-eager-forceEager");
 
 	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
@@ -231,7 +229,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	Composite instanceComposite = (Composite) ct1.createInstance(null,
 		new HashMap<String, String>());
 
-	Implementation implS2 = CST.apamResolver.findImplByName(null,
+	Implementation implS2 = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager");
 
 	Instance instance = implS2.createInstance(instanceComposite, null);
@@ -271,17 +269,16 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	String checkingFor = "specification";
 
-	CompositeType composite = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a-start-by-" + checkingFor);
+	CompositeType composite = (CompositeType) waitForImplByName(null, "composite-a-start-by-" + checkingFor);
 	Composite compositeInstance = (Composite) composite.createInstance(
 		null, null);
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	Implementation trigger = CST.apamResolver.findImplByName(null,
+	Implementation trigger = waitForImplByName(null,
 		"group-a-start-trigger");
 
-	Implementation triggered = CST.apamResolver.findImplByName(null,
+	Implementation triggered = waitForImplByName(null,
 		"group-b-started-by-trigger");
 
 	Instance triggerInstance = trigger.createInstance(compositeInstance,
@@ -308,20 +305,19 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	String checkingFor = "implementation";
 
-	CompositeType composite = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a-start-by-" + checkingFor);
+	CompositeType composite = (CompositeType) waitForImplByName(null, "composite-a-start-by-" + checkingFor);
 	Composite compositeInstance = (Composite) composite.createInstance(
 		null, null);
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	Implementation trigger = CST.apamResolver.findImplByName(null,
+	Implementation trigger = waitForImplByName(null,
 		"group-a-start-trigger");
 
 	Instance triggerInstance = trigger.createInstance(compositeInstance,
 		null);
 
-	Implementation triggered = CST.apamResolver.findImplByName(null,
+	Implementation triggered = waitForImplByName(null,
 		"group-b-started-by-trigger");
 
 	Assert.assertTrue(triggerInstance != null);
@@ -342,7 +338,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeDependencyFailWait_tc044() {
 
-	Implementation cta = (Implementation) CST.apamResolver.findImplByName(
+	Implementation cta = (Implementation) waitForImplByName(
 		null, "group-a-fail-wait");
 
 	Instance instanceApp1 = cta.createInstance(null, null);
@@ -363,8 +359,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeDependencyFailException_tc045() {
 
-	Implementation group_a = (Implementation) CST.apamResolver
-		.findImplByName(null, "group-a-fail-exception");
+	Implementation group_a = (Implementation) waitForImplByName(null, "group-a-fail-exception");
 
 	Instance instance_a = (Instance) group_a.createInstance(null, null);
 
@@ -429,8 +424,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				.getProperty(
 					org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES));
 
-	Implementation group_a = (Implementation) CST.apamResolver
-		.findImplByName(null, "group-a-fail-exception-native");
+	Implementation group_a = (Implementation) waitForImplByName(null, "group-a-fail-exception-native");
 
 	Instance instance_a = (Instance) group_a.createInstance(null, null);
 
@@ -468,12 +462,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtOwnSpecification_tc046() {
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-own-specification");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 
-	Implementation device = CST.apamResolver.findImplByName(null,
+	Implementation device = waitForImplByName(null,
 		"BoschSwitch");
 	Instance deviceinst = device.createInstance(null, null);
 
@@ -487,13 +481,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Ignore
     public void CompositeContentMngtDependencyHide_tc065() {
 
-	CompositeType ctaroot = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a-hide");
+	CompositeType ctaroot = (CompositeType) waitForImplByName(null, "composite-a-hide");
 
 	Composite composite_root = (Composite) ctaroot.createInstance(null,
 		null);// composite_root
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-hide");
 
 	Composite composite_a = (Composite) cta.createInstance(composite_root,
@@ -521,14 +514,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtDisputeAmongInjectionAndOwn_tc047() {
 
-	Implementation sharedDependencyImpl = (Implementation) CST.apamResolver
-		.findImplByName(null, "BoschSwitch");
+	Implementation sharedDependencyImpl = (Implementation) waitForImplByName(null, "BoschSwitch");
 
 	Instance sharedDependency = sharedDependencyImpl.createInstance(null,
 		null);
 
-	CompositeType compositeAImpl = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a");
+	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null, "composite-a");
 
 	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
 		null);
@@ -542,8 +533,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	CompositeType compositeBImpl = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a-dispute-inject-own");
+	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null, "composite-a-dispute-inject-own");
 
 	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
 		null);
@@ -563,11 +553,9 @@ public class DynamanDependentTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtDisputeAmongInjectionAndOwnInstanceIntoComposite_tc048() {
 
-	Implementation sharedDependencyImpl = (Implementation) CST.apamResolver
-		.findImplByName(null, "BoschSwitch");
+	Implementation sharedDependencyImpl = (Implementation) waitForImplByName(null, "BoschSwitch");
 
-	CompositeType compositeAImpl = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a");
+	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null, "composite-a");
 
 	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
 		null);
@@ -590,8 +578,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	CompositeType compositeBImpl = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a-dispute-inject-own");
+	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null, "composite-a-dispute-inject-own");
 
 	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
 		null);
@@ -632,17 +619,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void CompositeContentGrantTest_tct013() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct013");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -691,17 +674,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void CompositeContentSimpleReleaseGrantTest_tct014() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct013");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -761,17 +740,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
      */
     @Test
     public void CompositeContentForcedReleaseGrantTest_tct015() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct015");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState_15");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState_15");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -826,17 +801,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void CompositeContentGrantToExternalTest_tct016() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct013");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -885,17 +856,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
     
     @Test
     public void CompositeContentGrantToExternalTest_tct017() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct017");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState_17");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_multiple");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting_exists");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager_17");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState_17");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_multiple");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting_exists");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager_17");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -945,9 +912,9 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     @Test
     public void DependencyRelease_tct018 () {
-	Implementation implSource = CST.apamResolver.findImplByName(null,
+	Implementation implSource = waitForImplByName(null,
 		"ServiceDependencySource_tct018");
-	Implementation implTarget = CST.apamResolver.findImplByName(null,
+	Implementation implTarget = waitForImplByName(null,
 		"ServiceDependencyTarget_tct018");
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 	
@@ -987,17 +954,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
     
     @Test
     public void CompositeContentGrantWrongImplementationTest_tct019() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct013");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Worker_waiting_bis");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting_bis");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);
@@ -1046,17 +1009,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
     
     @Test
     public void CompositeContentGrantWrongDependencyTest_tct020() {
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "Yard_tct013");
 
-	Implementation impl_daystate = (Implementation) CST.apamResolver
-		.findImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) CST.apamResolver
-		.findImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) CST.apamResolver
-		.findImplByName(null, "Night_worker");
-	Implementation impl_toolmanager = (Implementation) CST.apamResolver
-		.findImplByName(null, "ToolManager");
+	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
+	Implementation impl_worker = (Implementation) waitForImplByName(null, "Night_worker");
+	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
 
 	Composite yard = (Composite) ct.createInstance(null, null);
 	impl_jackhammer.createInstance(null, null);

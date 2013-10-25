@@ -70,7 +70,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void AtomicInstanceCreationWithoutInjection_tc012() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	// save the initial number of instances present in APAM
@@ -115,10 +115,10 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void InjectionUpdateLinkForSetType_tc013() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl-tc013");
 
-	Implementation sansungImpl = CST.apamResolver.findImplByName(null,
+	Implementation sansungImpl = waitForImplByName(null,
 			"SamsungSwitch");
 
 	//This instance is created to avoid apam to instantiate automatically (done in case it doesnt find any instance available)
@@ -164,7 +164,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void InjectionUpdateLinkForArrayType_tc014() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl-tc014");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -184,7 +184,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		wire.remove();
 	}
 
-	Implementation sansungImpl = CST.apamResolver.findImplByName(null,
+	Implementation sansungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 
 	Instance sansungInst = sansungImpl.createInstance(null, null);
@@ -209,7 +209,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void SingletonNotSharedInstance_tc015() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterSingletonNotShared");
 
 	Instance inst1 = impl.createInstance(null,
@@ -236,7 +236,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void SingletonSharedInstance_tc013() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterSingletonShared");
 
 	CompositeType root = (CompositeType) impl.getInCompositeType()
@@ -269,7 +269,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void NotSingletonNotSharedInstance_tc017() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterNotSingletonNotShared");
 
 	Instance inst1 = impl.createInstance(null, null);
@@ -302,7 +302,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void NotSingletonSharedInstance_tc018() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterNotSingletonShared");
 
 	CompositeType root = (CompositeType) impl.getInCompositeType()
@@ -345,7 +345,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void NotInstantiableInstance_tc019() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterNotInstantiable");
 
 	boolean failed = false;
@@ -368,7 +368,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void InstantiableInstance_tc020() {
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"HouseMeterInstantiable");
 
 	boolean failed = false;
@@ -389,7 +389,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void CallbackInit_tc021() {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Instance = s1Impl.createInstance(null,
@@ -406,7 +406,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     @Test
     public void CallbackRemove_tc022() throws BundleException {
 
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Instance = s1Impl.createInstance(null,
@@ -430,7 +430,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_tc024()
 	    throws InvalidSyntaxException {
 
-	Implementation lgImpl = CST.apamResolver.findImplByName(null,
+	Implementation lgImpl = waitForImplByName(null,
 		"LgSwitch");
 	final Instance lgInst = lgImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -439,7 +439,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -455,7 +455,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+	Implementation siemensImpl = waitForImplByName(null,
 		"SiemensSwitch");
 	final Instance siemensInst = siemensImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -468,7 +468,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	auxListInstances("\t");
 
 	// Creates S1 instance (class that requires the injection)
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -503,7 +503,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void PreferenceInjectionAttributeMultipleImplementationSingleInstance_tc025()
 	    throws InvalidSyntaxException {
 
-	Implementation lgImpl = CST.apamResolver.findImplByName(null,
+	Implementation lgImpl = waitForImplByName(null,
 		"LgSwitch");
 	final Instance lgInst = lgImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -512,7 +512,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -521,7 +521,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+	Implementation philipsImpl = waitForImplByName(null,
 		"philipsSwitch");
 
 	final Instance philipsInst = philipsImpl.createInstance(null,
@@ -531,7 +531,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+	Implementation siemensImpl = waitForImplByName(null,
 		"SiemensSwitch");
 	final Instance siemensInst = siemensImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -544,7 +544,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	auxListInstances("\t");
 
 	// Creates S1 instance (class that requires the injection)
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -583,7 +583,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void PreferenceResolutionAfterInjection_tct006()
 	    throws InvalidSyntaxException {
 
-	Implementation lgImpl = CST.apamResolver.findImplByName(null,
+	Implementation lgImpl = waitForImplByName(null,
 		"LgSwitch");
 	final Instance lgInst = lgImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -596,7 +596,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	auxListInstances("\t");
 
 	// Creates S1 instance (class that requires the injection)
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -626,7 +626,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 			lgInst.getAllProperties().get("currentVoltage")), s1
 			.getDevicePreference110v() == lgSwitch);
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -654,7 +654,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute_tc026()
 	    throws InvalidSyntaxException {
 
-	Implementation lgImpl = CST.apamResolver.findImplByName(null,
+	Implementation lgImpl = waitForImplByName(null,
 		"LgSwitch");
 	final Instance lgInst = lgImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -663,7 +663,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+	Implementation samsungImpl = waitForImplByName(null,
 		"SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -672,7 +672,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		    }
 		});
 
-	Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+	Implementation siemensImpl = waitForImplByName(null,
 		"SiemensSwitch");
 	final Instance siemensInst = siemensImpl.createInstance(null,
 		new HashMap<String, String>() {
@@ -684,7 +684,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	System.out.println("Instances before injection request");
 	auxListInstances("\t");
 	// Creates S1 instance (class that requires the injection)
-	Implementation s1Impl = CST.apamResolver.findImplByName(null,
+	Implementation s1Impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
@@ -719,7 +719,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	auxListInstances("before-");
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 	auxListInstances("after-");
@@ -734,7 +734,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	String message = "Into an <implementation>, when declaring a dependency, we may specify methods (with an Instance type parameter) to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"S1Impl-added-removed-callback-signature-instance");
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
@@ -788,7 +788,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	String messageTemplate = "In case of a remove callback, when a property of a service A change and the service B do NOT use a constraint to inject A on its instance, the link from A->B should NOT be brocken and restablished, thus remove callback should NOT have been called";
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"S1Impl-removed-callback-with-no-constraint");
 
 	Instance instance = impl.createInstance(null,
@@ -818,7 +818,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	String messageTemplate = "In case of a remove callback, when a property of a service A change and the service B use a constraint to inject A on its instance, the link from A->B should be brocken and restablished, thus remove callback should have been called";
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"S1Impl-removed-callback-with-constraint");
 
 	Instance instance = impl.createInstance(null,
@@ -851,7 +851,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	String message = "Into an <implementation>, when declaring a dependency, we may specify methods (without parameters) to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
 
-	Implementation impl = CST.apamResolver.findImplByName(null,
+	Implementation impl = waitForImplByName(null,
 		"S1Impl-added-removed-callback-signature-empty");
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 

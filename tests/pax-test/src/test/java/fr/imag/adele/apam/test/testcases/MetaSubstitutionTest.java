@@ -24,13 +24,11 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -56,7 +54,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionGetPropertyString_tc089() {
-		Implementation impl = CST.apamResolver.findImplByName(null,
+		Implementation impl = waitForImplByName(null,
 				"MetasubstitutionStringTest");
 		
 		Instance instance = impl.createInstance(null, null);
@@ -72,7 +70,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionGetPropertyOutsideDefinitionInSpecPropertyInImpl_tc090() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -85,7 +83,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionGetPropertyOutsideDefinictionInSpecPropertyNowhere_tc091() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -98,7 +96,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 
 	@Test
 	public void SubstitutionGetPropertyOutsideDefinitionNowherePropertyInImpl_tc092() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -113,7 +111,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionGetPropertyEscaped_tc095() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -129,23 +127,23 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionReachingMultipleNodes_tc122() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
-		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+		Implementation implementationAlpha=waitForImplByName(null,
 				"impl-case-12-child");
 		Instance instanceAlpha=implementationAlpha.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
 		
-		Implementation implementationBravo=CST.apamResolver.findImplByName(null,
+		Implementation implementationBravo=waitForImplByName(null,
 				"impl-case-12-child");
 		
 		Instance instanceBravo=implementationBravo.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
 		
-		Implementation implementationCharlie=CST.apamResolver.findImplByName(null,
+		Implementation implementationCharlie=waitForImplByName(null,
 				"impl-case-12");
 		Instance instanceCharlie=implementationCharlie.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
 		
-		Implementation implementationDelta=CST.apamResolver.findImplByName(null,
+		Implementation implementationDelta=waitForImplByName(null,
 				"impl-case-12");
 		Instance instanceDelta=implementationDelta.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
 		
@@ -179,12 +177,12 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	@Test
 	public void SubstitutionReachingMultipleNodesWithInstsKeyword_tc123() {
 
-		Implementation implementationCase12Child=CST.apamResolver.findImplByName(null,
+		Implementation implementationCase12Child=waitForImplByName(null,
 				"impl-case-12-child");
 		Instance instanceAlpha=implementationCase12Child.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "alpha(child)");}});
 		Instance instanceBravo=implementationCase12Child.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "bravo(child)");}});
 		
-		Implementation implementationCase12=CST.apamResolver.findImplByName(null,
+		Implementation implementationCase12=waitForImplByName(null,
 				"impl-case-12");
 		Instance instanceCharlie=implementationCase12.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "charlie(parent)");}});
 		Instance instanceDelta=implementationCase12.createInstance(null, new HashMap<String, String>(){{put("property-subject-b", "delta(parent)");}});
@@ -194,7 +192,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		instanceDelta.getLink("case12child");
 		
 		//Instance of the subject-a (parent)
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 			"subject-a");		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
 		
@@ -232,10 +230,10 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	@Test
 	public void SubstitutionReachingMultipleNodesWithKeywordCompositeType_tc124() {
 
-		Implementation subjectBimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectBimpl = waitForImplByName(null,
 				"subject-b");
 		
-		CompositeType subjectBCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+		CompositeType subjectBCompositeType = (CompositeType)waitForImplByName(null,
 				"subject-b-composite");
 		Composite subjectBComposite=(Composite)subjectBCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
 		
@@ -254,10 +252,10 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	@Test
 	public void SubstitutionReachingMultipleNodesWithKeywordComposite_tc125() {
 
-		Implementation subjectCimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectCimpl = waitForImplByName(null,
 				"subject-c");
 		
-		CompositeType subjectCCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+		CompositeType subjectCCompositeType = (CompositeType)waitForImplByName(null,
 				"subject-c-composite");
 		Composite subjectCComposite=(Composite)subjectCCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
 		
@@ -276,15 +274,15 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	@Test
 	public void SubstitutionReachingMultipleNodesWithKeywordComposite_tc127() {
 
-		CompositeType subjectECompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+		CompositeType subjectECompositeType = (CompositeType)waitForImplByName(null,
 				"subject-e-composite");
 		Composite subjectEComposite=(Composite)subjectECompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
 		
-		Implementation implementationAlpha=CST.apamResolver.findImplByName(null,
+		Implementation implementationAlpha=waitForImplByName(null,
 				"impl-case-17");
 		Instance instanceEcho=implementationAlpha.createInstance(subjectEComposite, null);
 		
-		Implementation subjectCimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectCimpl = waitForImplByName(null,
 				"subject-e");
 		
 		//Instance of the subject-a (parent)
@@ -313,10 +311,10 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	@Test
 	public void SubstitutionReachingMultipleNodesWithKeywordSpec_tc126() {
 
-		Implementation subjectDimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectDimpl = waitForImplByName(null,
 				"subject-d");
 		
-		CompositeType subjectCCompositeType = (CompositeType)CST.apamResolver.findImplByName(null,
+		CompositeType subjectCCompositeType = (CompositeType)waitForImplByName(null,
 				"subject-d-composite");
 		Composite subjectDComposite=(Composite)subjectCCompositeType.createInstance(null, Collections.<String,String>emptyMap()); 
 		
@@ -331,7 +329,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void FunctionCall_tc093() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -348,7 +346,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void FunctionCallEscaped_tc094() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -365,7 +363,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 
 	@Test
 	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tc117() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"subject-a");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, null);
@@ -380,7 +378,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	
 	@Test
 	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tc093() {
-		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+		Implementation subjectAimpl = waitForImplByName(null,
 				"impl-case-11");
 		
 		Instance subjectA = subjectAimpl.createInstance(null, Collections.singletonMap("property-subject-b", "bete"));

@@ -21,111 +21,245 @@ import java.util.Map;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 
 /**
- * Constains utility functions that are used by the test 
+ * Constains utility functions that are used by the test
+ * 
  * @author jander
  */
 public abstract class TestUtils {
+    
+    private boolean apamReady=false;
 
-	protected List<Instance> auxLookForInstanceOf(String ... clazz) {
+    public static long waitPeriod = 200;
+    public static long RESOLVE_TIMEOUT = 3000;
+    
+    public void waitForApam() {
+	waitForApam(RESOLVE_TIMEOUT);
+    }
+    
+    public void waitForApam(long timeout) {
+	long sleep=0;
+	while (!apamReady && sleep < timeout) {
+	    if(CST.componentBroker != null
+		&& CST.apamResolver!=null
+		&& CST.apam!=null)
+		apamReady=true;
+	    else try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	}
+    }
 
-		List<Instance> pool = new ArrayList<Instance>();
-	
-		for (Instance i : CST.componentBroker.getInsts()) {
+    protected List<Instance> auxLookForInstanceOf(String... clazz) {
+	waitForApam();
 
-			ImplementationDeclaration apamImplDecl = i.getImpl()
-					.getImplDeclaration();
+	List<Instance> pool = new ArrayList<Instance>();
+	for (Instance i : CST.componentBroker.getInsts()) {
 
-			if (apamImplDecl instanceof AtomicImplementationDeclaration) {
+	    ImplementationDeclaration apamImplDecl = i.getImpl()
+		    .getImplDeclaration();
 
-				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
+	    if (apamImplDecl instanceof AtomicImplementationDeclaration) {
 
-				for(String classname:clazz){
+		AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
 
-					if (atomicInitialInstance.getClassName().equals(classname)) {
-						pool.add(i);
-					}
+		for (String classname : clazz) {
 
-				}
-			}
+		    if (atomicInitialInstance.getClassName().equals(classname)) {
+			pool.add(i);
+		    }
 		}
+	    }
+	}
+	return pool;
+    }
 
-		return pool;
+    protected Instance auxListInstanceReferencedBy(Object instance) {
+	waitForApam();
+
+
+	return CST.componentBroker.getInstService(instance);
+
+    }
+
+    protected List<Instance> auxListInstanceReferencedBy(String prefix,
+	    Collection instances) {
+	waitForApam();
+
+
+	List<Instance> res = new ArrayList<Instance>();
+
+	for (Object instance : instances) {
+
+	    Instance i = CST.componentBroker.getInstService(instance);
+
+	    res.add(i);
+
+	    System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
+		    prefix, i.getName(), i.getServiceObject()));
+
 	}
 
-	protected Instance auxListInstanceReferencedBy(Object instance){
+	return res;
 
-		return CST.componentBroker.getInstService(instance);
+    }
 
-	}
+    protected void auxListInstances() {
+	auxListInstances("\t");
+    }
 
-	protected List<Instance> auxListInstanceReferencedBy(String prefix,Collection instances){
+    protected void auxListInstances(String prefix) {
+	waitForApam();
 
-		List<Instance> res=new ArrayList<Instance>();
+	System.out.println(String.format(
+		"%s------------ Instances (Total:%d) -------------", prefix,
+		CST.componentBroker.getInsts().size()));
+	for (Instance i : CST.componentBroker.getInsts()) {
 
-		for(Object instance:instances){
-
-			Instance i=CST.componentBroker.getInstService(instance);
-
-			res.add(i);
-
-			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
-					prefix, i.getName(), i.getServiceObject()));
-
-		}
-
-		return res;
+	    System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
+		    prefix, i.getName(), i.getServiceObject()));
 
 	}
+	System.out.println(String.format(
+		"%s------------ /Instances -------------", prefix));
+    }
 
-	protected void auxListInstances(){
-		auxListInstances("\t");
+    protected void auxListProperties(Component component) {
+	this.auxListProperties("\t\t", component);
+    }
+
+    protected void auxListProperties(String prefix, Component component) {
+	System.out.println(String.format(
+		"%s------------ Properties -------------", prefix));
+	for (Map.Entry<String, Object> entry : component.getAllProperties()
+		.entrySet()) {
+	    System.out.print(entry.getKey() + "=" + entry.getValue());
+	    if (!entry.getValue().equals(component.getProperty(entry.getKey()))) {
+		System.out.print("(" + component.getProperty(entry.getKey())
+			+ ")");
+	    }
+	    System.out.println("");
 	}
-	
-	protected void auxListInstances(String prefix) {
-		System.out.println(String.format(
-				"%s------------ Instances (Total:%d) -------------", prefix,
-				CST.componentBroker.getInsts().size()));
-		for (Instance i : CST.componentBroker.getInsts()) {
+	System.out.println(String.format(
+		"%s------------ /Properties -------------", prefix));
+    }
 
-			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
-					prefix, i.getName(), i.getServiceObject()));
+    protected void auxDisconectWires(Instance instance) {
+	for (Link wire : instance.getRawLinks()) {
+	    wire.remove();
+	}
+    }
 
-		}
-		System.out.println(String.format(
-				"%s------------ /Instances -------------", prefix));
+    protected Specification waitForSpecByName(Component client,
+	    String componentName) {
+	return waitForSpecByName(client, componentName, RESOLVE_TIMEOUT);
+    }
+
+    protected Specification waitForSpecByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+	Specification spec = CST.apamResolver.findSpecByName(client, componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && spec == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null)
+		spec = CST.apamResolver.findSpecByName(client, componentName);
 	}
 
-	protected void auxListProperties(Component component){
-		this.auxListProperties("\t\t",component);
-	}
-	
-	protected void auxListProperties(String prefix, Component component) {
-		System.out.println(String.format(
-				"%s------------ Properties -------------", prefix));
-		for (Map.Entry<String, Object> entry: component.getAllProperties().entrySet()) {
-			System.out.print(entry.getKey() + "="
-					+ entry.getValue());
-			if(!entry.getValue().equals(component.getProperty(entry.getKey()))){
-				System.out.print("("+component.getProperty(entry.getKey())+")");
-			}
-			System.out.println("");
-		}
-		System.out.println(String.format(
-				"%s------------ /Properties -------------", prefix));
+	return spec;
+    }
+
+    protected Implementation waitForImplByName(Component client,
+	    String componentName) {
+	return waitForImplByName(client, componentName, RESOLVE_TIMEOUT);
+    }
+
+    protected Implementation waitForImplByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+	Implementation impl = CST.apamResolver.findImplByName(client, componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && impl == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null)
+		impl = CST.apamResolver.findImplByName(client, componentName);
 	}
 
-	protected void auxDisconectWires(Instance instance) {
+	return impl;
+    }
 
-		for (Link wire : instance.getRawLinks()) {
-			wire.remove();
-		}
+    protected Component waitForComponentByName(Component client,
+	    String componentName) {
+	return waitForComponentByName(client, componentName, RESOLVE_TIMEOUT);
+    }
 
+    protected Component waitForComponentByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+
+	Component comp = CST.apamResolver.findComponentByName(client, componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && comp == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null)
+		comp = CST.apamResolver.findComponentByName(client,
+			componentName);
 	}
+
+	return comp;
+    }
+
+    protected Instance waitForInstByName(Component client, String componentName) {
+	return waitForInstByName(client, componentName, RESOLVE_TIMEOUT);
+    }
+
+    protected Instance waitForInstByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+
+	Instance inst = CST.apamResolver.findInstByName(client, componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && inst == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null)
+		inst = CST.apamResolver.findInstByName(client, componentName);
+	}
+
+	return inst;
+    }
 
 }

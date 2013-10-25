@@ -57,8 +57,8 @@ public class OBRMANTest extends ExtensionAbstract{
 	
 	@Override
 	public List<Option> config() {
-		List<Option> obrmanconfig=super.configWithoutTests();
-		obrmanconfig.add(packApamObrMan());
+		List<Option> obrmanconfig=super.config(null,true);
+//		obrmanconfig.add(packApamObrMan());
 		return obrmanconfig;
 	}
 	
@@ -69,7 +69,7 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test 
     public void testRootModel() {
 	
-    	obrmanhelper.waitForIt(3000);
+    	obrmanhelper.waitForIt(1000);
     	auxListInstances();
         int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
@@ -124,16 +124,22 @@ public class OBRMANTest extends ExtensionAbstract{
     public void embeddedComposite() {
         apam.waitForIt(1000);
         CompositeType app1CompoType = null;
+        
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
             obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
             app1CompoType = obrmanhelper.createCompositeType("APP1",
                     "APP1_MAIN", null);
+            
+            for(String s : repos)
+                System.out.println("repo : "+s);
+
         } catch (IOException e) {
 
             fail(e.getMessage());
         }
 
+        
 
         App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
 
@@ -207,7 +213,7 @@ public class OBRMANTest extends ExtensionAbstract{
     public void obrmanInstanciationWhenBundleInstalledNotStarted_tct005() {
     	obrmanhelper.waitForIt(1000);
 
-    	Implementation implementation = CST.apamResolver.findImplByName(null,
+    	Implementation implementation = waitForImplByName(null,
 		"Obrman-Test-S3Impl");
 
 	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved (cannot be found using obrman)",implementation);
@@ -225,7 +231,7 @@ public class OBRMANTest extends ExtensionAbstract{
 	    fail(e.getMessage());
 	}
 	
-    	implementation = CST.apamResolver.findImplByName(null,
+    	implementation = waitForImplByName(null,
 		"Obrman-Test-S3Impl");
     	
 	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved as bundle is not started",implementation);
@@ -240,7 +246,7 @@ public class OBRMANTest extends ExtensionAbstract{
     
     @Test
     public void RelationLinkResolveExternal_tct003() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14ter");
 
 	Instance instance = implementation.createInstance(null,

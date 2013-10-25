@@ -28,23 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.apache.felix.ipojo.annotations.Requires;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.util.Filter;
 import org.ops4j.pax.exam.util.PathUtils;
 
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamResolver;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
@@ -88,18 +81,17 @@ public class LightScenarioTest extends ExtensionAbstract {
     @Override
     public void setUp() {
 	super.setUp();
-	apam.waitForIt(1000);
-	ApamResolver resolver = CST.apamResolver;
+	waitForApam();
 	theoricLinks = new HashSet<String>();
 
 	
 
 	// First launch the "devices"
-	Implementation implemButtonGUI = CST.apamResolver.findImplByName(null,
+	Implementation implemButtonGUI = waitForImplByName(null,
 		"ButtonGUI");
-	Implementation implemButtonNotGUI = CST.apamResolver.findImplByName(null,
+	Implementation implemButtonNotGUI = waitForImplByName(null,
 		"ButtonNotGUI");
-	Implementation implemBinaryLightImpl = CST.apamResolver.findImplByName(null,
+	Implementation implemBinaryLightImpl = waitForImplByName(null,
 		"BinaryLightImpl");
 
 	// set the location properties of the devices
@@ -131,7 +123,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 	
 	
 	// Then launch the Application
-	Implementation implemApplication = CST.apamResolver.findImplByName(null,
+	Implementation implemApplication = waitForImplByName(null,
 		"LightApplicationKitchen");
 	
 	myKitchen = implemApplication.createInstance(null,
@@ -169,7 +161,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testButtonKitchen() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"LightManagerPanel");
 
 	Instance inst = implementation.createInstance(null,
@@ -194,7 +186,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testButtonLiving() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"LightManagerPanel");
 
 	Instance inst = implementation.createInstance(null,

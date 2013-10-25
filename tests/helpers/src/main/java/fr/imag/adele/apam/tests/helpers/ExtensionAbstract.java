@@ -188,21 +188,21 @@ public abstract class ExtensionAbstract extends TestUtils {
     protected CompositeOption packApamDistriMan() {
 	CompositeOption apamObrmanConfig = new DefaultCompositeOption(
 		// version as in project
-		org.ops4j.pax.exam.CoreOptions
-			.repositories(
-				"http://repo.maven.apache.org/maven2/",
-				"https://maven.java.net/content/repositories/releases/",
-				"https://repository.apache.org/content/groups/public",
-				"https://repository.apache.org/content/groups/snapshots",
-
-				"http://repository.springsource.com/maven/bundles/release",
-				"http://repository.springsource.com/maven/bundles/external",
-				"http://repository.ow2.org/nexus/content/repositories/snapshots",
-				"http://repository.ow2.org/nexus/content/repositories/releases",
-				"http://repository.ow2.org/nexus/content/sites/ow2-utilities",
-				"http://repository.ow2.org/nexus/content/repositories/thirdparty",
-				"http://repository.ow2.org/nexus/content/repositories/ow2-legacy",
-				"http://repository.ow2.org/nexus/content/groups/public"),
+//		org.ops4j.pax.exam.CoreOptions
+//			.repositories(
+//				"http://repo.maven.apache.org/maven2/",
+//				"https://maven.java.net/content/repositories/releases/",
+//				"https://repository.apache.org/content/groups/public",
+//				"https://repository.apache.org/content/groups/snapshots",
+//
+//				"http://repository.springsource.com/maven/bundles/release",
+//				"http://repository.springsource.com/maven/bundles/external",
+//				"http://repository.ow2.org/nexus/content/repositories/snapshots",
+//				"http://repository.ow2.org/nexus/content/repositories/releases",
+//				"http://repository.ow2.org/nexus/content/sites/ow2-utilities",
+//				"http://repository.ow2.org/nexus/content/repositories/thirdparty",
+//				"http://repository.ow2.org/nexus/content/repositories/ow2-legacy",
+//				"http://repository.ow2.org/nexus/content/groups/public"),
 
 		mavenBundle("org.ow2.asm", "asm-all").version("4.1"),
 		mavenBundle("javax.mail", "com.springsource.javax.mail")
@@ -373,7 +373,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	broker = CST.componentBroker;
 	logger.info("***[Run Test : " + name.getMethodName() + "]***");
 	
-	apam.waitForIt(1000);
+//	apam.waitForIt(1000);
     }
 
     @After

@@ -38,7 +38,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.distriman.DistrimanIface;
@@ -86,8 +85,7 @@ public class DistriManTest extends ExtensionAbstract {
 	public void ProviderDependencyInterface_tc086()
 			throws MalformedURLException, IOException {
 
-		Implementation p2Impl = (Implementation) CST.apamResolver
-				.findImplByName(null, "P2-singleinterface");
+		Implementation p2Impl = (Implementation) waitForImplByName(null, "P2-singleinterface");
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
@@ -142,7 +140,7 @@ public class DistriManTest extends ExtensionAbstract {
 	public void ProviderDependencySpecificationMultipleInterface_tc087()
 			throws MalformedURLException, IOException {
 
-		Implementation p2Impl = CST.apamResolver.findImplByName(null,
+		Implementation p2Impl = waitForImplByName(null,
 				"P2-multipleinterface");
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
@@ -185,7 +183,7 @@ public class DistriManTest extends ExtensionAbstract {
 	public void ProviderDependencySpecificationSingleInterface_tc088()
 			throws MalformedURLException, IOException {
 
-		Implementation p2Impl = CST.apamResolver.findImplByName(null,
+		Implementation p2Impl = waitForImplByName(null,
 				"P2-singleinterface");
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
@@ -251,7 +249,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 		try {
 
-			Implementation p1Impl = CST.apamResolver.findImplByName(null,
+			Implementation p1Impl = waitForImplByName(null,
 					"P2-constraint2");
 
 			Instance p1Inst = p1Impl.createInstance(null, null);
@@ -271,7 +269,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 		try {
 
-			Implementation p1Impl = CST.apamResolver.findImplByName(null,
+			Implementation p1Impl = waitForImplByName(null,
 					"P2-constraint");
 
 			Instance p1Inst = p1Impl.createInstance(null, null);

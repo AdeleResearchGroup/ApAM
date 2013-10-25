@@ -75,7 +75,7 @@ public class CompositeTest extends ExtensionAbstract {
     public void CompositeTypeInstantiation_tc028() {
 //	apam.waitForIt(200000);
 
-	CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct = (CompositeType) waitForImplByName(
 		null, "S2Impl-composite-1");
 
 	Assert.assertTrue("Failed to create the instance of CompositeType",
@@ -91,12 +91,12 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void FetchImplThatHasComposite_tc029() {
 
-	CompositeType ct1 = (CompositeType) CST.apamResolver.findComponentByName(
+	CompositeType ct1 = (CompositeType) waitForComponentByName(
 		null, "S2Impl-composite-1");
 
 //	apam.waitForIt(2000);
 
-	CompositeType ct2 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ct2 = (CompositeType) waitForImplByName(
 		null, "S2Impl-composite-2");
 
 	String general = "From two composites based on the same impl, both should be fetchable/instantiable from apam. %s";
@@ -125,7 +125,7 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositeTypeRetrieveServiceObject_tc030() {
-	apam.waitForIt(500);
+	waitForApam();
 
 	CompositeType composite = CST.apam.createCompositeType(null,
 		"eletronic-device-compotype", null, "philipsSwitch",
@@ -151,7 +151,7 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CascadeDependencyInstantiation_tc031() {
 
-	Implementation ct1 = (Implementation) CST.apamResolver.findImplByName(
+	Implementation ct1 = (Implementation) waitForImplByName(
 		null, "fr.imag.adele.apam.pax.test.implS2.S2InnerImpl");
 
 	Assert.assertTrue(ct1 != null);
@@ -200,10 +200,10 @@ public class CompositeTest extends ExtensionAbstract {
 		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-local-instance");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
@@ -238,14 +238,14 @@ public class CompositeTest extends ExtensionAbstract {
 
 	final String messageTemplate = "Two composites A and B,  both without mainimpl, B depends on instances inside A, but A is marked as '<export instance='false' />'. %s";
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-local-instance-nomain");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 
-	Implementation groupAImpl = CST.apamResolver.findImplByName(null,
+	Implementation groupAImpl = waitForImplByName(null,
 		"group-a");
-	Implementation groupBImpl = CST.apamResolver.findImplByName(null,
+	Implementation groupBImpl = waitForImplByName(null,
 		"group-b");
 
 	Instance groupAInstance = groupAImpl.createInstance(composite_a,
@@ -279,15 +279,14 @@ public class CompositeTest extends ExtensionAbstract {
 
 	final String messageTemplate = "Composite A declares <export implementation='false' /> and its main implem depends on this implementation. %s";
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-local-implementation");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 
-	Implementation dependencyOfA = CST.apamResolver.findImplByName(null,
+	Implementation dependencyOfA = waitForImplByName(null,
 		"BoschSwitch");
-	CompositeType rootComposite = (CompositeType) CST.apamResolver
-		.findImplByName(null, CST.ROOT_COMPOSITE_TYPE);
+	CompositeType rootComposite = (CompositeType) waitForImplByName(null, CST.ROOT_COMPOSITE_TYPE);
 
 	/**
 	 * Make sure that the dependency is in the same composite as group-a
@@ -295,7 +294,7 @@ public class CompositeTest extends ExtensionAbstract {
 	((ImplementationImpl) dependencyOfA).removeInComposites(rootComposite);
 	((ImplementationImpl) dependencyOfA).addInComposites(cta);
 
-	Implementation groupAImpl = CST.apamResolver.findImplByName(null,
+	Implementation groupAImpl = waitForImplByName(null,
 		"group-a");
 
 	Instance groupAInstance = groupAImpl.createInstance(composite_a,
@@ -323,10 +322,10 @@ public class CompositeTest extends ExtensionAbstract {
 		+ "Both IA and IB have an attribute that depends on the specification X. "
 		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-local-implementation");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
@@ -361,10 +360,10 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtImportNothingInstance_tc034() {
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-import-nothing-instance");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
@@ -399,10 +398,10 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtImportNothingImplementation_tc035() {
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-import-nothing-implementation");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
@@ -439,20 +438,19 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportApplicationEverythingGlobalNothingInstance_tc038() {
 
-	CompositeType appCompositeType = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
 
 	Composite appComposite = (Composite) appCompositeType.createInstance(
 		null, null);
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null,
 		"composite-a-export-application-everything-global-nothing");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
-	Implementation ia = CST.apamResolver.findImplByName(null, "group-a");
+	Implementation ia = waitForImplByName(null, "group-a");
 
 	Composite composite_a = (Composite) cta.createInstance(appComposite,
 		null);
@@ -491,8 +489,7 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc048() {
 
-	CompositeType appCompositeType = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
 
 	Composite superparent = (Composite) appCompositeType.createInstance(
 		null, null);
@@ -500,20 +497,19 @@ public class CompositeTest extends ExtensionAbstract {
 	Composite appCompositeA = (Composite) appCompositeType.createInstance(
 		superparent, null);
 
-	CompositeType appCompositeTypeC = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-c");
+	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(null, "composite-c");
 
 	Composite appCompositeC = (Composite) appCompositeTypeC.createInstance(
 		superparent, null);
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null,
 		"composite-a-export-application-nothing-global-everything");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
-	Implementation ia = CST.apamResolver.findImplByName(null, "group-a");
+	Implementation ia = waitForImplByName(null, "group-a");
 
 	Composite composite_a = (Composite) cta.createInstance(appCompositeA,
 		null);
@@ -547,14 +543,14 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc049() {
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null,
 		"composite-a-export-application-nothing-global-everything");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
-	Implementation ia = CST.apamResolver.findImplByName(null, "group-a");
+	Implementation ia = waitForImplByName(null, "group-a");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 	Composite composite_b = (Composite) ctb.createInstance(null, null);
@@ -586,25 +582,23 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportGlobalEverythingInstance_tc050() {
 
-	CompositeType appCompositeType = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
 
 	Composite appCompositeA = (Composite) appCompositeType.createInstance(
 		null, null);
 
-	CompositeType appCompositeTypeC = (CompositeType) CST.apamResolver
-		.findImplByName(null, "composite-c");
+	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(null, "composite-c");
 
 	Composite appCompositeC = (Composite) appCompositeTypeC.createInstance(
 		null, null);
 
-	CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType cta = (CompositeType) waitForImplByName(
 		null, "composite-a-export-global-everything");
 
-	CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctb = (CompositeType) waitForImplByName(
 		null, "composite-b");
 
-	Implementation ia = CST.apamResolver.findImplByName(null, "group-a");
+	Implementation ia = waitForImplByName(null, "group-a");
 
 	Composite composite_a = (Composite) cta.createInstance(appCompositeA,
 		null);
@@ -637,17 +631,17 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositePromoteImplicitAndInternal_tct007() {
-	CompositeType ctAV00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV00 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-00");
 	Composite instAV00 = (Composite) ctAV00.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV00,
+	Instance instCtl = waitForInstByName(ctAV00,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-00 should contains an instance named AVEntertainment-Controller (started by the composite)",
@@ -674,17 +668,17 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositePromoteImplicitAndInternalbis_tct008() {
-	CompositeType ctAV01 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV01 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-01");
 	Composite instAV00 = (Composite) ctAV01.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(2000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV01,
+	Instance instCtl = waitForInstByName(ctAV01,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-01 should contains an instance named AVEntertainment-Controller (started by the composite)",
@@ -709,17 +703,17 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositePromoteMultipleExplicitImplem_tct009() {
-	CompositeType ctAV02 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV02 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-02");
 	Composite instAV02 = (Composite) ctAV02.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV02,
+	Instance instCtl = waitForInstByName(ctAV02,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-02 should contains an instance named AVEntertainment-Controller (start by the composite)",
@@ -756,17 +750,17 @@ public class CompositeTest extends ExtensionAbstract {
     
     @Test
     public void CompositePromoteMultipleExplicitSpec_tct010() {
-	CompositeType ctAV03 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV03 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-03");
 	Composite instAV02 = (Composite) ctAV03.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV03,
+	Instance instCtl = waitForInstByName(ctAV03,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-03 should contains an instance named AVEntertainment-Controller (start by the composite)",
@@ -803,17 +797,17 @@ public class CompositeTest extends ExtensionAbstract {
 
     @Test
     public void CompositePromoteSingleExplicitImplem_tct011() {
-	CompositeType ctAV02 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV02 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-02");
 	Composite instAV02 = (Composite) ctAV02.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV02,
+	Instance instCtl = waitForInstByName(ctAV02,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-02 should contains an instance named AVEntertainment-Controller (start by the composite)",
@@ -845,17 +839,17 @@ public class CompositeTest extends ExtensionAbstract {
     
     @Test
     public void CompositePromoteSingleExplicitSpec_tct012() {
-	CompositeType ctAV03 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctAV03 = (CompositeType) waitForImplByName(
 		null, "AVEntertainment-03");
 	Composite instAV02 = (Composite) ctAV03.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) CST.apamResolver.findImplByName(
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(
 		null, "HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
 
 	auxListInstances();
-	Instance instCtl = CST.apamResolver.findInstByName(ctAV03,
+	Instance instCtl = waitForInstByName(ctAV03,
 		"AVEntertainment-Controller");
 	Assert.assertNotNull(
 		"Composite AVEntertainment-03 should contains an instance named AVEntertainment-Controller (start by the composite)",

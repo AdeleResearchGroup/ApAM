@@ -11,14 +11,12 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -107,7 +105,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceImplementationTargetImplementation_tc097() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-01");
 
 
@@ -147,7 +145,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceImplementationTargetSpecification_tc098() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-02");
 
 	Instance instance = implementation.createInstance(null, null);
@@ -190,7 +188,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceImplementationTargetInstance_tc099() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-03");
 
 	Instance instance = implementation.createInstance(null,
@@ -236,7 +234,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceImplementationTargetImplementationOverride_tc100() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-04");
 
 	Instance instance = implementation.createInstance(null,
@@ -257,11 +255,11 @@ public class RelationTest extends ExtensionAbstract {
 	// Now by default resolve = exists, creating dependency
 	// target of the wire in implem-05 (it will exist so link can be
 	// created)
-	Implementation target = CST.apamResolver.findImplByName(null,
+	Implementation target = waitForImplByName(null,
 		"S07-implementation-04");
 	target.createInstance(null, null);
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-05");
 
 	Instance instance = implementation.createInstance(null,
@@ -280,7 +278,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceImplementationTargetInstanceCreationLazy_tc102() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-06");
 
 	Instance instance = implementation.createInstance(null,
@@ -313,11 +311,11 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetInstance_tc103() {
 
-	Implementation target = CST.apamResolver.findImplByName(null,
+	Implementation target = waitForImplByName(null,
 		"S07-DependencyImpl");
 	target.createInstance(null, null);
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-07");
 
 	Instance instance = implementation.createInstance(null, null);
@@ -342,7 +340,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetImplementation_tc104() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-08");
 
 	Instance instance = implementation.createInstance(null,
@@ -368,7 +366,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetSpecification_tc105() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-09");
 
 	Instance instance = implementation.createInstance(null,
@@ -394,7 +392,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetImplementationFailWait_tc106() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-10");
 
 	Instance instance = implementation.createInstance(null,
@@ -437,7 +435,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetImplementationFailExceptionGeneric_tc107() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-11");
 
 	Instance instance = implementation.createInstance(null,
@@ -472,7 +470,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceSpecificationTargetImplementationFailExceptionCustom_tc108() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-12");
 
 	Instance instance = implementation.createInstance(null,
@@ -507,11 +505,11 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceInstanceTargetInstance_tc109() {
 	
-	Implementation target = CST.apamResolver.findImplByName(null,
+	Implementation target = waitForImplByName(null,
 		"S07-DependencyImpl");
 	target.createInstance(null, null);	
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-13");
 
 	Instance instance = implementation.createInstance(null,
@@ -538,7 +536,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationLinkResolveExist_tct001() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14");
 
 	Instance instance = implementation.createInstance(null,
@@ -552,7 +550,7 @@ public class RelationTest extends ExtensionAbstract {
 		"No relations should have been created (no instance of dependency existing)",
 		0, instance.getRawLinks().size());
 
-	Implementation implementationdep = CST.apamResolver.findImplByName(
+	Implementation implementationdep = waitForImplByName(
 		null, "S07-DependencyImpl-02");
 
 	Instance instancedep = implementationdep.createInstance(null,
@@ -596,7 +594,7 @@ public class RelationTest extends ExtensionAbstract {
 
     @Test
     public void RelationLinkResolveInternal_tct002() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14bis");
 
 	Instance instance = implementation.createInstance(null,
@@ -612,7 +610,7 @@ public class RelationTest extends ExtensionAbstract {
 	Instance instance2 = implementation.createInstance(null,
 		Collections.<String, String> emptyMap());
 
-	Implementation implementationdep = CST.apamResolver.findImplByName(
+	Implementation implementationdep = waitForImplByName(
 		null, "S07-DependencyImpl-02");
 
 	Assert.assertFalse(
@@ -639,10 +637,10 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationConstraintForSourceInstanceTargetInstance_tc113() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-DependencyImpl");
 
-	Implementation implementationTarget = CST.apamResolver.findImplByName(
+	Implementation implementationTarget = waitForImplByName(
 		null, "S07-implementation-15");
 
 	Instance instanceInvalid01 = implementation.createInstance(null,
@@ -688,10 +686,10 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationPreferencesForSourceInstanceTargetInstance_tc114() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-DependencyImpl");
 
-	Implementation implementationTarget = CST.apamResolver.findImplByName(
+	Implementation implementationTarget = waitForImplByName(
 		null, "S07-implementation-17");
 
 	Instance instanceInvalid01 = implementation.createInstance(null,
@@ -761,13 +759,13 @@ public class RelationTest extends ExtensionAbstract {
 
     @Test
     public void RelationLinkCreationManual_tct004() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-16");
 
 	Instance instance = implementation.createInstance(null,
 		Collections.<String, String> emptyMap());
 
-	Implementation implementationdep = CST.apamResolver.findImplByName(
+	Implementation implementationdep = waitForImplByName(
 		null, "S07-DependencyImpl-02");
 	Instance instancedep = implementationdep.createInstance(null,
 		Collections.<String, String> emptyMap());
@@ -794,7 +792,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceInstanceTargetImplementation_tc119() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-18");
 
 	Instance instance = implementation.createInstance(null, new HashMap() {
@@ -841,7 +839,7 @@ public class RelationTest extends ExtensionAbstract {
     @Test
     public void RelationSourceInstanceTargetSpecification_tc121() {
 
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-19");
 
 	Instance instance = implementation.createInstance(null, new HashMap() {

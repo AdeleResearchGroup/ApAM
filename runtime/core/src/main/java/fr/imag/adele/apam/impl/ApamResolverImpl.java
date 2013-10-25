@@ -425,6 +425,8 @@ public class ApamResolverImpl implements ApamResolver {
 
 			selectionPath.add(0, apam.getApamMan());
 			selectionPath.add(0, apam.getUpdateMan());
+		        if(apam.getApamMan() == null) throw new RuntimeException("Error while get of ApamMan");
+		        if(apam.getUpdateMan() == null) throw new RuntimeException("Error while get of UpdateMan");
 
 			/*
 			 * If resolve = exist or internal, only predefined managers must be called
@@ -447,6 +449,10 @@ public class ApamResolverImpl implements ApamResolver {
 			boolean resolveExist = relToResolve.getResolve() == ResolvePolicy.EXIST ;
 			String mess = "" ;
 			for (RelationManager manager : selectionPath) {
+			    if(manager==null)
+				throw new RuntimeException("Manager is null, SelectionPath "+selectionPath);
+			    if(manager.getName()==null)
+				throw new RuntimeException("Manager : "+manager+", manager name is null");
 				if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 					deployed = true;
 				}

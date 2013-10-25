@@ -74,6 +74,12 @@ public class APAMImpl implements Apam {
 
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
+        apamMan = new ApamMan();
+        if(apamMan == null) throw new RuntimeException("Error while constructor of ApamMan");
+        updateMan = new UpdateMan();
+        if(updateMan == null) throw new RuntimeException("Error while constructor of updateMan");
+        failureMan = new FailedResolutionManager();
+        System.err.println("deadlock ?");
         new CST(this);
         
         for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
@@ -88,9 +94,6 @@ public class APAMImpl implements Apam {
         	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 20*1000/*ms*/);
         }
         
-        apamMan = new ApamMan();
-        updateMan = new UpdateMan();
-        failureMan = new FailedResolutionManager();
 
         DynaMan dynaMan = new DynaMan();
 

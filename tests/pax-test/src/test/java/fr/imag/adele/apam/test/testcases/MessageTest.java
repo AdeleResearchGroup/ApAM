@@ -24,14 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.PathUtils;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.msg.device.EletronicMsg;
@@ -102,10 +100,10 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageSingleProducerSingleConsumerSendReceive_tc075() {
 
-		Implementation producerImpl = CST.apamResolver.findImplByName(null,
+		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		Instance producer = producerImpl.createInstance(null, null);
@@ -140,10 +138,10 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageSingleProducerSingleConsumerStartingConsumerBeforeProducerSendReceive_tc082() {
 
-		Implementation producerImpl = CST.apamResolver.findImplByName(null,
+		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		Instance consumer = consumerImpl.createInstance(null, null);
@@ -178,10 +176,10 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageSingleProducerSingleConsumerReceiveAllInStackOrder_tc076() {
 
-		Implementation producerImpl = CST.apamResolver.findImplByName(null,
+		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		final int POOL_SIZE = 10;
@@ -222,14 +220,14 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageMultipleProducersSingleConsumerSendReceive_tc077() {
 
-		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
-		Implementation producer02Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer02Impl = waitForImplByName(null,
 				"MessageProducerImpl02");
-		Implementation producer03Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer03Impl = waitForImplByName(null,
 				"MessageProducerImpl03");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		Instance producerApam1 = producer01Impl.createInstance(null, null);
@@ -273,10 +271,10 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageMultipleProducersSingleConsumerEnsureOnlyQueueTypeIsAccepted_tc078() {
 
-		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		String usecase = "Single producer sending multiple messages, in the consumer site all the messages should be injected in java.util.Queue, all the other types shouldnt be filled with messages. But %s";
@@ -328,10 +326,10 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageSingleProducersSingleConsumerAssyncSend_tc083() throws InterruptedException {
 
-		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		Instance producerApam1 = producer01Impl.createInstance(null, null);
@@ -377,13 +375,13 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageMultipleProducersSingleConsumerAssyncSend_tc084() throws InterruptedException {
 
-		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
 		
-		Implementation producer02Impl = CST.apamResolver.findImplByName(null,
+		Implementation producer02Impl = waitForImplByName(null,
 				"MessageProducerImpl02");
 
-		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+		Implementation consumerImpl = waitForImplByName(null,
 				"MessageConsumeImpl01");
 
 		Instance producerApam1 = producer01Impl.createInstance(null, null);

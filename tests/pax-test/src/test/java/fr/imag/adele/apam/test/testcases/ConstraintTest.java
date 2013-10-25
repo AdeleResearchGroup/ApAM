@@ -57,7 +57,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	public void ConstraintsCheckingImplementation_tc009() {
 
 		
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+		Implementation s1Impl = waitForImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
@@ -117,7 +117,7 @@ public class ConstraintTest extends ExtensionAbstract{
 			throws InvalidSyntaxException {
 
 		
-		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+		Implementation samsungImpl = waitForImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
 				new HashMap<String, String>() {
@@ -126,7 +126,7 @@ public class ConstraintTest extends ExtensionAbstract{
 					}
 				});
 
-		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+		Implementation lgImpl = waitForImplByName(null,
 				"LgSwitch");
 		final Instance lgInst = lgImpl.createInstance(null,
 				new HashMap<String, String>() {
@@ -135,7 +135,7 @@ public class ConstraintTest extends ExtensionAbstract{
 					}
 				});
 
-		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+		Implementation siemensImpl = waitForImplByName(null,
 				"SiemensSwitch");
 		final Instance siemensInst = siemensImpl.createInstance(null,
 				new HashMap<String, String>() {
@@ -144,7 +144,7 @@ public class ConstraintTest extends ExtensionAbstract{
 					}
 				});
 
-		Implementation boschImpl = CST.apamResolver.findImplByName(null,
+		Implementation boschImpl = waitForImplByName(null,
 				"BoschSwitch");
 		final Instance boschInst = boschImpl.createInstance(null,
 				new HashMap<String, String>() {
@@ -153,7 +153,7 @@ public class ConstraintTest extends ExtensionAbstract{
 					}
 				});
 
-		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+		Implementation philipsImpl = waitForImplByName(null,
 				"philipsSwitch");
 		final Instance philipsInst = philipsImpl.createInstance(null,
 				new HashMap<String, String>() {
@@ -171,7 +171,7 @@ public class ConstraintTest extends ExtensionAbstract{
 			}
 		};
 
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+		Implementation s1Impl = waitForImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 //		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -216,23 +216,23 @@ public class ConstraintTest extends ExtensionAbstract{
 			throws InvalidSyntaxException {
 
 		
-		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+		Implementation samsungImpl = waitForImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
 
-		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+		Implementation lgImpl = waitForImplByName(null,
 				"LgSwitch");
 		final Instance lgInst = lgImpl.createInstance(null, null);
 
-		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+		Implementation siemensImpl = waitForImplByName(null,
 				"SiemensSwitch");
 		final Instance siemensInst = siemensImpl.createInstance(null, null);
 
-		Implementation boschImpl = CST.apamResolver.findImplByName(null,
+		Implementation boschImpl = waitForImplByName(null,
 				"BoschSwitch");
 		final Instance boschInst = boschImpl.createInstance(null, null);
 
-		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+		Implementation philipsImpl = waitForImplByName(null,
 				"philipsSwitch");
 		final Instance philipsInst = philipsImpl.createInstance(null, null);
 		
@@ -253,7 +253,7 @@ public class ConstraintTest extends ExtensionAbstract{
 			}
 		};
 
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+		Implementation s1Impl = waitForImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
 		Instance s1Inst = s1Impl.createInstance(null, null);
