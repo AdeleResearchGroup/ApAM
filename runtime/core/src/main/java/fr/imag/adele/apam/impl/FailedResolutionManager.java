@@ -33,7 +33,7 @@ import fr.imag.adele.apam.ManagerModel;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Link;
@@ -120,7 +120,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
+	public void getSelectionPath(Component client, RelToResolve relToResolve, List<RelationManager> selPath) {
 	}
 	
 	/**
@@ -128,12 +128,12 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	 * have to apply the specified dynamic policy.  
 	 */
 	@Override
-	public Resolved<?> resolveRelation(Component client, Relation relation) {
+	public Resolved<?> resolveRelation(Component client, RelToResolve relToResolve) {
 		
 		/*
 		 * If no policy is specified for the relationship just ignore it.
 		 */
-		if (relation.getMissingPolicy() == null)
+		if (relToResolve.getMissingPolicy() == null)
 			return null;
 		
 		/*
@@ -147,13 +147,13 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		/*
 		 * Apply failure policies
 		 */
-		switch (relation.getMissingPolicy()) {
+		switch (relToResolve.getMissingPolicy()) {
 			case OPTIONAL : {
 				return null;
 			}
 			
 			case EXCEPTION : {
-				throwMissingException(client,relation);
+				throwMissingException(client,relToResolve);
 			}
 			
 			case WAIT : {
@@ -162,7 +162,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 				/*
 				 * schedule request
 				 */
-				PendingRequest request = new PendingRequest(CST.apamResolver, client, relation);
+				PendingRequest request = new PendingRequest(CST.apamResolver, client, relToResolve.getRelationDefinition());
 
 				addWaitingRequests(request);
 				request.block();
@@ -178,13 +178,13 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	/**
 	 * Throws the exception associated with a missing relation
 	 */
-	private static void throwMissingException(Component source, Relation relation) {
+	private static void throwMissingException(Component source, RelToResolve relToResolve) {
 		try {
 
 			/*
 			 * If no exception is specified throw ResolutionException
 			 */
-			String exceptionName = relation.getMissingException();
+			String exceptionName = relToResolve.getMissingException();
 			if (exceptionName == null)
 				throw new ResolutionException();
 			
@@ -212,7 +212,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 			Component declaringComponent = source;
 			while (declaringComponent != null) {
 				
-				RelationDeclaration declaration = declaringComponent.getDeclaration().getLocalRelation(relation.getName());
+				RelationDeclaration declaration = declaringComponent.getDeclaration().getLocalRelation(relToResolve.getName());
 				if ( declaration != null && declaration.getMissingException() != null && declaration.getMissingException().equals(exceptionName))
 					break;
 				

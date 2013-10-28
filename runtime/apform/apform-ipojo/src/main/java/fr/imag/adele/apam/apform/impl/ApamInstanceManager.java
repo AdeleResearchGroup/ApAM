@@ -37,7 +37,8 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
@@ -228,10 +229,10 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 		 * Find the relation to resolve and trigger resolution at the level specified in the source kind
 		 */
 		
-		Relation relation = getApform().getApamComponent().getRelation(injection.getRelationInjection().getRelation().getIdentifier());
+        RelationDefinition relDef = getApform().getApamComponent().getRelation(injection.getRelationInjection().getRelation().getIdentifier());
 		
 		Component source = null;
-		switch (relation.getSourceKind()) {
+		switch (relDef.getSourceKind()) {
 			case INSTANCE:
 				source = getApform().getApamComponent();
 				break;
@@ -243,7 +244,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 				break;
 		}
 		
-		return CST.apamResolver.resolveLink(source, relation) != null;
+		return CST.apamResolver.resolveLink(source, relDef) != null;
 
     }
 

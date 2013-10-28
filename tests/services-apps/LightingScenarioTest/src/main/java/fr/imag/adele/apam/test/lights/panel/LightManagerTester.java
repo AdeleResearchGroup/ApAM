@@ -16,27 +16,26 @@
  */
 package fr.imag.adele.apam.test.lights.panel;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.test.lights.devices.BinaryLight;
 import fr.imag.adele.apam.test.lights.devices.SimpleButton;
 import fr.imag.adele.apam.test.lights.devices.messages.LightStatusChanged;
-
-import javax.swing.*;
-import javax.swing.plaf.DimensionUIResource;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author thibaud
@@ -124,7 +123,7 @@ public class LightManagerTester implements ActionListener {
      * CallBack method on dependency resolution
      */
     public void removeButton(Instance inst) {
-	SimpleButton btn = (SimpleButton) inst;
+	SimpleButton btn = (SimpleButton) inst.getServiceObject();
 	logger.debug("removeButton(SimpleButton button : " + btn.getName()
 		+ " in " + btn.getLocation() + ")");
 	rebuildButtonsColumn();
@@ -136,7 +135,7 @@ public class LightManagerTester implements ActionListener {
      * @param light
      */
     public void newLight(Instance inst) {
-	BinaryLight light = (BinaryLight) inst;
+	BinaryLight light = (BinaryLight) inst.getServiceObject();
 	logger.debug("newLight(Instance light : " + light.getName() + " in "
 		+ light.getLocation() + ")");
 	rebuildLightsColumn();
@@ -146,7 +145,7 @@ public class LightManagerTester implements ActionListener {
      * CallBack method on dependency resolution
      */
     public void removeLight(Instance inst) {
-	BinaryLight light = (BinaryLight) inst;
+	BinaryLight light = (BinaryLight) inst.getServiceObject();
 	logger.debug("removeLight(Instance light : " + light.getName() + " in "
 		+ light.getLocation() + ")");
 	rebuildLightsColumn();

@@ -42,7 +42,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -153,7 +153,7 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	public Resolved resolveRemote(Instance client,
-			Relation dependency) throws IOException {
+			RelToResolve dependency) throws IOException {
 		if (running.get()) {
 			
 			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLRoot());
@@ -185,7 +185,7 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	private Instance createClientProxy(String jsondep, Instance client,
-			Relation dependency) throws IOException {
+			RelToResolve dependency) throws IOException {
 		
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;

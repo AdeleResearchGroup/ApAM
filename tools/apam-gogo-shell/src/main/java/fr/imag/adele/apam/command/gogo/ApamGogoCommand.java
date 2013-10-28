@@ -55,7 +55,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -613,7 +613,7 @@ public class ApamGogoCommand {
 		+ " ] -----");
 
 	out.println(indent + "Relation declarations :");
-	for (Relation relation : elem.getRelations()) {
+	for (RelationDefinition relation : elem.getRelations()) {
 	    out.println(indent + "       " + relation.getName() + ": "
 		    + relation);
 	}

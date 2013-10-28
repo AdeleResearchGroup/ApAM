@@ -22,7 +22,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -43,7 +43,7 @@ public class PendingRequest {
 	/**
 	 * The relation to resolve
 	 */
-	protected final Relation relation;
+	protected final RelationDefinition relDef;
 
 	/**
 	 * The composite in which context the resolution will be performed
@@ -79,12 +79,12 @@ public class PendingRequest {
 	/**
 	 * Builds a new pending request reification
 	 */
-	public PendingRequest(ApamResolver resolver, Component source, Relation relation) {
+	public PendingRequest(ApamResolver resolver, Component source, RelationDefinition relDef) {
 		this.resolver		= resolver;
 		
 		this.source			= source;
 		this.context		= (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootAllComposites();
-		this.relation		= relation;
+		this.relDef		    = relDef;
 		
 		this.resolution		= null;
 	}
@@ -96,8 +96,8 @@ public class PendingRequest {
 	/**
 	 * The relation that needs resolution
 	 */
-	public Relation getRelation() {
-		return relation;
+	public RelationDefinition getRelation() {
+		return relDef;
 	}
 	
 	/**
@@ -177,7 +177,7 @@ public class PendingRequest {
 		
 		try {
 			beginResolve();
-			resolverResult = resolver.resolveLink(source, relation);
+			resolverResult = resolver.resolveLink(source, relDef);
 		} finally {
 			endResolve(resolverResult);
 		}
@@ -234,7 +234,7 @@ public class PendingRequest {
 		 * Check if the candidate kind matches the target kind of the relation. Consider the special
 		 * case for instantiable implementations that can satisfy an instance relation
 		 */
-		boolean matchKind = relation.getTargetKind().equals(candidate.getKind());
+		boolean matchKind = relDef.getTargetKind().equals(candidate.getKind());
 				  /*    || (relation.getTargetKind().equals(ComponentKind.INSTANCE) && candidate.getKind().equals(ComponentKind.IMPLEMENTATION)); */
 		
 		if (!matchKind)
@@ -245,13 +245,13 @@ public class PendingRequest {
 		 */
 		boolean matchTarget = false;
 		
-		if (relation.getTarget() instanceof ComponentReference<?>) {
-			Component target = CST.componentBroker.getComponent(relation.getTarget().getName());
+		if (relDef.getTarget() instanceof ComponentReference<?>) {
+			Component target = CST.componentBroker.getComponent(relDef.getTarget().getName());
 			matchTarget = (target != null) && (target.isAncestorOf(candidate) || target.equals(candidate));
 		}
 		
-		if (relation.getTarget() instanceof ResourceReference)
-			matchTarget = candidate.getProvidedResources().contains(relation.getTarget());
+		if (relDef.getTarget() instanceof ResourceReference)
+			matchTarget = candidate.getProvidedResources().contains(relDef.getTarget());
 
 		if (! matchTarget)
 			return false;
@@ -259,7 +259,7 @@ public class PendingRequest {
 		/*
 		 * Special validations for target instances
 		 */
-		if (relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
+		if (relDef.getTargetKind().equals(ComponentKind.INSTANCE)) {
 			
 			boolean valid = ( (candidate instanceof Instance) && ((Instance) candidate).isSharable());
 					/* ||	( (candidate instanceof Implementation) && ((Implementation) candidate).isInstantiable()); */
@@ -282,12 +282,12 @@ public class PendingRequest {
 		}
 		
 				
-		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relation.getName());
+		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relDef.getName());
 		
 		/*
 		 * For single-valued relations we just verify there is some resolution
 		 */
-		if (! relation.isMultiple() )
+		if (! relDef.isMultiple() )
 			return resolutions.isEmpty();
 		
 		/*

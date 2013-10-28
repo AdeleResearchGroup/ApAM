@@ -952,7 +952,9 @@ public class CoreMetadataParser implements CoreParser {
 		RelationDeclaration relation = new RelationDeclaration(component.getReference(),id,
 												sourceName,sourceKind,
 												targetDef,targetKind,
-												creationPolicy, resolvePolicy,isMultiple,
+												creationPolicy,
+												(resolvePolicy!=null ? resolvePolicy: ResolvePolicy.EXIST),
+													isMultiple,
 												missingPolicy,missingException,
 												isOverride,mustHide != null ? Boolean.valueOf(mustHide): null);
 		

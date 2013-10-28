@@ -5,8 +5,7 @@
   <!--  log to System.out on console  -->
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-     <pattern>- %msg%n</pattern>
-<!--       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern> -->
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
   
@@ -19,10 +18,10 @@
     </encoder>
   </appender>
   
-  <root level="DEBUG">
+  <root level="WARN">
     <appender-ref ref="STDOUT"/>
 	<appender-ref ref="TEST_LOG"/>
   </root>
-  <logger name="org.ops4j.pax.exam" level="DEBUG"/> 
+  <logger name="org.ops4j" level="WARN"/> 
   
 </configuration>

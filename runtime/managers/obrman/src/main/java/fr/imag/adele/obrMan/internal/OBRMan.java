@@ -39,7 +39,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
@@ -226,7 +226,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	// at the end
 	@Override
-	public void getSelectionPath(Component client, Relation dep, List<RelationManager> involved) {
+	public void getSelectionPath(Component client, RelToResolve dep, List<RelationManager> involved) {
 		involved.add(involved.size(), this);
 	}
 
@@ -317,7 +317,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 	@Override
-	public Resolved<?> resolveRelation(Component client, Relation dep) {
+	public Resolved<?> resolveRelation(Component client, RelToResolve dep) {
 		Component ret = null;
 
 		//It is either a resolution (spec -> instance) or a resource reference (interface or message)
@@ -363,7 +363,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		return null;
 	}
 
-	private Component findByName(Component source, Relation rel) {
+	private Component findByName(Component source, RelToResolve rel) {
 
 		CompositeType compoType = null;
 		if (source instanceof Instance) {
@@ -391,7 +391,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 	// interface manager
-	private Component resolveByResource(Component source, Relation dep) {
+	private Component resolveByResource(Component source, RelToResolve dep) {
 		ResolvableReference resource = dep.getTarget();
 		CompositeType compoType = null;
 		if (source instanceof Instance) {

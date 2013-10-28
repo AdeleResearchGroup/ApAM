@@ -116,6 +116,12 @@ public class ApamFilter /* implements Filter */ {
 		return null;
 	}
 
+	/**
+	 * For component null, only checks syntax and returns a result different than newInstance.
+	 * @param filterString
+	 * @param component
+	 * @return
+	 */
 	public static ApamFilter newInstanceApam(String filterString, Component component) {
 		try {
 			return new Parser(filterString, false, component).parse();    		
@@ -127,12 +133,13 @@ public class ApamFilter /* implements Filter */ {
 
 	public static boolean isSubstituteFilter (String filterString, Component component) {
 		//Inefficient, but simple. Done once.
-		ApamFilter f = newInstanceApam(filterString, component) ;
-		ApamFilter f2 = newInstance(filterString);
-		if (f==null || f2==null) return false ;
-		return !f.equals(f2);
+//		ApamFilter f = newInstanceApam(filterString, component) ;
+//		ApamFilter f2 = newInstance(filterString);
+//		if (f==null || f2==null) return false ;
+//		return !f.equals(f2);
+		return (filterString.indexOf("\"$") == -1 && filterString.indexOf("\"@") == -1) ;
 	}
-	
+
 	private static ApamFilter newInstance(String filterString, boolean ignoreCase)
 			throws InvalidSyntaxException {
 		return new Parser(filterString, ignoreCase, null).parse();
@@ -172,7 +179,7 @@ public class ApamFilter /* implements Filter */ {
 	 *             case variants of the same key name.
 	 *             
 	 */
-//	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public boolean match(Map map) {
 		return match0(new CaseInsensitiveMap<Object>(map));
 	}
@@ -398,10 +405,11 @@ public class ApamFilter /* implements Filter */ {
 		case APPROX:
 		case SUBSET:
 		case SUPERSET: {
-			Object prop = (properties == null) ? null : properties
-					.get(attr);
+			Object prop = (properties == null) ? null : properties.get(attr);
+			
+			if (Substitute.isSubstitution(value)) {
 			//TODO : checking that it is not a substitution. Only to be sure. Should not happen.
-			if ((value instanceof String) && (((String)value).charAt(0)=='$' || ((String)value).charAt(0)=='@')) {
+			//if ((value instanceof String) && (((String)value).charAt(0)=='$' || ((String)value).charAt(0)=='@')) {
 				logger.error("Filter attribute  " +  attr + " is a substitution: " + (String)value + ". in Filter :  " + filterString);
 			}
 
@@ -1277,15 +1285,21 @@ public class ApamFilter /* implements Filter */ {
 					/*
 					 * TODO
 					 * If it is a substitution, substitute.
+					 * If component is null, we are only checking that it has substitutions or not.
 					 */
-					string = Util.toStringAttrValue(Substitute.substitute(null, string, component)) ;
-					if (string == null) {
-						logger.debug("Substitution failed. Attribute not set: " + filterstring);
-						string ="Null" ;
+//					if (Substitute.isSubstitution(string) && component == null) {
+//						string = "###It is an Apam Substitution" ;
+//					}
+//					else {
+						string = Util.toStringAttrValue(Substitute.substitute(null, string, component)) ;
+						if (string == null) {
+							logger.debug("Substitution failed. Attribute not set: " + filterstring);
+							string ="Null" ;
+						}
+						return new ApamFilter(ApamFilter.EQUAL, attr,
+								((String) string).trim());
 					}
-					return new ApamFilter(ApamFilter.EQUAL, attr,
-							((String) string).trim());
-				}
+//				}
 				return new ApamFilter(ApamFilter.SUBSTRING, attr,
 						string);
 			}

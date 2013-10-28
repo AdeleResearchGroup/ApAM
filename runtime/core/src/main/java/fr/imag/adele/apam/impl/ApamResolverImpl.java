@@ -34,7 +34,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
@@ -145,11 +146,11 @@ public class ApamResolverImpl implements ApamResolver {
 	 * 
 	 * 
 	 * @param client
-	 * @param relation
+	 * @param relDef
 	 *            definition
 	 * @return the composite relation from the composite.
 	 */
-	private Relation getPromotionRel(Instance client, Relation relation) {
+	private RelationDefinition getPromotionRel(Instance client, RelationDefinition relDef) {
 		// if (relation.getIdentifier() == null) // Not a relation
 		// return null;
 
@@ -163,10 +164,8 @@ public class ApamResolverImpl implements ApamResolver {
 		// <promotion implementation="A" relation="clientDep" to="compoDep" />
 		// <promotion specification="SA" relation="clientDep" to="compoDep" />
 		for (RelationPromotion promo: composite.getCompType().getCompoDeclaration().getPromotions()) {
-			if (!promo.getContentRelation().getIdentifier()
-					.equals(relation.getName())) {
-				continue; // this promotion is not about our relation (not
-				// "clientDep")
+			if (!promo.getContentRelation().getIdentifier().equals(relDef.getName())) {
+				continue; // this promotion is not about our relation (not "clientDep")
 			}
 
 			String sourceName = promo.getContentRelation()
@@ -176,10 +175,10 @@ public class ApamResolverImpl implements ApamResolver {
 				// We found the right promotion from client side.
 				// Look for the corresponding composite relation "compoDep"
 				String toName = promo.getCompositeRelation().getIdentifier();
-				Relation foundPromo = composite.getCompType().getRelation(toName) ;
+				RelationDefinition foundPromo = composite.getCompType().getRelation(toName) ;
 				//					if (compoDep.getIdentifier().equals(toName)) {
 				//We found the composite side. It is an explicit promotion. It should match.
-				if (relation.matchRelation (client, foundPromo)) {
+				if (foundPromo.matchRelation (client, foundPromo)) {
 					return foundPromo ;
 				}
 				logger.error("Promotion is invalid. relation "
@@ -196,8 +195,8 @@ public class ApamResolverImpl implements ApamResolver {
 		//Do no check composite
 		Component group = composite;
 		while (group != null) {
-			for (Relation compoDep : group.getLocalRelations()) {
-				if  (relation.matchRelation (client, compoDep)) {
+			for (RelationDefinition compoDep : group.getLocalRelations()) {
+				if  (relDef.matchRelation (client, compoDep)) {
 					return compoDep ;
 				}
 			}
@@ -267,7 +266,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		// Get the relation
-		Relation relDef = source.getRelation(depName);
+		RelationDefinition relDef = source.getRelation(depName);
 		if (relDef == null) {
 			logger.error("Relation declaration invalid or not found " + depName);
 			return null;
@@ -281,7 +280,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Resolved<?> resolveLink(Component source2, Relation rel) {
+	public Resolved<?> resolveLink(Component source2, RelationDefinition rel) {
 
 		/*
 		 * verify the resolver is actually ready to work (all managers are present)
@@ -309,19 +308,21 @@ public class ApamResolverImpl implements ApamResolver {
 		if (source instanceof Instance	&& rel.isRelation())
 			compo = getClientComposite((Instance) source);
 
-		// Invoke managers for resolution
-		Resolved resolved = this.resolveByManagers(source, rel);
-		
-		// To remember it is a promotion
-		boolean isPromotion = false;
-		boolean promoHasConstraints = false;
+		//creates an relToResolve only considering the relation. Not completely initialized.
+		RelToResolve relToResolve = new RelToResolveImpl (source, rel);
+		// Invoke managers for resolution, add mng constraints and compute relToResolve
+		Resolved resolved = this.resolveByManagers (relToResolve);
 		
 		/*
 		 * Promotion control Only for instances
 		 */
+		// To remember it is a promotion
+		boolean isPromotion = false;
+		boolean promoHasConstraints = false;
+		
 		if ((resolved == null || resolved.isEmpty()) && compo != null ) {
 
-			Relation promotionRelation = getPromotionRel((Instance) source, rel);
+			RelationDefinition promotionRelation = getPromotionRel((Instance) source, rel);
 
 			// if it is a promotion, get the composite relation targets.
 			if (promotionRelation != null) {
@@ -341,8 +342,8 @@ public class ApamResolverImpl implements ApamResolver {
 				// source visibility control (null).
 				// Adds the manager constraints and compute filters
 				if (resolved != null && !resolved.isEmpty()) {
-					computeSelectionPath(source, rel);
-					resolved = rel.getResolved(resolved, isPromotion);
+					//computeSelectionPath(source, rel);
+					resolved = relToResolve.getResolved(resolved, isPromotion);
 				}
 				
 			}
@@ -352,7 +353,7 @@ public class ApamResolverImpl implements ApamResolver {
 		 * If managers could not resolve and relation cannot be promoted, give a chance to failure manager
 		 */
 		if (resolved == null || resolved.isEmpty()) {
-			resolved= apam.getFailedResolutionManager().resolveRelation(source, rel);
+			resolved= apam.getFailedResolutionManager().resolveRelation(source, relToResolve);
 		}
 
 		/*
@@ -367,11 +368,11 @@ public class ApamResolverImpl implements ApamResolver {
 		 * It is resolved. 
 		 */
 		if (resolved.singletonResolved != null) {
-			source.createLink(resolved.singletonResolved, rel, rel.hasConstraints() || promoHasConstraints, isPromotion);
+			source.createLink(resolved.singletonResolved, relToResolve, relToResolve.hasConstraints() || promoHasConstraints, isPromotion);
 			return resolved ;
 		}
 		for (Object target : resolved.setResolved) {
-			source.createLink((Component) target, rel, rel.hasConstraints() || promoHasConstraints, isPromotion);
+			source.createLink((Component) target, relToResolve, relToResolve.hasConstraints() || promoHasConstraints, isPromotion);
 		}
 
 		return resolved;
@@ -386,7 +387,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param client
 	 *            the instance calling implem (and where to create
 	 *            implementation ans instances if needed). Cannot be null.
-	 * @param relation
+	 * @param relToResolve
 	 *            a relation declaration containing the type and name of the
 	 *            relation target. It can be -the specification Name (new
 	 *            SpecificationReference (specName)) -an implementation name
@@ -395,26 +396,70 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            MessageReference (dataTypeName))
 	 * @return the component(s) if resolved, null otherwise
 	 */
-	private Resolved<?> resolveByManagers(Component source, Relation relation) {
+	private Resolved<?> resolveByManagers(RelToResolve relToResolve) {
 
-		try {
-			// Transform the relation constraints into filters after
-			// interpreting the substitutions.
-			List<RelationManager> selectionPath = computeSelectionPath(source, relation);
+			/*
+			 * Get the list of external managers.
+			 * 
+			 * NOTE Notice that we invoke getSelectionPath on all managers (even if resolve policy
+			 * is specified EXTERNAL). In this way, managers can influence resolution, by adding
+			 * constraints, even if they do not perform resolution themselves.
+			 * 
+			 * TODO We should have two separate methods in managers: one for adding constraints 
+			 * and another for actually performing resolution. 
+			 * 
+			 */
+			Component source = relToResolve.getLinkSource();
+			//RelToResolve relToResolve = new RelToResolveImpl (source, relation);
+			List<RelationManager> externalPath = new ArrayList<RelationManager>();
+			for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
+				relationManager.getSelectionPath(source, relToResolve, externalPath);
+			}
+			//Compute filters once for all, and make it final
+			((RelToResolveImpl)relToResolve).computeFilters() ;
+			
+			/*
+			 * Get the list of all managers
+			 */
+			List<RelationManager> selectionPath = new ArrayList<RelationManager>();
+
+			selectionPath.add(0, apam.getApamMan());
+			selectionPath.add(0, apam.getUpdateMan());
+		        if(apam.getApamMan() == null) throw new RuntimeException("Error while get of ApamMan");
+		        if(apam.getUpdateMan() == null) throw new RuntimeException("Error while get of UpdateMan");
+
+			/*
+			 * If resolve = exist or internal, only predefined managers must be called
+			 */
+
+			boolean resolveExternal = (relToResolve.getResolve() == ResolvePolicy.EXTERNAL) ;
+			if (resolveExternal) {
+				selectionPath.addAll(externalPath);
+			}
+
+			if (!relToResolve.isRelation()) { // It is a find
+				logger.info("Looking for " + relToResolve.getTargetKind() + " " + relToResolve.getTarget().getName());
+			} else
+				logger.info("Resolving " + relToResolve);
+			
 
 			Resolved<?> res = null;
 			boolean deployed = false;
 			
-			boolean resolveExist = relation.getResolve() == ResolvePolicy.EXIST ;
+			boolean resolveExist = relToResolve.getResolve() == ResolvePolicy.EXIST ;
 			String mess = "" ;
 			for (RelationManager manager : selectionPath) {
+			    if(manager==null)
+				throw new RuntimeException("Manager is null, SelectionPath "+selectionPath);
+			    if(manager.getName()==null)
+				throw new RuntimeException("Manager : "+manager+", manager name is null");
 				if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 					deployed = true;
 				}
 				//logger.debug(manager.getName() + "  ");
 				mess += manager.getName() + "  " ;
 				// Does the real job
-				res = manager.resolveRelation(source, relation);
+				res = manager.resolveRelation(source, relToResolve);
 				if (res == null || res.isEmpty())
 					// This manager did not found a solution, try the next manager
 					continue;
@@ -431,7 +476,7 @@ public class ApamResolverImpl implements ApamResolver {
 				 * If an implementation is returned as "toInstantiate" it has to be instantiated
 				 */
 				if (res.toInstantiate != null) {
-					if (relation.getTargetKind() != ComponentKind.INSTANCE) {
+					if (relToResolve.getTargetKind() != ComponentKind.INSTANCE) {
 						logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
 						continue;
 					}
@@ -451,14 +496,14 @@ public class ApamResolverImpl implements ApamResolver {
 						continue;
 					}
 					
-					if (!relation.matchRelation(inst)) {
+					if (!relToResolve.matchRelationConstraints(inst)) {
 						logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints") ;
 						((ComponentImpl)inst).unregister() ;
 						continue ;
 					}
 					
 					logger.info(mess + "Instantiated " + inst);
-					if (relation.isMultiple()) {
+					if (relToResolve.isMultiple()) {
 						Set<Instance> insts = new HashSet<Instance>();
 						insts.add(inst);
 						return new Resolved<Instance>(insts);
@@ -470,13 +515,13 @@ public class ApamResolverImpl implements ApamResolver {
 				 * Because managers can be third party, we cannot trust them.
 				 * Verify that the result is correct.
 				 */
-				if (relation.isMultiple()) {
+				if (relToResolve.isMultiple()) {
 					if (res.setResolved == null || res.setResolved.isEmpty()) {
 						logger.info(mess + "manager " + manager + " returned an empty result. Should be null.");
 						continue;
 					}
-					if (((Component) res.setResolved.iterator().next()).getKind() != relation.getTargetKind()) {
-						logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relation);
+					if (((Component) res.setResolved.iterator().next()).getKind() != relToResolve.getTargetKind()) {
+						logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
 						continue;
 					}
 					logger.info(mess + "Selected : " + res.setResolved);
@@ -488,86 +533,69 @@ public class ApamResolverImpl implements ApamResolver {
 					logger.info(mess + "manager " + manager + " returned an empty result. ");
 					continue;
 				}
-				if (res.singletonResolved.getKind() != relation.getTargetKind()) {
-					logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relation);
+				if (res.singletonResolved.getKind() != relToResolve.getTargetKind()) {
+					logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
 					continue;
 				}
 				logger.info(mess + "Selected : " + res.singletonResolved);
 				return res;
 			}
-		}
-		// To be sure to reset the filters set in computeSelectionPath
-		finally {
-			((RelationImpl) relation).resetFilters();
-		}
-
-
 		// No solution found
 		return null;
 	}
 
-	/**
-	 * Before to resolve an implementation (i.e. to select one of its instance),
-	 * this method is called to know which managers are involved, and what are
-	 * the constraints and preferences set by the managers to this resolution.
-	 * 
-	 * @param compTypeFrom
-	 *            : the origin of this resolution.
-	 * @param impl
-	 *            : the implementation to resolve.
-	 * @param constraints
-	 *            : the constraints added by the managers. A (empty) set must be
-	 *            provided as parameter.
-	 * @param preferences
-	 *            : the preferences added by the managers. A (empty) list must
-	 *            be provided as parameter.
-	 * @return : the managers that will be called for that resolution.
-	 */
-	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
-
-		/*
-		 * Get the list of external managers.
-		 * 
-		 * NOTE Notice that we invoke getSelctionPath on all managers (even if resolve policy
-		 * is specified EXTERNAL. In this way, managers can influence resolution, by adding
-		 * constraints, even if they do not perform resolution themselves.
-		 * 
-		 * TODO We should have two separate methods in managers: one for adding constraints 
-		 * and another for actually performing resolution. 
-		 * 
-		 */
-		List<RelationManager> externalPath = new ArrayList<RelationManager>();
-		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
-			relationManager.getSelectionPath(source, relation, externalPath);
-		}
-		
-		((RelationImpl)relation).computeFilters(source) ;
-		
-		if (!relation.isRelation()) { // It is a find
-			logger.info("Looking for " + relation.getTargetKind() + " " + relation.getTarget().getName());
-		} else
-			logger.info("Resolving " + relation);
-
-		/*
-		 * Get the list of all managers, core and external
-		 */
-		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
-
-		selectionPath.add(0, apam.getApamMan());
-		selectionPath.add(0, apam.getUpdateMan());
-		
-
-		/*
-		 * If resolve = exist or internal, only predefined managers must be called
-		 */
-
-		boolean resolveExternal = relation.getResolve() == ResolvePolicy.EXTERNAL ;
-		if (resolveExternal) {
-			selectionPath.addAll(externalPath);
-		}
-		
-		return selectionPath;
-	}
+//	/**
+//	 * Before to resolve an implementation (i.e. to select one of its instance),
+//	 * this method is called to know which managers are involved, and what are
+//	 * the constraints and preferences set by the managers to this resolution.
+//	 * 
+//	 * @param compTypeFrom
+//	 *            : the origin of this resolution.
+//	 * @param impl
+//	 *            : the implementation to resolve.
+//	 * @param constraints
+//	 *            : the constraints added by the managers. A (empty) set must be
+//	 *            provided as parameter.
+//	 * @param preferences
+//	 *            : the preferences added by the managers. A (empty) list must
+//	 *            be provided as parameter.
+//	 * @return : the managers that will be called for that resolution.
+//	 */
+//	private List<RelationManager> computeSelectionPath(Component source, RelToResolve relToResolve) {
+//
+//		/*
+//		 * Get the list of external managers.
+//		 * 
+//		 * NOTE Notice that we invoke getSelctionPath on all managers (even if resolve policy
+//		 * is specified EXTERNAL. In this way, managers can influence resolution, by adding
+//		 * constraints, even if they do not perform resolution themselves.
+//		 * 
+//		 */
+//		List<RelationManager> externalPath = new ArrayList<RelationManager>();
+//		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
+//			relationManager.getSelectionPath(source, relToResolve, externalPath);
+//		}
+//				
+//		/*
+//		 * Get the list of all managers, core and external
+//		 */
+//		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
+//
+//		selectionPath.add(0, apam.getApamMan());
+//		selectionPath.add(0, apam.getUpdateMan());
+//		
+//
+//		/*
+//		 * If resolve = exist or internal, only predefined managers must be called
+//		 */
+//
+//		boolean resolveExternal = relToResolve.getResolve() == ResolvePolicy.EXTERNAL ;
+//		if (resolveExternal) {
+//			selectionPath.addAll(externalPath);
+//		}
+//		
+//		return selectionPath;
+//	}
 
 	/**
 	 * Impl is either unused or deployed (and therefore also unused). 
@@ -634,7 +662,8 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		@SuppressWarnings("rawtypes")
-		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, preferences);
+//		RelToResolve dep = new RelToResolveImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, preferences);
+		RelationDefinition dep = new RelationDefinitionImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, preferences);
 
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
@@ -650,7 +679,8 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		@SuppressWarnings("rawtypes")
-		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, null);
+//		RelToResolve dep = new RelToResolveImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, null);
+		RelationDefinition dep = new RelationDefinitionImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, null);
 
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
@@ -669,8 +699,8 @@ public class ApamResolverImpl implements ApamResolver {
 
 		// CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
 
-		Relation relation = new RelationImpl(targetComponent, client.getKind(), targetKind, null, null);
-		Resolved<?> res = resolveLink (client, relation) ;
+		RelationDefinition rel = new RelationDefinitionImpl(targetComponent, client.getKind(), targetKind, null, null);
+		Resolved<?> res = resolveLink (client, rel) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
 	}
@@ -702,14 +732,14 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByInterface(Component client, String interfaceName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl(new InterfaceReference(interfaceName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		RelationDefinition dep = new RelationDefinitionImpl(new InterfaceReference(interfaceName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 		return resolveSpecByResource(client, dep);
 	}
 
 	@Override
 	public Implementation resolveSpecByMessage(Component client, String messageName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl(new MessageReference(messageName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		RelationDefinition dep = new RelationDefinitionImpl(new MessageReference(messageName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 		return resolveSpecByResource(client, dep);
 	}
 
@@ -731,7 +761,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance () ;
 		}
 
-		Relation dep = new RelationImpl(new SpecificationReference(specName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		RelationDefinition dep = new RelationDefinitionImpl(new SpecificationReference(specName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 
 		return resolveSpecByResource(client, dep) ;
 	}
@@ -751,12 +781,12 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            number of preferences, taken in the order, and stopping at the first failure.
 	 * @return
 	 */
-	public Implementation resolveSpecByResource(Component client, Relation relation) {
-		if (relation.getTargetKind() != ComponentKind.IMPLEMENTATION) {
-			logger.error("Invalid target type for resolveSpecByResource. Implemntation expected, found : " + relation.getTargetKind()) ;
+	public Implementation resolveSpecByResource(Component client, RelationDefinition relDef) {
+		if (relDef.getTargetKind() != ComponentKind.IMPLEMENTATION) {
+			logger.error("Invalid target type for resolveSpecByResource. Implemntation expected, found : " + relDef.getTargetKind()) ;
 			return null ;
 		}
-		Resolved<?> resolve = resolveLink (client, relation) ;
+		Resolved<?> resolve = resolveLink (client, relDef) ;
 		if (resolve == null) return null ;
 
 		if (resolve.singletonResolved != null) 

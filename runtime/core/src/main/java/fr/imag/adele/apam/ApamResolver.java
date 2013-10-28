@@ -44,7 +44,7 @@ public interface ApamResolver {
 	 * @return
 	 */
     public Resolved<?> resolveLink(Component source, String depName);
-    public Resolved<?> resolveLink(Component source, Relation dep);
+    public Resolved<?> resolveLink(Component source, RelationDefinition dep);
 
 
     /**

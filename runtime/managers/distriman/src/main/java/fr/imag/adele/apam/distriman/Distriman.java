@@ -37,7 +37,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResolvableReference;
@@ -222,13 +222,13 @@ public class Distriman implements DistrimanIface, RelationManager {
 	}
 
 	@Override
-	public void getSelectionPath(Component source, Relation relation,
+	public void getSelectionPath(Component source, RelToResolve relToResolve,
 			List<RelationManager> selPath) {
 		selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public Resolved<?> resolveRelation(Component source, Relation relation) {
+	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve) {
 		
 		Resolved resolved = null;
 		
@@ -245,7 +245,7 @@ public class Distriman implements DistrimanIface, RelationManager {
 				logger.info("trying to resolve in machine key {} and url {}",
 						urlForResolution, urlForResolution);
 
-				resolved = machine.resolveRemote((Instance)source, relation);
+				resolved = machine.resolveRemote((Instance)source, relToResolve);
 
 				if (resolved != null && ( resolved.singletonResolved!= null ||  
 						 				  resolved.setResolved!=null)) 

@@ -23,7 +23,7 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.type.TypeReference;
 
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.InstanceReference;
@@ -70,7 +70,7 @@ public class RemoteDependencyDeclaration extends RelationDeclaration {
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependencyDeclaration(Relation dep,String provider) {
+    public RemoteDependencyDeclaration(RelToResolve dep,String provider) {
     	
      	super(new ComponentReference<ComponentDeclaration>(dep.getLinkSource().getName()), dep.getName(), dep.getTarget(), dep.isMultiple());
     	

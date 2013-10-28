@@ -9,8 +9,8 @@
 	<artifactId>apam-tests</artifactId>
 	<packaging>pom</packaging>
 	<properties>
-		<url.version>1.4.0</url.version>
-		<exam.version>3.0.0.RC1</exam.version> <!--3.0.0.RC1 3.1.0-SNAPSHOT-->
+		<url.version>1.6.0</url.version>
+		<exam.version>3.3.0</exam.version>
 	</properties>
 
 	<repositories>

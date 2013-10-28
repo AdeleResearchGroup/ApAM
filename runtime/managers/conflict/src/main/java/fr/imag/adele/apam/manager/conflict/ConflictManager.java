@@ -42,7 +42,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
@@ -102,7 +102,6 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	 * 
 	 */
 	@Validate
-	@SuppressWarnings("unused")
 	private  synchronized void start()  {
 		
 		/*
@@ -139,7 +138,6 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	 * no longer available
 	 */
 	@Invalidate
-	@SuppressWarnings("unused")
 	private synchronized void stop() {
 		ApamManagers.removeRelationManager(this);
 		ApamManagers.removeDynamicManager(this);
@@ -160,7 +158,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	 * For owned instances that could match a resolution request, we must be sure that the grants are respected.
 	 */
 	@Override
-	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
+	public void getSelectionPath(Component client, RelToResolve relation, List<RelationManager> selPath) {
         
         
         if (! relation.getTargetKind().equals(ComponentKind.INSTANCE))
@@ -176,7 +174,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
         
         PendingRequest request = PendingRequest.isRetry() ? 
         								PendingRequest.current() : 
-        								new PendingRequest(CST.apamResolver, client, relation);
+        								new PendingRequest(CST.apamResolver, client, relation.getRelationDefinition());
         								
         for (ContentManager container : getManagers()) {
         	container.verifyGrant(request);
@@ -188,7 +186,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	 * to add constraints to enforce conflict management rules.
 	 */
 	@Override
-	public Resolved<?> resolveRelation(Component client, Relation relation) {
+	public Resolved<?> resolveRelation(Component client, RelToResolve relation) {
 		return null;
 	}
 	

@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
@@ -333,7 +333,7 @@ public class Substitute {
 				|| (!(valueObject instanceof String)))
 			return valueObject;
 
-		String value = (String) valueObject;
+		String value = ((String) valueObject).trim();
 		if (value.startsWith("\\$") || value.startsWith("\\@"))
 			return value.substring(1);
 
@@ -447,7 +447,7 @@ public class Substitute {
 	 */
 	private static Set<Component> navigate(Component firstSource, List<String> navigation) {
 		// Compute the navigation. It returns a set of components
-		Relation depDcl;
+//		RelToResolve depDcl;
 		Set<Component> dests = new HashSet<Component>();
 
 		Set<Component> sources = new HashSet<Component>();
@@ -459,7 +459,7 @@ public class Substitute {
 
 		for (String depId : navigation) {
 			for (Component source : sources) {
-				depDcl = source.getRelation(depId);
+				RelationDefinition depDcl = source.getRelation(depId);
 				if (depDcl == null && !CST.isFinalRelation(depId)) {
 					logger.error("relation " + depId
 							+ " undefined for component " + source.getName());

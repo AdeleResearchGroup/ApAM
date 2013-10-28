@@ -22,21 +22,17 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.DynamicManager;
-import fr.imag.adele.apam.PropertyManager;
-
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Instance;
-
 import fr.imag.adele.apam.CompositeType;
-
-import fr.imag.adele.apam.Relation;
-import fr.imag.adele.apam.declarations.CreationPolicy;
+import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.PropertyManager;
+import fr.imag.adele.apam.RelationDefinition;
+import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
@@ -228,14 +224,14 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	 */
 	private void addDynamicRequests(Component component) {
 		
-		for (Relation relation : component.getRelations()) {
+		for (RelationDefinition relDef : component.getRelations()) {
 
-			if (component.getKind().equals(relation.getSourceKind()) && relation.isDynamic()) {
+			if (component.getKind().equals(relDef.getSourceKind()) && relDef.isDynamic()) {
 				
-				PendingRequest request = new PendingRequest(CST.apamResolver,component,relation);
+				PendingRequest request = new PendingRequest(CST.apamResolver, component, relDef);
 				addDynamicRequest(request);
 				
-				if (relation.getCreation() == CreationPolicy.EAGER)
+				if (relDef.getCreation() == CreationPolicy.EAGER)
 					request.resolve();
 			}			
 		}

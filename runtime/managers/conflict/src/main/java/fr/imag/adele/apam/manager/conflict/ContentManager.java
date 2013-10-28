@@ -32,7 +32,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
@@ -628,7 +628,7 @@ public class ContentManager  {
 	/**
 	 * verifies if the requested resolution matches the specified grant
 	 */
-	private static boolean match(GrantDeclaration grant, Component source, Relation relation) {
+	private static boolean match(GrantDeclaration grant, Component source, RelationDefinition relation) {
 		return relation.getName().equals(grant.getRelation().getIdentifier()) && match(grant,source);
 	}
 

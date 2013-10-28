@@ -335,7 +335,7 @@ public class Apform2Apam {
             	 */
             	for (ComponentReference<?> requirement : getRequirements()) {
             		CST.componentBroker.getWaitComponent(requirement.getName());
-				}
+		}
             	
             	/*
             	 * perform reification and notify after completion
@@ -416,11 +416,21 @@ public class Apform2Apam {
         
         @Override
         protected List<ComponentReference<?>> getRequirements() {
+            
+            	List<ComponentReference<?>> required = new ArrayList<ComponentReference<?>>();
         	ComponentReference<?> specification = getComponent().getDeclaration().getSpecification();
-           	if (specification != null)
-           		return Collections.<ComponentReference<?>>singletonList(specification);
-
-           	return Collections.emptyList();
+           	if (specification != null) {
+           	    required.add(specification);
+           	}
+           	
+           	if ( getComponent() instanceof ApformCompositeType) {
+           	 ApformCompositeType composite = (ApformCompositeType) getComponent();
+           	 ComponentReference<?> main = composite.getDeclaration().getMainComponent();
+           	 if (main != null)
+           	     required.add(main);
+           	}
+           	
+           	return required;
         }
         
         @Override
@@ -486,49 +496,5 @@ public class Apform2Apam {
         Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
     }
 
-//    /**
-//     * The instance called "instance name" just disappeared from the platform.
-//     * 
-//     * @param instanceName
-//     */
-//    public static void vanishInstance(String instanceName) {
-//        Instance inst = CST.componentBroker.getInst(instanceName);
-//        if (inst == null) {
-//          // previous remove of the factory removed instances
-//          // logger.warn("Unable to remove instance '{}' : non-existent instance", instanceName);
-//            return;
-//        }
-//        ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
-//        
-//    }
-//
-//    /**
-//     * * The implementation called "implementation name" just disappeared from the platform.
-//     * 
-//     * @param implementationName
-//     */
-//    public static void vanishImplementation(String implementationName) {
-//        Implementation impl = CST.componentBroker.getImpl(implementationName);
-//        if (impl == null) {
-//        	logger.warn("Vanish implementation does not exists: " + implementationName);
-//            return;
-//        }
-//
-//        ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
-//    }
-//
-//    /**
-//     * 
-//     * @param specificationName
-//     */
-//    public static void vanishSpecification(String specificationName) {
-//        Specification spec = CST.componentBroker.getSpec(specificationName);
-//        if (spec == null) {
-//        	logger.warn("Vanish specification does not exists: " + specificationName);
-//            return;
-//        }
-//    	
-//        ((ComponentBrokerImpl)CST.componentBroker).removeSpec(spec);
-//    }
 
 }

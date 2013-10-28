@@ -23,7 +23,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<definition name="application" type="string"/>
 			<property name="application" value="app1"/>
 			<definition name="vendor" type="string"/>
-			<dependency specification="APP1_S3_SPEC"/>
+			<dependency specification="APP1_S3_SPEC" resolve="external"/>
 	</specification>
 
 </apam>

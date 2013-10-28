@@ -106,7 +106,7 @@ public interface CompositeType extends Implementation {
 	 * @param id
 	 * @return
 	 */
-	public Relation getCtxtRelation(Component source, String id);
+	public RelationDefinition getCtxtRelation(Component source, String id);
 
     /**
 	 * return the contextual relation of that Identifier. Needs that the
@@ -116,6 +116,6 @@ public interface CompositeType extends Implementation {
 	 * @param id
 	 * @return
 	 */
-	public Set<Relation> getCtxtRelations(Component source);
+	public Set<RelationDefinition> getCtxtRelations(Component source);
 
 }

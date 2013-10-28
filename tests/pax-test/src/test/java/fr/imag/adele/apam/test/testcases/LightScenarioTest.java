@@ -20,29 +20,24 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.apache.felix.ipojo.annotations.Requires;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.util.Filter;
 import org.ops4j.pax.exam.util.PathUtils;
 
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamResolver;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
@@ -64,14 +59,14 @@ public class LightScenarioTest extends ExtensionAbstract {
     Instance myKitchen;
     Set<String> theoricLinks;
 
-    @Inject
-    @Filter(timeout = 60000)
-    Apam apam;
-
+    
     @Override
     public List<Option> config() {
 
-	List<Option> defaults = super.config();
+	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("LightingScenarioTest", "fr.imag.adele.apam.test.lights");
+	
+	List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
 	try {
 	    defaults.add(CoreOptions.bundle((new File(PathUtils.getBaseDir(),
 		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
@@ -80,24 +75,23 @@ public class LightScenarioTest extends ExtensionAbstract {
 	    Assert.assertTrue("Error deploying WireAdmin", false);
 	}
 	
-	defaults.add(CoreOptions.mavenBundle("fr.imag.adele.apam.test.lights","LightingScenarioTest").versionAsInProject());
 	return defaults;
     }
 
     @Override
     public void setUp() {
 	super.setUp();
-	ApamResolver resolver = CST.apamResolver;
+	waitForApam();
 	theoricLinks = new HashSet<String>();
 
 	
 
 	// First launch the "devices"
-	Implementation implemButtonGUI = CST.apamResolver.findImplByName(null,
+	Implementation implemButtonGUI = waitForImplByName(null,
 		"ButtonGUI");
-	Implementation implemButtonNotGUI = CST.apamResolver.findImplByName(null,
+	Implementation implemButtonNotGUI = waitForImplByName(null,
 		"ButtonNotGUI");
-	Implementation implemBinaryLightImpl = CST.apamResolver.findImplByName(null,
+	Implementation implemBinaryLightImpl = waitForImplByName(null,
 		"BinaryLightImpl");
 
 	// set the location properties of the devices
@@ -129,7 +123,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 	
 	
 	// Then launch the Application
-	Implementation implemApplication = CST.apamResolver.findImplByName(null,
+	Implementation implemApplication = waitForImplByName(null,
 		"LightApplicationKitchen");
 	
 	myKitchen = implemApplication.createInstance(null,
@@ -167,7 +161,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testButtonKitchen() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"LightManagerPanel");
 
 	Instance inst = implementation.createInstance(null,
@@ -192,7 +186,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testButtonLiving() {
-	Implementation implementation = CST.apamResolver.findImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"LightManagerPanel");
 
 	Instance inst = implementation.createInstance(null,
