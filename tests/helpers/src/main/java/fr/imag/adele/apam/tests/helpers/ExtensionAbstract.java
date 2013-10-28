@@ -295,7 +295,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				vmOption(String
 					.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
 						Constants.CONST_DEBUG_PORT)),
-				systemTimeout(0)));
+				systemTimeout(1000)));
 
 	return debugConfig;
     }

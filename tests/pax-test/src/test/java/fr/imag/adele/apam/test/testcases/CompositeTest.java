@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 
 import java.util.Collections;
@@ -24,14 +23,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -39,7 +36,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.impl.ImplementationImpl;
-import fr.imag.adele.apam.pax.test.av.impl.MediaController;
 import fr.imag.adele.apam.pax.test.av.spec.MediaControlPoint;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch;
 import fr.imag.adele.apam.pax.test.implS2.S2InnerImpl;
@@ -49,9 +45,8 @@ import fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl;
 import fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
-import fr.imag.adele.apam.util.CoreParser;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
 public class CompositeTest extends ExtensionAbstract {
     
     @Override
