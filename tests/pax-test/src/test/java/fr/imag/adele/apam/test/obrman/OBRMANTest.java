@@ -58,9 +58,17 @@ public class OBRMANTest extends ExtensionAbstract{
 	@Override
 	public List<Option> config() {
 		List<Option> obrmanconfig=super.config(null,true);
-//		obrmanconfig.add(packApamObrMan());
 		return obrmanconfig;
 	}
+
+	@Before
+	@Override
+	    public void setUp() {
+	    super.setUp();
+	
+	    waitForInstByName(null, "OBRMAN-Instance");
+	}
+	
 	
     /**
      * Done some initializations.
@@ -69,7 +77,6 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test 
     public void testRootModel() {
 	
-    	obrmanhelper.waitForIt(1000);
     	auxListInstances();
         int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
@@ -89,7 +96,7 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void simpleComposite() {
-    	obrmanhelper.waitForIt(1000);
+    	waitForApam();
         CompositeType app2CompoType = null;
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
@@ -101,7 +108,6 @@ public class OBRMANTest extends ExtensionAbstract{
         }
 
       
-
         App2Spec app2Spec = obrmanhelper.createInstance(app2CompoType, App2Spec.class);
 
         System.out
@@ -122,7 +128,7 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void embeddedComposite() {
-        apam.waitForIt(1000);
+    	waitForApam();
         CompositeType app1CompoType = null;
         
         try {
@@ -130,6 +136,10 @@ public class OBRMANTest extends ExtensionAbstract{
             obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
             app1CompoType = obrmanhelper.createCompositeType("APP1",
                     "APP1_MAIN", null);
+            
+//            CompositeType app2CompoType = obrmanhelper.createCompositeType("APP2",
+//                    "APP2_MAIN", null);
+            
             
             for(String s : repos)
                 System.out.println("repo : "+s);
@@ -159,7 +169,7 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void movedCompositev1() {
-        apam.waitForIt(1000);
+    	waitForApam();
 
         simpleComposite();
 
@@ -201,7 +211,7 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void missingAPP2Composite() {
-    	obrmanhelper.waitForIt(1000);
+    	waitForApam();
         try {
         	obrmanhelper.createCompositeType("APP1.2", "APP1_MAIN", null);
         } catch (IOException e) {
@@ -211,7 +221,7 @@ public class OBRMANTest extends ExtensionAbstract{
 
     @Test
     public void obrmanInstanciationWhenBundleInstalledNotStarted_tct005() {
-    	obrmanhelper.waitForIt(1000);
+    	waitForApam();
 
     	Implementation implementation = waitForImplByName(null,
 		"Obrman-Test-S3Impl");
@@ -246,6 +256,8 @@ public class OBRMANTest extends ExtensionAbstract{
     
     @Test
     public void RelationLinkResolveExternal_tct003() {
+    	waitForApam();
+
 	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14ter");
 

@@ -126,6 +126,7 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeTypeRetrieveServiceObject_tc030() {
 	waitForApam();
+	waitForImplByName(null, "philipsSwitch");
 
 	CompositeType composite = CST.apam.createCompositeType(null,
 		"eletronic-device-compotype", null, "philipsSwitch",

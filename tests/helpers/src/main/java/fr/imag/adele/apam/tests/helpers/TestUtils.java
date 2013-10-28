@@ -49,14 +49,29 @@ public abstract class TestUtils {
 	while (!apamReady && sleep < timeout) {
 	    if(CST.componentBroker != null
 		&& CST.apamResolver!=null
-		&& CST.apam!=null)
+		&& CST.apam!=null) {
+		
 		apamReady=true;
-	    else try {
+	    } else try {
 		Thread.sleep(waitPeriod);
 	    } catch (Exception exc) {
 		exc.printStackTrace();
 	    }
 	    sleep += waitPeriod;
+	}
+	boolean foundAPAM= false;
+	while (sleep < timeout && !foundAPAM) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null)
+		if(CST.apamResolver.findInstByName(null, "APAM-Instance") != null
+			&& CST.apamResolver.findInstByName(null, "OSGiMan-Instance") != null
+			&& CST.apamResolver.findInstByName(null, "ConflictManager-Instance") != null) 
+			foundAPAM=true;
 	}
     }
 
