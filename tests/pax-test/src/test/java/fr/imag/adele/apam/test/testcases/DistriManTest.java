@@ -56,6 +56,10 @@ public class DistriManTest extends ExtensionAbstract {
 	
 	@Inject @Filter(timeout=60000)
 	private DistrimanIface distriman;
+	
+	String clienturl = "http://127.0.0.1:8280";
+	String serverurl = "http://127.0.0.1:8280/apam/machine";
+	
 
 	// CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
 	// CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
@@ -92,8 +96,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"specification", "P2-spec-singleinterface",
@@ -148,8 +150,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"specification", "P2-spec-multipleinterface", "P2", false,
@@ -191,8 +191,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"specification", "P2-spec-singleinterface", "P2", false,
@@ -233,8 +231,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 		final String constraint = "(rule=one)";
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"specification", "P2-spec-constraint", "P2", false, clienturl,
