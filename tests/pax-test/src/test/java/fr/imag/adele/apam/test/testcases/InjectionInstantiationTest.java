@@ -25,7 +25,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -42,13 +47,11 @@ import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
-import fr.imag.adele.apam.pax.test.implS1.S1ImplCallbackAddedValidMethodsOnlyInvalidArguments;
-import fr.imag.adele.apam.pax.test.implS1.S1ImplCallbackRemovedValidMethodsOnlyInvalidArguments;
-import fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class InjectionInstantiationTest extends ExtensionAbstract {
     
     @Override
@@ -418,11 +421,15 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		"The remove method declared in <callback> tag should NOT have been called during the bundle start",
 		s1.getIsOnRemoveCallbackCalled());
 
-	s1.getContext().getBundle().stop();
+	Bundle bc=s1.getContext().getBundle();
+	bc.stop();
 
 	Assert.assertTrue(
 		"The remove method declared in <callback> tag should have been called during the bundle stop",
 		s1.getIsOnRemoveCallbackCalled());
+	
+	bc.start();
+	
 
     }
 
@@ -847,7 +854,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
     }
 
     @Test
-    public void AddedRemovedCallbackInDependencyDeclarationEmptySignature_tc085() {
+    public void AddedRemovedCallbackInDependencyDeclarationEmptySignature_tc085()throws BundleException {
 
 	String message = "Into an <implementation>, when declaring a dependency, we may specify methods (without parameters) to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
 
@@ -880,7 +887,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		s1.getIsOnInitCallbackCalled() == true);
 
 	auxDisconectWires(instance);
-
+	
 	Assert.assertTrue(
 		String.format(message,
 			"Although 'remove' method was not called during the unwiring process"),

@@ -22,12 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
@@ -36,7 +38,8 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.implS6.S6Impl;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class MetaSubstitutionTest extends ExtensionAbstract {
 
 

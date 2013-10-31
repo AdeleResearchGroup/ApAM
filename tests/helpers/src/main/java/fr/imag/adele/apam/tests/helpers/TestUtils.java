@@ -68,9 +68,9 @@ public abstract class TestUtils {
 	    }
 	    sleep += waitPeriod;
 	    if (CST.apamResolver != null)
-		if(CST.apamResolver.findInstByName(null, "APAM-Instance") != null
-			&& CST.apamResolver.findInstByName(null, "OSGiMan-Instance") != null
-			&& CST.apamResolver.findInstByName(null, "ConflictManager-Instance") != null) 
+		if(CST.apamResolver.findInstByName(null, "APAM-Instance") != null)
+//			&& CST.apamResolver.findInstByName(null, "OSGiMan-Instance") != null
+//			&& CST.apamResolver.findInstByName(null, "ConflictManager-Instance") != null) 
 			foundAPAM=true;
 	}
     }

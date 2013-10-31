@@ -28,13 +28,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 
@@ -45,7 +47,8 @@ import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 import fr.imag.adele.apam.test.support.distriman.DistrimanUtil;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class DistriManTest extends ExtensionAbstract {
 
 	@Inject

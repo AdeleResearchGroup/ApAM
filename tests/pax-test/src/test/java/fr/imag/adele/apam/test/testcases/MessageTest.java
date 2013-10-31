@@ -27,7 +27,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.PathUtils;
 
 import fr.imag.adele.apam.Implementation;
@@ -37,7 +39,8 @@ import fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ConsumerImpl01;
 import fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class MessageTest extends ExtensionAbstract {
 
 

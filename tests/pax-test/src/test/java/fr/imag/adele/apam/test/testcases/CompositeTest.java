@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -47,6 +49,7 @@ import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class CompositeTest extends ExtensionAbstract {
     
     @Override

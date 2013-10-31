@@ -29,14 +29,17 @@ import java.util.Map;
 import java.util.Set;
 
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.PathUtils;
+import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -45,15 +48,14 @@ import fr.imag.adele.apam.test.lights.button.ButtonImpl;
 import fr.imag.adele.apam.test.lights.button.SwingButtonImpl;
 import fr.imag.adele.apam.test.lights.devices.BinaryLight;
 import fr.imag.adele.apam.test.lights.panel.LightManagerTester;
-import fr.imag.adele.apam.test.lights.services.LightingApplication;
-import fr.imag.adele.apam.tests.helpers.ApAMHelper;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
  * @author thibaud
  * 
  */
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class LightScenarioTest extends ExtensionAbstract {
 
     Instance myKitchen;
@@ -69,7 +71,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 	List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
 	try {
 	    defaults.add(CoreOptions.bundle((new File(PathUtils.getBaseDir(),
-		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
+		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()).start());
 
 	} catch (Exception error) {
 	    Assert.assertTrue("Error deploying WireAdmin", false);
@@ -83,6 +85,8 @@ public class LightScenarioTest extends ExtensionAbstract {
 	super.setUp();
 	waitForApam();
 	theoricLinks = new HashSet<String>();
+	waitForInstByName(null, "ConflictManager-Instance");
+	waitForInstByName(null, "OSGiMan-Instance");
 
 	
 
@@ -132,15 +136,11 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testMyKitchenBinding() {
+	apam.waitForIt(20000);
 	
-
 	// Wait for the binding between lightApplication myKitchen and devices
 	// upon filter location
-	try {
-	    Thread.sleep(500);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}
+
 
 	Set<Link> listRelations = myKitchen.getRawLinks();
 	Iterator<Link> it = listRelations.iterator();

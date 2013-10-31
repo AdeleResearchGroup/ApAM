@@ -58,8 +58,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     // Based on the current running, no test should take longer than 2 minute
     @Rule
-    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
-	    : 120000);
+    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? 60000
+	    : 60000);
 
     @Rule
     public TestName name = new TestName();
@@ -104,7 +104,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	config.add(packLog());
 	config.add(junitBundles());
 	config.add(packDebugConfiguration());
-	config.add(vmOption("-ea"));
+//	config.add(vmOption("-ea"));
 	
 	File ref_conf = new File("conf/root.OBRMAN.cfgo");
 	File use_conf = new File("conf/root.OBRMAN.cfg");
@@ -135,7 +135,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	config.add(packLog());
 	config.add(junitBundles());
 	config.add(packDebugConfiguration());
-	config.add(vmOption("-ea"));
+//	config.add(vmOption("-ea"));
 
 	return config;
     }
@@ -150,7 +150,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	boolean includeLog = log.exists() && log.isFile();
 
 	CompositeOption initial = new DefaultCompositeOption(frameworkProperty(
-		"org.osgi.service.http.port").value("8080"), cleanCaches(),
+		"org.osgi.service.http.port").value("8280"), cleanCaches(),
 		systemProperty("logback.configurationFile").value(logpath),
 		systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN")
 			);
@@ -254,7 +254,11 @@ public abstract class ExtensionAbstract extends TestUtils {
 			.artifactId("org.osgi.compendium").version("4.2.0"),
 		mavenBundle().groupId("org.apache.felix")
 			.artifactId("org.apache.felix.bundlerepository")
-			.version("1.6.6"));
+			.version("1.6.6"),
+		systemProperty("ipojo.processing.synchronous").value("true"),
+		frameworkProperty("ipojo.processing.synchronous").value("true")
+		);
+
 
 	return osgiConfig;
 
@@ -273,17 +277,18 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     protected CompositeOption packApamShell() {
 	CompositeOption logConfig = new DefaultCompositeOption(
-		mavenBundle("fr.imag.adele.apam", "apam-universal-shell")
-			.versionAsInProject(),
-		mavenBundle("org.apache.felix", "org.apache.felix.gogo.command")
-			.version("0.12.0"),
-		mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime")
-			.version("0.10.0"), mavenBundle("org.apache.felix",
-			"org.apache.felix.gogo.shell").version("0.10.0"),
-		mavenBundle("org.apache.felix",
-			"org.apache.felix.ipojo.arch.gogo").version("1.0.1"),
-		mavenBundle("org.knowhowlab.osgi.shell", "felix-gogo").version(
-			"1.1.0"));
+//		mavenBundle("fr.imag.adele.apam", "apam-universal-shell")
+//			.versionAsInProject(),
+//		mavenBundle("org.apache.felix", "org.apache.felix.gogo.command")
+//			.version("0.12.0"),
+//		mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime")
+//			.version("0.10.0"), mavenBundle("org.apache.felix",
+//			"org.apache.felix.gogo.shell").version("0.10.0"),
+//		mavenBundle("org.apache.felix",
+//			"org.apache.felix.ipojo.arch.gogo").version("1.0.1"),
+//		mavenBundle("org.knowhowlab.osgi.shell", "felix-gogo").version(
+//			"1.1.0")
+		);
 
 	return logConfig;
     }
@@ -369,7 +374,9 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     @Before
     public void setUp() {
+	waitForApam();
 	apam = new ApAMHelper(context);
+	
 	broker = CST.componentBroker;
 	logger.info("***[Run Test : " + name.getMethodName() + "]***");
 	

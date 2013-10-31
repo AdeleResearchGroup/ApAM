@@ -26,9 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
@@ -38,14 +39,13 @@ import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
 import fr.imag.adele.apam.test.testcases.RelationTest;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
-import fr.imag.adele.apam.util.CoreMetadataParser;
-import fr.imag.adele.apam.util.CoreParser;
 
 /**
  * Test Suite
  * 
  */
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class OBRMANTest extends ExtensionAbstract{
 
 	static OBRMANHelper obrmanhelper;
@@ -137,8 +137,8 @@ public class OBRMANTest extends ExtensionAbstract{
             app1CompoType = obrmanhelper.createCompositeType("APP1",
                     "APP1_MAIN", null);
             
-//            CompositeType app2CompoType = obrmanhelper.createCompositeType("APP2",
-//                    "APP2_MAIN", null);
+            CompositeType app2CompoType = obrmanhelper.createCompositeType("APP2",
+                    "APP2_MAIN", null);
             
             
             for(String s : repos)

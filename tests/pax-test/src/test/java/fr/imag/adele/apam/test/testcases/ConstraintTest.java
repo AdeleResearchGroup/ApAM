@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
@@ -37,7 +39,8 @@ import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ConstraintTest extends ExtensionAbstract{
 
     @Override
@@ -46,7 +49,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
 	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
 	return addon;
     
     

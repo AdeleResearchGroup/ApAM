@@ -2,6 +2,7 @@ package fr.imag.adele.apam.test.testcases;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -9,14 +10,23 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.junit.PaxExamParameterized;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -47,7 +57,9 @@ import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter18;
 import fr.imag.adele.apam.pax.test.implS7.S07ImplementationImporter19;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+//@RunWith(PaxExamParameterized.class)
+@ExamReactorStrategy(PerMethod.class)
 public class RelationTest extends ExtensionAbstract {
 
     @Inject
@@ -101,6 +113,8 @@ public class RelationTest extends ExtensionAbstract {
 		expectedTarget.isInstance(target));
 
     }
+    
+
 
     @Test
     public void RelationSourceImplementationTargetImplementation_tc097() {
@@ -535,9 +549,11 @@ public class RelationTest extends ExtensionAbstract {
 
     @Test
     public void RelationLinkResolveExist_tct001() {
-
+	
 	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14");
+	
+	
 
 	Instance instance = implementation.createInstance(null,
 		Collections.<String, String> emptyMap());
