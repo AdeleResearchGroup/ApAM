@@ -60,7 +60,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
 	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
+	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
 
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());

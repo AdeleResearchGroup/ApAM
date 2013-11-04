@@ -52,7 +52,7 @@ public class MessageTest extends ExtensionAbstract {
 		mapOfRequiredArtifacts.put("apam-pax-samples-msg",
 		"fr.imag.adele.apam.tests.messages");
 		
-		List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
+		List<Option> defaults = super.config(mapOfRequiredArtifacts,true);
 		
 		try {
 			defaults.add(bundle((new File(PathUtils.getBaseDir(),"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));

@@ -58,7 +58,7 @@ public class PropertyTest extends ExtensionAbstract {
 	
 	
 	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,false);
+	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
 	return addon;
     }
     

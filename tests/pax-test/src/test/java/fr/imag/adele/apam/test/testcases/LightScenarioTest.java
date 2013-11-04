@@ -74,7 +74,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()).start());
 
 	} catch (Exception error) {
-	    Assert.assertTrue("Error deploying WireAdmin", false);
+	    Assert.assertTrue("Error deploying WireAdmin", true);
 	}
 	
 	return defaults;

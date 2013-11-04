@@ -379,7 +379,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	
 	broker = CST.componentBroker;
 	logger.info("***[Run Test : " + name.getMethodName() + "]***");
-	
+	waitForInstByName(null, "OBRMAN-Instance");
 //	apam.waitForIt(1000);
     }
 
