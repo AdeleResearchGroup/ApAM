@@ -14,44 +14,45 @@
  */
 package fr.imag.adele.apam.declarations;
 
-
 /**
- * This class represents references to resources that are named using java identifiers,
- * like for example Services and Messages.
+ * This class represents references to resources that are named using java
+ * identifiers, like for example Services and Messages.
  * 
  * We use a single namespace to ensure java identifiers are unique.
  * 
  * @author vega
- *
+ * 
  */
 public class ResourceReference extends Reference implements ResolvableReference {
 
-	/**
-	 * The namespace for all references to resources identified by java class names
-	 */
-    private final static Namespace JAVA_NAMESPACE = new Namespace() {};	
-	
+    /**
+     * The namespace for all references to resources identified by java class
+     * names
+     */
+    private final static Namespace JAVA_NAMESPACE = new Namespace() {
+    };
+
     private final String type;
 
     public ResourceReference(String type) {
-        super(ResourceReference.JAVA_NAMESPACE);
-        this.type = type;
+	super(ResourceReference.JAVA_NAMESPACE);
+	this.type = type;
+    }
+
+    @Override
+    protected final String getIdentifier() {
+	return getJavaType();
     }
 
     /**
      * The java type associated with this resource
      */
     public final String getJavaType() {
-        return type;
+	return type;
     }
 
     @Override
     public String getName() {
-    	return type;
-    }
-    
-    @Override
-    protected final String getIdentifier() {
-        return getJavaType();
+	return type;
     }
 }

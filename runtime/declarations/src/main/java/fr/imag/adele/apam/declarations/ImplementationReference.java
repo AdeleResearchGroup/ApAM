@@ -14,30 +14,29 @@
  */
 package fr.imag.adele.apam.declarations;
 
-
-
 /**
  * This class represents a reference to a particular service implementation.
  * 
  * Notice that atomic and composite references will be in the same namespace.
  * 
  * @author vega
- *
+ * 
  */
-public class ImplementationReference<D extends ImplementationDeclaration> extends ComponentReference<D> {
+public class ImplementationReference<D extends ImplementationDeclaration>
+	extends ComponentReference<D> {
 
-	public ImplementationReference(String name) {
-		super(name);
-	}
+    public ImplementationReference(String name) {
+	super(name);
+    }
 
-	@Override
-	public ComponentKind getKind() {
-		return ComponentKind.IMPLEMENTATION;
-	}
+    @Override
+    public ComponentKind getKind() {
+	return ComponentKind.IMPLEMENTATION;
+    }
 
-	@Override
-	public String toString() {
-		return "Implementation " + getIdentifier();
-	}
+    @Override
+    public String toString() {
+	return "Implementation " + getIdentifier();
+    }
 
 }

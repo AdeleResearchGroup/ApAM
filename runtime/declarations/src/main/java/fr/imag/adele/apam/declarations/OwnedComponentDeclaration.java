@@ -18,84 +18,86 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+public class OwnedComponentDeclaration {
 
-public class OwnedComponentDeclaration  {
-	
-	/**
-	 * The owned component reference
-	 */
-	private final ComponentReference<?> component;
-	/**
-	 * The property used to filter the owned instances
-	 */
-	private final PropertyDefinition.Reference property;
-	
-	/**
-	 * The value of the property for all owned instances of the component
-	 */
-	private final Set<String> values;
-	
-	/**
-	 * The list of automatic resource grants
-	 */
-	private final List<GrantDeclaration> grants;
+    /**
+     * The owned component reference
+     */
+    private final ComponentReference<?> component;
+    /**
+     * The property used to filter the owned instances
+     */
+    private final PropertyDefinition.Reference property;
 
-	/**
-	 * The list of explicit resources denied
-	 */
-	private final List<GrantDeclaration> denies;
+    /**
+     * The value of the property for all owned instances of the component
+     */
+    private final Set<String> values;
 
-	public OwnedComponentDeclaration(ComponentReference<?> component, String property, Set<String> values) {
-		this.component	= component;
-		this.property	= property != null ? new PropertyDefinition.Reference(component, property): null;
-		this.values		= values;
-		this.grants		= new ArrayList<GrantDeclaration>();
-		this.denies		= new ArrayList<GrantDeclaration>();
-	}
-	
-	/**
-	 * The owned component
-	 */
-	public ComponentReference<?> getComponent() {
-		return component;
-	}
-	
-	/**
-	 * The property used to filter which instances must be owned
-	 */
-	public PropertyDefinition.Reference getProperty() {
-		return property;
-	}
-	
-	/**
-	 * The value of the property for all owned instances of the component
-	 */
-	public Set<String> getValues() {
-		return values;
-	}
+    /**
+     * The list of automatic resource grants
+     */
+    private final List<GrantDeclaration> grants;
+
+    /**
+     * The list of explicit resources denied
+     */
+    private final List<GrantDeclaration> denies;
+
+    public OwnedComponentDeclaration(ComponentReference<?> component,
+	    String property, Set<String> values) {
+	this.component = component;
+	this.property = property != null ? new PropertyDefinition.Reference(
+		component, property) : null;
+	this.values = values;
+	this.grants = new ArrayList<GrantDeclaration>();
+	this.denies = new ArrayList<GrantDeclaration>();
+    }
+
+    /**
+     * The owned component
+     */
+    public ComponentReference<?> getComponent() {
+	return component;
+    }
+
+    /**
+     * The list of resources explicitly denied
+     */
+    public List<GrantDeclaration> getDenies() {
+	return denies;
+    }
 
     /**
      * The list of resource grants
      */
     public List<GrantDeclaration> getGrants() {
-		return grants;
-	}
-    
+	return grants;
+    }
+
     /**
-     * The list of resources explicitly denied
+     * The property used to filter which instances must be owned
      */
-    public List<GrantDeclaration> getDenies() {
-		return denies;
-	}
-    
-	
+    public PropertyDefinition.Reference getProperty() {
+	return property;
+    }
+
+    /**
+     * The value of the property for all owned instances of the component
+     */
+    public Set<String> getValues() {
+	return values;
+    }
+
     @Override
     public String toString() {
-    	StringBuffer description = new StringBuffer();
-    	description.append("own").append(getComponent());
-    	if (getProperty() != null) {
-    		description.append(" property ").append(getProperty().getIdentifier()).append(" values : "+getValues());
-    	}
-    	return description.toString();
+	StringBuffer description = new StringBuffer();
+	description.append("own").append(getComponent());
+	if (getProperty() != null) {
+	    description.append(" property ")
+		    .append(getProperty().getIdentifier())
+		    .append(" values : " + getValues());
+	}
+	return description.toString();
     }
 }

@@ -16,53 +16,52 @@
  */
 package fr.imag.adele.apam.test.lights.button;
 
-import fr.imag.adele.apam.test.lights.binarylight.BinaryLightImpl;
-import fr.imag.adele.apam.test.lights.devices.SimpleButton;
-import fr.imag.adele.apam.test.lights.devices.messages.ButtonPressed;
-
-import java.awt.event.ActionListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.test.lights.devices.SimpleButton;
+import fr.imag.adele.apam.test.lights.devices.messages.ButtonPressed;
+
 /**
  * @author thibaud
- *
+ * 
  */
 public class ButtonImpl implements SimpleButton {
     private static Logger logger = LoggerFactory.getLogger(ButtonImpl.class);
-	
-    private javax.swing.JFrame         frame;
-    private javax.swing.JButton        btn;
-    private String name ="APAM Simple Button";
+
+    private javax.swing.JFrame frame;
+    private javax.swing.JButton btn;
+    private String name = "APAM Simple Button";
     private String myLocation;
     private String myName;
 
+    @Override
+    public String getLocation() {
+	return myLocation;
+    }
+
+    @Override
+    public String getName() {
+	return myName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see fr.imag.adele.apam.test.lights.devices.SimpleButton#pressButton()
+     */
+    @Override
+    public ButtonPressed pressButton() {
+	logger.debug(myName + ".pressButton(), location : " + myLocation);
+	return new ButtonPressed();
+    }
+
     public void started() {
-    	logger.debug(myName+".started(), location : "+myLocation);
+	logger.debug(myName + ".started(), location : " + myLocation);
 
     }
 
     public void stopped() {
-	logger.debug(myName+".stopped(), location : "+myLocation);
-    }
-
-
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.test.lights.devices.SimpleButton#pressButton()
-	 */
-	public ButtonPressed pressButton() {
-	    logger.debug(myName+".pressButton(), location : "+myLocation);
-		return new ButtonPressed();
-	}
-
-
-    public String getName() {
-        return myName;
-    }
-
-
-    public String getLocation() {
-        return myLocation;
+	logger.debug(myName + ".stopped(), location : " + myLocation);
     }
 }

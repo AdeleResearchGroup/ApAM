@@ -16,73 +16,73 @@ package fr.imag.adele.apam.declarations;
 
 import java.util.Set;
 
-
 /**
  * The declaration of an instance.
  * 
- *  It can include dependency and provide declarations that override the ones in the implementation
- *  
+ * It can include dependency and provide declarations that override the ones in
+ * the implementation
+ * 
  * @author vega
- *
+ * 
  */
 public class InstanceDeclaration extends ComponentDeclaration {
 
+    public static class RemoteDeclaration extends CompositeDeclaration {
+	public RemoteDeclaration(String name,
+		SpecificationReference specification,
+		ComponentReference<?> mainComponent) {
+	    super(name, specification, mainComponent);
+	}
+    }
 
-	/**
-	 * A reference to the implementation
-	 */
+    /**
+     * A reference to the implementation
+     */
     private final ImplementationReference<?> implementation;
 
     /**
      * The list of triggers that must be met to start this instance
      */
     private final Set<ConstrainedReference> triggers;
-    
-    public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<ConstrainedReference> triggers) {
-        super(name);
 
-        assert implementation != null;
-        
-        this.implementation	= implementation;
-        this.triggers 		= triggers;
+    public InstanceDeclaration(ImplementationReference<?> implementation,
+	    String name, Set<ConstrainedReference> triggers) {
+	super(name);
+
+	assert implementation != null;
+
+	this.implementation = implementation;
+	this.triggers = triggers;
+    }
+
+    @Override
+    protected ComponentReference<InstanceDeclaration> generateReference() {
+	return new InstanceReference(getName());
+    }
+
+    @Override
+    public ComponentReference<?> getGroupReference() {
+	return getImplementation();
     }
 
     /**
      * The implementation of this instance
      */
     public ImplementationReference<?> getImplementation() {
-        return implementation;
+	return implementation;
     }
 
     /**
      * The triggering specification
      */
     public Set<ConstrainedReference> getTriggers() {
-		return triggers;
-	}
-    
-
-    @Override
-    protected ComponentReference<InstanceDeclaration> generateReference() {
-        return new InstanceReference(getName());
+	return triggers;
     }
 
     @Override
     public String toString() {
-        String ret = "Instance declaration " + super.toString();
-        ret += "\n    Implementation: " + implementation.getIdentifier();
-        return ret;
-    }
-
-	@Override
-	public ComponentReference<?> getGroupReference() {
-		return getImplementation();
-	}
-
-
-    public static class RemoteDeclaration extends CompositeDeclaration {
-        public RemoteDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
-            super(name, specification, mainComponent);
-        }
+	String ret = "Instance declaration " + super.toString();
+	ret += "\n    Implementation: " + implementation.getIdentifier();
+	return ret;
     }
 }

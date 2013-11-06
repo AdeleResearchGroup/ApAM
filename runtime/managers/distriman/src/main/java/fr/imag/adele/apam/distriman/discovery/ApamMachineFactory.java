@@ -20,33 +20,39 @@ import fr.imag.adele.apam.distriman.client.RemoteMachine;
 
 /**
  * Interface used to provide information about remote apam nodes available
+ * 
  * @author jander
- *
+ * 
  */
 public interface ApamMachineFactory {
 
-	/**
-	 * Include new URL as an available remote apam node
-	 * @param url
-	 * @return
-	 */
-	public RemoteMachine newRemoteMachine(String url, String id, boolean localhost);
-	
-	public RemoteMachine getLocalMachine();
-	
-	/**
-	 * Remove URL from the list of remote apam node
-	 * @param url
-	 * @return
-	 */
-	public RemoteMachine destroyRemoteMachine(String url,String id);
+    /**
+     * Remove URL from the list of remote apam node
+     * 
+     * @param url
+     * @return
+     */
+    public RemoteMachine destroyRemoteMachine(String url, String id);
 
-	/**
-	 * Return list of remote apam node available, not including the machine that calls the method
-	 * @return
-	 */
-	public Map<String, RemoteMachine> getMachines();
-	
-	public void destroyRemoteMachines();
-	
+    public void destroyRemoteMachines();
+
+    public RemoteMachine getLocalMachine();
+
+    /**
+     * Return list of remote apam node available, not including the machine that
+     * calls the method
+     * 
+     * @return
+     */
+    public Map<String, RemoteMachine> getMachines();
+
+    /**
+     * Include new URL as an available remote apam node
+     * 
+     * @param url
+     * @return
+     */
+    public RemoteMachine newRemoteMachine(String url, String id,
+	    boolean localhost);
+
 }

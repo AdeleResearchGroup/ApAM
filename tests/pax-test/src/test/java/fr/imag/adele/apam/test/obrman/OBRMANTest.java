@@ -46,79 +46,20 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class OBRMANTest extends ExtensionAbstract{
+public class OBRMANTest extends ExtensionAbstract {
 
-	static OBRMANHelper obrmanhelper;
-  
-	@Before
-	public void constructor(){
-		obrmanhelper=new OBRMANHelper(context);
-	}
-	
-	@Override
-	public List<Option> config() {
-		List<Option> obrmanconfig=super.config(null,true);
-		return obrmanconfig;
-	}
+    static OBRMANHelper obrmanhelper;
 
-	@Before
-	@Override
-	    public void setUp() {
-	    super.setUp();
-	
-	    waitForInstByName(null, "OBRMAN-Instance");
-	}
-	
-	
-    /**
-     * Done some initializations.
-     */
-    
-    @Test 
-    public void testRootModel() {
-	
-    	auxListInstances();
-        int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
-                .size();
-        try {
-        	obrmanhelper.setObrManInitialConfig("wrongfilelocation", null, 1);
-            fail("wrongfilelocation");
-        } catch (IOException e) {
-            assertEquals(sizebefore,
-            		obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size());
-        }
+    @Override
+    public List<Option> config() {
+	List<Option> obrmanconfig = super.config(null, true);
+	return obrmanconfig;
     }
 
-    /**
-     * Simple Test : Create a compositetype with obrman model and instantiate it
-     * then call the application service This composite must contains only the
-     * spec and the main impl of the composite
-     */
-    @Test
-    public void simpleComposite() {
-    	waitForApam();
-        CompositeType app2CompoType = null;
-        try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
-            obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
-            app2CompoType = obrmanhelper.createCompositeType("APP2",
-                    "APP2_MAIN", null);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
-
-      
-        App2Spec app2Spec = obrmanhelper.createInstance(app2CompoType, App2Spec.class);
-
-        System.out
-                .println("\n==================Start call test=================== \n");
-
-        app2Spec.call("Call Main APP2 from Test");
-
-        System.out
-                .println("\n=================End call test====================\n");
+    @Before
+    public void constructor() {
+	obrmanhelper = new OBRMANHelper(context);
     }
-
 
     /**
      * APP1 declare two repositories in ObrMan model The composite APP1 deploy
@@ -128,38 +69,51 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void embeddedComposite() {
-    	waitForApam();
-        CompositeType app1CompoType = null;
-        
-        try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"+obrmanhelper.getMavenVersion()+"!/app-store.xml" };
-            obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
-            app1CompoType = obrmanhelper.createCompositeType("APP1",
-                    "APP1_MAIN", null);
-            
-            CompositeType app2CompoType = obrmanhelper.createCompositeType("APP2",
-                    "APP2_MAIN", null);
-            
-            
-            for(String s : repos)
-                System.out.println("repo : "+s);
+	waitForApam();
+	CompositeType app1CompoType = null;
 
-        } catch (IOException e) {
+	try {
+	    String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"
+		    + obrmanhelper.getMavenVersion() + "!/app-store.xml" };
+	    obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
+	    app1CompoType = obrmanhelper.createCompositeType("APP1",
+		    "APP1_MAIN", null);
 
-            fail(e.getMessage());
-        }
+	    CompositeType app2CompoType = obrmanhelper.createCompositeType(
+		    "APP2", "APP2_MAIN", null);
 
-        
+	    for (String s : repos) {
+		System.out.println("repo : " + s);
+	    }
 
-        App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
+	} catch (IOException e) {
 
-        System.out
-                .println("\n==================Start call test=================== \n");
+	    fail(e.getMessage());
+	}
 
-        app1Spec.call("Call Main APP1 from Test");
+	App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
 
-        System.out
-                .println("\n=================End call test====================\n");
+	System.out
+		.println("\n==================Start call test=================== \n");
+
+	app1Spec.call("Call Main APP1 from Test");
+
+	System.out
+		.println("\n=================End call test====================\n");
+    }
+
+    /**
+     * APP1 declare one repository and APP2 composite in ObrMan model Try to
+     * create APP1 composite, but APP2 composite is missing
+     */
+    @Test
+    public void missingAPP2Composite() {
+	waitForApam();
+	try {
+	    obrmanhelper.createCompositeType("APP1.2", "APP1_MAIN", null);
+	} catch (IOException e) {
+	    fail(e.getMessage());
+	}
     }
 
     /**
@@ -169,94 +123,83 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void movedCompositev1() {
-    	waitForApam();
+	waitForApam();
 
-        simpleComposite();
+	simpleComposite();
 
-        CompositeType app1CompoType = null;
-        try {
-            app1CompoType = obrmanhelper.createCompositeType("APP1.2",
-                    "APP1_MAIN", null);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
+	CompositeType app1CompoType = null;
+	try {
+	    app1CompoType = obrmanhelper.createCompositeType("APP1.2",
+		    "APP1_MAIN", null);
+	} catch (IOException e) {
+	    fail(e.getMessage());
+	}
 
-        CompositeType root = (CompositeType) app1CompoType.getInCompositeType()
-                .toArray()[0];
+	CompositeType root = (CompositeType) app1CompoType.getInCompositeType()
+		.toArray()[0];
 
-        assertEquals(2, root.getEmbedded().size()); // the root compositeType
-                                                    // contains two composites
+	assertEquals(2, root.getEmbedded().size()); // the root compositeType
+						    // contains two composites
 
-        App1Spec app1Spec = obrmanhelper.createInstance(app1CompoType, App1Spec.class);
+	App1Spec app1Spec = obrmanhelper.createInstance(app1CompoType,
+		App1Spec.class);
 
-        System.out
-                .println("\n==================Start call test=================== \n");
+	System.out
+		.println("\n==================Start call test=================== \n");
 
-        app1Spec.call("Call Main APP1 from Test");
+	app1Spec.call("Call Main APP1 from Test");
 
-        System.out
-                .println("\n=================End call test====================\n");
+	System.out
+		.println("\n=================End call test====================\n");
 
-        assertEquals(1, app1CompoType.getEmbedded().size()); // app1 contains
-                                                             // app2
+	assertEquals(1, app1CompoType.getEmbedded().size()); // app1 contains
+							     // app2
 
-        assertEquals(1, root.getEmbedded().size()); // the root compositeType
-                                                    // contains two composites
+	assertEquals(1, root.getEmbedded().size()); // the root compositeType
+						    // contains two composites
 
-    }
-
-    /**
-     * APP1 declare one repository and APP2 composite in ObrMan model Try to
-     * create APP1 composite, but APP2 composite is missing
-     */
-    @Test
-    public void missingAPP2Composite() {
-    	waitForApam();
-        try {
-        	obrmanhelper.createCompositeType("APP1.2", "APP1_MAIN", null);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
     }
 
     @Test
     public void obrmanInstanciationWhenBundleInstalledNotStarted_tct005() {
-    	waitForApam();
+	waitForApam();
 
-    	Implementation implementation = waitForImplByName(null,
+	Implementation implementation = waitForImplByName(null,
 		"Obrman-Test-S3Impl");
 
-	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved (cannot be found using obrman)",implementation);
+	Assert.assertNotNull(
+		"Obrman-Test-S3Impl cannot be resolved (cannot be found using obrman)",
+		implementation);
 
 	Instance instance = implementation.createInstance(null,
 		Collections.<String, String> emptyMap());
-	
-	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null",instance);    	
-	Bundle bundle= implementation.getApformComponent().getBundle();
-	
+
+	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null", instance);
+	Bundle bundle = implementation.getApformComponent().getBundle();
+
 	try {
 	    bundle.stop();
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    fail(e.getMessage());
 	}
-	
-    	implementation = waitForImplByName(null,
-		"Obrman-Test-S3Impl");
-    	
-	Assert.assertNotNull("Obrman-Test-S3Impl cannot be resolved as bundle is not started",implementation);
+
+	implementation = waitForImplByName(null, "Obrman-Test-S3Impl");
+
+	Assert.assertNotNull(
+		"Obrman-Test-S3Impl cannot be resolved as bundle is not started",
+		implementation);
 
 	instance = implementation.createInstance(null,
 		Collections.<String, String> emptyMap());
-	
-	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null",instance);    	
 
-    	
+	Assert.assertNotNull("Instance of Obrman-Test-S3Impl is null", instance);
+
     }
-    
+
     @Test
     public void RelationLinkResolveExternal_tct003() {
-    	waitForApam();
+	waitForApam();
 
 	Implementation implementation = waitForImplByName(null,
 		"S07-implementation-14ter");
@@ -274,6 +217,64 @@ public class OBRMANTest extends ExtensionAbstract{
 		instance.getRawLinks().size());
 
     }
-    
+
+    @Before
+    @Override
+    public void setUp() {
+	super.setUp();
+
+	waitForInstByName(null, "OBRMAN-Instance");
+    }
+
+    /**
+     * Simple Test : Create a compositetype with obrman model and instantiate it
+     * then call the application service This composite must contains only the
+     * spec and the main impl of the composite
+     */
+    @Test
+    public void simpleComposite() {
+	waitForApam();
+	CompositeType app2CompoType = null;
+	try {
+	    String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/"
+		    + obrmanhelper.getMavenVersion() + "!/app-store.xml" };
+	    obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
+	    app2CompoType = obrmanhelper.createCompositeType("APP2",
+		    "APP2_MAIN", null);
+	} catch (IOException e) {
+	    fail(e.getMessage());
+	}
+
+	App2Spec app2Spec = obrmanhelper.createInstance(app2CompoType,
+		App2Spec.class);
+
+	System.out
+		.println("\n==================Start call test=================== \n");
+
+	app2Spec.call("Call Main APP2 from Test");
+
+	System.out
+		.println("\n=================End call test====================\n");
+    }
+
+    /**
+     * Done some initializations.
+     */
+
+    @Test
+    public void testRootModel() {
+
+	auxListInstances();
+	int sizebefore = obrmanhelper
+		.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size();
+	try {
+	    obrmanhelper.setObrManInitialConfig("wrongfilelocation", null, 1);
+	    fail("wrongfilelocation");
+	} catch (IOException e) {
+	    assertEquals(sizebefore,
+		    obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
+			    .size());
+	}
+    }
 
 }

@@ -16,34 +16,31 @@ package fr.imag.adele.apam.pax.test.impl.deviceSwitch;
 
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
+public class PropertyChangeNotificationSwitch extends GenericSwitch implements
+	Eletronic {
 
+    String state = "old value";
 
-public class PropertyChangeNotificationSwitch extends GenericSwitch implements Eletronic{
+    int stateChangedCalledCounter = 0;
 
-	String state="old value";
-	
-	int stateChangedCalledCounter=0;
+    public String getState() {
+	return state;
+    }
 
-	public int getStateChangedCounter() {
-		return stateChangedCalledCounter;
-	}
+    public int getStateChangedCounter() {
+	return stateChangedCalledCounter;
+    }
 
-	public void setStateChangedCalledCounter(int stateChangedCalledCounter) {
-		this.stateChangedCalledCounter = stateChangedCalledCounter;
-	}
+    public void setState(String state) {
+	this.state = state;
+    }
 
-	public void stateChanged(String newValue) {
-		stateChangedCalledCounter++;
-	}
+    public void setStateChangedCalledCounter(int stateChangedCalledCounter) {
+	this.stateChangedCalledCounter = stateChangedCalledCounter;
+    }
 
-	public String getState() {
-		return state;
-	}
+    public void stateChanged(String newValue) {
+	stateChangedCalledCounter++;
+    }
 
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	
-	
 }

@@ -51,107 +51,12 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public class CompositeTest extends ExtensionAbstract {
-    
-    @Override
-    public List<Option> config() {
-	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
-	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
-	addon.add(systemPackage("javax.xml.parsers"));
-	addon.add(0, packApamConflictManager());
-	return addon;
-    
-    
-    }
-
-    
-    @Test
-    public void CompositeTypeInstantiation_tc028() {
-//	apam.waitForIt(200000);
-
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "S2Impl-composite-1");
-
-	Assert.assertTrue("Failed to create the instance of CompositeType",
-		ct != null);
-
-	Instance instApp = ct.createInstance(null,
-		new HashMap<String, String>());
-
-	Assert.assertTrue("Failed to create the instance of CompositeType",
-		instApp != null);
-    }
-
-    @Test
-    public void FetchImplThatHasComposite_tc029() {
-
-	CompositeType ct1 = (CompositeType) waitForComponentByName(
-		null, "S2Impl-composite-1");
-
-//	apam.waitForIt(2000);
-
-	CompositeType ct2 = (CompositeType) waitForImplByName(
-		null, "S2Impl-composite-2");
-
-	String general = "From two composites based on the same impl, both should be fetchable/instantiable from apam. %s";
-
-	Assert.assertTrue(
-		String.format(general, "The first one failed to be fetched."),
-		ct1 != null);
-	Assert.assertTrue(
-		String.format(general, "The second one failed to be fetched."),
-		ct2 != null);
-
-	Instance ip1 = ct1.createInstance(null, new HashMap<String, String>());
-	Instance ip2 = ct2.createInstance(null, new HashMap<String, String>());
-
-	Assert.assertTrue(
-		String.format(general, "The first one failed to instantiate."),
-		ip1 != null);
-	Assert.assertTrue(
-		String.format(general, "The second one failed to instantiate."),
-		ip2 != null);
-
-	System.err.println("-------------");
-	auxListInstances("\t");
-
-    }
-
-    @Test
-    public void CompositeTypeRetrieveServiceObject_tc030() {
-	waitForApam();
-	waitForImplByName(null, "philipsSwitch");
-
-	CompositeType composite = CST.apam.createCompositeType(null,
-		"eletronic-device-compotype", null, "philipsSwitch",
-		new HashSet<ManagerModel>(), new HashMap<String, String>());
-
-	Assert.assertTrue(
-		"Should be possible to create a composite through API using createCompositeType method",
-		composite != null);
-
-	Instance instance = composite.createInstance(null, null);
-
-	Assert.assertTrue("Failed to create instance of the compotype",
-		instance != null);
-
-	GenericSwitch serviceObject = (GenericSwitch) instance
-		.getServiceObject();
-
-	Assert.assertTrue("Failed to retrieve service as object ",
-		serviceObject != null);
-
-    }
 
     @Test
     public void CascadeDependencyInstantiation_tc031() {
 
-	Implementation ct1 = (Implementation) waitForImplByName(
-		null, "fr.imag.adele.apam.pax.test.implS2.S2InnerImpl");
+	Implementation ct1 = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.implS2.S2InnerImpl");
 
 	Assert.assertTrue(ct1 != null);
 
@@ -192,140 +97,17 @@ public class CompositeTest extends ExtensionAbstract {
     }
 
     @Test
-    public void ComponentMngtLocalWithInstance_tc032() {
-
-	final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. "
-		+ "Both IA and IB have an attribute that depends on the specification X. "
-		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
-
-
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-local-instance");
-
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
-
-	Composite composite_a = (Composite) cta.createInstance(null, null);
-	Composite composite_b = (Composite) ctb.createInstance(null, null);
-
-	Instance a = composite_a.getMainInst();
-	Instance b = composite_b.getMainInst();
-
-	S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
-
-	S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
-
-	// Force instantiation one given specification inside the composite A
-	System.out.println("A-->" + ga.getElement());
-
-	// Force instantiation of the same specification as before in composite
-	// B
-	System.out.println("B-->" + gb.getElement());
-
-	auxListInstances("---");
-
-	String message = String
-		.format(messageTemplate,
-			"But A marked with '<local instance='true'>' allowed its instance to be used by another composite");
-
-	Assert.assertTrue(message, ga.getElement() != gb.getElement());
-
-    }
-
-    @Test
-    public void ComponentMngtNoMainLocalInstance_tc120() {
-
-	final String messageTemplate = "Two composites A and B,  both without mainimpl, B depends on instances inside A, but A is marked as '<export instance='false' />'. %s";
-
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-local-instance-nomain");
-
-	Composite composite_a = (Composite) cta.createInstance(null, null);
-
-	Implementation groupAImpl = waitForImplByName(null,
-		"group-a");
-	Implementation groupBImpl = waitForImplByName(null,
-		"group-b");
-
-	Instance groupAInstance = groupAImpl.createInstance(composite_a,
-		Collections.<String, String> emptyMap());
-	Instance groupBInstance = groupBImpl.createInstance(null,
-		Collections.<String, String> emptyMap());
-
-	S3GroupAImpl ga = (S3GroupAImpl) groupAInstance.getServiceObject();
-
-	S3GroupBImpl gb = (S3GroupBImpl) groupBInstance.getServiceObject();
-
-	// Force instantiation one given specification inside the composite A
-	System.out.println("A-->" + ga.getElement());
-
-	// Force instantiation of the same specification as before in composite
-	// B
-	System.out.println("B-->" + gb.getElement());
-
-	auxListInstances("---");
-
-	String message = String
-		.format(messageTemplate,
-			"B should have created a new instance, since he has access to the implementation but not the instances of A");
-
-	Assert.assertTrue(message, ga.getElement() != gb.getElement());
-
-    }
-
-    @Test
-    public void ComponentMngtMainCompositeAccessItsPrivateImpls_tc118() {
-
-	final String messageTemplate = "Composite A declares <export implementation='false' /> and its main implem depends on this implementation. %s";
-
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-local-implementation");
-
-	Composite composite_a = (Composite) cta.createInstance(null, null);
-
-	Implementation dependencyOfA = waitForImplByName(null,
-		"BoschSwitch");
-	CompositeType rootComposite = (CompositeType) waitForImplByName(null, CST.ROOT_COMPOSITE_TYPE);
-
-	/**
-	 * Make sure that the dependency is in the same composite as group-a
-	 */
-	((ImplementationImpl) dependencyOfA).removeInComposites(rootComposite);
-	((ImplementationImpl) dependencyOfA).addInComposites(cta);
-
-	Implementation groupAImpl = waitForImplByName(null,
-		"group-a");
-
-	Instance groupAInstance = groupAImpl.createInstance(composite_a,
-		Collections.<String, String> emptyMap());
-
-	S3GroupAImpl ga = (S3GroupAImpl) groupAInstance.getServiceObject();
-
-	// Force instantiation one given specification inside the composite A
-	System.out.println("A-->" + ga.getElement());
-
-	auxListInstances("---");
-
-	String message = String
-		.format(messageTemplate,
-			"A should have visibility to the implementation, just NOT export them, so the composite A should be able to create an instance of it");
-
-	Assert.assertTrue(message, ga.getElement() != null);
-
-    }
-
-    @Test
     public void ComponentMngtLocalWithImplementation_tc033() {
 
 	final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. "
 		+ "Both IA and IB have an attribute that depends on the specification X. "
 		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-local-implementation");
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-local-implementation");
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 	Composite composite_b = (Composite) ctb.createInstance(null, null);
@@ -357,97 +139,138 @@ public class CompositeTest extends ExtensionAbstract {
     }
 
     @Test
-    public void CompositeContentMngtImportNothingInstance_tc034() {
+    public void ComponentMngtLocalWithInstance_tc032() {
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-import-nothing-instance");
+	final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. "
+		+ "Both IA and IB have an attribute that depends on the specification X. "
+		+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-local-instance");
+
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
 	Composite composite_b = (Composite) ctb.createInstance(null, null);
 
 	Instance a = composite_a.getMainInst();
-
 	Instance b = composite_b.getMainInst();
 
 	S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
 
 	S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
 
-	gb.getElement();
+	// Force instantiation one given specification inside the composite A
+	System.out.println("A-->" + ga.getElement());
 
-	auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+	// Force instantiation of the same specification as before in composite
+	// B
+	System.out.println("B-->" + gb.getElement());
 
-	ga.getElement();
-
-	auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
-
-	String messageTemplate = "Composite that do not allow anything to be imported (<import instance='false' />) should never use other composite instance. %s";
+	auxListInstances("---");
 
 	String message = String
 		.format(messageTemplate,
-			"Although, an instance from composite B was injected in composite A even if A is marked with import instance='false'");
+			"But A marked with '<local instance='true'>' allowed its instance to be used by another composite");
 
 	Assert.assertTrue(message, ga.getElement() != gb.getElement());
 
     }
 
     @Test
-    public void CompositeContentMngtImportNothingImplementation_tc035() {
+    public void ComponentMngtMainCompositeAccessItsPrivateImpls_tc118() {
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-import-nothing-implementation");
+	final String messageTemplate = "Composite A declares <export implementation='false' /> and its main implem depends on this implementation. %s";
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-local-implementation");
 
 	Composite composite_a = (Composite) cta.createInstance(null, null);
-	Composite composite_b = (Composite) ctb.createInstance(null, null);
 
-	Instance a = composite_a.getMainInst();
+	Implementation dependencyOfA = waitForImplByName(null, "BoschSwitch");
+	CompositeType rootComposite = (CompositeType) waitForImplByName(null,
+		CST.ROOT_COMPOSITE_TYPE);
 
-	Instance b = composite_b.getMainInst();
+	/**
+	 * Make sure that the dependency is in the same composite as group-a
+	 */
+	((ImplementationImpl) dependencyOfA).removeInComposites(rootComposite);
+	((ImplementationImpl) dependencyOfA).addInComposites(cta);
 
-	S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+	Implementation groupAImpl = waitForImplByName(null, "group-a");
 
-	S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+	Instance groupAInstance = groupAImpl.createInstance(composite_a,
+		Collections.<String, String> emptyMap());
 
-	System.out.println("Element B injected: " + gb.getElement());
+	S3GroupAImpl ga = (S3GroupAImpl) groupAInstance.getServiceObject();
 
-	auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+	// Force instantiation one given specification inside the composite A
+	System.out.println("A-->" + ga.getElement());
 
-	System.out.println("Element A injected: " + ga.getElement());
-
-	auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
-
-	String messageTemplate = "Composite that do not allow anything to be imported (<import implementation='false' />) should never import other composite instance. %s";
+	auxListInstances("---");
 
 	String message = String
 		.format(messageTemplate,
-			"Although, an instance from composite B was injected in composite A even if A is marked with <import implementation='false' />");
-	// The fact the implem is not visible does not mean we cannot resolve :
-	// it can be deployed again,
-	// and it is possible to see its instances anyway !.
-	Assert.assertTrue(message, ga.getElement() == gb.getElement());
+			"A should have visibility to the implementation, just NOT export them, so the composite A should be able to create an instance of it");
+
+	Assert.assertTrue(message, ga.getElement() != null);
+
+    }
+
+    @Test
+    public void ComponentMngtNoMainLocalInstance_tc120() {
+
+	final String messageTemplate = "Two composites A and B,  both without mainimpl, B depends on instances inside A, but A is marked as '<export instance='false' />'. %s";
+
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-local-instance-nomain");
+
+	Composite composite_a = (Composite) cta.createInstance(null, null);
+
+	Implementation groupAImpl = waitForImplByName(null, "group-a");
+	Implementation groupBImpl = waitForImplByName(null, "group-b");
+
+	Instance groupAInstance = groupAImpl.createInstance(composite_a,
+		Collections.<String, String> emptyMap());
+	Instance groupBInstance = groupBImpl.createInstance(null,
+		Collections.<String, String> emptyMap());
+
+	S3GroupAImpl ga = (S3GroupAImpl) groupAInstance.getServiceObject();
+
+	S3GroupBImpl gb = (S3GroupBImpl) groupBInstance.getServiceObject();
+
+	// Force instantiation one given specification inside the composite A
+	System.out.println("A-->" + ga.getElement());
+
+	// Force instantiation of the same specification as before in composite
+	// B
+	System.out.println("B-->" + gb.getElement());
+
+	auxListInstances("---");
+
+	String message = String
+		.format(messageTemplate,
+			"B should have created a new instance, since he has access to the implementation but not the instances of A");
+
+	Assert.assertTrue(message, ga.getElement() != gb.getElement());
 
     }
 
     @Test
     public void CompositeContentMngtExportApplicationEverythingGlobalNothingInstance_tc038() {
 
-	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(
+		null, "composite-a");
 
 	Composite appComposite = (Composite) appCompositeType.createInstance(
 		null, null);
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null,
+	CompositeType cta = (CompositeType) waitForImplByName(null,
 		"composite-a-export-application-everything-global-nothing");
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Implementation ia = waitForImplByName(null, "group-a");
 
@@ -488,7 +311,8 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc048() {
 
-	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(
+		null, "composite-a");
 
 	Composite superparent = (Composite) appCompositeType.createInstance(
 		null, null);
@@ -496,17 +320,17 @@ public class CompositeTest extends ExtensionAbstract {
 	Composite appCompositeA = (Composite) appCompositeType.createInstance(
 		superparent, null);
 
-	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(null, "composite-c");
+	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(
+		null, "composite-c");
 
 	Composite appCompositeC = (Composite) appCompositeTypeC.createInstance(
 		superparent, null);
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null,
+	CompositeType cta = (CompositeType) waitForImplByName(null,
 		"composite-a-export-application-nothing-global-everything");
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Implementation ia = waitForImplByName(null, "group-a");
 
@@ -542,12 +366,11 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc049() {
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null,
+	CompositeType cta = (CompositeType) waitForImplByName(null,
 		"composite-a-export-application-nothing-global-everything");
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Implementation ia = waitForImplByName(null, "group-a");
 
@@ -581,21 +404,23 @@ public class CompositeTest extends ExtensionAbstract {
     @Test
     public void CompositeContentMngtExportGlobalEverythingInstance_tc050() {
 
-	CompositeType appCompositeType = (CompositeType) waitForImplByName(null, "composite-a");
+	CompositeType appCompositeType = (CompositeType) waitForImplByName(
+		null, "composite-a");
 
 	Composite appCompositeA = (Composite) appCompositeType.createInstance(
 		null, null);
 
-	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(null, "composite-c");
+	CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(
+		null, "composite-c");
 
 	Composite appCompositeC = (Composite) appCompositeTypeC.createInstance(
 		null, null);
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-export-global-everything");
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-export-global-everything");
 
-	CompositeType ctb = (CompositeType) waitForImplByName(
-		null, "composite-b");
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
 
 	Implementation ia = waitForImplByName(null, "group-a");
 
@@ -629,12 +454,90 @@ public class CompositeTest extends ExtensionAbstract {
     }
 
     @Test
+    public void CompositeContentMngtImportNothingImplementation_tc035() {
+
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-import-nothing-implementation");
+
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
+
+	Composite composite_a = (Composite) cta.createInstance(null, null);
+	Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+	Instance a = composite_a.getMainInst();
+
+	Instance b = composite_b.getMainInst();
+
+	S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+
+	S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+
+	System.out.println("Element B injected: " + gb.getElement());
+
+	auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+
+	System.out.println("Element A injected: " + ga.getElement());
+
+	auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+
+	String messageTemplate = "Composite that do not allow anything to be imported (<import implementation='false' />) should never import other composite instance. %s";
+
+	String message = String
+		.format(messageTemplate,
+			"Although, an instance from composite B was injected in composite A even if A is marked with <import implementation='false' />");
+	// The fact the implem is not visible does not mean we cannot resolve :
+	// it can be deployed again,
+	// and it is possible to see its instances anyway !.
+	Assert.assertTrue(message, ga.getElement() == gb.getElement());
+
+    }
+
+    @Test
+    public void CompositeContentMngtImportNothingInstance_tc034() {
+
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-import-nothing-instance");
+
+	CompositeType ctb = (CompositeType) waitForImplByName(null,
+		"composite-b");
+
+	Composite composite_a = (Composite) cta.createInstance(null, null);
+	Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+	Instance a = composite_a.getMainInst();
+
+	Instance b = composite_b.getMainInst();
+
+	S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+
+	S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+
+	gb.getElement();
+
+	auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+
+	ga.getElement();
+
+	auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+
+	String messageTemplate = "Composite that do not allow anything to be imported (<import instance='false' />) should never use other composite instance. %s";
+
+	String message = String
+		.format(messageTemplate,
+			"Although, an instance from composite B was injected in composite A even if A is marked with import instance='false'");
+
+	Assert.assertTrue(message, ga.getElement() != gb.getElement());
+
+    }
+
+    @Test
     public void CompositePromoteImplicitAndInternal_tct007() {
-	CompositeType ctAV00 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-00");
+	CompositeType ctAV00 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-00");
 	Composite instAV00 = (Composite) ctAV00.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
@@ -653,25 +556,28 @@ public class CompositeTest extends ExtensionAbstract {
 		"Two media renderers should be resolved (internal to composite)",
 		mediaCtl.resolveRenderersNumber(), 2);
 	mediaCtl.resolveServersNumber();
-	for(Link link : instCtl.getLinks("theServers"))
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
-	
-	for(Link link : instAV00.getLinks("promotedServers"))
-	    System.out.println("Promoted Server --> " + link.getDestination().getName());
-	
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	}
+
+	for (Link link : instAV00.getLinks("promotedServers")) {
+	    System.out.println("Promoted Server --> "
+		    + link.getDestination().getName());
+	}
 
 	Assert.assertEquals(
 		"Two media server should be resolved (one internal (with constraints) and one external using promoted relation (with same constraints)",
-		mediaCtl.resolveServersNumber(), 2);	
+		mediaCtl.resolveServersNumber(), 2);
     }
 
     @Test
     public void CompositePromoteImplicitAndInternalbis_tct008() {
-	CompositeType ctAV01 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-01");
+	CompositeType ctAV01 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-01");
 	Composite instAV00 = (Composite) ctAV01.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(2000);
@@ -691,22 +597,23 @@ public class CompositeTest extends ExtensionAbstract {
 		"Two media renderers should be resolved (internal to composite)",
 		mediaCtl.resolveRenderersNumber(), 2);
 	mediaCtl.resolveServersNumber();
-	for(Link link : instCtl.getLinks("theServers"))
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	}
 
 	Assert.assertEquals(
 		"Two media server should be resolved (one internal (without constraints) and one external using promoted relation (with same constraints)",
-		mediaCtl.resolveServersNumber(), 2);	
+		mediaCtl.resolveServersNumber(), 2);
     }
-    
 
     @Test
     public void CompositePromoteMultipleExplicitImplem_tct009() {
-	CompositeType ctAV02 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-02");
+	CompositeType ctAV02 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-02");
 	Composite instAV02 = (Composite) ctAV02.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
@@ -722,14 +629,17 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 	mediaCtl.resolveServersNumber();
 
-	
-	for(Link link : instAV02.getLinks("promotedServers"))
-	    System.out.println("Promoted Server --> " + link.getDestination().getName());
-	
-	for(Link link : instCtl.getLinks("theServers")) {
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
-	    if(!link.isPromotion())
+	for (Link link : instAV02.getLinks("promotedServers")) {
+	    System.out.println("Promoted Server --> "
+		    + link.getDestination().getName());
+	}
+
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	    if (!link.isPromotion()) {
 		Assert.fail("Found a link for whose destination is NOT a promotion");
+	    }
 	}
 
 	Assert.assertEquals(
@@ -741,19 +651,19 @@ public class CompositeTest extends ExtensionAbstract {
 	Assert.assertTrue(
 		"One remote controller should be resolved (external, in root composite)",
 		mediaCtl.resolveRemoteControl());
-//	
-//	for (Instance inst : instAV01.getContainInsts())
-//	    System.out.println("--> " + inst.getName());
+	//
+	// for (Instance inst : instAV01.getContainInsts())
+	// System.out.println("--> " + inst.getName());
 
     }
-    
+
     @Test
     public void CompositePromoteMultipleExplicitSpec_tct010() {
-	CompositeType ctAV03 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-03");
+	CompositeType ctAV03 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-03");
 	Composite instAV02 = (Composite) ctAV03.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
@@ -769,14 +679,17 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 	mediaCtl.resolveServersNumber();
 
-	
-	for(Link link : instAV02.getLinks("promotedServers"))
-	    System.out.println("Promoted Server --> " + link.getDestination().getName());
-	
-	for(Link link : instCtl.getLinks("theServers")) {
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
-	    if(!link.isPromotion())
+	for (Link link : instAV02.getLinks("promotedServers")) {
+	    System.out.println("Promoted Server --> "
+		    + link.getDestination().getName());
+	}
+
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	    if (!link.isPromotion()) {
 		Assert.fail("Found a link for whose destination is NOT a promotion");
+	    }
 	}
 
 	Assert.assertEquals(
@@ -788,19 +701,19 @@ public class CompositeTest extends ExtensionAbstract {
 	Assert.assertTrue(
 		"One remote controller should be resolved (external, in root composite)",
 		mediaCtl.resolveRemoteControl());
-//	
-//	for (Instance inst : instAV01.getContainInsts())
-//	    System.out.println("--> " + inst.getName());
+	//
+	// for (Instance inst : instAV01.getContainInsts())
+	// System.out.println("--> " + inst.getName());
 
     }
 
     @Test
     public void CompositePromoteSingleExplicitImplem_tct011() {
-	CompositeType ctAV02 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-02");
+	CompositeType ctAV02 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-02");
 	Composite instAV02 = (Composite) ctAV02.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
@@ -816,33 +729,35 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 	mediaCtl.resolveRemoteControl();
 
-	
-	for(Link link : instAV02.getLinks("promotedRemoteControl"))
-	    System.out.println("Promoted remote control --> " + link.getDestination().getName());
-	
-	
-	for(Link link : instCtl.getLinks("theServers")) {
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
-	    if(!link.isPromotion())
+	for (Link link : instAV02.getLinks("promotedRemoteControl")) {
+	    System.out.println("Promoted remote control --> "
+		    + link.getDestination().getName());
+	}
+
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	    if (!link.isPromotion()) {
 		Assert.fail("Found a link for whose destination is NOT a promotion");
+	    }
 	}
 
 	Assert.assertTrue(
 		"One remote controller should be resolved (external, in root composite)",
 		mediaCtl.resolveRemoteControl());
-//	
-//	for (Instance inst : instAV01.getContainInsts())
-//	    System.out.println("--> " + inst.getName());
+	//
+	// for (Instance inst : instAV01.getContainInsts())
+	// System.out.println("--> " + inst.getName());
 
     }
-    
+
     @Test
     public void CompositePromoteSingleExplicitSpec_tct012() {
-	CompositeType ctAV03 = (CompositeType) waitForImplByName(
-		null, "AVEntertainment-03");
+	CompositeType ctAV03 = (CompositeType) waitForImplByName(null,
+		"AVEntertainment-03");
 	Composite instAV02 = (Composite) ctAV03.createInstance(null, null);
-	CompositeType ctDC00 = (CompositeType) waitForImplByName(
-		null, "HomeDigitalContent-00");
+	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
+		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
 	apam.waitForIt(1000);
@@ -858,24 +773,123 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 	mediaCtl.resolveRemoteControl();
 
-	
-	for(Link link : instAV02.getLinks("promotedRemoteControl"))
-	    System.out.println("Promoted remote control --> " + link.getDestination().getName());
-	
-	for(Link link : instCtl.getLinks("theServers")) {
-	    System.out.println("AVEntertainment-Controller links --> " + link.getDestination().getName());
-	    if(!link.isPromotion())
+	for (Link link : instAV02.getLinks("promotedRemoteControl")) {
+	    System.out.println("Promoted remote control --> "
+		    + link.getDestination().getName());
+	}
+
+	for (Link link : instCtl.getLinks("theServers")) {
+	    System.out.println("AVEntertainment-Controller links --> "
+		    + link.getDestination().getName());
+	    if (!link.isPromotion()) {
 		Assert.fail("Found a link for whose destination is NOT a promotion");
+	    }
 	}
 
 	Assert.assertTrue(
 		"One remote controller should be resolved (external, in root composite)",
 		mediaCtl.resolveRemoteControl());
-//	
-//	for (Instance inst : instAV01.getContainInsts())
-//	    System.out.println("--> " + inst.getName());
+	//
+	// for (Instance inst : instAV01.getContainInsts())
+	// System.out.println("--> " + inst.getName());
 
     }
-    
+
+    @Test
+    public void CompositeTypeInstantiation_tc028() {
+	// apam.waitForIt(200000);
+
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"S2Impl-composite-1");
+
+	Assert.assertTrue("Failed to create the instance of CompositeType",
+		ct != null);
+
+	Instance instApp = ct.createInstance(null,
+		new HashMap<String, String>());
+
+	Assert.assertTrue("Failed to create the instance of CompositeType",
+		instApp != null);
+    }
+
+    @Test
+    public void CompositeTypeRetrieveServiceObject_tc030() {
+	waitForApam();
+	waitForImplByName(null, "philipsSwitch");
+
+	CompositeType composite = CST.apam.createCompositeType(null,
+		"eletronic-device-compotype", null, "philipsSwitch",
+		new HashSet<ManagerModel>(), new HashMap<String, String>());
+
+	Assert.assertTrue(
+		"Should be possible to create a composite through API using createCompositeType method",
+		composite != null);
+
+	Instance instance = composite.createInstance(null, null);
+
+	Assert.assertTrue("Failed to create instance of the compotype",
+		instance != null);
+
+	GenericSwitch serviceObject = (GenericSwitch) instance
+		.getServiceObject();
+
+	Assert.assertTrue("Failed to retrieve service as object ",
+		serviceObject != null);
+
+    }
+
+    @Override
+    public List<Option> config() {
+	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
+		"fr.imag.adele.apam.tests.services");
+
+	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	addon.add(systemPackage("javax.xml.parsers"));
+	addon.add(0, packApamConflictManager());
+	return addon;
+
+    }
+
+    @Test
+    public void FetchImplThatHasComposite_tc029() {
+
+	CompositeType ct1 = (CompositeType) waitForComponentByName(null,
+		"S2Impl-composite-1");
+
+	// apam.waitForIt(2000);
+
+	CompositeType ct2 = (CompositeType) waitForImplByName(null,
+		"S2Impl-composite-2");
+
+	String general = "From two composites based on the same impl, both should be fetchable/instantiable from apam. %s";
+
+	Assert.assertTrue(
+		String.format(general, "The first one failed to be fetched."),
+		ct1 != null);
+	Assert.assertTrue(
+		String.format(general, "The second one failed to be fetched."),
+		ct2 != null);
+
+	Instance ip1 = ct1.createInstance(null, new HashMap<String, String>());
+	Instance ip2 = ct2.createInstance(null, new HashMap<String, String>());
+
+	Assert.assertTrue(
+		String.format(general, "The first one failed to instantiate."),
+		ip1 != null);
+	Assert.assertTrue(
+		String.format(general, "The second one failed to instantiate."),
+		ip2 != null);
+
+	System.err.println("-------------");
+	auxListInstances("\t");
+
+    }
 
 }

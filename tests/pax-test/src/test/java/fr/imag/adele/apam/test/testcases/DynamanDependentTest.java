@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Assert;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,56 +51,401 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @ExamReactorStrategy(PerMethod.class)
 public class DynamanDependentTest extends ExtensionAbstract {
 
-    @Override
-    public List<Option> config() {
-	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
-	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
+    // Require by the test CompositeContentMngtDependencyFailWait
+    class ThreadWrapper extends Thread {
 
-	addon.add(systemPackage("javax.xml.parsers"));
-	addon.add(0, packApamConflictManager());
-	return addon;
+	final S3GroupAImpl group;
+
+	public ThreadWrapper(S3GroupAImpl group) {
+	    this.group = group;
+	}
+
+	@Override
+	public void run() {
+	    System.out.println("Element injected:" + group.getElement());
+	}
+
     }
-   
 
-    
+    class ThreadWrapper_grant extends Thread {
+
+	final Worker worker;
+
+	public ThreadWrapper_grant(Worker worker) {
+	    this.worker = worker;
+	}
+
+	@Override
+	public void run() {
+	    try {
+		worker.breakRock();
+		System.out.println("test 0K");
+	    } catch (Exception exc) {
+		System.out.println("resolve exception thrown ? "
+			+ exc.getMessage());
+	    }
+
+	}
+
+    }
+
+    /**
+     * This test should be changed accordingly to a new feature allowing to
+     * force breaking a grant the link (some kind of \<deny\> markup )
+     */
     @Test
-    public void CompositeContentMngtDependencyFailWait_tc039() {
-	
-	
+    public void CompositeContentForcedReleaseGrantTest_tct015() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct015");
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-fail-wait");
+	Implementation impl_daystate = waitForImplByName(null, "DayState_15");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
 
-	Composite composite_a = (Composite) cta.createInstance(null, null);
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
 
-	Instance instanceApp1 = composite_a.getMainInst();
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
 
-	S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	ThreadWrapper wrapper = new ThreadWrapper(ga1);
-	wrapper.setDaemon(true);
-	wrapper.start();
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
 
-	apam.waitForIt(3000);
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
 
-	String message = "In case of composite dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
 
-	Assert.assertTrue(message, wrapper.isAlive());
+	System.out.println(">19h : afternoon !");
+
+	state.setHour(19);
+	thread = new ThreadWrapper_grant(worker1);
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	Assert.assertFalse(
+		"As the JackHammer is granted (afternoon), the worker resolution should be ok -> thread should be ended",
+		thread.isAlive());
+
+	System.out.println(">23h : night !");
+	state.setHour(23);
+	thread = new ThreadWrapper_grant(worker1);
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	;
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted (night again), the worker resolution should fail -> thread should be waiting",
+		thread.isAlive());
+    }
+
+    @Test
+    public void CompositeContentGrantTest_tct013() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct013");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+	System.out.println(">9h : morning !");
+	state.setHour(9);
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertFalse(
+		"As the JackHammer is granted (morning), the worker resolution should be ok -> thread should be ended",
+		thread.isAlive());
+    }
+
+    @Test
+    public void CompositeContentGrantToExternalTest_tct016() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct013");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(null, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+	System.out.println(">9h : morning !");
+	state.setHour(9);
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertFalse(
+		"As the JackHammer is granted (morning), the worker resolution should be ok, EVEN if instance is external -> thread should be ended",
+		thread.isAlive());
+    }
+
+    @Test
+    public void CompositeContentGrantToExternalTest_tct017() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct017");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState_17");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_multiple");
+	Implementation impl_worker = waitForImplByName(null,
+		"Worker_waiting_exists");
+	Implementation impl_toolmanager = waitForImplByName(null,
+		"ToolManager_17");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+	System.out.println(">9h : morning !");
+	state.setHour(9);
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertFalse(
+		"As the JackHammer is granted (morning), the worker resolution should be ok -> thread should be ended",
+		thread.isAlive());
+    }
+
+    @Test
+    public void CompositeContentGrantWrongDependencyTest_tct020() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct013");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null, "Night_worker");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+	// manager.printTools();
+	state.setHour(4);
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+    }
+
+    @Test
+    public void CompositeContentGrantWrongImplementationTest_tct019() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct013");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null,
+		"Worker_waiting_bis");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">Init : night !");
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
+		thread.isAlive());
+
+	System.out.println(">9h : morning !");
+	state.setHour(9);
+
+	apam.waitForIt(1000);
+	manager.printTools();
+	Assert.assertTrue(
+		"The JackHammer is granted (morning) but the worker resolution should fail too (because wrong implementation working)  -> thread should be waiting",
+		thread.isAlive());
     }
 
     @Test
     public void CompositeContentMngtDependencyFailException_tc040() {
 
-	CompositeType ctroot = (CompositeType) waitForImplByName(
-		null, "composite-a-fail-exception");
+	CompositeType ctroot = (CompositeType) waitForImplByName(null,
+		"composite-a-fail-exception");
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-fail-exception");
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-fail-exception");
 
 	Composite composite_root = (Composite) ctroot
 		.createInstance(null, null);
@@ -150,201 +494,15 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
     }
 
-    // Require by the test CompositeContentMngtDependencyFailWait
-    class ThreadWrapper extends Thread {
-
-	final S3GroupAImpl group;
-
-	public ThreadWrapper(S3GroupAImpl group) {
-	    this.group = group;
-	}
-
-	@Override
-	public void run() {
-	    System.out.println("Element injected:" + group.getElement());
-	}
-
-    }
-
     @Test
-    public void CompositeWithEagerDependency_tc041() {
-	CompositeType ct1 = (CompositeType) waitForImplByName(
-		null, "S2Impl-composite-eager");
+    public void CompositeContentMngtDependencyFailWait_tc039() {
 
-	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-fail-wait");
 
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to retrieve the composite"),
-		ct1 != null);
+	Composite composite_a = (Composite) cta.createInstance(null, null);
 
-	auxListInstances("instances existing before the test-");
-
-	Composite instanceComposite = (Composite) ct1.createInstance(null,
-		new HashMap<String, String>());
-
-	Implementation implS2 = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.implS2.S2Impl");
-
-	Instance instance = implS2.createInstance(instanceComposite, null);
-
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to instantiate the composite"),
-		instance != null);
-
-	// Force injection (for debuggin purposes)
-	// S2Impl im=(S2Impl)instance.getServiceObject();
-	// im.getDeadMansSwitch();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	List<Instance> pool = auxLookForInstanceOf(
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
-		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
-
-	auxListInstances("instances existing after the test-");
-	System.out.println("pool.size() : " + pool.size());
-
-	Assert.assertTrue(
-		String.format(
-			message,
-			"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
-		pool.size() == 1);
-
-    }
-
-    @Test
-    public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
-	CompositeType ct1 = (CompositeType) waitForImplByName(
-		null, "S2Impl-composite-eager-forceEager");
-
-	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
-
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to retrieve the composite"),
-		ct1 != null);
-
-	auxListInstances("instances existing before the test-");
-
-	Composite instanceComposite = (Composite) ct1.createInstance(null,
-		new HashMap<String, String>());
-
-	Implementation implS2 = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager");
-
-	Instance instance = implS2.createInstance(instanceComposite, null);
-
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to instantiate the composite"),
-		instance != null);
-
-	// Force injection (for debuggin purposes)
-	// S2Impl im=(S2Impl)instance.getServiceObject();
-	// im.getDeadMansSwitch();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	List<Instance> pool = auxLookForInstanceOf(
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
-		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch");
-
-	auxListInstances("instances existing after the test-");
-
-	Assert.assertTrue(
-		String.format(
-			message,
-			"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
-		pool.size() == 1);
-
-    }
-
-    @Test
-    public void CompositeContentMngtStartTriggerBySpecification_tc042() {
-	auxListInstances("INSTANCE-t1-");
-
-	String checkingFor = "specification";
-
-	CompositeType composite = (CompositeType) waitForImplByName(null, "composite-a-start-by-" + checkingFor);
-	Composite compositeInstance = (Composite) composite.createInstance(
-		null, null);
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Implementation trigger = waitForImplByName(null,
-		"group-a-start-trigger");
-
-	Implementation triggered = waitForImplByName(null,
-		"group-b-started-by-trigger");
-
-	Instance triggerInstance = trigger.createInstance(compositeInstance,
-		null);
-
-	Assert.assertTrue(triggerInstance != null);
-
-	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
-		.getImplDeclaration()).getClassName());
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	auxListInstances("INSTANCE-t2-");
-
-	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-	String message = String.format(messageTemplate, checkingFor);
-	Assert.assertTrue(message, instancesOfB.size() == 1);
-
-    }
-
-    @Test
-    public void CompositeContentMngtStartTriggerByImplementation_tc043() {
-	auxListInstances("INSTANCE-t1-");
-
-	String checkingFor = "implementation";
-
-	CompositeType composite = (CompositeType) waitForImplByName(null, "composite-a-start-by-" + checkingFor);
-	Composite compositeInstance = (Composite) composite.createInstance(
-		null, null);
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Implementation trigger = waitForImplByName(null,
-		"group-a-start-trigger");
-
-	Instance triggerInstance = trigger.createInstance(compositeInstance,
-		null);
-
-	Implementation triggered = waitForImplByName(null,
-		"group-b-started-by-trigger");
-
-	Assert.assertTrue(triggerInstance != null);
-
-	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
-		.getImplDeclaration()).getClassName());
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	auxListInstances("INSTANCE-t2-");
-
-	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-	String message = String.format(messageTemplate, checkingFor);
-	Assert.assertTrue(message, instancesOfB.size() == 1);
-
-    }
-
-    @Test
-    public void CompositeDependencyFailWait_tc044() {
-
-	Implementation cta = (Implementation) waitForImplByName(
-		null, "group-a-fail-wait");
-
-	Instance instanceApp1 = cta.createInstance(null, null);
+	Instance instanceApp1 = composite_a.getMainInst();
 
 	S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
 
@@ -354,17 +512,298 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	apam.waitForIt(3000);
 
-	String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+	String message = "In case of composite dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
 	Assert.assertTrue(message, wrapper.isAlive());
     }
 
     @Test
+    @Ignore
+    public void CompositeContentMngtDependencyHide_tc065() {
+
+	CompositeType ctaroot = (CompositeType) waitForImplByName(null,
+		"composite-a-hide");
+
+	Composite composite_root = (Composite) ctaroot.createInstance(null,
+		null);// composite_root
+
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-hide");
+
+	Composite composite_a = (Composite) cta.createInstance(composite_root,
+		null);// inner composite with hide='true'
+
+	Instance instanceApp1 = composite_a.getMainInst();
+
+	S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+	// force injection
+	ga1.getElement();
+
+	auxListInstances("\t");
+
+	List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl");
+
+	String messageTemplate = "Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
+
+	String message = String.format(messageTemplate,
+		instancesOfImplementation.size());
+
+	Assert.assertTrue(message, instancesOfImplementation.size() == 1);
+
+    }
+
+    @Test
+    public void CompositeContentMngtDisputeAmongInjectionAndOwn_tc047() {
+
+	Implementation sharedDependencyImpl = waitForImplByName(null,
+		"BoschSwitch");
+
+	Instance sharedDependency = sharedDependencyImpl.createInstance(null,
+		null);
+
+	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null,
+		"composite-a");
+
+	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
+		null);
+
+	S3GroupAImpl s3b = (S3GroupAImpl) compositeA.getMainInst()
+		.getServiceObject();
+	s3b.getElement();
+
+	System.out.println("Original composite:"
+		+ sharedDependency.getComposite());
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null,
+		"composite-a-dispute-inject-own");
+
+	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
+		null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	System.out.println("Composite after the own composite instantiation:"
+		+ sharedDependency.getComposite());
+
+	String message = "Class A needs the instance IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
+
+	Assert.assertTrue(message,
+		sharedDependency.getComposite() == compositeB);
+
+    }
+
+    @Test
+    public void CompositeContentMngtDisputeAmongInjectionAndOwnInstanceIntoComposite_tc048() {
+
+	Implementation sharedDependencyImpl = waitForImplByName(null,
+		"BoschSwitch");
+
+	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null,
+		"composite-a");
+
+	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
+		null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	// Instance sharedDependency=sharedDependencyImpl.createInstance(null,
+	// null); //works
+	Instance sharedDependency = sharedDependencyImpl.createInstance(
+		compositeA, null); // do not works
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	S3GroupAImpl s3b = (S3GroupAImpl) compositeA.getMainInst()
+		.getServiceObject();
+	s3b.getElement();
+
+	System.out.println("Original composite:"
+		+ sharedDependency.getComposite());
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null,
+		"composite-a-dispute-inject-own");
+
+	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
+		null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	System.out.println("Composite after the own composite instantiation:"
+		+ sharedDependency.getComposite());
+
+	String message = "Class A needs the instance (that is already located inside another composite) IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
+
+	Assert.assertTrue(message,
+		sharedDependency.getComposite() == compositeB);
+
+    }
+
+    @Test
+    public void CompositeContentMngtOwnSpecification_tc046() {
+
+	CompositeType cta = (CompositeType) waitForImplByName(null,
+		"composite-a-own-specification");
+
+	Composite composite_a = (Composite) cta.createInstance(null, null);
+
+	Implementation device = waitForImplByName(null, "BoschSwitch");
+	Instance deviceinst = device.createInstance(null, null);
+
+	String message = "When a composite declares to own a specification, that means every instance of that specification should be owned by that composite. This test failed, the actual owner composite of that component and the one that declares to be the owner are different";
+
+	Assert.assertTrue(message, deviceinst.getComposite() == composite_a);
+
+    }
+
+    @Test
+    public void CompositeContentMngtStartTriggerByImplementation_tc043() {
+	auxListInstances("INSTANCE-t1-");
+
+	String checkingFor = "implementation";
+
+	CompositeType composite = (CompositeType) waitForImplByName(null,
+		"composite-a-start-by-" + checkingFor);
+	Composite compositeInstance = (Composite) composite.createInstance(
+		null, null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Implementation trigger = waitForImplByName(null,
+		"group-a-start-trigger");
+
+	Instance triggerInstance = trigger.createInstance(compositeInstance,
+		null);
+
+	Implementation triggered = waitForImplByName(null,
+		"group-b-started-by-trigger");
+
+	Assert.assertTrue(triggerInstance != null);
+
+	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
+		.getImplDeclaration()).getClassName());
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	auxListInstances("INSTANCE-t2-");
+
+	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+	String message = String.format(messageTemplate, checkingFor);
+	Assert.assertTrue(message, instancesOfB.size() == 1);
+
+    }
+
+    @Test
+    public void CompositeContentMngtStartTriggerBySpecification_tc042() {
+	auxListInstances("INSTANCE-t1-");
+
+	String checkingFor = "specification";
+
+	CompositeType composite = (CompositeType) waitForImplByName(null,
+		"composite-a-start-by-" + checkingFor);
+	Composite compositeInstance = (Composite) composite.createInstance(
+		null, null);
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Implementation trigger = waitForImplByName(null,
+		"group-a-start-trigger");
+
+	Implementation triggered = waitForImplByName(null,
+		"group-b-started-by-trigger");
+
+	Instance triggerInstance = trigger.createInstance(compositeInstance,
+		null);
+
+	Assert.assertTrue(triggerInstance != null);
+
+	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
+		.getImplDeclaration()).getClassName());
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	auxListInstances("INSTANCE-t2-");
+
+	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+	String message = String.format(messageTemplate, checkingFor);
+	Assert.assertTrue(message, instancesOfB.size() == 1);
+
+    }
+
+    @Test
+    public void CompositeContentSimpleReleaseGrantTest_tct014() {
+	CompositeType ct = (CompositeType) waitForImplByName(null,
+		"Yard_tct013");
+
+	Implementation impl_daystate = waitForImplByName(null, "DayState");
+	Implementation impl_jackhammer = waitForImplByName(null,
+		"JackHammer_singleton");
+	Implementation impl_worker = waitForImplByName(null, "Worker_waiting");
+	Implementation impl_toolmanager = waitForImplByName(null, "ToolManager");
+
+	Composite yard = (Composite) ct.createInstance(null, null);
+	impl_jackhammer.createInstance(null, null);
+
+	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+		.getServiceObject();
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance dayinst = null;
+	Instance managerinst = null;
+	for (Instance inst : yard.getContainInsts()) {
+	    if (inst.getImpl().equals(impl_daystate)) {
+		dayinst = inst;
+	    } else if (inst.getImpl().equals(impl_toolmanager)) {
+		managerinst = inst;
+	    }
+	    System.out.println("Contains : " + inst.getName());
+	}
+	System.out.println();
+
+	Assert.assertNotNull("DayState is not found in the composite", dayinst);
+	ToolManager manager = (ToolManager) managerinst.getServiceObject();
+	DayState state = (DayState) dayinst.getServiceObject();
+	manager.printTools();
+	apam.waitForIt(500);
+	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+
+	System.out.println(">19h : afternoon !");
+
+	state.setHour(19);
+	thread = new ThreadWrapper_grant(worker1);
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(500);
+	Assert.assertFalse(
+		"As the JackHammer is granted (afternoon), the worker resolution should be ok -> thread should be ended",
+		thread.isAlive());
+
+	System.out.println(">23h : night !");
+	state.setHour(23);
+	manager.printTools();
+	apam.waitForIt(500);
+	thread = new ThreadWrapper_grant(worker1);
+	thread.setDaemon(true);
+	thread.start();
+
+	apam.waitForIt(500);
+	Assert.assertTrue(
+		"As the JackHammer is not granted (night again), the worker resolution should fail -> thread should be waiting",
+		thread.isAlive());
+    }
+
+    @Test
     public void CompositeDependencyFailException_tc045() {
 
-	Implementation group_a = (Implementation) waitForImplByName(null, "group-a-fail-exception");
+	Implementation group_a = waitForImplByName(null,
+		"group-a-fail-exception");
 
-	Instance instance_a = (Instance) group_a.createInstance(null, null);
+	Instance instance_a = group_a.createInstance(null, null);
 
 	S3GroupAImpl ga1 = (S3GroupAImpl) instance_a.getServiceObject();
 
@@ -427,9 +866,10 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				.getProperty(
 					org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES));
 
-	Implementation group_a = (Implementation) waitForImplByName(null, "group-a-fail-exception-native");
+	Implementation group_a = waitForImplByName(null,
+		"group-a-fail-exception-native");
 
-	Instance instance_a = (Instance) group_a.createInstance(null, null);
+	Instance instance_a = group_a.createInstance(null, null);
 
 	S3GroupAImpl ga1 = (S3GroupAImpl) instance_a.getServiceObject();
 
@@ -463,602 +903,190 @@ public class DynamanDependentTest extends ExtensionAbstract {
     }
 
     @Test
-    public void CompositeContentMngtOwnSpecification_tc046() {
+    public void CompositeDependencyFailWait_tc044() {
 
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-own-specification");
+	Implementation cta = waitForImplByName(null, "group-a-fail-wait");
 
-	Composite composite_a = (Composite) cta.createInstance(null, null);
-
-	Implementation device = waitForImplByName(null,
-		"BoschSwitch");
-	Instance deviceinst = device.createInstance(null, null);
-
-	String message = "When a composite declares to own a specification, that means every instance of that specification should be owned by that composite. This test failed, the actual owner composite of that component and the one that declares to be the owner are different";
-
-	Assert.assertTrue(message, deviceinst.getComposite() == composite_a);
-
-    }
-
-    @Test
-    @Ignore
-    public void CompositeContentMngtDependencyHide_tc065() {
-
-	CompositeType ctaroot = (CompositeType) waitForImplByName(null, "composite-a-hide");
-
-	Composite composite_root = (Composite) ctaroot.createInstance(null,
-		null);// composite_root
-
-	CompositeType cta = (CompositeType) waitForImplByName(
-		null, "composite-a-hide");
-
-	Composite composite_a = (Composite) cta.createInstance(composite_root,
-		null);// inner composite with hide='true'
-
-	Instance instanceApp1 = composite_a.getMainInst();
+	Instance instanceApp1 = cta.createInstance(null, null);
 
 	S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-	// force injection
-	ga1.getElement();
 
-	auxListInstances("\t");
+	ThreadWrapper wrapper = new ThreadWrapper(ga1);
+	wrapper.setDaemon(true);
+	wrapper.start();
 
-	List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl");
+	apam.waitForIt(3000);
 
-	String messageTemplate = "Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
+	String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
-	String message = String.format(messageTemplate,
-		instancesOfImplementation.size());
-
-	Assert.assertTrue(message, instancesOfImplementation.size() == 1);
-
+	Assert.assertTrue(message, wrapper.isAlive());
     }
 
     @Test
-    public void CompositeContentMngtDisputeAmongInjectionAndOwn_tc047() {
+    public void CompositeWithEagerDependency_tc041() {
+	CompositeType ct1 = (CompositeType) waitForImplByName(null,
+		"S2Impl-composite-eager");
 
-	Implementation sharedDependencyImpl = (Implementation) waitForImplByName(null, "BoschSwitch");
+	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
 
-	Instance sharedDependency = sharedDependencyImpl.createInstance(null,
-		null);
+	Assert.assertTrue(String.format(message,
+		"Although, the test failed to retrieve the composite"),
+		ct1 != null);
 
-	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null, "composite-a");
+	auxListInstances("instances existing before the test-");
 
-	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
-		null);
+	Composite instanceComposite = (Composite) ct1.createInstance(null,
+		new HashMap<String, String>());
 
-	S3GroupAImpl s3b = (S3GroupAImpl) compositeA.getMainInst()
-		.getServiceObject();
-	s3b.getElement();
+	Implementation implS2 = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.implS2.S2Impl");
 
-	System.out.println("Original composite:"
-		+ sharedDependency.getComposite());
+	Instance instance = implS2.createInstance(instanceComposite, null);
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+	Assert.assertTrue(String.format(message,
+		"Although, the test failed to instantiate the composite"),
+		instance != null);
 
-	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null, "composite-a-dispute-inject-own");
-
-	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
-		null);
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	System.out.println("Composite after the own composite instantiation:"
-		+ sharedDependency.getComposite());
-
-	String message = "Class A needs the instance IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
-
-	Assert.assertTrue(message,
-		sharedDependency.getComposite() == compositeB);
-
-    }
-
-    @Test
-    public void CompositeContentMngtDisputeAmongInjectionAndOwnInstanceIntoComposite_tc048() {
-
-	Implementation sharedDependencyImpl = (Implementation) waitForImplByName(null, "BoschSwitch");
-
-	CompositeType compositeAImpl = (CompositeType) waitForImplByName(null, "composite-a");
-
-	Composite compositeA = (Composite) compositeAImpl.createInstance(null,
-		null);
+	// Force injection (for debuggin purposes)
+	// S2Impl im=(S2Impl)instance.getServiceObject();
+	// im.getDeadMansSwitch();
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	// Instance sharedDependency=sharedDependencyImpl.createInstance(null,
-	// null); //works
-	Instance sharedDependency = sharedDependencyImpl.createInstance(
-		compositeA, null); // do not works
+	List<Instance> pool = auxLookForInstanceOf(
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
+		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+	auxListInstances("instances existing after the test-");
+	System.out.println("pool.size() : " + pool.size());
 
-	S3GroupAImpl s3b = (S3GroupAImpl) compositeA.getMainInst()
-		.getServiceObject();
-	s3b.getElement();
-
-	System.out.println("Original composite:"
-		+ sharedDependency.getComposite());
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	CompositeType compositeBImpl = (CompositeType) waitForImplByName(null, "composite-a-dispute-inject-own");
-
-	Composite compositeB = (Composite) compositeBImpl.createInstance(null,
-		null);
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	System.out.println("Composite after the own composite instantiation:"
-		+ sharedDependency.getComposite());
-
-	String message = "Class A needs the instance (that is already located inside another composite) IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
-
-	Assert.assertTrue(message,
-		sharedDependency.getComposite() == compositeB);
-
-    }
-
-    class ThreadWrapper_grant extends Thread {
-
-	final Worker worker;
-
-	public ThreadWrapper_grant(Worker worker) {
-	    this.worker = worker;
-	}
-
-	@Override
-	public void run() {
-	    try {
-		worker.breakRock();
-		System.out.println("test 0K");
-	    } catch (Exception exc) {
-		System.out.println("resolve exception thrown ? "
-			+ exc.getMessage());
-	    }
-
-	}
-
-    }
-
-    @Test
-    public void CompositeContentGrantTest_tct013() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct013");
-
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
-
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
-		.getServiceObject();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
-	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">Init : night !");
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	manager.printTools();
 	Assert.assertTrue(
-		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
-		thread.isAlive());
+		String.format(
+			message,
+			"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
+		pool.size() == 1);
 
-	System.out.println(">9h : morning !");
-	state.setHour(9);
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertFalse(
-		"As the JackHammer is granted (morning), the worker resolution should be ok -> thread should be ended",
-		thread.isAlive());
     }
 
     @Test
-    public void CompositeContentSimpleReleaseGrantTest_tct014() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct013");
+    public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
+	CompositeType ct1 = (CompositeType) waitForImplByName(null,
+		"S2Impl-composite-eager-forceEager");
 
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
+	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
 
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
+	Assert.assertTrue(String.format(message,
+		"Although, the test failed to retrieve the composite"),
+		ct1 != null);
 
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
-		.getServiceObject();
+	auxListInstances("instances existing before the test-");
+
+	Composite instanceComposite = (Composite) ct1.createInstance(null,
+		new HashMap<String, String>());
+
+	Implementation implS2 = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager");
+
+	Instance instance = implS2.createInstance(instanceComposite, null);
+
+	Assert.assertTrue(String.format(message,
+		"Although, the test failed to instantiate the composite"),
+		instance != null);
+
+	// Force injection (for debuggin purposes)
+	// S2Impl im=(S2Impl)instance.getServiceObject();
+	// im.getDeadMansSwitch();
 
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
-	}
-	System.out.println();
+	List<Instance> pool = auxLookForInstanceOf(
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
+		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch",
+		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch");
 
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-	manager.printTools();
-	apam.waitForIt(500);
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
+	auxListInstances("instances existing after the test-");
 
-	System.out.println(">19h : afternoon !");
-
-	state.setHour(19);
-	thread = new ThreadWrapper_grant(worker1);
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(500);
-	Assert.assertFalse(
-		"As the JackHammer is granted (afternoon), the worker resolution should be ok -> thread should be ended",
-		thread.isAlive());
-
-	System.out.println(">23h : night !");
-	state.setHour(23);
-	manager.printTools();
-	apam.waitForIt(500);
-	thread = new ThreadWrapper_grant(worker1);
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(500);
 	Assert.assertTrue(
-		"As the JackHammer is not granted (night again), the worker resolution should fail -> thread should be waiting",
-		thread.isAlive());
+		String.format(
+			message,
+			"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
+		pool.size() == 1);
+
     }
 
-    /**
-     * This test should be changed accordingly to a new feature allowing to
-     * force breaking a grant the link (some kind of \<deny\> markup )
-     */
-    @Test
-    public void CompositeContentForcedReleaseGrantTest_tct015() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct015");
+    @Override
+    public List<Option> config() {
+	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
+		"fr.imag.adele.apam.tests.services");
 
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState_15");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
+	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
 
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
-		.getServiceObject();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
-	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">19h : afternoon !");
-
-	state.setHour(19);
-	thread = new ThreadWrapper_grant(worker1);
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	Assert.assertFalse(
-		"As the JackHammer is granted (afternoon), the worker resolution should be ok -> thread should be ended",
-		thread.isAlive());
-
-	System.out.println(">23h : night !");
-	state.setHour(23);
-	thread = new ThreadWrapper_grant(worker1);
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	;
-	manager.printTools();
-	Assert.assertTrue(
-		"As the JackHammer is not granted (night again), the worker resolution should fail -> thread should be waiting",
-		thread.isAlive());
+	addon.add(systemPackage("javax.xml.parsers"));
+	addon.add(0, packApamConflictManager());
+	return addon;
     }
 
     @Test
-    public void CompositeContentGrantToExternalTest_tct016() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct013");
-
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
-
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	Worker worker1 = (Worker) impl_worker.createInstance(null, null)
-		.getServiceObject();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
-	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">Init : night !");
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertTrue(
-		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
-		thread.isAlive());
-
-	System.out.println(">9h : morning !");
-	state.setHour(9);
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertFalse(
-		"As the JackHammer is granted (morning), the worker resolution should be ok, EVEN if instance is external -> thread should be ended",
-		thread.isAlive());
-    }
-    
-    @Test
-    public void CompositeContentGrantToExternalTest_tct017() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct017");
-
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState_17");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_multiple");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting_exists");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager_17");
-
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
-		.getServiceObject();
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
-	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">Init : night !");
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertTrue(
-		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
-		thread.isAlive());
-
-	System.out.println(">9h : morning !");
-	state.setHour(9);
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertFalse(
-		"As the JackHammer is granted (morning), the worker resolution should be ok -> thread should be ended",
-		thread.isAlive());
-    }
-    
-
-    @Test
-    public void DependencyRelease_tct018 () {
+    public void DependencyRelease_tct018() {
 	Implementation implSource = waitForImplByName(null,
 		"ServiceDependencySource_tct018");
 	Implementation implTarget = waitForImplByName(null,
 		"ServiceDependencyTarget_tct018");
 	apam.waitForIt(Constants.CONST_WAIT_TIME);
-	
+
 	Instance instSourceA = implSource.createInstance(null, null);
 	Instance instSourceB = implSource.createInstance(null, null);
 	Instance instTarget = implTarget.createInstance(null, null);
-	
-	ServiceDependencySource_tct018 sourceA= (ServiceDependencySource_tct018) instSourceA.getServiceObject();
-	ServiceDependencySource_tct018 sourceB= (ServiceDependencySource_tct018) instSourceB.getServiceObject();
-	
-	boolean exceptionThrown=false;
-	
-	  try {
-	      sourceA.getAndKeepTarget();
-	      System.out.println("Source A resolved target, but keeping");
-	      sourceB.getAndReleaseTarget();
-	      System.out.println("Source B resolved target");
-	    } catch (Throwable ex) {
-		System.out.println("Exception thrown : "+ex.getMessage());
-	      exceptionThrown=true;
-	    }
-	  Assert.assertTrue("Usual Case if A resolve and use a target (not shared), B cannot use it", exceptionThrown);
-	  
-	  exceptionThrown=false;
-	  try {
-	      sourceA.getAndReleaseTarget();
-	      System.out.println("Source A resolved target, and released");
-	      sourceB.getAndReleaseTarget();
-	      System.out.println("Source B resolved target, and released");
-	    } catch (Throwable ex) {
-		System.out.println("Exception thrown : "+ex.getMessage());
-	      exceptionThrown=true;
-	    }
-	  Assert.assertFalse("If A  set its field to null, dependency should be available for B", exceptionThrown);
 
-    }    
-    
-    @Test
-    public void CompositeContentGrantWrongImplementationTest_tct019() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct013");
-
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Worker_waiting_bis");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
-
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
+	ServiceDependencySource_tct018 sourceA = (ServiceDependencySource_tct018) instSourceA
+		.getServiceObject();
+	ServiceDependencySource_tct018 sourceB = (ServiceDependencySource_tct018) instSourceB
 		.getServiceObject();
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+	boolean exceptionThrown = false;
 
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
+	try {
+	    sourceA.getAndKeepTarget();
+	    System.out.println("Source A resolved target, but keeping");
+	    sourceB.getAndReleaseTarget();
+	    System.out.println("Source B resolved target");
+	} catch (Throwable ex) {
+	    System.out.println("Exception thrown : " + ex.getMessage());
+	    exceptionThrown = true;
 	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">Init : night !");
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	manager.printTools();
 	Assert.assertTrue(
-		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
-		thread.isAlive());
+		"Usual Case if A resolve and use a target (not shared), B cannot use it",
+		exceptionThrown);
 
-	System.out.println(">9h : morning !");
-	state.setHour(9);
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertTrue(
-		"The JackHammer is granted (morning) but the worker resolution should fail too (because wrong implementation working)  -> thread should be waiting",
-		thread.isAlive());
-    }    
-    
-    @Test
-    public void CompositeContentGrantWrongDependencyTest_tct020() {
-	CompositeType ct = (CompositeType) waitForImplByName(
-		null, "Yard_tct013");
-
-	Implementation impl_daystate = (Implementation) waitForImplByName(null, "DayState");
-	Implementation impl_jackhammer = (Implementation) waitForImplByName(null, "JackHammer_singleton");
-	Implementation impl_worker = (Implementation) waitForImplByName(null, "Night_worker");
-	Implementation impl_toolmanager = (Implementation) waitForImplByName(null, "ToolManager");
-
-	Composite yard = (Composite) ct.createInstance(null, null);
-	impl_jackhammer.createInstance(null, null);
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-	
-	Worker worker1 = (Worker) impl_worker.createInstance(yard, null)
-		.getServiceObject();
-
-
-	Instance dayinst = null;
-	Instance managerinst = null;
-	for (Instance inst : yard.getContainInsts()) {
-	    if (inst.getImpl().equals(impl_daystate))
-		dayinst = inst;
-	    else if (inst.getImpl().equals(impl_toolmanager))
-		managerinst = inst;
-	    System.out.println("Contains : " + inst.getName());
+	exceptionThrown = false;
+	try {
+	    sourceA.getAndReleaseTarget();
+	    System.out.println("Source A resolved target, and released");
+	    sourceB.getAndReleaseTarget();
+	    System.out.println("Source B resolved target, and released");
+	} catch (Throwable ex) {
+	    System.out.println("Exception thrown : " + ex.getMessage());
+	    exceptionThrown = true;
 	}
-	System.out.println();
-
-	Assert.assertNotNull("DayState is not found in the composite", dayinst);
-	ToolManager manager = (ToolManager) managerinst.getServiceObject();
-	DayState state = (DayState) dayinst.getServiceObject();
-//	manager.printTools();
-	state.setHour(4);
-
-	ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
-
-	System.out.println(">Init : night !");
-	thread.setDaemon(true);
-	thread.start();
-
-	apam.waitForIt(1000);
-	manager.printTools();
-	Assert.assertTrue(
-		"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
-		thread.isAlive());
+	Assert.assertFalse(
+		"If A  set its field to null, dependency should be available for B",
+		exceptionThrown);
 
     }
-    
 
 }

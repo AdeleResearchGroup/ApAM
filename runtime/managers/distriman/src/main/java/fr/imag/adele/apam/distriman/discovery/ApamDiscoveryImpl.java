@@ -52,216 +52,222 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 @Instantiate
 @Provides
 public class ApamDiscoveryImpl implements ApamDiscovery,
-		NetworkTopologyDiscovery.Factory.ClassDelegate {
+	NetworkTopologyDiscovery.Factory.ClassDelegate {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ApamDiscoveryImpl.class);
+    private static Logger logger = LoggerFactory
+	    .getLogger(ApamDiscoveryImpl.class);
 
-	@Property(name = "inet.host", value = "127.0.0.1", mandatory = true)
-	private String HOST;
+    @Property(name = "inet.host", value = "127.0.0.1", mandatory = true)
+    private String HOST;
 
-	private LocalMachine local;
+    private LocalMachine local;
 
-	/**
-	 * JmDNS, Java Multicast DNS, use to announce and discovered Apam/Distriman
-	 * machine over the network.
-	 */
-	private Map<JmDNS, String> jmDNSMachines;// ArrayList<JmDNS>();
+    /**
+     * JmDNS, Java Multicast DNS, use to announce and discovered Apam/Distriman
+     * machine over the network.
+     */
+    private Map<JmDNS, String> jmDNSMachines;// ArrayList<JmDNS>();
 
-	/**
-	 * Compute a default name for that machine, TODO compute a more relevant
-	 * name.
-	 */
-	private String name = UUID.randomUUID().toString();
+    /**
+     * Compute a default name for that machine, TODO compute a more relevant
+     * name.
+     */
+    private String name = UUID.randomUUID().toString();
 
-	@Requires
-	private ApamMachineFactory machineFactory;
+    @Requires
+    private ApamMachineFactory machineFactory;
 
-	public ApamDiscoveryImpl() {
-		super();
-		NetworkTopologyDiscovery.Factory.setClassDelegate(this);
+    public ApamDiscoveryImpl() {
+	super();
+	NetworkTopologyDiscovery.Factory.setClassDelegate(this);
+    }
+
+    private boolean isItLocal(ServiceEvent serviceEvent) {
+	for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
+
+	    JmDNS jmDNS = entry.getKey();
+	    try {
+		if (jmDNS
+			.getInterface()
+			.getHostAddress()
+			.equals(serviceEvent.getDNS().getInterface()
+				.getHostAddress())
+			&& serviceEvent.getInfo().getPort() == this.local
+				.getPort()) {
+		    return true;
+		}
+	    } catch (IOException e) {
+		// consider as not local in case of problem (conservative
+		// approach
+	    }
+
 	}
 
-	@Validate
-	public void start() {
+	return false;
+    }
 
-		logger.info("Starting mdns...");
+    /**
+     * Factory that determines the euristics to choose/filter the network cards
+     * to be considered
+     */
+    @Override
+    public NetworkTopologyDiscovery newNetworkTopologyDiscovery() {
+	return new NetworkTopology();
+    }
 
-		if (jmDNSMachines != null)
-			throw new RuntimeException(
-					"Trying to start machine discovery twice.");
+    @Override
+    public void publishLocalMachine(LocalMachine local) throws IOException {
 
-		jmDNSMachines = new HashMap<JmDNS, String>();// new
-														// CopyOnWriteArrayList<JmDNS>();
+	this.local = local;
 
-		logger.info("Iteratings interfaces..");
+	for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
 
-		// Create the jmdns server
-		for (InetAddress address : NetworkTopologyDiscovery.Factory
-				.getInstance().getInetAddresses()) {
+	    JmDNS jmDNS = entry.getKey();
+	    String urlaux = entry.getValue();
 
-			try {
+	    String url = String.format("http://%s:%d", urlaux, local.getPort());
 
-				JmDNS current = JmDNS.create(address);
+	    // Register a local machine
+	    logger.info("publishing machine {} on the mdns bus", url);
 
-				current.registerServiceType(MDNS_TYPE);
+	    jmDNS.registerService(ServiceInfo.create(local.getType(),
+		    local.getName(), local.getPort(), url));
 
-				jmDNSMachines.put(current, address.getHostAddress());
+	}
 
-				for (ServiceInfo sinfo : current.list(MDNS_TYPE)) {
-					if (sinfo.getName().equalsIgnoreCase(name)) {
-						continue; // ignore my services..
-					}
+    }
 
-					// Create and Add the machine
-					String url = sinfo.getNiceTextString();
+    @Override
+    public void serviceAdded(ServiceEvent serviceEvent) {
+	// Ignore, only handle resolved
+	logger.info("service added {}", serviceEvent.getInfo()
+		.getNiceTextString());
+    }
 
-					logger.info("mDNS detected the url {} subtype {}", url,
-							sinfo.getTypeWithSubtype());
+    /**
+     * @param serviceEvent
+     *            The mdns event triggered by a remote machine that is no longer
+     *            available.
+     */
+    @Override
+    public void serviceRemoved(ServiceEvent serviceEvent) {
 
-					String id = String.format("%s.%s", sinfo.getName(),
-							sinfo.getType());
+	String id = String.format("%s.%s", serviceEvent.getName(),
+		serviceEvent.getType());
 
-					machineFactory.newRemoteMachine(url, id, false);
-				}
+	logger.info("service removing {} with id {}", serviceEvent.getInfo()
+		.getNiceTextString(), id);
 
-				current.addServiceListener(MDNS_TYPE, this);
+	if (serviceEvent.getName().equalsIgnoreCase(name)) {
+	    return; // ignore my message
+	}
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}
+	ServiceInfo info = serviceEvent.getInfo();
+	String url = info.getNiceTextString();
 
+	machineFactory.destroyRemoteMachine(url, id);
+    }
+
+    @Override
+    public void serviceResolved(ServiceEvent serviceEvent) {
+
+	String id = String.format("%s.%s", serviceEvent.getName(),
+		serviceEvent.getType());
+
+	logger.info("service resolved {} subtype {}", serviceEvent.getInfo()
+		.getNiceTextString(), id);
+
+	boolean isLocalhost = isItLocal(serviceEvent);
+
+	if (serviceEvent.getName().equalsIgnoreCase(name)) {
+	    return; // ignore this machine message
+	}
+
+	ServiceInfo info = serviceEvent.getDNS().getServiceInfo(MDNS_TYPE,
+		serviceEvent.getName());
+	String url = info.getNiceTextString();
+
+	machineFactory.newRemoteMachine(url, id, isLocalhost);
+    }
+
+    @Validate
+    public void start() {
+
+	logger.info("Starting mdns...");
+
+	if (jmDNSMachines != null) {
+	    throw new RuntimeException(
+		    "Trying to start machine discovery twice.");
+	}
+
+	jmDNSMachines = new HashMap<JmDNS, String>();// new
+						     // CopyOnWriteArrayList<JmDNS>();
+
+	logger.info("Iteratings interfaces..");
+
+	// Create the jmdns server
+	for (InetAddress address : NetworkTopologyDiscovery.Factory
+		.getInstance().getInetAddresses()) {
+
+	    try {
+
+		JmDNS current = JmDNS.create(address);
+
+		current.registerServiceType(MDNS_TYPE);
+
+		jmDNSMachines.put(current, address.getHostAddress());
+
+		for (ServiceInfo sinfo : current.list(MDNS_TYPE)) {
+		    if (sinfo.getName().equalsIgnoreCase(name)) {
+			continue; // ignore my services..
+		    }
+
+		    // Create and Add the machine
+		    String url = sinfo.getNiceTextString();
+
+		    logger.info("mDNS detected the url {} subtype {}", url,
+			    sinfo.getTypeWithSubtype());
+
+		    String id = String.format("%s.%s", sinfo.getName(),
+			    sinfo.getType());
+
+		    machineFactory.newRemoteMachine(url, id, false);
 		}
 
-		logger.info("/Iteratings interfaces..");
+		current.addServiceListener(MDNS_TYPE, this);
 
-		logger.info("mdns started.");
-
-	}
-
-	@Invalidate
-	public void stop() {
-		
-		for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
-
-			JmDNS jmDNS = entry.getKey();
-
-			jmDNS.unregisterAllServices();
-
-			// unregister the listener
-			jmDNS.removeServiceListener(MDNS_TYPE, this);
-
-			try {
-				jmDNS.close();
-			} catch (IOException e) {
-
-			}
-
-		}
-	}
-
-	public void publishLocalMachine(LocalMachine local) throws IOException {
-
-		this.local = local;
-
-		for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
-
-			JmDNS jmDNS = entry.getKey();
-			String urlaux = entry.getValue();
-
-			String url = String.format("http://%s:%d", urlaux,
-					local.getPort());
-
-			// Register a local machine
-			logger.info("publishing machine {} on the mdns bus", url);
-
-			jmDNS.registerService(ServiceInfo.create(local.getType(),
-					local.getName(), local.getPort(), url));
-
-		}
+	    } catch (IOException e) {
+		e.printStackTrace();
+		throw new RuntimeException(e);
+	    }
 
 	}
 
-	@Override
-	public void serviceAdded(ServiceEvent serviceEvent) {
-		// Ignore, only handle resolved
-		logger.info("service added {}", serviceEvent.getInfo()
-				.getNiceTextString());
+	logger.info("/Iteratings interfaces..");
+
+	logger.info("mdns started.");
+
+    }
+
+    @Override
+    @Invalidate
+    public void stop() {
+
+	for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
+
+	    JmDNS jmDNS = entry.getKey();
+
+	    jmDNS.unregisterAllServices();
+
+	    // unregister the listener
+	    jmDNS.removeServiceListener(MDNS_TYPE, this);
+
+	    try {
+		jmDNS.close();
+	    } catch (IOException e) {
+
+	    }
+
 	}
-
-	/**
-	 * @param serviceEvent
-	 *            The mdns event triggered by a remote machine that is no longer
-	 *            available.
-	 */
-	public void serviceRemoved(ServiceEvent serviceEvent) {
-
-		String id = String.format("%s.%s", serviceEvent.getName(),
-				serviceEvent.getType());
-
-		logger.info("service removing {} with id {}", serviceEvent.getInfo()
-				.getNiceTextString(), id);
-
-		if (serviceEvent.getName().equalsIgnoreCase(name)) {
-			return; // ignore my message
-		}
-
-		ServiceInfo info = serviceEvent.getInfo();
-		String url = info.getNiceTextString();
-
-		machineFactory.destroyRemoteMachine(url, id);
-	}
-
-	private boolean isItLocal(ServiceEvent serviceEvent) {
-		for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
-
-			JmDNS jmDNS = entry.getKey();
-			try {
-				if (jmDNS
-						.getInterface()
-						.getHostAddress()
-						.equals(serviceEvent.getDNS().getInterface().getHostAddress())
-						&& serviceEvent.getInfo().getPort() == this.local
-								.getPort()) {
-					return true;
-				}
-			} catch (IOException e) {
-				//consider as not local in case of problem (conservative approach
-			}
-
-		}
-		
-		return false;
-	}
-	
-	public void serviceResolved(ServiceEvent serviceEvent) {
-
-		String id = String.format("%s.%s", serviceEvent.getName(),
-				serviceEvent.getType());
-
-		logger.info("service resolved {} subtype {}", serviceEvent.getInfo()
-				.getNiceTextString(), id);
-
-		boolean isLocalhost = isItLocal(serviceEvent);
-
-		if (serviceEvent.getName().equalsIgnoreCase(name)) {
-			return; // ignore this machine message
-		}
-
-		ServiceInfo info = serviceEvent.getDNS().getServiceInfo(MDNS_TYPE,
-				serviceEvent.getName());
-		String url = info.getNiceTextString();
-
-		machineFactory.newRemoteMachine(url, id, isLocalhost);
-	}
-
-	
-	/**
-	 * Factory that determines the euristics to choose/filter the network cards to be considered 
-	 */
-	@Override
-	public NetworkTopologyDiscovery newNetworkTopologyDiscovery() {
-		return new NetworkTopology();
-	}
+    }
 }

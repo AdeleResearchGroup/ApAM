@@ -16,10 +16,10 @@ package fr.imag.adele.apam.tests.helpers;
 
 public class Constants {
 
-	public static final int CONST_WAIT_TIME = 0;
-	
-	public static final int CONST_WAIT_TIME_LONG = 7000;
-	
-	public static final int CONST_DEBUG_PORT = 5007;
-	
+    public static final int CONST_WAIT_TIME = 0;
+
+    public static final int CONST_WAIT_TIME_LONG = 7000;
+
+    public static final int CONST_DEBUG_PORT = 5007;
+
 }

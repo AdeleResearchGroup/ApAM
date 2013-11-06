@@ -46,374 +46,56 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public class PropertyTest extends ExtensionAbstract {
-    
+
     @Override
     public List<Option> config() {
-	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("specs-s1", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("implem-s1", "fr.imag.adele.apam.tests.services");
-//	mapOfRequiredArtifacts.put("instance-s1", "fr.imag.adele.apam.tests.services");
-	
-	
-	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
+	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("specs-s1",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("implem-s1",
+		"fr.imag.adele.apam.tests.services");
+	// mapOfRequiredArtifacts.put("instance-s1",
+	// "fr.imag.adele.apam.tests.services");
+
+	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
 	return addon;
     }
-    
-
-    /**
-     * Ensures that inherited properties cannot be changed and inherited
-     * definitions can change
-     */
-    @Test
-    public void PropertyInheritedCannotBeChanged_tc001() {
-
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
-	final Instance samsungInst = samsungImpl.createInstance(null, null);
-
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
-	Instance s1Inst = s1Impl.createInstance(null, null);
-
-	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-
-	// this should be updated correctly
-	samsungInst.setProperty("currentVoltage", "999");
-	// this should stay with the old value
-	samsungInst.setProperty("made", "deutschland");
-
-	// this property should be updated since its not inherited
-	Assert.assertTrue("Non-inherited properties shall be updateable",
-		samsungInst.getProperty("currentVoltage").equals("999"));
-
-	Assert.assertTrue("Inherited property shall not be changed",
-		samsungInst.getProperty("made").equals("china"));
-
-    }
 
     @Test
-    public void testPropertyDefinitionSpec_tct026() {
+    public void PropertiesDataTypeAndLDAPFilteringForBoolean_tc007()
+	    throws InvalidSyntaxException {
 
-	System.out.println("Testing Specification properties defined");
-	Specification specsS1 = waitForSpecByName(null,
-		"specs-s1-tct026");
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
+	final Instance samsungInst = samsungImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "95");
+		    }
+		});
 
-	for (int i = 0; i <= 6; i++)
-		Assert.assertEquals(" Property def" + i
-			+ "-specs-s1 is not defined", "def" + i + "-specs-s1",
-			specsS1.getDeclaration().getPropertyDefinition("def" + i + "-specs-s1").getName());
-	
-	System.out.println("Testing Specification properties setted");
-	Assert.assertEquals(" Property def0-specs-s1 is not setted", "final-value",
-		specsS1.getProperty("def0-specs-s1"));
-	Assert.assertEquals(" Property def1-specs-s1 is not setted", "final-value",
-		specsS1.getProperty("def1-specs-s1"));
-	
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-    }
+	auxListProperties("\t", samsungInst);
 
-    @Test
-	public void testPropertyDefinitionImplem_tct027() {
-		
-	    System.out.println("Testing Implementation properties");
-	    Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
-	    System.out.println("*********-->"+implemS1.getAllPropertiesString());
-	    for(int i=0; i<=6; i++)
-		if(!implemS1.setProperty("def"+i+"-specs-s1", "test-prop"))
-		    // if property is not settable, it must be final
-		{ System.out.println("def"+i+"-specs-s1 is not settable");
-		    Assert.assertEquals(" Property def"+i+"-specs-s1 is not defined",
-			    "final-value", implemS1.getProperty("def"+i+"-specs-s1") );
-		}
-	    for(int i=0; i<=1; i++)
-		if(!implemS1.setProperty("def"+i+"-implem-s1", "test-prop"))
-		    // if property is not settable, it must be final
-		{ System.out.println("def"+i+"-implem-s1 is not settable");
-		    Assert.assertEquals(" Property def"+i+"-implem-s1 is not defined",
-			    "final-value", implemS1.getProperty("def"+i+"-implem-s1") );
-		}
-	    
-	    // TODO test the properties defined at this level
-    }
+	String message = "";
 
-    @Test
-    public void testPropertyDefinitionInstance_tct028() {
-	System.out.println("Testing Instance properties");
+	message = String
+		.format("Calling match method with filter = %s, should result in True since hasDisplay is %b",
+			"(hasDisplay=false)",
+			samsungInst.getProperty("hasDisplay"));
 
-	auxListInstances();
-	Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
-	auxListInstances();
-	Instance instanceS1 = waitForInstByName(null,
-		"instance-s1-tct026");			
-	auxListInstances();
+	Assert.assertTrue(message, samsungInst.match("(hasDisplay=false)"));
 
-//	for (int i = 0; i <= 6; i++)
-//	    if (!instanceS1.setProperty("def" + i + "-specs-s1", "test-prop"))
-//	    // if property is not settable, it must be final
-//	    {
-//		System.out.println("def" + i + "-specs-s1 is not settable");
-//		Assert.assertEquals(" Property def" + i
-//			+ "-specs-s1 is not defined", "final-value",
-//			instanceS1.getProperty("def" + i + "-specs-s1"));
-//	    }
-	    // TODO test the properties defined at this level
+	message = String
+		.format("Calling match method with filter = %s, should result in False since hasDisplay is %b",
+			"(hasDisplay=true)",
+			samsungInst.getProperty("hasDisplay"));
 
-	// System.out.println(specsS1.getProperty("def"+i+"-specs-s1"));//getDeclaration().getPropertyDefinition("def"+i+"-specs-s1"));
-	//
-	// for(int i=0; i<=7; i++) {
-	//
-	// System.out.print("--> "+specsS1.getProperty("def"+i+"-specs-s1"));
-	// specsS1.setProperty("def"+i+"-specs-s1", "test-prop");
-	// System.out.println(" <--> "+specsS1.getProperty("def"+i+"-specs-s1"));
-	// }
-
-	//
-	// ComponentDeclaration implemS1 = waitForImplByName(null,
-	// "implem-s1-tct026").getDeclaration();
-	// for(int i=0; i<=6; i++)
-	// Assert.assertNotNull(" Property def"+i+"-specs-s1 is not defined",
-	// implemS1.getPropertyDefinition("def"+i+"-specs-s1"));
-
-    }
-
-    /**
-     * Ensures that initial properties are configured in the instance properly
-     */
-    @Test
-    public void PropertyConfiguredWithInitialParameter_tc002() {
-
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
-
-	Map<String, String> initialProperties = new HashMap<String, String>() {
-	    {
-		put("property-01", "configured");
-		put("property-02", "configured");
-		put("property-03", "configured");
-		put("property-04", "configured");
-		put("property-05", "configured");
-	    }
-	};
-
-	Instance samsungInst = samsungImpl.createInstance(null,
-		initialProperties);
-
-	Assert.assertNotNull("Instance could not be create through the API",
-		samsungInst);
-
-	// all the initial properties should be inside of the instance
-	for (String key : initialProperties.keySet()) {
-
-	    Assert.assertNotNull(
-		    "Instance did not receive the initial property",
-		    samsungInst.getAllProperties().containsKey(key));
-
-	    Assert.assertNotNull(
-		    "Instance did not receive the initial property",
-		    samsungInst.getAllProperties().get(key));
-
-	    Assert.assertTrue(samsungInst.getAllProperties().get(key)
-		    .equals(initialProperties.get(key)));
-	}
-    }
-
-    /**
-     * Ensures that initial properties are configured in the instance properly
-     */
-    @Test
-    public void PropertyConfiguredWithSetProperty_tc003() {
-
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
-
-	Map<String, String> initialProperties = new HashMap<String, String>() {
-	    {
-		put("property-01", "configured-01");
-		put("property-02", "configured-02");
-		put("property-03", "configured-03");
-		put("property-04", "configured-04");
-		put("property-05", "configured-05");
-
-	    }
-	};
-
-	Instance samsungInst = samsungImpl.createInstance(null, null);
-
-	samsungInst.setProperty("property-01", "configured-01");
-	samsungInst.setProperty("property-02", "configured-02");
-	samsungInst.setProperty("property-03", "configured-03");
-	samsungInst.setProperty("property-04", "configured-04");
-	samsungInst.setProperty("property-05", "configured-05");
-
-	final String message = "Instance did not receive the property defined by setProperty method call";
-
-	for (String key : initialProperties.keySet()) {
-
-	    System.out.println(key + ":"
-		    + samsungInst.getAllProperties().get(key));
-
-	    Assert.assertTrue(message, samsungInst.getAllProperties()
-		    .containsKey(key));
-	    Assert.assertTrue(
-		    message,
-		    samsungInst.getProperty(key).equals(
-			    initialProperties.get(key)));
-	}
-    }
-
-    @Test
-    public void PropertyDefinitionInternalTrueTypeStringProperty_tc004() {
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
-	Instance s1Inst = s1Impl.createInstance(null, null);
-
-	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-
-	String messageTemplace = "for a property type internal='true', %s";
-
-	Assert.assertTrue(String.format(messageTemplace,
-		"initial value declared in the xml should be ignored"), s1
-		.getStateInternal() == null);
-
-	s1Inst.setProperty("stateInternal", "changedByApamAPI");
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered java instance property value"),
-		s1.getStateInternal() == null);
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("stateInternal") == null);
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should NOT be changeable by ApamInstance.setProperty,  although the value remains un altered when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("stateInternal") == null);
-
-	s1.setStateInternal("changedByJavaInstance");
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking the java instance property value"),
-		s1.getStateInternal().equals("changedByJavaInstance"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("stateInternal").equals(
-			"changedByJavaInstance"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("stateInternal")
-			.equals("changedByJavaInstance"));
-
-    }
-
-    @Test
-    public void PropertyDefinitionInternalFalseTypeStringProperty_tc004() {
-
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
-	Instance s1Inst = s1Impl.createInstance(null, null);
-
-	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-
-	String messageTemplace = "for a property type injected='external', the %s";
-
-	Assert.assertTrue(String.format(messageTemplace,
-		"initial value declared in the xml should NOT be ignored"), s1
-		.getStateNotInternal().equals("default"));
-
-	s1Inst.setProperty("stateNotInternal", "changedByApamAPI");
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by ApamInstance.setProperty, which is not true when checking the java instance property value"),
-		(s1.getStateNotInternal() == null ? "" : s1
-			.getStateNotInternal()).equals("changedByApamAPI"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("stateNotInternal").equals(
-			"changedByApamAPI"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("stateNotInternal")
-			.equals("changedByApamAPI"));
-
-	s1.setStateNotInternal("changedByJavaInstance");
-
-	// All the following situation should remains unchanged since the field
-	// is an external (check the spec:
-	// https://docs.google.com/document/d/1JNffl2oNeS26HFbJ2OT-KnpvZnEYm5sja2XprsYG3Mo/edit#)
-
-	Assert.assertNotNull(s1.getStateNotInternal());
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking the java instance value"),
-		s1.getStateNotInternal().equals("changedByApamAPI"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("stateNotInternal").equals(
-			"changedByApamAPI"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("stateNotInternal")
-			.equals("changedByApamAPI"));
-
-    }
-
-    @Test
-    public void PropertyDefinitionIsVisibleWithValPropertySetXML_tc005() {
-
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
-	Instance s1Inst = s1Impl.createInstance(null, null);
-
-	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-
-	Assert.assertTrue(
-		"Internal property value should be null, since the xml should be ignore.",
-		s1Inst.getAllProperties().get("stateInternal") == null);
-
-	Assert.assertTrue("Non-Internal property not visible through API",
-		s1Inst.getAllProperties().get("stateNotInternal") != null);
-
-	Assert.assertTrue(
-		"Non-Internal property value not visible through API",
-		s1Inst.getAllProperties().get("stateNotInternal")
-			.equals("default"));
+	Assert.assertFalse(message, samsungInst.match("(hasDisplay=true)"));
 
     }
 
@@ -421,8 +103,7 @@ public class PropertyTest extends ExtensionAbstract {
     public void PropertiesDataTypeAndLDAPFilteringForIntegers_tc006()
 	    throws InvalidSyntaxException {
 
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
 		    {
@@ -467,46 +148,10 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertiesDataTypeAndLDAPFilteringForBoolean_tc007()
-	    throws InvalidSyntaxException {
-
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
-	final Instance samsungInst = samsungImpl.createInstance(null,
-		new HashMap<String, String>() {
-		    {
-			put("currentVoltage", "95");
-		    }
-		});
-
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-	auxListProperties("\t", samsungInst);
-
-	String message = "";
-
-	message = String
-		.format("Calling match method with filter = %s, should result in True since hasDisplay is %b",
-			"(hasDisplay=false)",
-			samsungInst.getProperty("hasDisplay"));
-
-	Assert.assertTrue(message, samsungInst.match("(hasDisplay=false)"));
-
-	message = String
-		.format("Calling match method with filter = %s, should result in False since hasDisplay is %b",
-			"(hasDisplay=true)",
-			samsungInst.getProperty("hasDisplay"));
-
-	Assert.assertFalse(message, samsungInst.match("(hasDisplay=true)"));
-
-    }
-
-    @Test
     public void PropertiesDataTypeAndLDAPFilteringForString_tc008()
 	    throws InvalidSyntaxException {
 
-	Implementation samsungImpl = waitForImplByName(null,
-		"SamsungSwitch");
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
 	final Instance samsungInst = samsungImpl.createInstance(null,
 		new HashMap<String, String>() {
 		    {
@@ -628,6 +273,56 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
+    public void PropertiesInjectionEnumIntoSetDataType_tc081() {
+
+	Implementation implementation = waitForImplByName(null,
+		"PropertyInjectionSwitch");
+
+	Instance instance = implementation.createInstance(null, null);
+
+	PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance
+		.getServiceObject();
+
+	final String messageTemplate = "%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)";
+
+	Set<String> original = new HashSet<String>() {
+	    {
+		add("Linux");
+		add("Windows");
+		add("Android");
+		add("IOS");
+	    }
+	};
+
+	Set<String> injected = switchRef.getOS();
+
+	// check we dont inject null
+	Assert.assertTrue(
+		String.format(
+			messageTemplate,
+			"The value injected into the java.util.Set field was null, instead of set declared in the property",
+			"string"), injected != null);
+
+	// check that all the values injected were present in the original set
+	for (String value : injected) {
+	    Assert.assertTrue(
+		    String.format(
+			    messageTemplate,
+			    "The value injected in the field do not exist in the original set of values",
+			    "string"), original.contains(value));
+	}
+
+	// ensure that both, the injected and declared, do have the same size.
+	Assert.assertTrue(
+		String.format(
+			messageTemplate,
+			String.format(
+				"The size of the set declarared is %d and exactly %d were injected, those values should be equals",
+				original.size(), injected.size()), "string"),
+		original.size() == injected.size());
+    }
+
+    @Test
     public void PropertiesInjectionIntegerIntoSetDataType_tc079() {
 
 	Implementation implementation = waitForImplByName(null,
@@ -728,264 +423,6 @@ public class PropertyTest extends ExtensionAbstract {
     }
 
     @Test
-    public void PropertiesInjectionEnumIntoSetDataType_tc081() {
-
-	Implementation implementation = waitForImplByName(null,
-		"PropertyInjectionSwitch");
-
-	Instance instance = implementation.createInstance(null, null);
-
-	PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance
-		.getServiceObject();
-
-	final String messageTemplate = "%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)";
-
-	Set<String> original = new HashSet<String>() {
-	    {
-		add("Linux");
-		add("Windows");
-		add("Android");
-		add("IOS");
-	    }
-	};
-
-	Set<String> injected = switchRef.getOS();
-
-	// check we dont inject null
-	Assert.assertTrue(
-		String.format(
-			messageTemplate,
-			"The value injected into the java.util.Set field was null, instead of set declared in the property",
-			"string"), injected != null);
-
-	// check that all the values injected were present in the original set
-	for (String value : injected) {
-	    Assert.assertTrue(
-		    String.format(
-			    messageTemplate,
-			    "The value injected in the field do not exist in the original set of values",
-			    "string"), original.contains(value));
-	}
-
-	// ensure that both, the injected and declared, do have the same size.
-	Assert.assertTrue(
-		String.format(
-			messageTemplate,
-			String.format(
-				"The size of the set declarared is %d and exactly %d were injected, those values should be equals",
-				original.size(), injected.size()), "string"),
-		original.size() == injected.size());
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSuperSet_Integer_tc057() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
-
-	String expression = "(setInt *> {12,15,254, 0})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "*>", inst.getProperty("setInt"),
-		true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setInt *> {254,15,12,0})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "*>",
-		inst.getProperty("setIntUnordered"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setInt *> {12,15, 0})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "*>",
-		inst.getProperty("setIntLessElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setInt *> {12,15,254, 0,27})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "*>",
-		inst.getProperty("setIntMoreElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSuperSet_Enum_tc058() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
-
-	String expression = "(OS *> {Linux, Windows, Android, IOS})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "*>", inst.getProperty("OS"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(OS *> {IOS, Windows, Linux,Android})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "*>", inst.getProperty("OSUnordered"),
-		true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(OS *> {Linux, Windows, IOS})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "*>",
-		inst.getProperty("OSLessElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(OS *> {Linux, Windows, Android,IOS,AmigaOS})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "*>",
-		inst.getProperty("OSMoreElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSuperSet_String_tc059() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
-
-	String expression = "(setString *> {doubt,grows,with,knowledge})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "*>",
-		inst.getProperty("setString"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setString *> {with,doubt,knowledge,grows})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "*>",
-		inst.getProperty("setStringUnordered"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setString *> {doubt,grows,knowledge})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "*>",
-		inst.getProperty("setStringLessElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setString *> {doubt,and,uncertainties,grows,with,knowledge})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "*>",
-		inst.getProperty("setStringMoreElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSubSet_Integer_tc060() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
-
-	String expression = "(setInt <* {12,15,254, 0})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "<*", inst.getProperty("setInt"),
-		true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setInt <* {254,15,12,0})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "<*",
-		inst.getProperty("setIntUnordered"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setInt <* {12,15, 0})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "<*",
-		inst.getProperty("setIntLessElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-	expression = "(setInt <* {12,15,254, 0,27})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setInt"), "<*",
-		inst.getProperty("setIntMoreElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSubSet_Enum_tc061() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
-
-	String expression = "(OS <* {Linux, Windows, Android, IOS})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "<*", inst.getProperty("OS"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(OS <* {IOS, Windows, Linux,Android})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "<*", inst.getProperty("OSUnordered"),
-		true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(OS <* {Linux, Windows, IOS})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "<*",
-		inst.getProperty("OSLessElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-	expression = "(OS <* {Linux, Windows, Android,IOS,AmigaOS})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("OS"), "<*",
-		inst.getProperty("OSMoreElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-    }
-
-    @Test
-    public void PropertyFilterOSGiImplementationSubSet_String_tc062() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecFilterSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
-
-	String expression = "(setString <* {doubt,grows,with,knowledge})";
-	String message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "<*",
-		inst.getProperty("setString"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setString <* {with,doubt,knowledge,grows})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "<*",
-		inst.getProperty("setStringUnordered"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-	expression = "(setString <* {doubt,grows,knowledge})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "<*",
-		inst.getProperty("setStringLessElements"), false);
-	Assert.assertTrue(message, !inst.match(expression));
-
-	expression = "(setString <* {doubt,and,uncertainties,grows,with,knowledge})";
-	message = String.format(messageTemplate, expression,
-		inst.getProperty("setString"), "<*",
-		inst.getProperty("setStringMoreElements"), true);
-	Assert.assertTrue(message, inst.match(expression));
-
-    }
-
-    @Test
     public void PropertyChangeNoticationCallback_tc063() {
 
 	Implementation implementation = waitForImplByName(null,
@@ -1037,387 +474,87 @@ public class PropertyTest extends ExtensionAbstract {
 
     }
 
+    /**
+     * Ensures that initial properties are configured in the instance properly
+     */
     @Test
-    public void PropertySetTypeBracesNoCommaInTheEnd_tc065() {
+    public void PropertyConfiguredWithInitialParameter_tc002() {
 
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
 
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> {Android, Windows})";
-	boolean result = inst.match(expression);
-	boolean expected = true;
+	Map<String, String> initialProperties = new HashMap<String, String>() {
+	    {
+		put("property-01", "configured");
+		put("property-02", "configured");
+		put("property-03", "configured");
+		put("property-04", "configured");
+		put("property-05", "configured");
+	    }
+	};
 
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
+	Instance samsungInst = samsungImpl.createInstance(null,
+		initialProperties);
 
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
+	Assert.assertNotNull("Instance could not be create through the API",
+		samsungInst);
+
+	// all the initial properties should be inside of the instance
+	for (String key : initialProperties.keySet()) {
+
+	    Assert.assertNotNull(
+		    "Instance did not receive the initial property",
+		    samsungInst.getAllProperties().containsKey(key));
+
+	    Assert.assertNotNull(
+		    "Instance did not receive the initial property",
+		    samsungInst.getAllProperties().get(key));
+
+	    Assert.assertTrue(samsungInst.getAllProperties().get(key)
+		    .equals(initialProperties.get(key)));
+	}
     }
 
+    /**
+     * Ensures that initial properties are configured in the instance properly
+     */
     @Test
-    public void PropertySetTypeBracesCommaInTheEnd_tc066() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> {Android, Windows,})";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertySetTypeBorderElements_tc067() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> {Linux, IOS})";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertySetTypeMiddleElements_tc068() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> {Android, Windows})";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertySetTypeOneMiddleOneBorderElement_tc069() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> {Android, IOS})";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertySetTypeNoBracesComma_tc070() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> Android, Windows,)";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertySetTypeNoBracesNoComma_tc071() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "fooSetValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(fooSetValuedSimple *> Android, Windows)";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertyEnumTypeSimpleValueNoTrick_tc072() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "barEnumValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(barEnumValuedSimple=Linux)";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertyEnumTypeSimpleValueSpaceAfter_tc073() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "barEnumValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(barEnumValuedSimple=Linux )";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertyEnumTypeSimpleValueSpaceBefore_tc074() {
-
-	Implementation implementation = waitForImplByName(null,
-		"SpecEnumVersusSetTestSwitch");
-	Instance inst = implementation.createInstance(null, null);
-
-	String propertyName = "barEnumValuedSimple";
-	String propertyValue = inst.getProperty(propertyName);
-	String expression = "(barEnumValuedSimple= Linux)";
-	boolean result = inst.match(expression);
-	boolean expected = true;
-
-	String message = String
-		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
-			expression, result, expected, propertyName,
-			propertyValue);
-
-	if (expected)
-	    Assert.assertTrue(message, result);
-	else
-	    Assert.assertFalse(message, result);
-    }
-
-    @Test
-    public void PropertyTypeIntChangeNoticationCallback_tc115() {
-
-	final String prologTemplate = "Declaring a 'method' attribute into a integer type property, should invoke the declared method with the right type and value. %s";
-
-	Integer propertyValue = Integer.valueOf(734);
-
-	Implementation implementation = waitForImplByName(null,
-		"PropertyTypeIntChangeNotification");
-	Instance inst = implementation.createInstance(null, null);
-
-	inst.setProperty("state", propertyValue);
-
-	PropertyTypeIntChangeNotificationSwitch switchdevice = (PropertyTypeIntChangeNotificationSwitch) inst
-		.getServiceObject();
-
-	Assert.assertTrue(String.format(prologTemplate,
-		"Although the invocation was not performed."), switchdevice
-		.getObjectReceivedInNotification() != null);
-
-	String messageWrongType = String
-		.format(prologTemplate,
-			"Although the invocation was not performed with the right type. ");
-	String messageWrongTypeDetail = String.format(messageWrongType
-		+ " %s given instead of %s", switchdevice
-		.getObjectReceivedInNotification().getClass()
-		.getCanonicalName(), Integer.class.getCanonicalName());
-
-	Assert.assertTrue(
-		messageWrongTypeDetail,
-		switchdevice.getObjectReceivedInNotification() instanceof Integer);
-
-	String messageWrongValue = String
-		.format(prologTemplate,
-			"Although the invocation was not performed with the right value. ");
-	String messageWrongValueDetail = String.format(messageWrongValue
-		+ " %s given instead of %s",
-		switchdevice.getObjectReceivedInNotification(), propertyValue);
-
-	Assert.assertTrue(messageWrongValueDetail, switchdevice
-		.getObjectReceivedInNotification().equals(propertyValue));
-
-    }
-
-    @Test
-    public void PropertyTypeBooleanChangeNoticationCallback_tc116() {
-
-	final String prologTemplate = "Declaring a 'method' attribute into a boolean type property, should invoke the declared method with the right type and value. %s";
-
-	Boolean propertyValue = Boolean.TRUE;
-
-	Implementation implementation = waitForImplByName(null,
-		"PropertyTypeBooleanChangeNotification");
-	Instance inst = implementation.createInstance(null, null);
-
-	inst.setProperty("state", propertyValue);
-
-	PropertyTypeBooleanChangeNotificationSwitch switchdevice = (PropertyTypeBooleanChangeNotificationSwitch) inst
-		.getServiceObject();
-
-	Assert.assertTrue(String.format(prologTemplate,
-		"Although the invocation was not performed."), switchdevice
-		.getObjectReceivedInNotification() != null);
-
-	String messageWrongType = String
-		.format(prologTemplate,
-			"Although the invocation was not performed with the right type. ");
-	String messageWrongTypeDetail = String.format(messageWrongType
-		+ " %s given instead of %s", switchdevice
-		.getObjectReceivedInNotification().getClass()
-		.getCanonicalName(), Boolean.class.getCanonicalName());
-
-	Assert.assertTrue(
-		messageWrongTypeDetail,
-		switchdevice.getObjectReceivedInNotification() instanceof Boolean);
-
-	String messageWrongValue = String
-		.format(prologTemplate,
-			"Although the invocation was not performed with the right value. ");
-	String messageWrongValueDetail = String.format(messageWrongValue
-		+ " %s given instead of %s",
-		switchdevice.getObjectReceivedInNotification(), propertyValue);
-
-	Assert.assertTrue(messageWrongValueDetail, switchdevice
-		.getObjectReceivedInNotification().equals(propertyValue));
-
-    }
-
-    @Test
-    public void PropertyDefinitionInjectedBothProperty_tct021() {
-
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
-
-	Instance s1Inst = s1Impl.createInstance(null, null);
-
-	S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
-
-	String messageTemplace = "for a property type injected='both', the %s";
-
-	Assert.assertTrue(
-		String.format(messageTemplace,
-			"initial value declared in the xml should NOT be ignored for both"),
-		s1.getInjectedBoth().equals("default"));
-	s1Inst.setProperty("injectedBoth", "changedByApamAPI");
-	Assert.assertTrue(String.format(messageTemplace,
-		" value should be changeable by ApamInstance.setProperty"), (s1
-		.getInjectedBoth() == null ? "" : s1.getInjectedBoth())
-		.equals("changedByApamAPI"));
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			" value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("injectedBoth").equals("changedByApamAPI"));
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			" value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("injectedBoth")
-			.equals("changedByApamAPI"));
-
-	s1.setInjectedBoth("changedByJavaInstance");
-	Assert.assertNotNull(s1.getInjectedBoth());
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking the java instance value"),
-		s1.getInjectedBoth().equals("changedByJavaInstance"));
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
-		s1Inst.getProperty("injectedBoth").equals(
-			"changedByJavaInstance"));
-
-	Assert.assertTrue(
-		String.format(
-			messageTemplace,
-			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
-		s1Inst.getAllProperties().get("injectedBoth")
-			.equals("changedByJavaInstance"));
+    public void PropertyConfiguredWithSetProperty_tc003() {
+
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
+
+	Map<String, String> initialProperties = new HashMap<String, String>() {
+	    {
+		put("property-01", "configured-01");
+		put("property-02", "configured-02");
+		put("property-03", "configured-03");
+		put("property-04", "configured-04");
+		put("property-05", "configured-05");
+
+	    }
+	};
+
+	Instance samsungInst = samsungImpl.createInstance(null, null);
+
+	samsungInst.setProperty("property-01", "configured-01");
+	samsungInst.setProperty("property-02", "configured-02");
+	samsungInst.setProperty("property-03", "configured-03");
+	samsungInst.setProperty("property-04", "configured-04");
+	samsungInst.setProperty("property-05", "configured-05");
+
+	final String message = "Instance did not receive the property defined by setProperty method call";
+
+	for (String key : initialProperties.keySet()) {
+
+	    System.out.println(key + ":"
+		    + samsungInst.getAllProperties().get(key));
+
+	    Assert.assertTrue(message, samsungInst.getAllProperties()
+		    .containsKey(key));
+	    Assert.assertTrue(
+		    message,
+		    samsungInst.getProperty(key).equals(
+			    initialProperties.get(key)));
+	}
     }
 
     @Test
@@ -1475,6 +612,61 @@ public class PropertyTest extends ExtensionAbstract {
 			messageTemplace,
 			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
 		s1Inst.getAllProperties().get("injectedBothByDefault")
+			.equals("changedByJavaInstance"));
+    }
+
+    @Test
+    public void PropertyDefinitionInjectedBothProperty_tct021() {
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl_tct021");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+
+	S1Impl_tct021 s1 = (S1Impl_tct021) s1Inst.getServiceObject();
+
+	String messageTemplace = "for a property type injected='both', the %s";
+
+	Assert.assertTrue(
+		String.format(messageTemplace,
+			"initial value declared in the xml should NOT be ignored for both"),
+		s1.getInjectedBoth().equals("default"));
+	s1Inst.setProperty("injectedBoth", "changedByApamAPI");
+	Assert.assertTrue(String.format(messageTemplace,
+		" value should be changeable by ApamInstance.setProperty"), (s1
+		.getInjectedBoth() == null ? "" : s1.getInjectedBoth())
+		.equals("changedByApamAPI"));
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			" value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("injectedBoth").equals("changedByApamAPI"));
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			" value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("injectedBoth")
+			.equals("changedByApamAPI"));
+
+	s1.setInjectedBoth("changedByJavaInstance");
+	Assert.assertNotNull(s1.getInjectedBoth());
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking the java instance value"),
+		s1.getInjectedBoth().equals("changedByJavaInstance"));
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("injectedBoth").equals(
+			"changedByJavaInstance"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("injectedBoth")
 			.equals("changedByJavaInstance"));
     }
 
@@ -1630,6 +822,827 @@ public class PropertyTest extends ExtensionAbstract {
 			"value declared in the constructor should be kept if not configured in XML"),
 		s1.getInjectedBothUnsetted()
 			.equals("Constructor defined value"));
+    }
+
+    @Test
+    public void PropertyDefinitionInternalFalseTypeStringProperty_tc004() {
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	String messageTemplace = "for a property type injected='external', the %s";
+
+	Assert.assertTrue(String.format(messageTemplace,
+		"initial value declared in the xml should NOT be ignored"), s1
+		.getStateNotInternal().equals("default"));
+
+	s1Inst.setProperty("stateNotInternal", "changedByApamAPI");
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by ApamInstance.setProperty, which is not true when checking the java instance property value"),
+		(s1.getStateNotInternal() == null ? "" : s1
+			.getStateNotInternal()).equals("changedByApamAPI"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("stateNotInternal").equals(
+			"changedByApamAPI"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("stateNotInternal")
+			.equals("changedByApamAPI"));
+
+	s1.setStateNotInternal("changedByJavaInstance");
+
+	// All the following situation should remains unchanged since the field
+	// is an external (check the spec:
+	// https://docs.google.com/document/d/1JNffl2oNeS26HFbJ2OT-KnpvZnEYm5sja2XprsYG3Mo/edit#)
+
+	Assert.assertNotNull(s1.getStateNotInternal());
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking the java instance value"),
+		s1.getStateNotInternal().equals("changedByApamAPI"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("stateNotInternal").equals(
+			"changedByApamAPI"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("stateNotInternal")
+			.equals("changedByApamAPI"));
+
+    }
+
+    @Test
+    public void PropertyDefinitionInternalTrueTypeStringProperty_tc004() {
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	String messageTemplace = "for a property type internal='true', %s";
+
+	Assert.assertTrue(String.format(messageTemplace,
+		"initial value declared in the xml should be ignored"), s1
+		.getStateInternal() == null);
+
+	s1Inst.setProperty("stateInternal", "changedByApamAPI");
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered java instance property value"),
+		s1.getStateInternal() == null);
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("stateInternal") == null);
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should NOT be changeable by ApamInstance.setProperty,  although the value remains un altered when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("stateInternal") == null);
+
+	s1.setStateInternal("changedByJavaInstance");
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking the java instance property value"),
+		s1.getStateInternal().equals("changedByJavaInstance"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"),
+		s1Inst.getProperty("stateInternal").equals(
+			"changedByJavaInstance"));
+
+	Assert.assertTrue(
+		String.format(
+			messageTemplace,
+			"value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"),
+		s1Inst.getAllProperties().get("stateInternal")
+			.equals("changedByJavaInstance"));
+
+    }
+
+    @Test
+    public void PropertyDefinitionIsVisibleWithValPropertySetXML_tc005() {
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	Assert.assertTrue(
+		"Internal property value should be null, since the xml should be ignore.",
+		s1Inst.getAllProperties().get("stateInternal") == null);
+
+	Assert.assertTrue("Non-Internal property not visible through API",
+		s1Inst.getAllProperties().get("stateNotInternal") != null);
+
+	Assert.assertTrue(
+		"Non-Internal property value not visible through API",
+		s1Inst.getAllProperties().get("stateNotInternal")
+			.equals("default"));
+
+    }
+
+    @Test
+    public void PropertyEnumTypeSimpleValueNoTrick_tc072() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "barEnumValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(barEnumValuedSimple=Linux)";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertyEnumTypeSimpleValueSpaceAfter_tc073() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "barEnumValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(barEnumValuedSimple=Linux )";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertyEnumTypeSimpleValueSpaceBefore_tc074() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "barEnumValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(barEnumValuedSimple= Linux)";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSubSet_Enum_tc061() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+	String expression = "(OS <* {Linux, Windows, Android, IOS})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "<*", inst.getProperty("OS"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(OS <* {IOS, Windows, Linux,Android})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "<*", inst.getProperty("OSUnordered"),
+		true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(OS <* {Linux, Windows, IOS})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "<*",
+		inst.getProperty("OSLessElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+	expression = "(OS <* {Linux, Windows, Android,IOS,AmigaOS})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "<*",
+		inst.getProperty("OSMoreElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSubSet_Integer_tc060() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+	String expression = "(setInt <* {12,15,254, 0})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "<*", inst.getProperty("setInt"),
+		true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setInt <* {254,15,12,0})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "<*",
+		inst.getProperty("setIntUnordered"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setInt <* {12,15, 0})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "<*",
+		inst.getProperty("setIntLessElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+	expression = "(setInt <* {12,15,254, 0,27})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "<*",
+		inst.getProperty("setIntMoreElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSubSet_String_tc062() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+	String expression = "(setString <* {doubt,grows,with,knowledge})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "<*",
+		inst.getProperty("setString"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setString <* {with,doubt,knowledge,grows})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "<*",
+		inst.getProperty("setStringUnordered"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setString <* {doubt,grows,knowledge})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "<*",
+		inst.getProperty("setStringLessElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+	expression = "(setString <* {doubt,and,uncertainties,grows,with,knowledge})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "<*",
+		inst.getProperty("setStringMoreElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSuperSet_Enum_tc058() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+
+	String expression = "(OS *> {Linux, Windows, Android, IOS})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "*>", inst.getProperty("OS"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(OS *> {IOS, Windows, Linux,Android})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "*>", inst.getProperty("OSUnordered"),
+		true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(OS *> {Linux, Windows, IOS})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "*>",
+		inst.getProperty("OSLessElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(OS *> {Linux, Windows, Android,IOS,AmigaOS})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("OS"), "*>",
+		inst.getProperty("OSMoreElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSuperSet_Integer_tc057() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+
+	String expression = "(setInt *> {12,15,254, 0})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "*>", inst.getProperty("setInt"),
+		true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setInt *> {254,15,12,0})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "*>",
+		inst.getProperty("setIntUnordered"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setInt *> {12,15, 0})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "*>",
+		inst.getProperty("setIntLessElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setInt *> {12,15,254, 0,27})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setInt"), "*>",
+		inst.getProperty("setIntMoreElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+    }
+
+    @Test
+    public void PropertyFilterOSGiImplementationSuperSet_String_tc059() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecFilterSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+
+	String expression = "(setString *> {doubt,grows,with,knowledge})";
+	String message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "*>",
+		inst.getProperty("setString"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setString *> {with,doubt,knowledge,grows})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "*>",
+		inst.getProperty("setStringUnordered"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setString *> {doubt,grows,knowledge})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "*>",
+		inst.getProperty("setStringLessElements"), true);
+	Assert.assertTrue(message, inst.match(expression));
+
+	expression = "(setString *> {doubt,and,uncertainties,grows,with,knowledge})";
+	message = String.format(messageTemplate, expression,
+		inst.getProperty("setString"), "*>",
+		inst.getProperty("setStringMoreElements"), false);
+	Assert.assertTrue(message, !inst.match(expression));
+
+    }
+
+    /**
+     * Ensures that inherited properties cannot be changed and inherited
+     * definitions can change
+     */
+    @Test
+    public void PropertyInheritedCannotBeChanged_tc001() {
+
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
+	final Instance samsungInst = samsungImpl.createInstance(null, null);
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	// this should be updated correctly
+	samsungInst.setProperty("currentVoltage", "999");
+	// this should stay with the old value
+	samsungInst.setProperty("made", "deutschland");
+
+	// this property should be updated since its not inherited
+	Assert.assertTrue("Non-inherited properties shall be updateable",
+		samsungInst.getProperty("currentVoltage").equals("999"));
+
+	Assert.assertTrue("Inherited property shall not be changed",
+		samsungInst.getProperty("made").equals("china"));
+
+    }
+
+    @Test
+    public void PropertySetTypeBorderElements_tc067() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> {Linux, IOS})";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeBracesCommaInTheEnd_tc066() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> {Android, Windows,})";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeBracesNoCommaInTheEnd_tc065() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> {Android, Windows})";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeMiddleElements_tc068() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> {Android, Windows})";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeNoBracesComma_tc070() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> Android, Windows,)";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeNoBracesNoComma_tc071() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> Android, Windows)";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertySetTypeOneMiddleOneBorderElement_tc069() {
+
+	Implementation implementation = waitForImplByName(null,
+		"SpecEnumVersusSetTestSwitch");
+	Instance inst = implementation.createInstance(null, null);
+
+	String propertyName = "fooSetValuedSimple";
+	String propertyValue = inst.getProperty(propertyName);
+	String expression = "(fooSetValuedSimple *> {Android, IOS})";
+	boolean result = inst.match(expression);
+	boolean expected = true;
+
+	String message = String
+		.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",
+			expression, result, expected, propertyName,
+			propertyValue);
+
+	if (expected) {
+	    Assert.assertTrue(message, result);
+	} else {
+	    Assert.assertFalse(message, result);
+	}
+    }
+
+    @Test
+    public void PropertyTypeBooleanChangeNoticationCallback_tc116() {
+
+	final String prologTemplate = "Declaring a 'method' attribute into a boolean type property, should invoke the declared method with the right type and value. %s";
+
+	Boolean propertyValue = Boolean.TRUE;
+
+	Implementation implementation = waitForImplByName(null,
+		"PropertyTypeBooleanChangeNotification");
+	Instance inst = implementation.createInstance(null, null);
+
+	inst.setProperty("state", propertyValue);
+
+	PropertyTypeBooleanChangeNotificationSwitch switchdevice = (PropertyTypeBooleanChangeNotificationSwitch) inst
+		.getServiceObject();
+
+	Assert.assertTrue(String.format(prologTemplate,
+		"Although the invocation was not performed."), switchdevice
+		.getObjectReceivedInNotification() != null);
+
+	String messageWrongType = String
+		.format(prologTemplate,
+			"Although the invocation was not performed with the right type. ");
+	String messageWrongTypeDetail = String.format(messageWrongType
+		+ " %s given instead of %s", switchdevice
+		.getObjectReceivedInNotification().getClass()
+		.getCanonicalName(), Boolean.class.getCanonicalName());
+
+	Assert.assertTrue(
+		messageWrongTypeDetail,
+		switchdevice.getObjectReceivedInNotification() instanceof Boolean);
+
+	String messageWrongValue = String
+		.format(prologTemplate,
+			"Although the invocation was not performed with the right value. ");
+	String messageWrongValueDetail = String.format(messageWrongValue
+		+ " %s given instead of %s",
+		switchdevice.getObjectReceivedInNotification(), propertyValue);
+
+	Assert.assertTrue(messageWrongValueDetail, switchdevice
+		.getObjectReceivedInNotification().equals(propertyValue));
+
+    }
+
+    @Test
+    public void PropertyTypeIntChangeNoticationCallback_tc115() {
+
+	final String prologTemplate = "Declaring a 'method' attribute into a integer type property, should invoke the declared method with the right type and value. %s";
+
+	Integer propertyValue = Integer.valueOf(734);
+
+	Implementation implementation = waitForImplByName(null,
+		"PropertyTypeIntChangeNotification");
+	Instance inst = implementation.createInstance(null, null);
+
+	inst.setProperty("state", propertyValue);
+
+	PropertyTypeIntChangeNotificationSwitch switchdevice = (PropertyTypeIntChangeNotificationSwitch) inst
+		.getServiceObject();
+
+	Assert.assertTrue(String.format(prologTemplate,
+		"Although the invocation was not performed."), switchdevice
+		.getObjectReceivedInNotification() != null);
+
+	String messageWrongType = String
+		.format(prologTemplate,
+			"Although the invocation was not performed with the right type. ");
+	String messageWrongTypeDetail = String.format(messageWrongType
+		+ " %s given instead of %s", switchdevice
+		.getObjectReceivedInNotification().getClass()
+		.getCanonicalName(), Integer.class.getCanonicalName());
+
+	Assert.assertTrue(
+		messageWrongTypeDetail,
+		switchdevice.getObjectReceivedInNotification() instanceof Integer);
+
+	String messageWrongValue = String
+		.format(prologTemplate,
+			"Although the invocation was not performed with the right value. ");
+	String messageWrongValueDetail = String.format(messageWrongValue
+		+ " %s given instead of %s",
+		switchdevice.getObjectReceivedInNotification(), propertyValue);
+
+	Assert.assertTrue(messageWrongValueDetail, switchdevice
+		.getObjectReceivedInNotification().equals(propertyValue));
+
+    }
+
+    @Test
+    public void testPropertyDefinitionImplem_tct027() {
+
+	System.out.println("Testing Implementation properties");
+	Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+	System.out.println("*********-->" + implemS1.getAllPropertiesString());
+	for (int i = 0; i <= 6; i++) {
+	    if (!implemS1.setProperty("def" + i + "-specs-s1", "test-prop"))
+	    // if property is not settable, it must be final
+	    {
+		System.out.println("def" + i + "-specs-s1 is not settable");
+		Assert.assertEquals(" Property def" + i
+			+ "-specs-s1 is not defined", "final-value",
+			implemS1.getProperty("def" + i + "-specs-s1"));
+	    }
+	}
+	for (int i = 0; i <= 1; i++) {
+	    if (!implemS1.setProperty("def" + i + "-implem-s1", "test-prop"))
+	    // if property is not settable, it must be final
+	    {
+		System.out.println("def" + i + "-implem-s1 is not settable");
+		Assert.assertEquals(" Property def" + i
+			+ "-implem-s1 is not defined", "final-value",
+			implemS1.getProperty("def" + i + "-implem-s1"));
+	    }
+	}
+
+	// TODO test the properties defined at this level
+    }
+
+    @Test
+    public void testPropertyDefinitionInstance_tct028() {
+	System.out.println("Testing Instance properties");
+
+	auxListInstances();
+	Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+	auxListInstances();
+	Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
+	auxListInstances();
+
+	// for (int i = 0; i <= 6; i++)
+	// if (!instanceS1.setProperty("def" + i + "-specs-s1", "test-prop"))
+	// // if property is not settable, it must be final
+	// {
+	// System.out.println("def" + i + "-specs-s1 is not settable");
+	// Assert.assertEquals(" Property def" + i
+	// + "-specs-s1 is not defined", "final-value",
+	// instanceS1.getProperty("def" + i + "-specs-s1"));
+	// }
+	// TODO test the properties defined at this level
+
+	// System.out.println(specsS1.getProperty("def"+i+"-specs-s1"));//getDeclaration().getPropertyDefinition("def"+i+"-specs-s1"));
+	//
+	// for(int i=0; i<=7; i++) {
+	//
+	// System.out.print("--> "+specsS1.getProperty("def"+i+"-specs-s1"));
+	// specsS1.setProperty("def"+i+"-specs-s1", "test-prop");
+	// System.out.println(" <--> "+specsS1.getProperty("def"+i+"-specs-s1"));
+	// }
+
+	//
+	// ComponentDeclaration implemS1 = waitForImplByName(null,
+	// "implem-s1-tct026").getDeclaration();
+	// for(int i=0; i<=6; i++)
+	// Assert.assertNotNull(" Property def"+i+"-specs-s1 is not defined",
+	// implemS1.getPropertyDefinition("def"+i+"-specs-s1"));
+
+    }
+
+    @Test
+    public void testPropertyDefinitionSpec_tct026() {
+
+	System.out.println("Testing Specification properties defined");
+	Specification specsS1 = waitForSpecByName(null, "specs-s1-tct026");
+
+	for (int i = 0; i <= 6; i++) {
+	    Assert.assertEquals(
+		    " Property def" + i + "-specs-s1 is not defined",
+		    "def" + i + "-specs-s1",
+		    specsS1.getDeclaration()
+			    .getPropertyDefinition("def" + i + "-specs-s1")
+			    .getName());
+	}
+
+	System.out.println("Testing Specification properties setted");
+	Assert.assertEquals(" Property def0-specs-s1 is not setted",
+		"final-value", specsS1.getProperty("def0-specs-s1"));
+	Assert.assertEquals(" Property def1-specs-s1 is not setted",
+		"final-value", specsS1.getProperty("def1-specs-s1"));
+
     }
 
 }

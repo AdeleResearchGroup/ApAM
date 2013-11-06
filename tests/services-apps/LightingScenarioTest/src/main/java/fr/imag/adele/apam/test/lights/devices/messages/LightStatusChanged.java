@@ -18,27 +18,25 @@ package fr.imag.adele.apam.test.lights.devices.messages;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class LightStatusChanged {
-	
-	private boolean lightOn;
-	
-	/**
-	 * @param lightOn
-	 */
-	public LightStatusChanged(boolean lightOn) {
-		super();
-		this.lightOn = lightOn;
-	}
 
-	/**
-	 * @return the lightOn
-	 */
-	public boolean isLightOn() {
-		return lightOn;
-	}
-	
-	
+    private boolean lightOn;
+
+    /**
+     * @param lightOn
+     */
+    public LightStatusChanged(boolean lightOn) {
+	super();
+	this.lightOn = lightOn;
+    }
+
+    /**
+     * @return the lightOn
+     */
+    public boolean isLightOn() {
+	return lightOn;
+    }
 
 }

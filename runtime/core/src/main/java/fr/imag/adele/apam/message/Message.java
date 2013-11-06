@@ -29,69 +29,67 @@ import org.osgi.service.wireadmin.WireConstants;
 
 public class Message<D> implements Serializable {
 
-	private static final long serialVersionUID = -5521385171858034995L;
+    private static final long serialVersionUID = -5521385171858034995L;
 
+    /**
+     * The time stamps for producer and consumer
+     */
+    private long sendTimeStamp;
+    private long receiveTimeStamp;
 
-	/**
-	 * The time stamps for producer and consumer
-	 */
-	private long sendTimeStamp;
-	private long receiveTimeStamp;
+    /**
+     * The message payload and its associated description
+     */
+    private D data;
+    private Properties properties;
 
-	/**
-	 * The message payload and its associated description
-	 */
-	private D 			data;
-	private Properties 	properties;
+    public Message(D value) {
+	this.data = value;
+	this.properties = new Properties();
+	this.sendTimeStamp = -1L;
+	this.receiveTimeStamp = -1L;
+    }
 
+    public String getConsumerPID() {
+	return (String) properties.get(WireConstants.WIREADMIN_CONSUMER_PID);
+    }
 
-	public Message(D value){
-		this.data 				= value;
-		this.properties 		= new Properties();
-		this.sendTimeStamp		= -1L;
-		this.receiveTimeStamp	= -1L;
+    public D getData() {
+	return data;
+    }
+
+    public String getProducerPID() {
+	return (String) properties.get(WireConstants.WIREADMIN_PRODUCER_PID);
+    }
+
+    public Properties getProperties() {
+	return properties;
+    }
+
+    public long getReceiveTimeStamp() {
+	return receiveTimeStamp;
+    }
+
+    public long getSendTimeStamp() {
+	return sendTimeStamp;
+    }
+
+    public String getWireAdminPID() {
+	return (String) properties.get(WireConstants.WIREADMIN_PID);
+    }
+
+    public void markAsReceived(Dictionary<Object, Object> wireProperties) {
+	this.receiveTimeStamp = new Date().getTime();
+	for (Enumeration<Object> keys = wireProperties.keys(); keys
+		.hasMoreElements();) {
+	    Object key = keys.nextElement();
+	    Object value = wireProperties.get(key);
+	    this.properties.put(key, value);
 	}
+    }
 
-	public D getData() {
-		return data;
-	}
-	
-	public void markAsSent() {
-		this.sendTimeStamp = new Date().getTime();
-	}
-	
-	public void markAsReceived(Dictionary<Object,Object> wireProperties) {
-		this.receiveTimeStamp = new Date().getTime();
-		for (Enumeration<Object>  keys = wireProperties.keys(); keys.hasMoreElements();) {
-			Object key		=  keys.nextElement();
-			Object value 	= wireProperties.get(key);
-			this.properties.put(key, value);
-		}
-	}
-	
-	public long getSendTimeStamp() {
-		return sendTimeStamp;
-	}
-	
-	public long getReceiveTimeStamp() {
-		return receiveTimeStamp;
-	}
+    public void markAsSent() {
+	this.sendTimeStamp = new Date().getTime();
+    }
 
-	public String getWireAdminPID() {
-		return  (String) properties.get(WireConstants.WIREADMIN_PID);
-	}
-
-	public String getProducerPID() {
-		return (String) properties.get(WireConstants.WIREADMIN_PRODUCER_PID);
-	}
-
-	public String getConsumerPID() {
-		return (String) properties.get(WireConstants.WIREADMIN_CONSUMER_PID);
-	}
-
-	public Properties getProperties() {
-		return properties;
-	}
-
-	
 }

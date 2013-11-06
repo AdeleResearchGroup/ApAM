@@ -19,35 +19,33 @@ import javax.xml.parsers.ParserConfigurationException;
 import fr.imag.adele.apam.pax.test.iface.S3;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
+public class S3GroupAImpl implements S3 {
 
-public class S3GroupAImpl implements S3
-{
+    ParserConfigurationException e;
 
-	ParserConfigurationException e;
-	
-	Eletronic element;
-	
-	S3 c;
-	
-    public String whoami()
-    {
-        return this.getClass().getName();
+    Eletronic element;
+
+    S3 c;
+
+    public S3 getC() {
+	return c;
     }
 
-	public Eletronic getElement() {
-		return element;
-	}
+    public Eletronic getElement() {
+	return element;
+    }
 
-	public void setElement(Eletronic element) {
-		this.element = element;
-	}
+    public void setC(S3 c) {
+	this.c = c;
+    }
 
-	public S3 getC() {
-		return c;
-	}
+    public void setElement(Eletronic element) {
+	this.element = element;
+    }
 
-	public void setC(S3 c) {
-		this.c = c;
-	}
+    @Override
+    public String whoami() {
+	return this.getClass().getName();
+    }
 
 }

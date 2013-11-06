@@ -34,74 +34,20 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
  * @author jander
  */
 public abstract class TestUtils {
-    
-    private boolean apamReady=false;
+
+    private boolean apamReady = false;
 
     public static long waitPeriod = 200;
     public static long RESOLVE_TIMEOUT = 3000;
-    
-    public void waitForApam() {
-	waitForApam(RESOLVE_TIMEOUT);
-    }
-    
-    public void waitForApam(long timeout) {
-	long sleep=0;
-	while (!apamReady && sleep < timeout) {
-	    if(CST.componentBroker != null
-		&& CST.apamResolver!=null
-		&& CST.apam!=null) {
-		
-		apamReady=true;
-	    } else try {
-		Thread.sleep(waitPeriod);
-	    } catch (Exception exc) {
-		exc.printStackTrace();
-	    }
-	    sleep += waitPeriod;
+
+    protected void auxDisconectWires(Instance instance) {
+	for (Link wire : instance.getRawLinks()) {
+	    wire.remove();
 	}
-	boolean foundAPAM= false;
-	while (sleep < timeout && !foundAPAM) {
-	    try {
-		Thread.sleep(waitPeriod);
-	    } catch (Exception exc) {
-		exc.printStackTrace();
-	    }
-	    sleep += waitPeriod;
-	    if (CST.apamResolver != null)
-		if(CST.apamResolver.findInstByName(null, "APAM-Instance") != null)
-//			&& CST.apamResolver.findInstByName(null, "OSGiMan-Instance") != null
-//			&& CST.apamResolver.findInstByName(null, "ConflictManager-Instance") != null) 
-			foundAPAM=true;
-	}
-    }
-
-    protected List<Instance> auxLookForInstanceOf(String... clazz) {
-	waitForApam();
-
-	List<Instance> pool = new ArrayList<Instance>();
-	for (Instance i : CST.componentBroker.getInsts()) {
-
-	    ImplementationDeclaration apamImplDecl = i.getImpl()
-		    .getImplDeclaration();
-
-	    if (apamImplDecl instanceof AtomicImplementationDeclaration) {
-
-		AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
-
-		for (String classname : clazz) {
-
-		    if (atomicInitialInstance.getClassName().equals(classname)) {
-			pool.add(i);
-		    }
-		}
-	    }
-	}
-	return pool;
     }
 
     protected Instance auxListInstanceReferencedBy(Object instance) {
 	waitForApam();
-
 
 	return CST.componentBroker.getInstService(instance);
 
@@ -110,7 +56,6 @@ public abstract class TestUtils {
     protected List<Instance> auxListInstanceReferencedBy(String prefix,
 	    Collection instances) {
 	waitForApam();
-
 
 	List<Instance> res = new ArrayList<Instance>();
 
@@ -169,60 +114,68 @@ public abstract class TestUtils {
 		"%s------------ /Properties -------------", prefix));
     }
 
-    protected void auxDisconectWires(Instance instance) {
-	for (Link wire : instance.getRawLinks()) {
-	    wire.remove();
-	}
-    }
-
-    protected Specification waitForSpecByName(Component client,
-	    String componentName) {
-	return waitForSpecByName(client, componentName, RESOLVE_TIMEOUT);
-    }
-
-    protected Specification waitForSpecByName(Component client,
-	    String componentName, long timeout) {
+    protected List<Instance> auxLookForInstanceOf(String... clazz) {
 	waitForApam();
-	Specification spec = CST.apamResolver.findSpecByName(client, componentName);
-	long sleep = 0;
 
-	while (sleep < timeout && spec == null) {
+	List<Instance> pool = new ArrayList<Instance>();
+	for (Instance i : CST.componentBroker.getInsts()) {
+
+	    ImplementationDeclaration apamImplDecl = i.getImpl()
+		    .getImplDeclaration();
+
+	    if (apamImplDecl instanceof AtomicImplementationDeclaration) {
+
+		AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
+
+		for (String classname : clazz) {
+
+		    if (atomicInitialInstance.getClassName().equals(classname)) {
+			pool.add(i);
+		    }
+		}
+	    }
+	}
+	return pool;
+    }
+
+    public void waitForApam() {
+	waitForApam(RESOLVE_TIMEOUT);
+    }
+
+    public void waitForApam(long timeout) {
+	long sleep = 0;
+	while (!apamReady && sleep < timeout) {
+	    if (CST.componentBroker != null && CST.apamResolver != null
+		    && CST.apam != null) {
+
+		apamReady = true;
+	    } else {
+		try {
+		    Thread.sleep(waitPeriod);
+		} catch (Exception exc) {
+		    exc.printStackTrace();
+		}
+	    }
+	    sleep += waitPeriod;
+	}
+	boolean foundAPAM = false;
+	while (sleep < timeout && !foundAPAM) {
 	    try {
 		Thread.sleep(waitPeriod);
 	    } catch (Exception exc) {
 		exc.printStackTrace();
 	    }
 	    sleep += waitPeriod;
-	    if (CST.apamResolver != null)
-		spec = CST.apamResolver.findSpecByName(client, componentName);
-	}
-
-	return spec;
-    }
-
-    protected Implementation waitForImplByName(Component client,
-	    String componentName) {
-	return waitForImplByName(client, componentName, RESOLVE_TIMEOUT);
-    }
-
-    protected Implementation waitForImplByName(Component client,
-	    String componentName, long timeout) {
-	waitForApam();
-	Implementation impl = CST.apamResolver.findImplByName(client, componentName);
-	long sleep = 0;
-
-	while (sleep < timeout && impl == null) {
-	    try {
-		Thread.sleep(waitPeriod);
-	    } catch (Exception exc) {
-		exc.printStackTrace();
+	    if (CST.apamResolver != null) {
+		if (CST.apamResolver.findInstByName(null, "APAM-Instance") != null) {
+		    // && CST.apamResolver.findInstByName(null,
+		    // "OSGiMan-Instance") != null
+		    // && CST.apamResolver.findInstByName(null,
+		    // "ConflictManager-Instance") != null)
+		    foundAPAM = true;
+		}
 	    }
-	    sleep += waitPeriod;
-	    if (CST.apamResolver != null)
-		impl = CST.apamResolver.findImplByName(client, componentName);
 	}
-
-	return impl;
     }
 
     protected Component waitForComponentByName(Component client,
@@ -234,7 +187,8 @@ public abstract class TestUtils {
 	    String componentName, long timeout) {
 	waitForApam();
 
-	Component comp = CST.apamResolver.findComponentByName(client, componentName);
+	Component comp = CST.apamResolver.findComponentByName(client,
+		componentName);
 	long sleep = 0;
 
 	while (sleep < timeout && comp == null) {
@@ -244,12 +198,40 @@ public abstract class TestUtils {
 		exc.printStackTrace();
 	    }
 	    sleep += waitPeriod;
-	    if (CST.apamResolver != null)
+	    if (CST.apamResolver != null) {
 		comp = CST.apamResolver.findComponentByName(client,
 			componentName);
+	    }
 	}
 
 	return comp;
+    }
+
+    protected Implementation waitForImplByName(Component client,
+	    String componentName) {
+	return waitForImplByName(client, componentName, RESOLVE_TIMEOUT);
+    }
+
+    protected Implementation waitForImplByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+	Implementation impl = CST.apamResolver.findImplByName(client,
+		componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && impl == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null) {
+		impl = CST.apamResolver.findImplByName(client, componentName);
+	    }
+	}
+
+	return impl;
     }
 
     protected Instance waitForInstByName(Component client, String componentName) {
@@ -270,11 +252,39 @@ public abstract class TestUtils {
 		exc.printStackTrace();
 	    }
 	    sleep += waitPeriod;
-	    if (CST.apamResolver != null)
+	    if (CST.apamResolver != null) {
 		inst = CST.apamResolver.findInstByName(client, componentName);
+	    }
 	}
 
 	return inst;
+    }
+
+    protected Specification waitForSpecByName(Component client,
+	    String componentName) {
+	return waitForSpecByName(client, componentName, RESOLVE_TIMEOUT);
+    }
+
+    protected Specification waitForSpecByName(Component client,
+	    String componentName, long timeout) {
+	waitForApam();
+	Specification spec = CST.apamResolver.findSpecByName(client,
+		componentName);
+	long sleep = 0;
+
+	while (sleep < timeout && spec == null) {
+	    try {
+		Thread.sleep(waitPeriod);
+	    } catch (Exception exc) {
+		exc.printStackTrace();
+	    }
+	    sleep += waitPeriod;
+	    if (CST.apamResolver != null) {
+		spec = CST.apamResolver.findSpecByName(client, componentName);
+	    }
+	}
+
+	return spec;
     }
 
 }

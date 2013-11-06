@@ -21,73 +21,91 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.test.lights.devices.BinaryLight;
 import fr.imag.adele.apam.test.lights.devices.messages.LightStatusChanged;
-import fr.imag.adele.apam.test.lights.panel.LightManagerTester;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class BinaryLightImpl implements BinaryLight {
-    
-    private static Logger logger = LoggerFactory.getLogger(BinaryLightImpl.class);
-	
-	protected boolean currentStatus;
+
+    private static Logger logger = LoggerFactory
+	    .getLogger(BinaryLightImpl.class);
+
+    protected boolean currentStatus;
     private String myLocation;
     private String myName;
-	
-	/**
-	 * @param currentStatus
-	 */
-	public BinaryLightImpl(boolean currentStatus) {
-		super();
-		this.currentStatus = currentStatus;
-	}
+
+    /**
+     * @param currentStatus
+     */
+    public BinaryLightImpl(boolean currentStatus) {
+	super();
+	this.currentStatus = currentStatus;
+    }
+
+    @Override
+    public LightStatusChanged fireLightStatus() {
+	logger.debug(myName + ".fireLightStatus(), status : " + currentStatus);
+	return new LightStatusChanged(currentStatus);
+    }
+
+    @Override
+    public String getLocation() {
+	return myLocation;
+    }
+
+    @Override
+    public String getName() {
+	return myName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see fr.imag.adele.apam.test.lights.devices.BinaryLight#isLightOn()
+     */
+    @Override
+    public boolean isLightOn() {
+	return currentStatus;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * fr.imag.adele.apam.test.lights.devices.BinaryLight#setLightStatus(boolean
+     * )
+     */
+    @Override
+    public void setLightStatus(boolean newStatus) {
+	currentStatus = newStatus;
+	fireLightStatus();
+    }
 
     public void started() {
-        logger.debug("A light named " + myName+" have been started in the "+myLocation);
+	logger.debug("A light named " + myName + " have been started in the "
+		+ myLocation);
     }
 
     public void stopped() {
-	logger.debug("The light named "+myName+" have been stopped in the "+myLocation);
+	logger.debug("The light named " + myName + " have been stopped in the "
+		+ myLocation);
     }
 
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.test.lights.devices.BinaryLight#isLightOn()
-	 */
-	public boolean isLightOn() {
-		return currentStatus;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * fr.imag.adele.apam.test.lights.devices.BinaryLight#switchLightStatus()
+     */
+    @Override
+    public void switchLightStatus() {
+	if (currentStatus) {
+	    currentStatus = false;
+	} else {
+	    currentStatus = true;
 	}
+	fireLightStatus();
 
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.test.lights.devices.BinaryLight#setLightStatus(boolean)
-	 */
-	public void setLightStatus(boolean newStatus) {
-		currentStatus=newStatus;
-        fireLightStatus();
-	}
-
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.test.lights.devices.BinaryLight#switchLightStatus()
-	 */
-	public void switchLightStatus() {
-		if(currentStatus)
-			currentStatus=false;
-		else currentStatus=true;
-        fireLightStatus();
-		
-	}
-
-    public LightStatusChanged fireLightStatus() {
-	logger.debug(myName+".fireLightStatus(), status : "+currentStatus);
-        return new LightStatusChanged(currentStatus);
-    }
-
-
-    public String getName() {
-        return myName;
-    }
-
-    public String getLocation() {
-        return myLocation;
     }
 }

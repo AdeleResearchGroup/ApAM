@@ -20,21 +20,18 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 
 /**
- * User: barjo
- * Date: 18/12/12
- * Time: 12:15
+ * User: barjo Date: 18/12/12 Time: 12:15
  */
 public interface EndpointRegistration {
 
-    public Instance getInstance();
+    public void close();
 
     public RemoteMachine getClient();
 
-    public Map<String,String> getEndpoint();
-    
-    public String getProtocol();
-    
-    public void close();
-   
-}
+    public Map<String, String> getEndpoint();
 
+    public Instance getInstance();
+
+    public String getProtocol();
+
+}

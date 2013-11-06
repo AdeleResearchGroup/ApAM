@@ -16,8 +16,6 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;
@@ -39,7 +35,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.PathUtils;
-import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -61,22 +56,23 @@ public class LightScenarioTest extends ExtensionAbstract {
     Instance myKitchen;
     Set<String> theoricLinks;
 
-    
     @Override
     public List<Option> config() {
 
-	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("LightingScenarioTest", "fr.imag.adele.apam.test.lights");
-	
-	List<Option> defaults = super.config(mapOfRequiredArtifacts,false);
+	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("LightingScenarioTest",
+		"fr.imag.adele.apam.test.lights");
+
+	List<Option> defaults = super.config(mapOfRequiredArtifacts, false);
 	try {
-	    defaults.add(CoreOptions.bundle((new File(PathUtils.getBaseDir(),
-		    "bundle/wireadmin.jar")).toURI().toURL().toExternalForm()).start());
+	    defaults.add(CoreOptions.bundle(
+		    (new File(PathUtils.getBaseDir(), "bundle/wireadmin.jar"))
+			    .toURI().toURL().toExternalForm()).start());
 
 	} catch (Exception error) {
 	    Assert.assertTrue("Error deploying WireAdmin", true);
 	}
-	
+
 	return defaults;
     }
 
@@ -88,75 +84,44 @@ public class LightScenarioTest extends ExtensionAbstract {
 	waitForInstByName(null, "ConflictManager-Instance");
 	waitForInstByName(null, "OSGiMan-Instance");
 
-	
-
 	// First launch the "devices"
-	Implementation implemButtonGUI = waitForImplByName(null,
-		"ButtonGUI");
+	Implementation implemButtonGUI = waitForImplByName(null, "ButtonGUI");
 	Implementation implemButtonNotGUI = waitForImplByName(null,
 		"ButtonNotGUI");
 	Implementation implemBinaryLightImpl = waitForImplByName(null,
 		"BinaryLightImpl");
 
 	// set the location properties of the devices
-	Hashtable<String, String> propKitchen
-	     = new Hashtable<String, String>();
+	Hashtable<String, String> propKitchen = new Hashtable<String, String>();
 	propKitchen.put("location", "kitchen");
-	
-	Hashtable<String, String> propLiving
-	     = new Hashtable<String, String>();
+
+	Hashtable<String, String> propLiving = new Hashtable<String, String>();
 	propLiving.put("location", "living");
 
-	SwingButtonImpl buttonKitchen = (SwingButtonImpl)implemButtonGUI.createInstance(null,
-		propKitchen).getServiceObject();
+	SwingButtonImpl buttonKitchen = (SwingButtonImpl) implemButtonGUI
+		.createInstance(null, propKitchen).getServiceObject();
 	theoricLinks.add(buttonKitchen.getName());
-	ButtonImpl buttonLiving = (ButtonImpl)implemButtonNotGUI.createInstance(null,
-		propLiving).getServiceObject();
-	BinaryLight lightKitchen = (BinaryLight)implemBinaryLightImpl.createInstance(null,
-		propKitchen).getServiceObject();
+	ButtonImpl buttonLiving = (ButtonImpl) implemButtonNotGUI
+		.createInstance(null, propLiving).getServiceObject();
+	BinaryLight lightKitchen = (BinaryLight) implemBinaryLightImpl
+		.createInstance(null, propKitchen).getServiceObject();
 	theoricLinks.add(lightKitchen.getName());
-	BinaryLight lightLiving = (BinaryLight)implemBinaryLightImpl.createInstance(null,
-		propLiving).getServiceObject();
-	
+	BinaryLight lightLiving = (BinaryLight) implemBinaryLightImpl
+		.createInstance(null, propLiving).getServiceObject();
+
 	// Wait for the devices to be instantiated
 	try {
 	    Thread.sleep(1000);
 	} catch (InterruptedException e) {
 	    e.printStackTrace();
-	}	
-	
-	
+	}
+
 	// Then launch the Application
 	Implementation implemApplication = waitForImplByName(null,
 		"LightApplicationKitchen");
-	
+
 	myKitchen = implemApplication.createInstance(null,
 		Collections.<String, String> emptyMap());
-    }
-
-    @Test
-    public void testMyKitchenBinding() {
-	apam.waitForIt(20000);
-	
-	// Wait for the binding between lightApplication myKitchen and devices
-	// upon filter location
-
-
-	Set<Link> listRelations = myKitchen.getRawLinks();
-	Iterator<Link> it = listRelations.iterator();
-	while (it.hasNext()) {
-	    Link rel = it.next();
-	    // Should find one binding with buttonKitchen and one binding with a
-	    // lightKitchen
-	    if (theoricLinks.contains(rel.getDestination().getName())) {
-		theoricLinks.remove(rel.getDestination().getName());
-	    } else
-		Assert.fail("testMyKitchenBinding() -> this link should not exists : "
-			+ rel.getDestination().getName());
-	}
-	if (theoricLinks.size() > 0)
-	    Assert.fail("testMyKitchenBinding() -> not all links completed, "
-		    + theoricLinks.size() + " links remaining");
     }
 
     @Test
@@ -206,6 +171,32 @@ public class LightScenarioTest extends ExtensionAbstract {
 	    tester.testButtonLiving();
 	} catch (Exception exc) {
 	    Assert.fail("testButtonLiving() -> " + exc.getMessage());
+	}
+    }
+
+    @Test
+    public void testMyKitchenBinding() {
+	apam.waitForIt(20000);
+
+	// Wait for the binding between lightApplication myKitchen and devices
+	// upon filter location
+
+	Set<Link> listRelations = myKitchen.getRawLinks();
+	Iterator<Link> it = listRelations.iterator();
+	while (it.hasNext()) {
+	    Link rel = it.next();
+	    // Should find one binding with buttonKitchen and one binding with a
+	    // lightKitchen
+	    if (theoricLinks.contains(rel.getDestination().getName())) {
+		theoricLinks.remove(rel.getDestination().getName());
+	    } else {
+		Assert.fail("testMyKitchenBinding() -> this link should not exists : "
+			+ rel.getDestination().getName());
+	    }
+	}
+	if (theoricLinks.size() > 0) {
+	    Assert.fail("testMyKitchenBinding() -> not all links completed, "
+		    + theoricLinks.size() + " links remaining");
 	}
     }
 }

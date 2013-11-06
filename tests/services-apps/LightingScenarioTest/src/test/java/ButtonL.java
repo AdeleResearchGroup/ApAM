@@ -19,12 +19,12 @@ import fr.imag.adele.apam.test.lights.button.SwingButtonImpl;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class ButtonL {
-	
-	public static void main(String[] args) {
-		SwingButtonImpl btn= new SwingButtonImpl();
-		btn.started();
-	}
+
+    public static void main(String[] args) {
+	SwingButtonImpl btn = new SwingButtonImpl();
+	btn.started();
+    }
 }

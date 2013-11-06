@@ -26,194 +26,202 @@ import fr.imag.adele.apam.util.ApamFilter;
 
 public interface Component {
 
-	//The name of the component
-	public String getName();
+    // Whether the component can see the target component (visibility control)
+    public boolean canSee(Component target);
 
-	//The component declaration
-	public ComponentDeclaration getDeclaration () ;
-	
-	//return all the members of this component. Null if leaf (instance).
-	public Set<? extends Component> getMembers ();
+    /**
+     * A new Link has to be instantiated between the current Component and the
+     * "to" Component, for the relation depName.
+     * 
+     * @param to
+     *            target link
+     * @param depName
+     *            : relation name
+     * @param hasConstraints
+     *            : true if the Relation definition has contraints
+     * @param promotion
+     *            true if it is a promotion
+     * @return true if the link has been created
+     */
+    public boolean createLink(Component to, RelToResolve dep,
+	    boolean hasConstraints, boolean promotion);
 
-	//Whether this component is an anscestor of the specified member
-	public boolean isAncestorOf(Component member);
+    /**
+     * Get the value of all the properties of the component, including those in
+     * the enclosing groups. WARNING : substitutions are not performed.
+     */
+    public Map<String, Object> getAllProperties();
 
-	//return the representant of this group member. Null if root (Specification)
-	public Component getGroup ();
+    /**
+     * Get the value of all the properties of the component, including those in
+     * the enclosing groups The values are transformed into string, but without
+     * substitution
+     */
+    public Map<String, String> getAllPropertiesString();
 
-	//Whether this component is a descendant of the specified group representant
-	public boolean isDescendantOf(Component group);
+    // The underlying entity in the execution platform
+    public ApformComponent getApformComponent();
 
-	//Return it kind: Specification, implementation or instance
-	public ComponentKind getKind() ;
+    /**
+     * Return the type of the attribute, as it is in xml : "${string}" for
+     * substitution, set String. Note use Util.splitType to get the details :
+     * isSet, isSub, type, singletonType and NoSub
+     * 
+     * @param attr
+     * @return
+     */
+    public AttrType getAttrType(String attr);
 
-	//Returns the provided resources, including those inherited.
-	public Set<ResourceReference> getProvidedResources () ;
+    // The component declaration
+    public ComponentDeclaration getDeclaration();
 
-	//The underlying entity in the execution platform
-	public ApformComponent getApformComponent();
+    // Give the composite type that physically deployed that component. Warning
+    // : null when unused.
+    public CompositeType getFirstDeployed();
 
-	//Give the composite type that physically deployed that component. Warning : null when unused. 
-	public CompositeType getFirstDeployed() ;
+    // return the representant of this group member. Null if root
+    // (Specification)
+    public Component getGroup();
 
-	//Whether the component is instantiable
-	public boolean isInstantiable() ;
-
-	//Whether the component can see the target component (visibility control)
-	public boolean canSee(Component target) ;
-
-
-	//Whether the component is singleton
-	public boolean isSingleton() ;
-
-	//Whether the component is shared
-	public boolean isShared() ;
-	
-
-	 // ====================== Links ==========================
-
-    //returns all the instances this one is Linkd to.
-    public Set<Component> getRawLinkDests();
-
-    //returns the Link toward that destination
+    // returns the Link toward that destination
     public Link getInvLink(Component destInst);
 
-    //returns the Link for the "depName" link toward that destination Component
+    // returns the Link for the "depName" link toward that destination Component
     public Link getInvLink(Component destInst, String depName);
 
-    //Returns all the Links toward that destination.
+    // Returns all the Links leading to the current Component.
+    public Set<Link> getInvLinks();
+
+    // Returns all the Links toward that destination.
     public Set<Link> getInvLinks(Component destInst);
 
-	// returns all the destinations of that relation (if multiple cardinality)
-    public Set<Component> getLinkDests(String depName);
-
-	// returns the destinations of that relation (if simple cardinality)
-    public Component getLinkDest(String depName) ;
-
-	// returns all the Links with that name (if multiple cardinality)
-    public Set<Link> getLinks(String depName);
-
-	// returns a Link with that name (arbitrary if multiple cardinality)
-    public Link getLink(String depName);
-
-	// Returns all the Links, for the provided relation, leading to the current
-	// Component.
+    // Returns all the Links, for the provided relation, leading to the current
+    // Component.
     public Set<Link> getInvLinks(String depName);
 
-    //returns all the Link from the current Component
+    // ====================== Links ==========================
+
+    // Return it kind: Specification, implementation or instance
+    public ComponentKind getKind();
+
+    // returns a Link with that name (arbitrary if multiple cardinality)
+    public Link getLink(String depName);
+
+    // returns the destinations of that relation (if simple cardinality)
+    public Component getLinkDest(String depName);
+
+    // returns all the destinations of that relation (if multiple cardinality)
+    public Set<Component> getLinkDests(String depName);
+
+    // returns all the Links with that name (if multiple cardinality)
+    public Set<Link> getLinks(String depName);
+
+    // Get all the dependencies defined at that component level.
+    // Empty if none. Return an unmodifiable collection of dependencies
+    public Collection<RelationDefinition> getLocalRelations();
+
+    // return all the members of this component. Null if leaf (instance).
+    public Set<? extends Component> getMembers();
+
+    // The name of the component
+    public String getName();
+
+    // Get the value of a property, the property can be valued in this component
+    // or in its defining group
+    public String getProperty(String attribute);
+
+    /**
+     * Get the value of a property, the property can be valued in this component
+     * or in its defining group Return will be an object of type int, String,
+     * boolean for attributes declared int, String, boolean String for an
+     * enumeration.
+     * 
+     * For sets, the return will be an array of the corresponding types. i.e;
+     * int[], String[] and so on.
+     */
+    public Object getPropertyObject(String attribute);
+
+    // Returns the provided resources, including those inherited.
+    public Set<ResourceReference> getProvidedResources();
+
+    // returns all the instances this one is Linkd to.
+    public Set<Component> getRawLinkDests();
+
+    // ================== Relationships =================
+
+    // returns all the Link from the current Component
     public Set<Link> getRawLinks();
 
-    //Returns all the Links leading to the current Component.
-     public Set<Link> getInvLinks();
+    // Get the relation that can be applied to this component with this id,
+    // including those coming from composite if any.
+    // null if not defined
+    public RelationDefinition getRelation(String id);
 
-     /**
-     * A new Link has to be instantiated between the current Component and the "to" Component, for the relation depName.
+    // Get all the dependencies that can be applied to this component, including
+    // those coming from composite if any.
+    // Empty if none
+    public Set<RelationDefinition> getRelations();
+
+    /**
      * 
-     * @param to target link
-     * @param depName : relation name
-     * @param hasConstraints: true if the Relation definition has contraints
-     * @param promotion true if it is a promotion
-     * @return  true if the link has been created
+     * @return
      */
-     public boolean createLink(Component to, RelToResolve dep, boolean hasConstraints, boolean promotion);
-    
-	// ================== Relationships =================
+    public Map<String, String> getValidAttributes();
 
-	//True if the component matches the filter
-	public boolean match(ApamFilter goal);
+    // Whether this component is an anscestor of the specified member
+    public boolean isAncestorOf(Component member);
 
-	public boolean match(String goal);
+    // Whether this component is a descendant of the specified group
+    // representant
+    public boolean isDescendantOf(Component group);
 
-	// True if the component matches the constraints contained in the relation
-	// filters
-	public boolean matchRelationConstraints(RelToResolve dep);
+    // Whether the component is instantiable
+    public boolean isInstantiable();
 
-	// True if the component matches the Target of this relation
-	public boolean matchRelationTarget(RelToResolve dep);
+    // Whether the component is shared
+    public boolean isShared();
 
-	// True if the component matches the relation (target and constraints)
-	public boolean matchRelation(RelToResolve dep);
+    // ==================== Properties =============
 
-	// Get the relation that can be applied to this component with this id,
-	// including those coming from composite if any.
-	//null if not defined
-	public RelationDefinition getRelation(String id);
+    // Whether the component is singleton
+    public boolean isSingleton();
 
-	//Get all the dependencies that can be applied to this component, including those coming from composite if any.
-	//Empty if none
-	public Set<RelationDefinition> getRelations();
+    // True if the component matches the filter
+    public boolean match(ApamFilter goal);
 
-	//Get all the dependencies defined at that component level. 
-	//Empty if none. Return an unmodifiable collection of dependencies
-	public Collection<RelationDefinition> getLocalRelations();
-	
-	
-	//==================== Properties =============
+    public boolean match(String goal);
 
-	//Get the value of a property, the property can be valued in this component or in its defining group
-	public String getProperty(String attribute);
+    // True if the component matches the relation (target and constraints)
+    public boolean matchRelation(RelToResolve dep);
 
-	/**
-	 * Get the value of a property, the property can be valued in this component or in its
-	 * defining group
-	 * Return will be an object of type int, String, boolean for attributes declared int, String, boolean
-	 * 					String for an enumeration.
-	 * 
-	 * For sets, the return will be an array of the corresponding types. i.e; int[], String[] and so on.
-	 */
-	public Object getPropertyObject (String attribute);
+    // True if the component matches the constraints contained in the relation
+    // filters
+    public boolean matchRelationConstraints(RelToResolve dep);
 
-	/**
-	 * Set the value of a property, the property can be valued in this component or in its
-	 * defining group
-	 * Value must be an int, String, boolean for attributes declared int, String, boolean
-	 * 					String for an enumeration.
-	 * 
-	 * For sets, the value must be an array of the corresponding types. i.e; Set<Integer>, Set<String> and so on.
-	 * 
-	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
-	 */
-	public boolean setProperty(String attr, Object value);
+    // True if the component matches the Target of this relation
+    public boolean matchRelationTarget(RelToResolve dep);
 
-	/**
-	 * Get the value of all the properties of the component, including those in the enclosing
-	 * groups. 
-	 * WARNING : substitutions are not performed.
-	 */
-	public Map<String, Object> getAllProperties();
-	
-	/**
-	 * Get the value of all the properties of the component, including those in the enclosing
-	 * groups
-	 * The values are transformed into string, but without substitution
-	 */
-	public Map<String, String> getAllPropertiesString() ;
+    /**
+     * Removes the specified property of the component
+     */
+    public boolean removeProperty(String attr);
 
+    /**
+     * Change the values of the specified properties of the component
+     */
+    public boolean setAllProperties(Map<String, String> properties);
 
-	/**
-	 * Return the type of the attribute, as it is in xml : "${string}" for substitution, set String.
-	 * Note use Util.splitType to get the details :  isSet, isSub, type, singletonType and NoSub
-	 * @param attr
-	 * @return
-	 */
-	public AttrType getAttrType (String attr) ;
-	
-	
-	/**
-	 * Change the values of the specified properties of the component
-	 */
-	public boolean setAllProperties(Map<String, String> properties);
-
-	/**
-	 * Removes the specified property of the component
-	 */
-	public boolean removeProperty(String attr);
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Map<String, String> getValidAttributes () ;
-
+    /**
+     * Set the value of a property, the property can be valued in this component
+     * or in its defining group Value must be an int, String, boolean for
+     * attributes declared int, String, boolean String for an enumeration.
+     * 
+     * For sets, the value must be an array of the corresponding types. i.e;
+     * Set<Integer>, Set<String> and so on.
+     * 
+     * If the attribute does not exist, of it the value does not correspond to
+     * the attribute type, "false" is returned.
+     */
+    public boolean setProperty(String attr, Object value);
 
 }

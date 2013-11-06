@@ -52,7 +52,6 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.discovery.ApamMachineFactoryImpl;
@@ -69,383 +68,399 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
  */
 public class RemoteMachine implements ApformInstance {
 
-	/**
-	 * The RemoteMachine URL.
-	 */
-	private final String RootURL;
+    private static class RemoteImplem implements ApformImplementation {
 
-	private final String ServletURL;
-	
-	private final String id;
+	private final ImplementationDeclaration declaration;
+	private Implementation implementation;
 
-	private final ApamMachineFactoryImpl my_impl;
+	public RemoteImplem(String name) {
 
-	private Instance apamInstance = null;
+	    String specName = null;
 
-	private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
+	    SpecificationReference specReference = null;
 
-	private final InstanceDeclaration my_declaration;
+	    Specification spec = CST.componentBroker.getSpec(specName);
+	    if (spec != null) {
+		specReference = spec.getApformSpec().getDeclaration()
+			.getReference();
+	    }
 
-	private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
-	
-	private final Set<String> remoteInstances=new HashSet<String>();
-
-	private final AtomicBoolean running = new AtomicBoolean(true);
-	
-	private boolean isLocalhost=false;
-
-
-
-	public RemoteMachine(String rootURL, String id,ApamMachineFactoryImpl daddy,boolean isLocalhost) {
-		RootURL = rootURL;
-		ServletURL = rootURL+DistrimanConstant.PROVIDER_URL;
-		this.isLocalhost=isLocalhost;
-		my_impl = daddy;
-		this.id=id;
-		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
-				.getReference(), "RemoteMachine_" + RootURL, null);
-		my_declaration.setInstantiable(false);
-
-		Apform2Apam.newInstance(this);
-		
-	}
-
-	public String getURLRoot() {
-		return RootURL;
-	}
-	
-	public String getURLServlet() {
-		return ServletURL;
-	}
-
-	public boolean isLocalhost() {
-		return isLocalhost;
-	}
-	
-	public void addEndpointRegistration(EndpointRegistration registration) {
-		my_endregis.add(registration);
-	}
-
-	public boolean rmEndpointRegistration(EndpointRegistration registration) {
-		return my_endregis.remove(registration);
-	}
-
-	/**
-	 * Destroy the RemoteMachine //TODO but a volatile destroyed flag ?
-	 */
-	public void destroy() {
-
-		logger.info("destroying remoteMachine {}", ServletURL);
-
-		for (EndpointRegistration endreg : my_endregis) {
-			endreg.close();
-		}
-		
-		for (String componentName: remoteInstances) {
-			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(componentName);
-			remoteInstances.remove(componentName);
-		}
-		
-		// Remove this Instance from the broker
-		ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
-				.getName());
-
-	}
-
-	public Resolved resolveRemote(Instance client,
-			RelToResolve dependency) throws IOException {
-		if (running.get()) {
-			
-			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLRoot());
-
-			ObjectNode jsonObject = remoteDep.toJson();
-			
-			String json = jsonObject.toString();
-
-			Instance instance = createClientProxy(json, client, dependency);
-
-			if (instance == null) {
-
-				logger.info("dependency {} was NOT found in {}",
-						dependency.getName(), this.getURLServlet());
-
-				return null;
-			}
-
-			logger.info("dependency {} was found remotely in {}",
-					dependency.getName(),this.getURLServlet());
-
-			Set<Implementation> impl = Collections.emptySet();
-
-			return new Resolved(instance);
-
-		}
-
-		return null;
-	}
-
-	private Instance createClientProxy(String jsondep, Instance client,
-			RelToResolve dependency) throws IOException {
-		
-		HttpURLConnection connection = null;
-		PrintWriter outWriter = null;
-		BufferedReader serverResponse = null;
-		StringBuffer buff = new StringBuffer();
-		try {
-
-			logger.info("requesting resolution to address {}", this.getURLServlet());
-
-			connection = (HttpURLConnection) new URL(this.getURLServlet())
-					.openConnection();
-
-			// SET REQUEST INFO
-			connection.setRequestMethod("POST");
-			connection.setDoOutput(true);
-
-			outWriter = new PrintWriter(connection.getOutputStream());
-
-			logger.info("request performed by the client {}",jsondep);
-			
-			buff.append("content=");
-			buff.append(URLEncoder.encode(jsondep, "UTF-8"));
-
-			outWriter.write(buff.toString());
-			outWriter.flush();
-
-			serverResponse = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
-
-			String line;
-			StringBuffer sb = new StringBuffer();
-
-			while ((line = serverResponse.readLine()) != null) {
-				sb.append(line);
-			}
-
-			if (sb.toString().trim().equals(""))
-				return null;
-
-			String decoded = URLDecoder.decode(sb.toString(), "UTF-8");
-
-			System.out.println("Decoded value=" + decoded);
-
-			ObjectMapper om=new ObjectMapper();
-			
-			JsonNode node=om.readValue(decoded, JsonNode.class);
-			
-			Map<String,String> endpoints=om.convertValue(node.get("endpoint_entry"), new TypeReference<Map<String, String>>() {});
-			
-			for(Map.Entry<String, String> entry:endpoints.entrySet()){
-				String interfacename = entry.getKey();
-				String endpointUrl = entry.getValue();
-
-				logger.info("iterating over {} and {}", interfacename,
-						endpointUrl);
-				
-				Object proxyRaw = null;
-
-				if (dependency.getTarget() instanceof InterfaceReference) {
-					InterfaceReference ir = (InterfaceReference) dependency
-							.getTarget();
-
-					logger.info("Type to be loaded {}", ir.getJavaType());
-
-					logger.info("comparing interface {} with {}",
-							interfacename, ir.getJavaType());
-
-					if (interfacename.equals(ir.getJavaType())) {
-
-						Class ifaceClazz = Class.forName(interfacename);
-
-						logger.info(
-								"connecting the interface {} to the endpoint {}",
-								interfacename, endpointUrl);
-
-						ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-						factory.setServiceClass(ifaceClazz);
-						factory.setAddress(endpointUrl);
-						proxyRaw = factory.create();
-
-					} else {
-						logger.info("{} and {} are not equal", interfacename,
-								ir.getJavaType());
-					}
-				} else {
-					logger.info("its not a InterfaceReference");
-				}
-				
-				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getName(),endpointUrl, this.getApamComponent()
-						.getComposite(), proxyRaw);
-				
-				String implName = inst.getImplementation();
-				Implementation implem = CST.componentBroker.getImpl(implName);
-				if (implem == null) {
-					implem = CST.componentBroker.addImpl(null, new RemoteImplem(implName));
-				}
-				
-				remoteInstances.add(inst.getFullName());
-				
-				return CST.componentBroker.addInst(null,inst);
-
-			}
-
-		} catch (MalformedURLException mue) {
-			mue.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-
-			if (connection != null)
-				connection.disconnect();
-
-			if (serverResponse != null) {
-				try {
-					serverResponse.close();
-				} catch (Exception ex) {
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private static class RemoteImplem implements ApformImplementation {
-		
-		private final ImplementationDeclaration declaration;
-		private Implementation implementation;
-		
-		public RemoteImplem(String name) {
-			
-			String  specName = null;
-			
-			SpecificationReference specReference = null;
-			
-			Specification spec = CST.componentBroker.getSpec(specName);
-			if (spec != null) {
-				specReference = spec.getApformSpec().getDeclaration().getReference();
-			}
-			
-			declaration = new RemoteImplementationDeclaration(name, specReference);
-			// TODO distriman: load remote interfaces
-			//declaration.getProvidedResources().add(new InterfaceReference(name));
-			declaration.setInstantiable(false);
-		}
-
-		@Override
-		public void setProperty(String attr, String value) {
-		}
-
-		@Override
-		public Bundle getBundle() {
-			return null;
-		}
-
-		@Override
-		public ImplementationDeclaration getDeclaration() {
-			return declaration;
-		}
-
-		@Override
-		public ApformInstance createInstance(
-				Map<String, String> initialproperties)
-				throws InvalidConfiguration {
-		       throw new UnsupportedOperationException("RemoteImplem is not instantiable");
-		}
-
-		@Override
-		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration,	UnsupportedOperationException {
-			throw new UnsupportedOperationException("RemoteImplem instances can only be created by resolution");
-		}
-
-		@Override
-		public boolean setLink(Component destInst, String depName) {
-			return false;
-		}
-
-		@Override
-		public boolean remLink(Component destInst, String depName) {
-			return false;
-		}
-
-		@Override
-		public void setApamComponent(Component apamComponent) {
-			implementation=(Implementation)apamComponent;
-		}
-
-		@Override
-		public Implementation getApamComponent() {
-			return implementation;
-		}
-		
-		
-	}
-
-	private static class RemoteImplementationDeclaration extends ImplementationDeclaration {
-
-		protected RemoteImplementationDeclaration(String name, SpecificationReference specification) {
-			super(name, specification);
-		}
-
-		@Override
-		protected ImplementationReference<?> generateReference() {
-			return new RemoteImplementationReference(getName());
-		}
-	}
-	
-	public static class RemoteImplementationReference extends ImplementationReference<RemoteImplementationDeclaration> {
-
-		public RemoteImplementationReference(String name) {
-			super(name);
-		}
-
-	}
-
-
-	// ===============
-	// ApformInstance
-	// ===============
-
-	@Override
-	public InstanceDeclaration getDeclaration() {
-		return my_declaration;
+	    declaration = new RemoteImplementationDeclaration(name,
+		    specReference);
+	    // TODO distriman: load remote interfaces
+	    // declaration.getProvidedResources().add(new
+	    // InterfaceReference(name));
+	    declaration.setInstantiable(false);
 	}
 
 	@Override
-	public void setProperty(String attr, String value) {
-		// TODO distriman: implement set property for remote instances
+	public ApformInstance addDiscoveredInstance(
+		Map<String, Object> configuration) throws InvalidConfiguration,
+		UnsupportedOperationException {
+	    throw new UnsupportedOperationException(
+		    "RemoteImplem instances can only be created by resolution");
+	}
+
+	@Override
+	public ApformInstance createInstance(
+		Map<String, String> initialproperties)
+		throws InvalidConfiguration {
+	    throw new UnsupportedOperationException(
+		    "RemoteImplem is not instantiable");
+	}
+
+	@Override
+	public Implementation getApamComponent() {
+	    return implementation;
 	}
 
 	@Override
 	public Bundle getBundle() {
-		return my_impl.getBundle();
+	    return null;
 	}
 
 	@Override
-	public Object getServiceObject() {
-		return null;
-	}
-
-	@Override
-	public boolean setLink(Component destInst, String depName) {
-		return false;
+	public ImplementationDeclaration getDeclaration() {
+	    return declaration;
 	}
 
 	@Override
 	public boolean remLink(Component destInst, String depName) {
-		return false;
-	}
-	
-	public String getId() {
-		return id;
+	    return false;
 	}
 
 	@Override
 	public void setApamComponent(Component apamComponent) {
-		apamInstance=(Instance)apamComponent;
+	    implementation = (Implementation) apamComponent;
 	}
 
 	@Override
-	public Instance getApamComponent() {
-		return apamInstance;
+	public boolean setLink(Component destInst, String depName) {
+	    return false;
 	}
+
+	@Override
+	public void setProperty(String attr, String value) {
+	}
+
+    }
+
+    private static class RemoteImplementationDeclaration extends
+	    ImplementationDeclaration {
+
+	protected RemoteImplementationDeclaration(String name,
+		SpecificationReference specification) {
+	    super(name, specification);
+	}
+
+	@Override
+	protected ImplementationReference<?> generateReference() {
+	    return new RemoteImplementationReference(getName());
+	}
+    }
+
+    public static class RemoteImplementationReference extends
+	    ImplementationReference<RemoteImplementationDeclaration> {
+
+	public RemoteImplementationReference(String name) {
+	    super(name);
+	}
+
+    }
+
+    /**
+     * The RemoteMachine URL.
+     */
+    private final String RootURL;
+
+    private final String ServletURL;
+
+    private final String id;
+
+    private final ApamMachineFactoryImpl my_impl;
+
+    private Instance apamInstance = null;
+
+    private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
+
+    private final InstanceDeclaration my_declaration;
+
+    private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
+
+    private final Set<String> remoteInstances = new HashSet<String>();
+
+    private final AtomicBoolean running = new AtomicBoolean(true);
+
+    private boolean isLocalhost = false;
+
+    public RemoteMachine(String rootURL, String id,
+	    ApamMachineFactoryImpl daddy, boolean isLocalhost) {
+	RootURL = rootURL;
+	ServletURL = rootURL + DistrimanConstant.PROVIDER_URL;
+	this.isLocalhost = isLocalhost;
+	my_impl = daddy;
+	this.id = id;
+	my_declaration = new InstanceDeclaration(daddy.getDeclaration()
+		.getReference(), "RemoteMachine_" + RootURL, null);
+	my_declaration.setInstantiable(false);
+
+	Apform2Apam.newInstance(this);
+
+    }
+
+    public void addEndpointRegistration(EndpointRegistration registration) {
+	my_endregis.add(registration);
+    }
+
+    private Instance createClientProxy(String jsondep, Instance client,
+	    RelToResolve dependency) throws IOException {
+
+	HttpURLConnection connection = null;
+	PrintWriter outWriter = null;
+	BufferedReader serverResponse = null;
+	StringBuffer buff = new StringBuffer();
+	try {
+
+	    logger.info("requesting resolution to address {}",
+		    this.getURLServlet());
+
+	    connection = (HttpURLConnection) new URL(this.getURLServlet())
+		    .openConnection();
+
+	    // SET REQUEST INFO
+	    connection.setRequestMethod("POST");
+	    connection.setDoOutput(true);
+
+	    outWriter = new PrintWriter(connection.getOutputStream());
+
+	    logger.info("request performed by the client {}", jsondep);
+
+	    buff.append("content=");
+	    buff.append(URLEncoder.encode(jsondep, "UTF-8"));
+
+	    outWriter.write(buff.toString());
+	    outWriter.flush();
+
+	    serverResponse = new BufferedReader(new InputStreamReader(
+		    connection.getInputStream()));
+
+	    String line;
+	    StringBuffer sb = new StringBuffer();
+
+	    while ((line = serverResponse.readLine()) != null) {
+		sb.append(line);
+	    }
+
+	    if (sb.toString().trim().equals("")) {
+		return null;
+	    }
+
+	    String decoded = URLDecoder.decode(sb.toString(), "UTF-8");
+
+	    System.out.println("Decoded value=" + decoded);
+
+	    ObjectMapper om = new ObjectMapper();
+
+	    JsonNode node = om.readValue(decoded, JsonNode.class);
+
+	    Map<String, String> endpoints = om.convertValue(
+		    node.get("endpoint_entry"),
+		    new TypeReference<Map<String, String>>() {
+		    });
+
+	    for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+		String interfacename = entry.getKey();
+		String endpointUrl = entry.getValue();
+
+		logger.info("iterating over {} and {}", interfacename,
+			endpointUrl);
+
+		Object proxyRaw = null;
+
+		if (dependency.getTarget() instanceof InterfaceReference) {
+		    InterfaceReference ir = (InterfaceReference) dependency
+			    .getTarget();
+
+		    logger.info("Type to be loaded {}", ir.getJavaType());
+
+		    logger.info("comparing interface {} with {}",
+			    interfacename, ir.getJavaType());
+
+		    if (interfacename.equals(ir.getJavaType())) {
+
+			Class ifaceClazz = Class.forName(interfacename);
+
+			logger.info(
+				"connecting the interface {} to the endpoint {}",
+				interfacename, endpointUrl);
+
+			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+			factory.setServiceClass(ifaceClazz);
+			factory.setAddress(endpointUrl);
+			proxyRaw = factory.create();
+
+		    } else {
+			logger.info("{} and {} are not equal", interfacename,
+				ir.getJavaType());
+		    }
+		} else {
+		    logger.info("its not a InterfaceReference");
+		}
+
+		RemoteInstanceImpl inst = new RemoteInstanceImpl(
+			dependency.getName(), endpointUrl, this
+				.getApamComponent().getComposite(), proxyRaw);
+
+		String implName = inst.getImplementation();
+		Implementation implem = CST.componentBroker.getImpl(implName);
+		if (implem == null) {
+		    implem = CST.componentBroker.addImpl(null,
+			    new RemoteImplem(implName));
+		}
+
+		remoteInstances.add(inst.getFullName());
+
+		return CST.componentBroker.addInst(null, inst);
+
+	    }
+
+	} catch (MalformedURLException mue) {
+	    mue.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    e.printStackTrace();
+	} finally {
+
+	    if (connection != null) {
+		connection.disconnect();
+	    }
+
+	    if (serverResponse != null) {
+		try {
+		    serverResponse.close();
+		} catch (Exception ex) {
+		}
+	    }
+	}
+
+	return null;
+    }
+
+    /**
+     * Destroy the RemoteMachine //TODO but a volatile destroyed flag ?
+     */
+    public void destroy() {
+
+	logger.info("destroying remoteMachine {}", ServletURL);
+
+	for (EndpointRegistration endreg : my_endregis) {
+	    endreg.close();
+	}
+
+	for (String componentName : remoteInstances) {
+	    ComponentBrokerImpl.disappearedComponent(componentName);
+	    remoteInstances.remove(componentName);
+	}
+
+	// Remove this Instance from the broker
+	ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
+		.getName());
+
+    }
+
+    @Override
+    public Instance getApamComponent() {
+	return apamInstance;
+    }
+
+    @Override
+    public Bundle getBundle() {
+	return my_impl.getBundle();
+    }
+
+    @Override
+    public InstanceDeclaration getDeclaration() {
+	return my_declaration;
+    }
+
+    public String getId() {
+	return id;
+    }
+
+    @Override
+    public Object getServiceObject() {
+	return null;
+    }
+
+    // ===============
+    // ApformInstance
+    // ===============
+
+    public String getURLRoot() {
+	return RootURL;
+    }
+
+    public String getURLServlet() {
+	return ServletURL;
+    }
+
+    public boolean isLocalhost() {
+	return isLocalhost;
+    }
+
+    @Override
+    public boolean remLink(Component destInst, String depName) {
+	return false;
+    }
+
+    public Resolved resolveRemote(Instance client, RelToResolve dependency)
+	    throws IOException {
+	if (running.get()) {
+
+	    RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(
+		    dependency, this.getURLRoot());
+
+	    ObjectNode jsonObject = remoteDep.toJson();
+
+	    String json = jsonObject.toString();
+
+	    Instance instance = createClientProxy(json, client, dependency);
+
+	    if (instance == null) {
+
+		logger.info("dependency {} was NOT found in {}",
+			dependency.getName(), this.getURLServlet());
+
+		return null;
+	    }
+
+	    logger.info("dependency {} was found remotely in {}",
+		    dependency.getName(), this.getURLServlet());
+
+	    Set<Implementation> impl = Collections.emptySet();
+
+	    return new Resolved(instance);
+
+	}
+
+	return null;
+    }
+
+    public boolean rmEndpointRegistration(EndpointRegistration registration) {
+	return my_endregis.remove(registration);
+    }
+
+    @Override
+    public void setApamComponent(Component apamComponent) {
+	apamInstance = (Instance) apamComponent;
+    }
+
+    @Override
+    public boolean setLink(Component destInst, String depName) {
+	return false;
+    }
+
+    @Override
+    public void setProperty(String attr, String value) {
+	// TODO distriman: implement set property for remote instances
+    }
 }

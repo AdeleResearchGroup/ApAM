@@ -14,69 +14,75 @@
  */
 package fr.imag.adele.apam.command;
 
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.util.Util;
-
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class AsyncFind implements Runnable {
 
-	private String componentName;
+    private String componentName;
 
-	private PrintWriter out;
+    private PrintWriter out;
 
-	private Composite target;
+    private Composite target;
 
-	private boolean instantiate;
-	private String[] params ;
-	private Map<String, String> props ;
+    private boolean instantiate;
+    private String[] params;
+    private Map<String, String> props;
 
-	public AsyncFind(PrintWriter out, Composite target, String componentName, boolean b, String[] params) {
-		this.out= out;
-		this.target = target;
-		this.componentName = componentName;
-		this.instantiate = b;
-		this.params = params ;
+    public AsyncFind(PrintWriter out, Composite target, String componentName,
+	    boolean b, String[] params) {
+	this.out = out;
+	this.target = target;
+	this.componentName = componentName;
+	this.instantiate = b;
+	if (params != null) {
+	    this.params = new String[params.length];
+	    System.arraycopy(params, 0, this.params, 0, params.length);
+	}
+    }
+
+    @Override
+    public void run() {
+	Component component = CST.apamResolver.findComponentByName(target,
+		componentName);
+	if (component == null) {
+	    System.out.println("Component " + componentName + " not found.");
+	    return;
 	}
 
-
-
-	@Override
-	public void run() {
-		Component  component= CST.apamResolver.findComponentByName(target, componentName);
-		if (component == null) {
-			System.out.println("Component " + componentName + " not found.");
-			return ;
-		}
-
-		if (params != null && params.length > 1) {
-			props = new HashMap <String, String> () ;
-			String value = "";
-			//Skip first values, which is the component name
-			for (int i = 1 ; i < params.length ;i++) {
-				value +=  params[i] + ", " ;
-			}
-			props.put ("param", value) ; 
-		} else props = null ;
-
-		if (instantiate){
-			if (component instanceof Implementation)
-				((Implementation)component).createInstance(target, props);
-			if (component instanceof Specification) {
-				Implementation impl = CST.apamResolver.resolveSpecByName(target, componentName, null, null) ;
-				if (impl == null) {
-					System.out.println("Component " + componentName + " not found.");
-					return ;
-				}
-				impl.createInstance(null, props);
-			}
-		}
+	if (params != null && params.length > 1) {
+	    props = new HashMap<String, String>();
+	    String value = "";
+	    // Skip first values, which is the component name
+	    for (int i = 1; i < params.length; i++) {
+		value += params[i] + ", ";
+	    }
+	    props.put("param", value);
+	} else {
+	    props = null;
 	}
+
+	if (instantiate) {
+	    if (component instanceof Implementation) {
+		((Implementation) component).createInstance(target, props);
+	    }
+	    if (component instanceof Specification) {
+		Implementation impl = CST.apamResolver.resolveSpecByName(
+			target, componentName, null, null);
+		if (impl == null) {
+		    System.out.println("Component " + componentName
+			    + " not found.");
+		    return;
+		}
+		impl.createInstance(null, props);
+	    }
+	}
+    }
 }

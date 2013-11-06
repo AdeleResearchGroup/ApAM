@@ -51,8 +51,8 @@ public class LightManagerTester implements ActionListener {
     JButton btn1;
     JButton btn2;
     JButton btn3;
-    
-    private int toShow; 
+
+    private int toShow;
 
     private static Logger logger = LoggerFactory
 	    .getLogger(LightManagerTester.class);
@@ -64,40 +64,25 @@ public class LightManagerTester implements ActionListener {
 	super();
     }
 
-    public void started() {
-	logger.debug("started()");
-
-	myFrame = new JFrame();
-	myFrame.setLayout(new BoxLayout(myFrame.getContentPane(),
-		BoxLayout.Y_AXIS));
-	btn1 = new JButton("test 1: My Kitchen relations (default)");
-	btn2 = new JButton("test 2: press Button Kitchen");
-	btn3 = new JButton("test 3: press Button Living");
-	btn1.addActionListener(this);
-	btn2.addActionListener(this);
-	btn3.addActionListener(this);
-	myFrame.add(btn1);
-	myFrame.add(btn2);
-	myFrame.add(btn3);
-
-	rebuildLightsColumn();
-	rebuildButtonsColumn();
-	myFrame.pack();
-	if(toShow>0)
-	    myFrame.setVisible(true);
-
-    }
-    
-    public void show() {
-	if(toShow>0)
-	    myFrame.setVisible(true);
-	else myFrame.setVisible(false);
-	  
-	
-    }
-
-    public void stopped() {
-	logger.debug("stopped()");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+	try {
+	    if (e.getSource() == btn1) {
+		testMyKitchenBinding();
+	    } else if (e.getSource() == btn2) {
+		testButtonKitchen();
+	    } else if (e.getSource() == btn3) {
+		testButtonLiving();
+	    }
+	} catch (Exception exc) {
+	    exc.printStackTrace();
+	}
     }
 
     public void aLightStatusHasChanged(LightStatusChanged event) {
@@ -121,32 +106,12 @@ public class LightManagerTester implements ActionListener {
 
     /**
      * CallBack method on dependency resolution
-     */
-    public void removeButton(Instance inst) {
-	SimpleButton btn = (SimpleButton) inst.getServiceObject();
-	logger.debug("removeButton(SimpleButton button : " + btn.getName()
-		+ " in " + btn.getLocation() + ")");
-	rebuildButtonsColumn();
-    }
-
-    /**
-     * CallBack method on dependency resolution
      * 
      * @param light
      */
     public void newLight(Instance inst) {
 	BinaryLight light = (BinaryLight) inst.getServiceObject();
 	logger.debug("newLight(Instance light : " + light.getName() + " in "
-		+ light.getLocation() + ")");
-	rebuildLightsColumn();
-    }
-
-    /**
-     * CallBack method on dependency resolution
-     */
-    public void removeLight(Instance inst) {
-	BinaryLight light = (BinaryLight) inst.getServiceObject();
-	logger.debug("removeLight(Instance light : " + light.getName() + " in "
 		+ light.getLocation() + ")");
 	rebuildLightsColumn();
     }
@@ -181,20 +146,68 @@ public class LightManagerTester implements ActionListener {
 	}
     }
 
-    public void testPressButton(String location) {
-	logger.info("testPressButton(), Location button to test " + location);
-	if (theButtons != null && theButtons.size() > 0) {
-	    boolean found = false;
-	    Iterator<SimpleButton> it = theButtons.iterator();
-	    while (it.hasNext()&&!found) {
-		SimpleButton btn = it.next();
-		if (btn.getLocation().equals(location)) {
-		    logger.debug("testPressButton(), found button to test");
-		    found= true;
-		    btn.pressButton();
-		}
-	    }
+    /**
+     * CallBack method on dependency resolution
+     */
+    public void removeButton(Instance inst) {
+	SimpleButton btn = (SimpleButton) inst.getServiceObject();
+	logger.debug("removeButton(SimpleButton button : " + btn.getName()
+		+ " in " + btn.getLocation() + ")");
+	rebuildButtonsColumn();
+    }
+
+    /**
+     * CallBack method on dependency resolution
+     */
+    public void removeLight(Instance inst) {
+	BinaryLight light = (BinaryLight) inst.getServiceObject();
+	logger.debug("removeLight(Instance light : " + light.getName() + " in "
+		+ light.getLocation() + ")");
+	rebuildLightsColumn();
+    }
+
+    public void show() {
+	if (toShow > 0) {
+	    myFrame.setVisible(true);
+	} else {
+	    myFrame.setVisible(false);
 	}
+
+    }
+
+    private void shutDownLights() {
+	for (BinaryLight light : theLights) {
+	    light.setLightStatus(false);
+	}
+    }
+
+    public void started() {
+	logger.debug("started()");
+
+	myFrame = new JFrame();
+	myFrame.setLayout(new BoxLayout(myFrame.getContentPane(),
+		BoxLayout.Y_AXIS));
+	btn1 = new JButton("test 1: My Kitchen relations (default)");
+	btn2 = new JButton("test 2: press Button Kitchen");
+	btn3 = new JButton("test 3: press Button Living");
+	btn1.addActionListener(this);
+	btn2.addActionListener(this);
+	btn3.addActionListener(this);
+	myFrame.add(btn1);
+	myFrame.add(btn2);
+	myFrame.add(btn3);
+
+	rebuildLightsColumn();
+	rebuildButtonsColumn();
+	myFrame.pack();
+	if (toShow > 0) {
+	    myFrame.setVisible(true);
+	}
+
+    }
+
+    public void stopped() {
+	logger.debug("stopped()");
     }
 
     public void testButtonKitchen() throws Exception {
@@ -212,23 +225,26 @@ public class LightManagerTester implements ActionListener {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
 	}
-	String error="";
-	
-	for(BinaryLight light : theLights) {
-	    if(light.getLocation().equals("kitchen")) {
-		    if(!light.isLightOn()) {
-			error+=light.getName()+" in "+light.getLocation()+" is off (should be on);";
-		    }
-	    } else if(light.isLightOn())
-		error+=light.getName()+" in "+light.getLocation()+" is off (should be on);";
+	String error = "";
+
+	for (BinaryLight light : theLights) {
+	    if (light.getLocation().equals("kitchen")) {
+		if (!light.isLightOn()) {
+		    error += light.getName() + " in " + light.getLocation()
+			    + " is off (should be on);";
+		}
+	    } else if (light.isLightOn()) {
+		error += light.getName() + " in " + light.getLocation()
+			+ " is off (should be on);";
+	    }
 	}
-	if(!error.equals("")) {
-	    logger.error("Light status incorrect : "+error);
-	    throw new Exception("Light status incorrect : "+error);
+	if (!error.equals("")) {
+	    logger.error("Light status incorrect : " + error);
+	    throw new Exception("Light status incorrect : " + error);
 	}
     }
 
-    public void testButtonLiving() throws Exception{
+    public void testButtonLiving() throws Exception {
 	shutDownLights();
 	try {
 	    Thread.sleep(200);
@@ -243,23 +259,19 @@ public class LightManagerTester implements ActionListener {
 	    logger.error("Test stopped");
 	    e.printStackTrace();
 	}
-	String error="";
+	String error = "";
 
 	for (BinaryLight light : theLights) {
 	    // no light should be on because there is now Lighting application
 	    // in the living
-	    if (light.isLightOn())
-		error+=light.getName()+" in "+light.getLocation()+" is on (should be off);";
+	    if (light.isLightOn()) {
+		error += light.getName() + " in " + light.getLocation()
+			+ " is on (should be off);";
+	    }
 	}
-	if(!error.equals("")) {
-	    logger.error("Light status incorrect : "+error);
-	    throw new Exception("Light status incorrect : "+error);
-	}
-    }
-
-    private void shutDownLights() {
-	for (BinaryLight light : theLights) {
-	    light.setLightStatus(false);
+	if (!error.equals("")) {
+	    logger.error("Light status incorrect : " + error);
+	    throw new Exception("Light status incorrect : " + error);
 	}
     }
 
@@ -283,30 +295,29 @@ public class LightManagerTester implements ActionListener {
 	    // lightKitchen
 	    if (theoricLinks.contains(rel.getDestination().getName())) {
 		theoricLinks.remove(rel.getDestination().getName());
-	    } else
+	    } else {
 		logger.error("testMyKitchenBinding() -> this link should not exists");
+	    }
 	}
-	if (theoricLinks.size() > 0)
+	if (theoricLinks.size() > 0) {
 	    logger.error("testMyKitchenBinding() -> not all links completed");
+	}
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-	try {
-	if (e.getSource() == btn1)
-	    testMyKitchenBinding();
-	else if (e.getSource() == btn2)
-	    testButtonKitchen();
-	else if (e.getSource() == btn3)
-	    testButtonLiving();
-	} catch (Exception exc) {
-	    exc.printStackTrace();
+    public void testPressButton(String location) {
+	logger.info("testPressButton(), Location button to test " + location);
+	if (theButtons != null && theButtons.size() > 0) {
+	    boolean found = false;
+	    Iterator<SimpleButton> it = theButtons.iterator();
+	    while (it.hasNext() && !found) {
+		SimpleButton btn = it.next();
+		if (btn.getLocation().equals(location)) {
+		    logger.debug("testPressButton(), found button to test");
+		    found = true;
+		    btn.pressButton();
+		}
+	    }
 	}
     }
 

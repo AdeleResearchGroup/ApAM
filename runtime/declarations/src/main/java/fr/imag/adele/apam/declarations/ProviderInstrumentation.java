@@ -17,114 +17,120 @@ package fr.imag.adele.apam.declarations;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 
 /**
- * The declaration of a code instrumentation (injection, interception, invocation, ...)
- * that must be performed at runtime to implement the actual execution semantics of the
- * the providing end of a dependency.
+ * The declaration of a code instrumentation (injection, interception,
+ * invocation, ...) that must be performed at runtime to implement the actual
+ * execution semantics of the the providing end of a dependency.
  * 
  * @author vega
  * 
  */
 public abstract class ProviderInstrumentation extends Instrumentation {
 
-	protected ProviderInstrumentation(AtomicImplementationDeclaration implementation) {
+    /**
+     * This class declares instrumentation for message providers that is based
+     * on intercepting the return value of a method invocation
+     * 
+     */
+    public static class MessageProviderMethodInterception extends
+	    ProviderInstrumentation {
 
-		super(implementation);
+	/**
+	 * The name of the method that must be intercepted
+	 */
+	private final String methodName;
 
-		assert implementation != null;
+	/**
+	 * The signature of the method that must be intercepted
+	 */
+	private final String methodSignature;
+
+	/**
+	 * The return type of the specified method
+	 */
+	private final Lazy<MessageReference> methodReturnType = new Lazy<MessageReference>() {
+
+	    @Override
+	    protected MessageReference evaluate(CodeReflection reflection) {
+		try {
+		    return new MessageReference(reflection.getMethodReturnType(
+			    methodName, methodSignature, false));
+		} catch (NoSuchMethodException e) {
+		    return null;
+		}
+	    }
+	};
+
+	public MessageProviderMethodInterception(
+		AtomicImplementationDeclaration implementation,
+		String methodName, String methodSignature) {
+	    super(implementation);
+
+	    assert methodName != null;
+
+	    this.methodName = methodName;
+	    this.methodSignature = methodSignature;
 	}
 
 	/**
-	 * An unique identifier for this injection, within the scope of the
-	 * declaring implementation
+	 * The name of the method to intercept
 	 */
-	public abstract String getName();
-	
-	/**
-	 * The type of the java resource that needs to be provided at runtime by the
-	 * component to perform this instrumentation
-	 */
-	public abstract ResourceReference getProvidedResource();
-
-	/**
-	 * This class declares instrumentation for message providers that is based
-	 * on intercepting the return value of a method invocation
-	 * 
-	 */
-	public static class MessageProviderMethodInterception extends ProviderInstrumentation {
-
-		/**
-		 * The name of the method that must be intercepted
-		 */
-		private final String methodName;
-
-		/**
-		 * The signature of the method that must be intercepted
-		 */
-		private final String methodSignature;
-
-		/**
-		 * The return type of the specified method
-		 */
-		private final Lazy<MessageReference> methodReturnType = new Lazy<MessageReference>() {
-
-			@Override
-			protected MessageReference evaluate(CodeReflection reflection) {
-				try {
-					return new MessageReference(reflection.getMethodReturnType(methodName,methodSignature,false));
-				} catch (NoSuchMethodException e) {
-					return null;
-				}
-			}
-		};
-
-		public MessageProviderMethodInterception(AtomicImplementationDeclaration implementation, String methodName, String methodSignature) {
-			super(implementation);
-
-			assert methodName != null;
-
-			this.methodName = methodName;
-			this.methodSignature = methodSignature;
-		}
-		
-		@Override
-		public String getName() {
-			return methodName;
-		}
-
-		@Override
-		public boolean isValidInstrumentation() {
-			return methodReturnType.get() != null;
-		}
-		
-		/**
-		 * The name of the method to intercept
-		 */
-		public String getMethodName() {
-			return methodName;
-		}
-
-		/**
-		 * The signature of the parameters of the method to intercept
-		 */
-		public String getMethodSignature() {
-			return methodSignature;
-		}
-
-		/**
-		 * The type of the java resource that needs to be provided at runtime by
-		 * the component to perform this instrumentation
-		 */
-		public ResourceReference getProvidedResource() {
-			MessageReference target = methodReturnType.get();
-			return target != null ? target : new UndefinedReference(new MessageReference(methodName));
-		}
-
-		
-		@Override
-		public String toString() {
-			return "method " + methodName + ": "+ getProvidedResource().getJavaType();
-		}
-
-
+	public String getMethodName() {
+	    return methodName;
 	}
+
+	/**
+	 * The signature of the parameters of the method to intercept
+	 */
+	public String getMethodSignature() {
+	    return methodSignature;
+	}
+
+	@Override
+	public String getName() {
+	    return methodName;
+	}
+
+	/**
+	 * The type of the java resource that needs to be provided at runtime by
+	 * the component to perform this instrumentation
+	 */
+	@Override
+	public ResourceReference getProvidedResource() {
+	    MessageReference target = methodReturnType.get();
+	    return target != null ? target : new UndefinedReference(
+		    new MessageReference(methodName));
+	}
+
+	@Override
+	public boolean isValidInstrumentation() {
+	    return methodReturnType.get() != null;
+	}
+
+	@Override
+	public String toString() {
+	    return "method " + methodName + ": "
+		    + getProvidedResource().getJavaType();
+	}
+
+    }
+
+    protected ProviderInstrumentation(
+	    AtomicImplementationDeclaration implementation) {
+
+	super(implementation);
+
+	assert implementation != null;
+    }
+
+    /**
+     * An unique identifier for this injection, within the scope of the
+     * declaring implementation
+     */
+    public abstract String getName();
+
+    /**
+     * The type of the java resource that needs to be provided at runtime by the
+     * component to perform this instrumentation
+     */
+    public abstract ResourceReference getProvidedResource();
 }

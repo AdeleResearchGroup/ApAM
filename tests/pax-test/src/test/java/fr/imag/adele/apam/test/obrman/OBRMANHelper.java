@@ -39,165 +39,171 @@ import fr.imag.adele.obrMan.OBRManCommand;
 
 public class OBRMANHelper {
 
-	private final BundleContext context;
+    private final BundleContext context;
 
-	private final OSGiHelper osgi;
+    private final OSGiHelper osgi;
 
-	private final IPOJOHelper ipojo;
-	
-	public static final String OBRMAN_BUNDLE_NAME = "obrman";
-	
-	private Version version;
+    private final IPOJOHelper ipojo;
 
-	public OBRMANHelper(BundleContext pContext) {
-		context = pContext;
-		osgi = new OSGiHelper(context);
-		ipojo = new IPOJOHelper(context);
-		version=getBundleVersion();
-	}
+    public static final String OBRMAN_BUNDLE_NAME = "obrman";
 
-	public void dispose() {
-		osgi.dispose();
-		ipojo.dispose();
-	}
+    private Version version;
 
-	public void setObrManInitialConfig(String modelPrefix, String[] repos,
-			int expectedSize) throws IOException {
-		// URL obrModelAppUrl = context.getBundle().getResource(modelPrefix +
-		// ".OBRMAN.cfg");
-		URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
-				+ "/target/classes/" + modelPrefix + ".OBRMAN.cfg");
+    public OBRMANHelper(BundleContext pContext) {
+	context = pContext;
+	osgi = new OSGiHelper(context);
+	ipojo = new IPOJOHelper(context);
+	version = getBundleVersion();
+    }
 
-		System.out.println(modelPrefix + " >>> " + obrModelAppUrl);
+    public CompositeType createCompositeType(String name, String main,
+	    String mainSpec) throws IOException {
+	waitForIt(100);
 
-		OBRManCommand obrman = getAService(OBRManCommand.class);
+	// URL obrModelAppUrl = context.getBundle().getResource(name +
+	// ".OBRMAN.cfg");
+	URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
+		+ "/target/classes/" + name + ".OBRMAN.cfg");
 
-		obrman.setInitialConfig(obrModelAppUrl);
+	System.out.println(name + " >>> " + obrModelAppUrl);
 
-		Set<String> rootRepos = getCompositeRepos(CST.ROOT_COMPOSITE_TYPE);
-		for (String repo : repos) {
-			assertTrue(rootRepos.contains(repo));
-		}
+	ManagerModel model = new ManagerModel("OBRMAN", obrModelAppUrl);
 
-		assertEquals(expectedSize, rootRepos.size());
+	Set<ManagerModel> models = new HashSet<ManagerModel>();
 
-	}
+	models.add(model);
 
-	public CompositeType createCompositeType(String name, String main,
-			String mainSpec) throws IOException {
-		waitForIt(100);
+	Apam apam = getAService(Apam.class);
 
-		// URL obrModelAppUrl = context.getBundle().getResource(name +
-		// ".OBRMAN.cfg");
-		URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
-				+ "/target/classes/" + name + ".OBRMAN.cfg");
+	CompositeType app = apam.createCompositeType(null, name, mainSpec,
+		main, models, null);
 
-		System.out.println(name + " >>> " + obrModelAppUrl);
+	assertNotNull(app);
 
-		ManagerModel model = new ManagerModel("OBRMAN", obrModelAppUrl);
+	assertNotNull(app.getMainImpl().getApformImpl());
 
-		Set<ManagerModel> models = new HashSet<ManagerModel>();
+	return app;
+    }
 
-		models.add(model);
+    public <T> T createInstance(CompositeType CompoType, Class<T> class1) {
 
-		Apam apam = getAService(Apam.class);
+	Composite instanceApp = (Composite) CompoType
+		.createInstance(null, null);
 
-		CompositeType app = apam.createCompositeType(null, name, mainSpec,
-				main, models, null);
+	assertNotNull(instanceApp);
 
-		assertNotNull(app);
+	T appSpec = class1.cast(instanceApp.getServiceObject());
 
-		assertNotNull(app.getMainImpl().getApformImpl());
+	return appSpec;
 
-		return app;
-	}
+    }
 
-	public <T> T createInstance(CompositeType CompoType, Class<T> class1) {
+    public void dispose() {
+	osgi.dispose();
+	ipojo.dispose();
+    }
 
-		Composite instanceApp = (Composite) CompoType
-				.createInstance(null, null);
+    public <S> S getAService(Class<S> clazz) {
+	Object o = osgi.getServiceObject(clazz.getName(), null);
+	S s = clazz.cast(o);
+	assertNotNull(s);
+	return s;
+    }
 
-		assertNotNull(instanceApp);
-
-		T appSpec = class1.cast(instanceApp.getServiceObject());
-
-		return appSpec;
-
-	}
-
-	/**
-	 * This method allows to verify the state of the bundle to make sure that we
-	 * can perform tasks on it
-	 * 
-	 * @param time
-	 */
-	public void waitForIt(int time) {
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			assert false;
-		}
-
-		if (context != null)
-			while (
-			// context.getBundle().getState() != Bundle.STARTING &&
-			context.getBundle().getState() != Bundle.ACTIVE // &&
-			// context.getBundle().getState() != Bundle.STOPPING
-			) {
-				try {
-					Thread.sleep(time);
-				} catch (InterruptedException e) {
-					System.err.println("waitForIt failed.");
-				}
-			}
-	}
-
-	public <S> S getAService(Class<S> clazz) {
-		Object o = osgi.getServiceObject(clazz.getName(), null);
-		S s = clazz.cast(o);
-		assertNotNull(s);
-		return s;
-	}
-
-	public Set<String> getCompositeRepos(String compositeName) {
-		OBRManCommand obrman = getAService(OBRManCommand.class);
-		return obrman.getCompositeRepositories(compositeName);
-	}
-
-	public OSGiHelper getOSGiHelper() {
-		return osgi;
-	}
-
-	public IPOJOHelper getIpojoHelper() {
-		return ipojo;
-	}
-
-	public void printBundleList() {
-		System.out.println("---------List of installed bundle--------");
-		for (Bundle bundle : context.getBundles()) {
-			System.out.println("- " + bundle.getLocation() + " ["
-					+ bundle.getState() + "]");
-		}
-		System.out.println("---------End of List of installed bundle--------");
-	}
-	
-	private Version getBundleVersion() {
-	    for (Bundle bundle : context.getBundles())
-		if(bundle.getSymbolicName().equals(OBRMAN_BUNDLE_NAME))
-			return bundle.getVersion();
-	    return null;
-	}
-	
-	public String getMavenVersion() {
-	    if (version==null)
-		return null;
-	    else {
-		    String result=version.getMajor()+"."+version.getMinor()+"."+version.getMicro();
-		    if(version.getQualifier()!= null && version.getQualifier().length()>0)
-			result+="-"+version.getQualifier();
-		    return result;
+    private Version getBundleVersion() {
+	for (Bundle bundle : context.getBundles()) {
+	    if (bundle.getSymbolicName().equals(OBRMAN_BUNDLE_NAME)) {
+		return bundle.getVersion();
 	    }
-
 	}
+	return null;
+    }
+
+    public Set<String> getCompositeRepos(String compositeName) {
+	OBRManCommand obrman = getAService(OBRManCommand.class);
+	return obrman.getCompositeRepositories(compositeName);
+    }
+
+    public IPOJOHelper getIpojoHelper() {
+	return ipojo;
+    }
+
+    public String getMavenVersion() {
+	if (version == null) {
+	    return null;
+	} else {
+	    String result = version.getMajor() + "." + version.getMinor() + "."
+		    + version.getMicro();
+	    if (version.getQualifier() != null
+		    && version.getQualifier().length() > 0) {
+		result += "-" + version.getQualifier();
+	    }
+	    return result;
+	}
+
+    }
+
+    public OSGiHelper getOSGiHelper() {
+	return osgi;
+    }
+
+    public void printBundleList() {
+	System.out.println("---------List of installed bundle--------");
+	for (Bundle bundle : context.getBundles()) {
+	    System.out.println("- " + bundle.getLocation() + " ["
+		    + bundle.getState() + "]");
+	}
+	System.out.println("---------End of List of installed bundle--------");
+    }
+
+    public void setObrManInitialConfig(String modelPrefix, String[] repos,
+	    int expectedSize) throws IOException {
+	// URL obrModelAppUrl = context.getBundle().getResource(modelPrefix +
+	// ".OBRMAN.cfg");
+	URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir()
+		+ "/target/classes/" + modelPrefix + ".OBRMAN.cfg");
+
+	System.out.println(modelPrefix + " >>> " + obrModelAppUrl);
+
+	OBRManCommand obrman = getAService(OBRManCommand.class);
+
+	obrman.setInitialConfig(obrModelAppUrl);
+
+	Set<String> rootRepos = getCompositeRepos(CST.ROOT_COMPOSITE_TYPE);
+	for (String repo : repos) {
+	    assertTrue(rootRepos.contains(repo));
+	}
+
+	assertEquals(expectedSize, rootRepos.size());
+
+    }
+
+    /**
+     * This method allows to verify the state of the bundle to make sure that we
+     * can perform tasks on it
+     * 
+     * @param time
+     */
+    public void waitForIt(int time) {
+	try {
+	    Thread.sleep(time);
+	} catch (InterruptedException e) {
+	    assert false;
+	}
+
+	if (context != null) {
+	    while (
+	    // context.getBundle().getState() != Bundle.STARTING &&
+	    context.getBundle().getState() != Bundle.ACTIVE // &&
+	    // context.getBundle().getState() != Bundle.STOPPING
+	    ) {
+		try {
+		    Thread.sleep(time);
+		} catch (InterruptedException e) {
+		    System.err.println("waitForIt failed.");
+		}
+	    }
+	}
+    }
 
 }

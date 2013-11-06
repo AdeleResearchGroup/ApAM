@@ -37,69 +37,69 @@ import fr.imag.adele.apam.distriman.discovery.ApamMachineFactory;
 @Component(name = "Apam::Distriman::Provider servlet")
 @Instantiate
 @Provides
-public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig { 
+public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig {
 
-	private final static String URL = "/distriman";
-	private final static String RESOURCE = "/static";
-	
-	@Requires(nullable = false)
-	HttpService http;
+    private final static String URL = "/distriman";
+    private final static String RESOURCE = "/static";
 
-	@Requires(nullable = false)
-	ApamMachineFactory discovery;
+    @Requires(nullable = false)
+    HttpService http;
 
-	private String html = "<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>Available apam remote nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
+    @Requires(nullable = false)
+    ApamMachineFactory discovery;
 
-	@Validate
-	private void initialize() {
-		try {
-			http.registerServlet(URL, this, null, null);
-			http.registerResources(RESOURCE, "/", null);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    private String html = "<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>Available apam remote nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	    throws ServletException, IOException {
+	resp.setContentType("text/html");
+	if (discovery != null) {
+
+	    // try {
+	    // service.connectCall();
+	    // } catch (Exception e) {
+	    // e.printStackTrace();
+	    // }
+
+	    String conteTemplate = "<tr><tr><td>%s</td><td>%s</td><td>%s</td><tr>";
+
+	    String conte = "";
+
+	    for (String key : discovery.getMachines().keySet()) {
+		RemoteMachine machine = discovery.getMachines().get(key);
+		conte += String.format(conteTemplate, machine.getURLServlet(),
+			"NONE", "NONE");
+	    }
+
+	    if (discovery.getMachines().size() == 0) {
+		conte += "<tr><td colspan='3' align='center'>No remote nodes available</td><tr>";
+	    }
+
+	    resp.getWriter().write(String.format(html, conte));
+
+	} else {
+	    resp.getWriter().write("empty discovery");
 	}
 
-	@Invalidate
-	private void stop() {
-		http.unregister(URL);
-		http.unregister(RESOURCE);
+	resp.flushBuffer();
+
+    }
+
+    @Validate
+    private void initialize() {
+	try {
+	    http.registerServlet(URL, this, null, null);
+	    http.registerResources(RESOURCE, "/", null);
+
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
+    }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		resp.setContentType("text/html");
-		if (discovery != null) {
-
-//			try {
-//				service.connectCall();
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-			
-			String conteTemplate = "<tr><tr><td>%s</td><td>%s</td><td>%s</td><tr>";
-
-			String conte = "";
-
-			for (String key : discovery.getMachines().keySet()) {
-				RemoteMachine machine = discovery.getMachines().get(key);
-				conte += String.format(conteTemplate, machine.getURLServlet(), "NONE",
-						"NONE");
-			}
-
-			if (discovery.getMachines().size() == 0) {
-				conte += "<tr><td colspan='3' align='center'>No remote nodes available</td><tr>";
-			}
-
-			resp.getWriter().write(String.format(html, conte));
-
-		} else {
-			resp.getWriter().write("empty discovery");
-		}
-
-		resp.flushBuffer();
-
-	}
+    @Invalidate
+    private void stop() {
+	http.unregister(URL);
+	http.unregister(RESOURCE);
+    }
 }
