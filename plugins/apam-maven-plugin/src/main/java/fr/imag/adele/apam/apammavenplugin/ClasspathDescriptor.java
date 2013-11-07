@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.apamMavenPlugin;
+package fr.imag.adele.apam.apammavenplugin;
 
 import java.io.File;
 import java.io.FileNotFoundException;

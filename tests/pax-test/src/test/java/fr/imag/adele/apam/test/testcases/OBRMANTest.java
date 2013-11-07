@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.test.obrman;
+package fr.imag.adele.apam.test.testcases;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,7 +37,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
-import fr.imag.adele.apam.test.testcases.RelationTest;
+import fr.imag.adele.apam.test.obrman.OBRMANHelper;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**

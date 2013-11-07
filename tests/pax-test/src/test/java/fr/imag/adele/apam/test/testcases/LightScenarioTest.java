@@ -63,7 +63,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("LightingScenarioTest",
 		"fr.imag.adele.apam.test.lights");
 
-	List<Option> defaults = super.config(mapOfRequiredArtifacts, false);
+	List<Option> defaults = super.config(mapOfRequiredArtifacts, true);
 	try {
 	    defaults.add(CoreOptions.bundle(
 		    (new File(PathUtils.getBaseDir(), "bundle/wireadmin.jar"))
@@ -81,8 +81,6 @@ public class LightScenarioTest extends ExtensionAbstract {
 	super.setUp();
 	waitForApam();
 	theoricLinks = new HashSet<String>();
-	waitForInstByName(null, "ConflictManager-Instance");
-	waitForInstByName(null, "OSGiMan-Instance");
 
 	// First launch the "devices"
 	Implementation implemButtonGUI = waitForImplByName(null, "ButtonGUI");
@@ -110,11 +108,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 		.createInstance(null, propLiving).getServiceObject();
 
 	// Wait for the devices to be instantiated
-	try {
-	    Thread.sleep(1000);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}
+	apam.waitForIt(1000);
 
 	// Then launch the Application
 	Implementation implemApplication = waitForImplByName(null,
@@ -155,7 +149,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 		"LightManagerPanel");
 
 	Instance inst = implementation.createInstance(null,
-		Collections.<String, String> emptyMap());
+		null);
 
 	LightManagerTester tester = (LightManagerTester) inst
 		.getServiceObject();
@@ -176,7 +170,8 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testMyKitchenBinding() {
-	apam.waitForIt(20000);
+	waitForInstByName(null, "LightApplicationKitchen-0");
+
 
 	// Wait for the binding between lightApplication myKitchen and devices
 	// upon filter location

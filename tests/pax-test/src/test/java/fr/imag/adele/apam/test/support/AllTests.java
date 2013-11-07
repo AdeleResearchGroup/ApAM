@@ -18,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import fr.imag.adele.apam.test.obrman.OBRMANTest;
 import fr.imag.adele.apam.test.testcases.CompositeTest;
 import fr.imag.adele.apam.test.testcases.ConstraintTest;
 import fr.imag.adele.apam.test.testcases.DistriManTest;
@@ -26,6 +25,7 @@ import fr.imag.adele.apam.test.testcases.DynamanDependentTest;
 import fr.imag.adele.apam.test.testcases.InjectionInstantiationTest;
 import fr.imag.adele.apam.test.testcases.MessageTest;
 import fr.imag.adele.apam.test.testcases.MetaSubstitutionTest;
+import fr.imag.adele.apam.test.testcases.OBRMANTest;
 import fr.imag.adele.apam.test.testcases.PropertyTest;
 import fr.imag.adele.apam.test.testcases.RelationTest;
 
