@@ -57,6 +57,7 @@ public class ApamRepoBuilder {
 	
 	private static final String BEGIN_P = "      <p n='";
 	private static final String END_P = "' />\n";
+	private static final String END_M = "' >\n";
 	private static final String ATT_V = "' v='";
 	
 
@@ -108,7 +109,7 @@ public class ApamRepoBuilder {
 	}
 
 	private void printOBRMavenElement(StringBuffer obrContent) {
-		obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
+		obrContent.append("   <capability name='" + CST.MAVEN + END_M);
 		obrContent.append(BEGIN_P + CST.GROUP_ID + ATT_V + OBRGeneratorMojo.currentProjectGroupId + END_P);
 		obrContent.append(BEGIN_P + CST.ARTIFACT_ID + ATT_V + OBRGeneratorMojo.currentProjectArtifactId + END_P);
 		obrContent.append(BEGIN_P + CST.VERSION + ATT_V + OBRGeneratorMojo.currentProjectVersion + END_P);
@@ -133,7 +134,7 @@ public class ApamRepoBuilder {
 		logger.info(component.getName() + " ...");
 
 		//headers
-		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + END_P);
+		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + END_M);
 		generateProperty (obrContent, component, CST.NAME, component.getName()) ;
 
 		if (component instanceof ImplementationDeclaration) {
