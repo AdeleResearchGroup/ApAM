@@ -197,12 +197,6 @@ public class PendingRequest {
      */
     public boolean isSatisfiedBy(Component candidate) {
 
-	/*
-	 * Check visibility
-	 */
-	if (!source.canSee(candidate)) {
-	    return false;
-	}
 
 	/*
 	 * Check if the candidate kind matches the target kind of the relation.
@@ -241,6 +235,25 @@ public class PendingRequest {
 	    return false;
 	}
 
+	/*
+	 * Check visibility
+	 */
+	if (source instanceof Instance) {
+	    
+	    boolean promotion = false;
+	    for (RelationDefinition compoDep : ((Instance)source).getComposite().getCompType().getLocalRelations()) {
+		if (relDef.matchRelation((Instance)source, compoDep)) {
+		    promotion = true;
+		}
+	    }
+	    
+	    if ( !promotion && !source.canSee(candidate))
+		return false;
+	    
+	} else if (!source.canSee(candidate)) {
+	    return false;
+	}
+	
 	/*
 	 * Special validations for target instances
 	 */

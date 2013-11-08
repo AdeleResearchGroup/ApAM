@@ -54,7 +54,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     // Based on the current running, no test should take longer than 2 minute
     @Rule
-    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? 60000
+    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? 3600000
 	    : 60000);
 
     @Rule
@@ -323,7 +323,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				vmOption(String
 					.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
 						Constants.CONST_DEBUG_PORT)),
-				systemTimeout(1000)));
+				systemTimeout(3600000)));
 
 	return debugConfig;
     }

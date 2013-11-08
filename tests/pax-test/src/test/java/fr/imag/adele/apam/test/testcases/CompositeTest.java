@@ -553,7 +553,7 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 
 	Assert.assertEquals(
-		"Two media renderers should be resolved (internal to composite)",
+		"Two media RENDERERS should be resolved (internal to composite)",
 		mediaCtl.resolveRenderersNumber(), 2);
 	mediaCtl.resolveServersNumber();
 	for (Link link : instCtl.getLinks("theServers")) {
@@ -567,7 +567,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	Assert.assertEquals(
-		"Two media server should be resolved (one internal (with constraints) and one external using promoted relation (with same constraints)",
+		"Two media SERVERS should be resolved (one internal (with constraints) and one external using promoted relation (with same constraints)",
 		mediaCtl.resolveServersNumber(), 2);
     }
 
