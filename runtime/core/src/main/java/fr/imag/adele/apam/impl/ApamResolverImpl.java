@@ -418,6 +418,127 @@ public class ApamResolverImpl implements ApamResolver {
 	return null;
     }
 
+    private void checkImplicitPromotion(Instance client,
+	    RelationDefinition relDef, Resolved resolved,
+	    RelToResolve relToResolve, Composite composite, Component source) {
+
+	// Look if a relation, defined in the composite, matches the current
+	// relation
+	// Do no check composite
+	Component group = composite;
+	while (group != null) {
+	    for (RelationDefinition compoDep : group.getLocalRelations()) {
+		if (relDef.matchRelation(client, compoDep)) {
+		    resolvePromotion(compoDep, resolved, relToResolve,
+			    composite, source);
+		}
+	    }
+	    group = group.getGroup();
+	}
+    }
+
+    private boolean checkExplicitPromotion(Instance client,
+	    RelationDefinition relDef, Resolved resolved,
+	    RelToResolve relToResolve, Composite composite, Component source) {
+	boolean isExplicitPromotion = false;
+
+	// look if a promotion is explicitly declared for that client component
+	// <promotion implementation="A" relation="clientDep" to="compoDep" />
+	// <promotion specification="SA" relation="clientDep" to="compoDep" />
+	for (RelationPromotion promo : composite.getCompType()
+		.getCompoDeclaration().getPromotions()) {
+	    if (!promo.getContentRelation().getIdentifier()
+		    .equals(relDef.getName())) {
+		continue; // this promotion is not about our relation (not
+			  // "clientDep")
+	    }
+
+	    String sourceName = promo.getContentRelation()
+		    .getDeclaringComponent().getName();
+	    // sourceName = "SA" or "A"
+	    if (sourceName.equals(client.getImpl().getName())
+		    || sourceName.equals(client.getSpec().getName())) {
+		// We found the right promotion from client side.
+		// Look for the corresponding composite relation "compoDep"
+		String toName = promo.getCompositeRelation().getIdentifier();
+		RelationDefinition foundPromo = composite.getCompType()
+			.getRelation(toName);
+		// if (compoDep.getIdentifier().equals(toName)) {
+		// We found the composite side. It is an explicit promotion.
+		// It
+		// should match.
+		if (foundPromo.matchRelation(client, foundPromo)) {
+		    isExplicitPromotion = true;
+		    resolvePromotion(foundPromo, resolved, relToResolve,
+			    composite, source);
+		} else {
+		    logger.error("Promotion is invalid. relation "
+			    + promo.getContentRelation().getIdentifier()
+			    + " of component " + sourceName
+			    + " does not match the composite relation "
+			    + foundPromo);
+		}
+	    }
+	}
+	return isExplicitPromotion;
+    }
+
+    private void resolvePromotion(RelationDefinition promotionRelation,
+	    Resolved resolved, RelToResolve relToResolve, Composite compo,
+	    Component source) {
+	// if it is a promotion, get the composite relation targets.
+	boolean promoHasConstraints = false;
+	boolean isPromotion = false;
+
+	if (promotionRelation != null) {
+	    // Check existing links
+	    isPromotion = true;
+	    promoHasConstraints = promotionRelation.hasConstraints();
+	    if (promotionRelation.isMultiple()) {
+		if (resolved==null) {
+		resolved = new Resolved(compo.getLinkDests(promotionRelation
+			.getName()));
+		} else {
+		    resolved = resolved.merge(new Resolved(compo.getLinkDests(promotionRelation
+				.getName())));
+		}
+		
+	    } else {
+		resolved = new Resolved(compo.getLinkDest(promotionRelation
+			.getName()));
+	    }
+
+	    // Maybe the composite did not resolved that relation so far.
+	    if (resolved.isEmpty()) {
+		resolved = resolveLink(compo, promotionRelation);
+	    }
+
+	    // Select the sub-set that matches the dep constraints. No
+	    // source visibility control (null).
+	    // Adds the manager constraints and compute filters
+	    if (resolved != null && !resolved.isEmpty()) {
+		// computeSelectionPath(source, rel);
+		resolved = relToResolve.getResolved(resolved, true);
+	    }
+
+	}
+
+	/*
+	 * It is resolved.
+	 */
+	if (resolved.singletonResolved != null) {
+	    source.createLink(resolved.singletonResolved, relToResolve,
+		    relToResolve.hasConstraints() || promoHasConstraints,
+		    isPromotion);
+	    return;
+	}
+	for (Object target : resolved.setResolved) {
+	    source.createLink((Component) target, relToResolve,
+		    relToResolve.hasConstraints() || promoHasConstraints,
+		    isPromotion);
+	}
+    }
+
     /**
      * Performs a complete resolution of the relation, or resolution.
      * 
@@ -702,46 +823,22 @@ public class ApamResolverImpl implements ApamResolver {
 	RelToResolve relToResolve = new RelToResolveImpl(source, rel);
 	// Invoke managers for resolution, add mng constraints and compute
 	// relToResolve
-	Resolved resolved = this.resolveByManagers(relToResolve);
 
-	/*
-	 * Promotion control Only for instances
-	 */
-	// To remember it is a promotion
-	boolean isPromotion = false;
-	boolean promoHasConstraints = false;
+	Resolved resolved = null;
+	boolean explicitRel = false;
 
-	if ((resolved == null || resolved.isEmpty()) && compo != null) {
+	if (compo != null && source instanceof Instance) {
+	    explicitRel = checkExplicitPromotion((Instance) source, rel,
+		    resolved, relToResolve, compo, source);
+	}
 
-	    RelationDefinition promotionRelation = getPromotionRel(
-		    (Instance) source, rel);
-
-	    // if it is a promotion, get the composite relation targets.
-	    if (promotionRelation != null) {
-		isPromotion = true;
-		// Check existing links
-		promoHasConstraints = promotionRelation.hasConstraints();
-		if (promotionRelation.isMultiple()) {
-		    resolved = new Resolved(
-			    compo.getLinkDests(promotionRelation.getName()));
-		} else {
-		    resolved = new Resolved(compo.getLinkDest(promotionRelation
-			    .getName()));
-		}
-
-		// Maybe the composite did not resolved that relation so far.
-		if (resolved.isEmpty()) {
-		    resolved = resolveLink(compo, promotionRelation);
-		}
-
-		// Select the sub-set that matches the dep constraints. No
-		// source visibility control (null).
-		// Adds the manager constraints and compute filters
-		if (resolved != null && !resolved.isEmpty()) {
-		    // computeSelectionPath(source, rel);
-		    resolved = relToResolve.getResolved(resolved, isPromotion);
-		}
-
+	if (!explicitRel) {
+	    resolved = this.resolveByManagers(relToResolve);
+	    resolvePromotion(null, resolved, relToResolve,
+		    compo, source);
+	    if (compo != null && source instanceof Instance) {
+		checkImplicitPromotion((Instance) source, rel, resolved,
+			relToResolve, compo, source);
 	    }
 	}
 
@@ -761,21 +858,6 @@ public class ApamResolverImpl implements ApamResolver {
 	    logger.error("Failed to resolve " + rel.getTarget().getName()
 		    + " from " + source + "(relation " + rel.getName() + ")");
 	    return null;
-	}
-
-	/*
-	 * It is resolved.
-	 */
-	if (resolved.singletonResolved != null) {
-	    source.createLink(resolved.singletonResolved, relToResolve,
-		    relToResolve.hasConstraints() || promoHasConstraints,
-		    isPromotion);
-	    return resolved;
-	}
-	for (Object target : resolved.setResolved) {
-	    source.createLink((Component) target, relToResolve,
-		    relToResolve.hasConstraints() || promoHasConstraints,
-		    isPromotion);
 	}
 
 	return resolved;

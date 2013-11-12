@@ -551,7 +551,6 @@ public class CompositeTest extends ExtensionAbstract {
 
 	MediaControlPoint mediaCtl = (MediaControlPoint) instCtl
 		.getServiceObject();
-
 	Assert.assertEquals(
 		"Two media RENDERERS should be resolved (internal to composite)",
 		mediaCtl.resolveRenderersNumber(), 2);
