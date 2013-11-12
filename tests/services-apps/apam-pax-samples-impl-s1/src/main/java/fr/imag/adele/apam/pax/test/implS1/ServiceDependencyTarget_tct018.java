@@ -18,11 +18,12 @@ package fr.imag.adele.apam.pax.test.implS1;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class ServiceDependencyTarget_tct018 {
     public void use() {
-	System.out.println("I am "+this.toString()+" and I am currently used !");
+	System.out.println("I am " + this.toString()
+		+ " and I am currently used !");
     }
 
 }

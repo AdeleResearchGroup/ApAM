@@ -28,13 +28,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
-
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 
@@ -45,256 +46,245 @@ import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 import fr.imag.adele.apam.test.support.distriman.DistrimanUtil;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class DistriManTest extends ExtensionAbstract {
 
-	@Inject
-	private BundleContext bc;
-	
-	@Inject @Filter(timeout=60000)
-	private DistrimanIface distriman;
+    @Inject
+    private BundleContext bc;
 
-	// CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
-	// CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
-	@Override
-	public List<Option> config() {
-		List<Option> config = new ArrayList<Option>();// super.config();
+    @Inject
+    @Filter(timeout = 60000)
+    private DistrimanIface distriman;
 
-		config.add(packInitialConfig());
-		config.add(packOSGi());
-		config.add(packPax());
-		config.add(packApamCore());
-		config.add(packApamObrMan());
-		config.add(packApamShell());
-		config.add(packLog());
-		config.add(junitBundles());
-		config.add(packDebugConfiguration());
-		config.add(vmOption("-ea"));
-		config.add(packApamDistriMan());
+    String clienturl = "http://127.0.0.1:8280";
+    String serverurl = "http://127.0.0.1:8280/apam/machine";
 
-		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
-				.artifactId("apam-pax-distriman-iface").versionAsInProject());
-		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
-				.artifactId("apam-pax-distriman-P2").versionAsInProject());
+    // CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
+    // CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
+    @Override
+    public List<Option> config() {
+	List<Option> config = new ArrayList<Option>();// super.config();
 
-		return config;
+	config.add(packInitialConfig());
+	config.add(packOSGi());
+	config.add(packPax());
+	config.add(packApamCore());
+	config.add(packApamObrMan());
+	config.add(packApamShell());
+	config.add(packLog());
+	config.add(junitBundles());
+	config.add(packDebugConfiguration());
+	config.add(vmOption("-ea"));
+	config.add(packApamDistriMan());
 
+	config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
+		.artifactId("apam-pax-distriman-iface").versionAsInProject());
+	config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
+		.artifactId("apam-pax-distriman-P2").versionAsInProject());
+
+	return config;
+
+    }
+
+    @Test
+    public void ProviderDependencyConstraintRespected_tc096()
+	    throws MalformedURLException, IOException {
+
+	boolean validInstanceAvailable = false;
+
+	final String constraint = "(rule=one)";
+
+	final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
+		"specification", "P2-spec-constraint", "P2", false, clienturl,
+		new ArrayList<String>() {
+		    {
+			add(constraint);
+		    }
+		}, new ArrayList<String>());
+
+	Map<String, String> parameters = new HashMap<String, String>() {
+	    {
+		put("content", jsonPayload);
+	    }
+	};
+
+	try {
+
+	    Implementation p1Impl = waitForImplByName(null, "P2-constraint2");
+
+	    Instance p1Inst = p1Impl.createInstance(null, null);
+
+	    DistrimanUtil.curl(parameters, serverurl);
+
+	    // An exception should be raised since there is no instance that can
+	    // meet the constraints
+
+	} catch (EOFException e) {
+	    validInstanceAvailable = false;
 	}
 
-	@Test
-	public void ProviderDependencyInterface_tc086()
-			throws MalformedURLException, IOException {
+	Assert.assertTrue(
+		"A remote instance that do not respect the constraint was injected",
+		!validInstanceAvailable);
 
-		Implementation p2Impl = (Implementation) waitForImplByName(null, "P2-singleinterface");
+	try {
 
-		Instance p2Inst = p2Impl.createInstance(null, null);
+	    Implementation p1Impl = waitForImplByName(null, "P2-constraint");
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
+	    Instance p1Inst = p1Impl.createInstance(null, null);
 
-		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-singleinterface",
-				"P2-singleinterface", false, clienturl);
+	    String response = DistrimanUtil.curl(parameters, serverurl);
 
-		Map<String, String> parameters = new HashMap<String, String>() {
-			{
-				put("content", jsonPayload);
-			}
-		};
+	    Map<String, String> properties = DistrimanUtil
+		    .propertyGet(response);
 
-		String response = DistrimanUtil.curl(parameters, serverurl);
+	    Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
 
-		System.err.println("<" + response + ">");
+	    DistrimanUtil.endpointConnect(endpoints);
 
-		Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
+	    Assert.assertTrue(
+		    String.format(
+			    "remote object do not respect the instance constraints specified <%s> instead the value for rule was %s.",
+			    constraint, properties.get("rule")), properties
+			    .get("rule").equals("one"));
 
-		System.out.println("Class\tURL");
-		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
-			System.out.println(String.format("%s\t%s", entry.getKey(),
-					entry.getValue()));
-		}
-
-		Assert.assertTrue(
-				String.format(
-						"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 1 but %s were provided",
-						endpoints.size()), endpoints.size() == 1);
-
-		try {
-
-			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-			factory.setServiceClass(P2Spec.class);
-			factory.setAddress(endpoints
-					.get("fr.imag.adele.apam.pax.distriman.test.iface.P2Spec"));
-			P2Spec proxy = (P2Spec) factory.create();
-			System.err.println(proxy.getName());
-
-		} catch (Exception e) {
-			Assert.fail(String
-					.format("distriman(provider host) created an endpoint but was not possible to connect to it, failed with the message %s",
-							e.getMessage()));
-		}
-
+	} catch (EOFException e) {
+	    e.printStackTrace();
+	    Assert.fail("inespected exception while injecting the remote field, with the message:"
+		    + e.getMessage());
 	}
 
-	@Test
-	public void ProviderDependencySpecificationMultipleInterface_tc087()
-			throws MalformedURLException, IOException {
+    }
 
-		Implementation p2Impl = waitForImplByName(null,
-				"P2-multipleinterface");
+    @Test
+    public void ProviderDependencyInterface_tc086()
+	    throws MalformedURLException, IOException {
 
-		Instance p2Inst = p2Impl.createInstance(null, null);
+	Implementation p2Impl = waitForImplByName(null, "P2-singleinterface");
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
+	Instance p2Inst = p2Impl.createInstance(null, null);
 
-		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-multipleinterface", "P2", false,
-				clienturl);
+	final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
+		"specification", "P2-spec-singleinterface",
+		"P2-singleinterface", false, clienturl);
 
-		Map<String, String> parameters = new HashMap<String, String>() {
-			{
-				put("content", jsonPayload);
-			}
-		};
+	Map<String, String> parameters = new HashMap<String, String>() {
+	    {
+		put("content", jsonPayload);
+	    }
+	};
 
-		String response = DistrimanUtil.curl(parameters, serverurl);
+	String response = DistrimanUtil.curl(parameters, serverurl);
 
-		System.err.println(response);
+	System.err.println("<" + response + ">");
 
-		Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
+	Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
 
-		System.err.println("Class\tURL");
-		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
-			System.err.println(String.format("%s\t%s", entry.getKey(),
-					entry.getValue()));
-		}
-
-		Assert.assertTrue(
-				String.format(
-						"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 2 but %s were provided",
-						endpoints.size()), endpoints.size() == 2);
-
-		DistrimanUtil.endpointConnect(endpoints);
-
+	System.out.println("Class\tURL");
+	for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+	    System.out.println(String.format("%s\t%s", entry.getKey(),
+		    entry.getValue()));
 	}
 
-	@Test
-	public void ProviderDependencySpecificationSingleInterface_tc088()
-			throws MalformedURLException, IOException {
+	Assert.assertTrue(
+		String.format(
+			"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 1 but %s were provided",
+			endpoints.size()), endpoints.size() == 1);
 
-		Implementation p2Impl = waitForImplByName(null,
-				"P2-singleinterface");
+	try {
 
-		Instance p2Inst = p2Impl.createInstance(null, null);
+	    ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+	    factory.setServiceClass(P2Spec.class);
+	    factory.setAddress(endpoints
+		    .get("fr.imag.adele.apam.pax.distriman.test.iface.P2Spec"));
+	    P2Spec proxy = (P2Spec) factory.create();
+	    System.err.println(proxy.getName());
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
-
-		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-singleinterface", "P2", false,
-				clienturl);
-
-		Map<String, String> parameters = new HashMap<String, String>() {
-			{
-				put("content", jsonPayload);
-			}
-		};
-
-		String response = DistrimanUtil.curl(parameters, serverurl);
-
-		System.err.println(response);
-
-		Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
-
-		System.err.println("Class\tURL");
-		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
-			System.err.println(String.format("%s\t%s", entry.getKey(),
-					entry.getValue()));
-		}
-
-		Assert.assertTrue(
-				String.format(
-						"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 1 but %s were provided",
-						endpoints.size()), endpoints.size() == 1);
-
-		DistrimanUtil.endpointConnect(endpoints);
-
+	} catch (Exception e) {
+	    Assert.fail(String
+		    .format("distriman(provider host) created an endpoint but was not possible to connect to it, failed with the message %s",
+			    e.getMessage()));
 	}
 
-	@Test
-	public void ProviderDependencyConstraintRespected_tc096()
-			throws MalformedURLException, IOException {
+    }
 
-		boolean validInstanceAvailable = false;
+    @Test
+    public void ProviderDependencySpecificationMultipleInterface_tc087()
+	    throws MalformedURLException, IOException {
 
-		final String constraint = "(rule=one)";
+	Implementation p2Impl = waitForImplByName(null, "P2-multipleinterface");
 
-		String clienturl = "http://127.0.0.1:8080";
-		String serverurl = "http://127.0.0.1:8080/apam/machine";
+	Instance p2Inst = p2Impl.createInstance(null, null);
 
-		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-constraint", "P2", false, clienturl,
-				new ArrayList<String>() {
-					{
-						add(constraint);
-					}
-				}, new ArrayList<String>());
+	final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
+		"specification", "P2-spec-multipleinterface", "P2", false,
+		clienturl);
 
-		Map<String, String> parameters = new HashMap<String, String>() {
-			{
-				put("content", jsonPayload);
-			}
-		};
+	Map<String, String> parameters = new HashMap<String, String>() {
+	    {
+		put("content", jsonPayload);
+	    }
+	};
 
-		try {
+	String response = DistrimanUtil.curl(parameters, serverurl);
 
-			Implementation p1Impl = waitForImplByName(null,
-					"P2-constraint2");
+	System.err.println(response);
 
-			Instance p1Inst = p1Impl.createInstance(null, null);
+	Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
 
-			DistrimanUtil.curl(parameters, serverurl);
-
-			// An exception should be raised since there is no instance that can
-			// meet the constraints
-
-		} catch (EOFException e) {
-			validInstanceAvailable = false;
-		}
-
-		Assert.assertTrue(
-				"A remote instance that do not respect the constraint was injected",
-				!validInstanceAvailable);
-
-		try {
-
-			Implementation p1Impl = waitForImplByName(null,
-					"P2-constraint");
-
-			Instance p1Inst = p1Impl.createInstance(null, null);
-
-			String response = DistrimanUtil.curl(parameters, serverurl);
-
-			Map<String, String> properties = DistrimanUtil
-					.propertyGet(response);
-
-			Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
-
-			DistrimanUtil.endpointConnect(endpoints);
-
-			Assert.assertTrue(
-					String.format(
-							"remote object do not respect the instance constraints specified <%s> instead the value for rule was %s.",
-							constraint, properties.get("rule")), properties
-							.get("rule").equals("one"));
-
-		} catch (EOFException e) {
-			e.printStackTrace();
-			Assert.fail("inespected exception while injecting the remote field, with the message:"
-					+ e.getMessage());
-		}
-
+	System.err.println("Class\tURL");
+	for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+	    System.err.println(String.format("%s\t%s", entry.getKey(),
+		    entry.getValue()));
 	}
+
+	Assert.assertTrue(
+		String.format(
+			"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 2 but %s were provided",
+			endpoints.size()), endpoints.size() == 2);
+
+	DistrimanUtil.endpointConnect(endpoints);
+
+    }
+
+    @Test
+    public void ProviderDependencySpecificationSingleInterface_tc088()
+	    throws MalformedURLException, IOException {
+
+	Implementation p2Impl = waitForImplByName(null, "P2-singleinterface");
+
+	Instance p2Inst = p2Impl.createInstance(null, null);
+
+	final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
+		"specification", "P2-spec-singleinterface", "P2", false,
+		clienturl);
+
+	Map<String, String> parameters = new HashMap<String, String>() {
+	    {
+		put("content", jsonPayload);
+	    }
+	};
+
+	String response = DistrimanUtil.curl(parameters, serverurl);
+
+	System.err.println(response);
+
+	Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
+
+	System.err.println("Class\tURL");
+	for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+	    System.err.println(String.format("%s\t%s", entry.getKey(),
+		    entry.getValue()));
+	}
+
+	Assert.assertTrue(
+		String.format(
+			"distriman(provider host) did not create an endpoint, or not the right number of endpoints. Expected 1 but %s were provided",
+			endpoints.size()), endpoints.size() == 1);
+
+	DistrimanUtil.endpointConnect(endpoints);
+
+    }
 
 }

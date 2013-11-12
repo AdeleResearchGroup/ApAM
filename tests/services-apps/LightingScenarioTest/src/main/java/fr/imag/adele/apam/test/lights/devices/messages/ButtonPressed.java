@@ -17,9 +17,7 @@
 package fr.imag.adele.apam.test.lights.devices.messages;
 
 /**
- * @author thibaud
- * Very simple message to indicate that button have been pressed
+ * @author thibaud Very simple message to indicate that button have been pressed
  */
 public class ButtonPressed {
 }
-

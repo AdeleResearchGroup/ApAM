@@ -21,14 +21,42 @@ public class S1Impl_tct025 {
     String injectedBothUnsetted;
 
     public S1Impl_tct025() {
-	injectedInternal="Constructor defined value";
-	injectedExternal="Constructor defined value";
-	injectedBothSetted="Constructor defined value";
-	injectedBothUnsetted="Constructor defined value";
+	injectedInternal = "Constructor defined value";
+	injectedExternal = "Constructor defined value";
+	injectedBothSetted = "Constructor defined value";
+	injectedBothUnsetted = "Constructor defined value";
     }
 
-    public String whoami() {
-	return this.getClass().getName();
+    public String getInjectedBothSetted() {
+	return injectedBothSetted;
+    }
+
+    public String getInjectedBothUnsetted() {
+	return injectedBothUnsetted;
+    }
+
+    public String getInjectedExternal() {
+	return injectedExternal;
+    }
+
+    public String getInjectedInternal() {
+	return injectedInternal;
+    }
+
+    public void setInjectedBoth(String injectedBothSetted) {
+	this.injectedBothSetted = injectedBothSetted;
+    }
+
+    public void setInjectedBothUnsetted(String injectedBothUnsetted) {
+	this.injectedBothUnsetted = injectedBothUnsetted;
+    }
+
+    public void setInjectedExternal(String injectedExternal) {
+	this.injectedExternal = injectedExternal;
+    }
+
+    public void setInjectedInternal(String injectedInternal) {
+	this.injectedInternal = injectedInternal;
     }
 
     public void start() {
@@ -39,37 +67,8 @@ public class S1Impl_tct025 {
 	System.out.println("Stopping:" + this.getClass().getName());
     }
 
-    public String getInjectedInternal() {
-	return injectedInternal;
+    public String whoami() {
+	return this.getClass().getName();
     }
-
-    public void setInjectedInternal(String injectedInternal) {
-	this.injectedInternal = injectedInternal;
-    }
-    
-    public String getInjectedExternal() {
-	return injectedExternal;
-    }
-
-    public void setInjectedExternal(String injectedExternal) {
-	this.injectedExternal = injectedExternal;
-    }
-
-    public String getInjectedBothSetted() {
-	return injectedBothSetted;
-    }
-
-    public void setInjectedBoth(String injectedBothSetted) {
-	this.injectedBothSetted = injectedBothSetted;
-    }
-
-    public String getInjectedBothUnsetted() {
-	return injectedBothUnsetted;
-    }
-
-    public void setInjectedBothUnsetted(String injectedBothUnsetted) {
-	this.injectedBothUnsetted = injectedBothUnsetted;
-    }
-
 
 }

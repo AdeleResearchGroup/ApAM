@@ -17,43 +17,41 @@ package fr.imag.adele.apam.pax.test.implS3;
 import fr.imag.adele.apam.pax.test.iface.S3;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
+public class S3GroupBImpl implements S3 {
 
-public class S3GroupBImpl implements S3
-{
+    Eletronic element;
 
-	Eletronic element;
-	
-	S3 d;
-	
-	S3 e;
-	
-    public String whoami()
-    {
-        return this.getClass().getName();
+    S3 d;
+
+    S3 e;
+
+    public S3 getD() {
+	return d;
     }
 
-	public Eletronic getElement() {
-		return element;
-	}
+    public S3 getE() {
+	return e;
+    }
 
-	public void setElement(Eletronic element) {
-		this.element = element;
-	}
+    public Eletronic getElement() {
+	return element;
+    }
 
-	public S3 getD() {
-		return d;
-	}
+    public void setD(S3 d) {
+	this.d = d;
+    }
 
-	public void setD(S3 d) {
-		this.d = d;
-	}
+    public void setE(S3 e) {
+	this.e = e;
+    }
 
-	public S3 getE() {
-		return e;
-	}
+    public void setElement(Eletronic element) {
+	this.element = element;
+    }
 
-	public void setE(S3 e) {
-		this.e = e;
-	}
-    
+    @Override
+    public String whoami() {
+	return this.getClass().getName();
+    }
+
 }

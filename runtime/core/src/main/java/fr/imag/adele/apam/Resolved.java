@@ -29,55 +29,55 @@ import java.util.Set;
  *  In all cases, only one field is provided, others are null.
  */
 
-public class Resolved <T extends Component> {
-	public Implementation toInstantiate ;
-	public T singletonResolved ; 
-	public Set<T> setResolved ;
-	
-	public Resolved (Set<T> setResolved) {
-		this.singletonResolved = null ;
-		this.setResolved = setResolved ;
+public class Resolved<T extends Component> {
+    public Implementation toInstantiate;
+    public T singletonResolved;
+    public Set<T> setResolved;
+
+    /*
+     * The boolean is useless, only to make a different signature.
+     */
+    public Resolved(Implementation impl, boolean toInstanciate) {
+	this.toInstantiate = impl;
+	this.singletonResolved = null;
+	this.setResolved = null;
+    }
+
+    public Resolved(Set<T> setResolved) {
+	this.singletonResolved = null;
+	this.setResolved = setResolved;
+    }
+
+    public Resolved(T singletonResolved) {
+	this.singletonResolved = singletonResolved;
+	this.setResolved = null;
+    }
+
+    public boolean isEmpty() {
+	return singletonResolved == null && toInstantiate == null
+		&& (setResolved == null || setResolved.isEmpty());
+    }
+
+    public Resolved<T> merge(Resolved<T> that) {
+
+	Set<T> merged = new HashSet<T>();
+
+	if (singletonResolved != null) {
+	    merged.add(singletonResolved);
 	}
 
-	public Resolved (T singletonResolved) {
-		this.singletonResolved = singletonResolved ;
-		this.setResolved = null ;
+	if (that.singletonResolved != null) {
+	    merged.add(that.singletonResolved);
 	}
 
-	/*
-	 * The boolean is useless, only to make a different signature.
-	 */
-	public Resolved(Implementation impl, boolean toInstanciate) {
-		this.toInstantiate = impl;
-		this.singletonResolved = (T) null;
-		this.setResolved = null;
+	if (setResolved != null) {
+	    merged.addAll(setResolved);
 	}
-	
-	
-	public boolean isEmpty () {
-		return singletonResolved == null && toInstantiate == null && (setResolved == null || setResolved.isEmpty()) ;
-	}
-	
-	public Resolved<T> merge(Resolved <T> that){
-		
-		Set<T>  merged =new HashSet<T>();
-		
-		if(singletonResolved!=null){
-			merged.add(singletonResolved);
-		}
-		
-		if(that.singletonResolved!=null){
-			merged.add(that.singletonResolved);
-		}
 
-		if(setResolved!=null){
-			merged.addAll(setResolved);
-		}
-		
-		if(that.setResolved!=null){
-			merged.addAll(that.setResolved);
-		}
-
-		return new Resolved<T>(merged);
+	if (that.setResolved != null) {
+	    merged.addAll(that.setResolved);
 	}
+
+	return new Resolved<T>(merged);
+    }
 }

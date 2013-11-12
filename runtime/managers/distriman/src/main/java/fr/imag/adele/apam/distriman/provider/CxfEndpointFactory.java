@@ -34,7 +34,6 @@ import com.google.common.collect.Sets;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -53,255 +52,269 @@ import fr.imag.adele.apam.impl.RelToResolveImpl;
  */
 public class CxfEndpointFactory {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(CxfEndpointFactory.class);
+    private static Logger logger = LoggerFactory
+	    .getLogger(CxfEndpointFactory.class);
 
-	public static final String PROTOCOL_NAME = "cxf";
-	public static final String ROOT_NAME = "/ws";
+    public static final String PROTOCOL_NAME = "cxf";
+    public static final String ROOT_NAME = "/ws";
 
-	private final RelationManager apamMan;
-	
-	private Bus cxfbus; 
+    private final RelationManager apamMan;
 
-	/**
-	 * Multimap containing the exported Instances and their Endpoint
-	 * registrations
-	 */
-	private final SetMultimap<Instance, EndpointRegistration> endpoints = HashMultimap
-			.create();
+    private Bus cxfbus;
 
-	public SetMultimap<Instance, EndpointRegistration> getEndpoints() {
-		return endpoints;
-	}
+    /**
+     * Multimap containing the exported Instances and their Endpoint
+     * registrations
+     */
+    private final SetMultimap<Instance, EndpointRegistration> endpoints = HashMultimap
+	    .create();
 
-	private final Map<String, Server> webservices = new HashMap<String, Server>();
+    private final Map<String, Server> webservices = new HashMap<String, Server>();
 
-	public CxfEndpointFactory(RelationManager manager) {
-		apamMan = manager;
-	}
+    public CxfEndpointFactory(RelationManager manager) {
+	apamMan = manager;
+    }
 
-	public void start(HttpService http) {
-		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
-		System.setProperty("org.apache.cxf.nofastinfoset", "true");
+    /**
+     * Create the Instance ServiceObject endpoint with CXF.
+     * 
+     * @param instance
+     * @throws ClassNotFoundException
+     */
+    private Map<Class, String> createEndpoint(Instance instance)
+	    throws ClassNotFoundException {
+	Object obj = instance.getServiceObject();
+	ServerFactoryBean srvFactory;
 
-		// Register the CXF Servlet
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+	Map<Class, String> result = new HashMap<Class, String>();
 
-		// switch to the cxg minimal bundle class loader
-		Thread.currentThread().setContextClassLoader(
-				CXFNonSpringServlet.class.getClassLoader());
+	Collection<Class> classes = loadInterfaceForProxyExport(instance);
 
-		try {
-			CXFNonSpringServlet servlet = new CXFNonSpringServlet();
+	for (Class iface : classes) {
 
-			// Register a CXF Servlet dispatcher
-			http.registerServlet(ROOT_NAME, servlet, null, null);
+	    // ClassLoader loader =
+	    // Thread.currentThread().getContextClassLoader();
+	    // Thread.currentThread().setContextClassLoader(
+	    // ServerFactoryBean.class.getClassLoader());
 
-			// get the bus
-			cxfbus = servlet.getBus();
+	    try {
 
-		} catch (Exception e) {
-			// TODO log
-			throw new RuntimeException(e);
-		} finally {
-			Thread.currentThread().setContextClassLoader(loader);
+		srvFactory = new ServerFactoryBean();
+
+		srvFactory.setServiceClass(iface);
+
+		srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the
+					   // dispatcher
+		srvFactory.setServiceBean(obj);
+
+		srvFactory.setAddress("/" + instance.getName() + "/"
+			+ iface.getCanonicalName().replaceAll("\\.", "/"));
+
+		// HashMap props = new HashMap();
+		// try {
+		// props.put("jaxb.additionalContextClasses", new Class[] {
+		// Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper")
+		// });
+		// srvFactory.setProperties(props);
+		// } catch (ClassNotFoundException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
+		Server res = srvFactory.create();
+
+		while (!res.isStarted()) {
+		    try {
+			logger.info("Server {} not started, waiting..",
+				srvFactory.getAddress());
+			Thread.sleep(1000);
+		    } catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		    }
 		}
 
-		// compute the PROP_CXF_URL property
-		
-	}
+		logger.info("Server {} started!", res.getEndpoint()
+			.getEndpointInfo().getAddress());
 
-	public void stop(HttpService http) {
-		// Unregister servlet dispatcher
-		http.unregister(ROOT_NAME);
-	}
+		webservices.put(srvFactory.getAddress(), res);
 
-	/**
-	 * Create the Instance ServiceObject endpoint with CXF.
-	 * 
-	 * @param instance
-	 * @throws ClassNotFoundException
-	 */
-	private Map<Class, String> createEndpoint(Instance instance)
-			throws ClassNotFoundException {
-		Object obj = instance.getServiceObject();
-		ServerFactoryBean srvFactory;
+		result.put(iface, res.getEndpoint().getEndpointInfo()
+			.getAddress());
 
-		Map<Class, String> result = new HashMap<Class, String>();
-
-		Collection<Class> classes = loadInterfaceForProxyExport(instance);
-
-		for (Class iface : classes) {
-
-			// ClassLoader loader =
-			// Thread.currentThread().getContextClassLoader();
-			// Thread.currentThread().setContextClassLoader(
-			// ServerFactoryBean.class.getClassLoader());
-
-			try {
-
-				srvFactory = new ServerFactoryBean();
-
-				srvFactory.setServiceClass(iface);
-
-				srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the
-											// dispatcher
-				srvFactory.setServiceBean(obj);
-
-				srvFactory.setAddress("/" + instance.getName() + "/"
-						+ iface.getCanonicalName().replaceAll("\\.", "/"));
-
-				// HashMap props = new HashMap();
-				// try {
-				// props.put("jaxb.additionalContextClasses", new Class[] {
-				// Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper")
-				// });
-				// srvFactory.setProperties(props);
-				// } catch (ClassNotFoundException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-
-				Server res = srvFactory.create();
-				
-				while(!res.isStarted())
-					try {
-						logger.info("Server {} not started, waiting..",srvFactory.getAddress());
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				
-				logger.info("Server {} started!",res.getEndpoint().getEndpointInfo().getAddress());
-				
-				webservices.put(srvFactory.getAddress(), res);
-
-				result.put(iface, res.getEndpoint().getEndpointInfo()
-						.getAddress());
-
-			} finally {
-				// reset the context classloader to the original one.
-				// Thread.currentThread().setContextClassLoader(loader);
-			}
-
-		}
-
-		return result;
+	    } finally {
+		// reset the context classloader to the original one.
+		// Thread.currentThread().setContextClassLoader(loader);
+	    }
 
 	}
 
-	public void destroyEndpoints() {
-		
-		logger.info("destroying endpoints..");
-		
-		for(Map.Entry<String, Server> element:webservices.entrySet()){
-			String wsUrl=element.getKey();
-			Server entrypoint=element.getValue();
-			entrypoint.stop();
-			logger.info("endpoint {} destroyed.",wsUrl);
-			webservices.remove(element.getKey());
-		}
-		
+	return result;
+
+    }
+
+    public void destroyEndpoints() {
+
+	logger.info("destroying endpoints..");
+
+	for (Map.Entry<String, Server> element : webservices.entrySet()) {
+	    String wsUrl = element.getKey();
+	    Server entrypoint = element.getValue();
+	    entrypoint.stop();
+	    logger.info("endpoint {} destroyed.", wsUrl);
+	    webservices.remove(element.getKey());
 	}
 
-	public EndpointRegistration resolveAndExport(RemoteDependencyDeclaration dependency,
-			RemoteMachine client) throws ClassNotFoundException {
-		Instance neo = null; // The chosen one
-		EndpointRegistration registration = null;
-		// Get local instance matching the RemoteDependency
+    }
 
-		logger.info("requesting apam instance {} to resolve the dependency {}",
-				apamMan, dependency.getIdentifier());
+    public SetMultimap<Instance, EndpointRegistration> getEndpoints() {
+	return endpoints;
+    }
 
-		RemoteDependency remote=new RemoteDependency(dependency, null);
-		
-		//((RelationImpl)client.getApamComponent().getRelation(dependency.getIdentifier()))
-		
-		RelToResolveImpl rel=new RelToResolveImpl(client.getApamComponent(), dependency);
-		//rel.computeFilters(client.getApamComponent());
-		
-		Resolved resolved = apamMan.resolveRelation(client.getApamComponent(), rel);
-		
-		//resolveDependency( client.getServiceObject(),remote, true);
+    private Collection<Class> loadInterfaceForProxyExport(Instance instance)
+	    throws ClassNotFoundException {
 
-		// No local instance matching the RemoteDependency
-		if (resolved==null) {
+	Collection<Class> classes = new HashSet<Class>();
 
-			logger.info("impossile to solve dependency, the number of instances was zero");
+	logger.info("gigging interfaces used in the apam instance {}",
+		instance.getName());
 
-			return null;
-		}
+	if (instance instanceof ComponentImpl) {
 
-//		logger.info("solve dependency, {} instance(s) where found",
-//				resolved.toInstantiate);
+	    logger.info("getting reference for the interfaces of the instance..");
 
-		// Check if we already have an endpoint for the instances
-		synchronized (endpoints) {
+	    for (ResourceReference ref : instance.getSpec().getApformSpec()
+		    .getDeclaration().getProvidedResources()) {
+		logger.info("adding {} as interfaces for this instance",
+			ref.getName());
+		classes.add(Class.forName(ref.getName()));
+	    }
 
-			Sets.SetView<Component> alreadyExported = Sets.intersection(
-					Collections.singleton(resolved.singletonResolved), endpoints.keySet());
+	    logger.info("done.");
 
-			// Nope, create a new endpoint
-			if (alreadyExported.isEmpty()) {
-				
-				neo = (Instance)resolved.singletonResolved; //instances.iterator().next();
+	}
 
-				logger.info(
-						"dependency {} was NOT exported before, preparing endpoint for instance {}",
-						dependency.getIdentifier(), neo);
+	return classes;
+    }
 
-				Map<Class, String> localEndpoints = createEndpoint(neo);
+    public EndpointRegistration resolveAndExport(
+	    RemoteDependencyDeclaration dependency, RemoteMachine client)
+	    throws ClassNotFoundException {
+	Instance neo = null; // The chosen one
+	EndpointRegistration registration = null;
+	// Get local instance matching the RemoteDependency
 
-				registration = new EndpointRegistrationImpl(this, neo,
-						client, PROTOCOL_NAME);
-				
-				for (Map.Entry<Class, String> endpoint : localEndpoints.entrySet()) {
-				
-					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), client.getURLRoot() + DistrimanConstant.PROVIDER_CXF_DOMAIN + endpoint.getValue());
-					
-				}
-				
-				endpoints.put(neo, registration);
-				
-			} else {
+	logger.info("requesting apam instance {} to resolve the dependency {}",
+		apamMan, dependency.getIdentifier());
 
-				neo = (Instance)alreadyExported.iterator().next();
+	RemoteDependency remote = new RemoteDependency(dependency, null);
 
-				logger.info(
-						"dependency {} was exported before, using instance {}",
-						dependency.getIdentifier(), neo);
+	// ((RelationImpl)client.getApamComponent().getRelation(dependency.getIdentifier()))
 
-				registration = endpoints.get(neo).iterator().next();
-			}
+	RelToResolveImpl rel = new RelToResolveImpl(client.getApamComponent(),
+		dependency);
+	// rel.computeFilters(client.getApamComponent());
+
+	Resolved resolved = apamMan.resolveRelation(client.getApamComponent(),
+		rel);
+
+	// resolveDependency( client.getServiceObject(),remote, true);
+
+	// No local instance matching the RemoteDependency
+	if (resolved == null) {
+
+	    logger.info("impossile to solve dependency, the number of instances was zero");
+
+	    return null;
+	}
+
+	// logger.info("solve dependency, {} instance(s) where found",
+	// resolved.toInstantiate);
+
+	// Check if we already have an endpoint for the instances
+	synchronized (endpoints) {
+
+	    Sets.SetView<Component> alreadyExported = Sets.intersection(
+		    Collections.singleton(resolved.singletonResolved),
+		    endpoints.keySet());
+
+	    // Nope, create a new endpoint
+	    if (alreadyExported.isEmpty()) {
+
+		neo = (Instance) resolved.singletonResolved; // instances.iterator().next();
+
+		logger.info(
+			"dependency {} was NOT exported before, preparing endpoint for instance {}",
+			dependency.getIdentifier(), neo);
+
+		Map<Class, String> localEndpoints = createEndpoint(neo);
+
+		registration = new EndpointRegistrationImpl(this, neo, client,
+			PROTOCOL_NAME);
+
+		for (Map.Entry<Class, String> endpoint : localEndpoints
+			.entrySet()) {
+
+		    registration.getEndpoint().put(
+			    endpoint.getKey().getCanonicalName(),
+			    client.getURLRoot()
+				    + DistrimanConstant.PROVIDER_CXF_DOMAIN
+				    + endpoint.getValue());
 
 		}
 
-		return registration;
+		endpoints.put(neo, registration);
+
+	    } else {
+
+		neo = (Instance) alreadyExported.iterator().next();
+
+		logger.info(
+			"dependency {} was exported before, using instance {}",
+			dependency.getIdentifier(), neo);
+
+		registration = endpoints.get(neo).iterator().next();
+	    }
+
 	}
 
-	private Collection<Class> loadInterfaceForProxyExport(Instance instance)
-			throws ClassNotFoundException {
+	return registration;
+    }
 
-		Collection<Class> classes = new HashSet<Class>();
+    public void start(HttpService http) {
+	// TODO distriman: Disable the fast infoset as it's not compatible (yet)
+	System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
-		logger.info("gigging interfaces used in the apam instance {}",instance.getName());
-		
-		if (instance instanceof ComponentImpl) {
+	// Register the CXF Servlet
+	ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-			logger.info("getting reference for the interfaces of the instance..");
-			
-			for (ResourceReference ref : instance.getSpec().getApformSpec()
-					.getDeclaration().getProvidedResources()) {
-				logger.info("adding {} as interfaces for this instance",ref.getName());
-				classes.add(Class.forName(ref.getName()));
-			}
-			
-			logger.info("done.");
+	// switch to the cxg minimal bundle class loader
+	Thread.currentThread().setContextClassLoader(
+		CXFNonSpringServlet.class.getClassLoader());
 
-		}
+	try {
+	    CXFNonSpringServlet servlet = new CXFNonSpringServlet();
 
-		return classes;
+	    // Register a CXF Servlet dispatcher
+	    http.registerServlet(ROOT_NAME, servlet, null, null);
+
+	    // get the bus
+	    cxfbus = servlet.getBus();
+
+	} catch (Exception e) {
+	    // TODO log
+	    throw new RuntimeException(e);
+	} finally {
+	    Thread.currentThread().setContextClassLoader(loader);
 	}
+
+	// compute the PROP_CXF_URL property
+
+    }
+
+    public void stop(HttpService http) {
+	// Unregister servlet dispatcher
+	http.unregister(ROOT_NAME);
+    }
 
 }

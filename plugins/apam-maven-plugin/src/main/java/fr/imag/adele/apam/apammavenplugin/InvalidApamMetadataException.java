@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamMavenPlugin;
+package fr.imag.adele.apam.apammavenplugin;
 
 
 /**

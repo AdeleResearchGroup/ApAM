@@ -14,13 +14,12 @@
  */
 package fr.imag.adele.apam.declarations;
 
-
 /**
- * This class represents all the common declarations for an implementation of a service 
- * provider.
+ * This class represents all the common declarations for an implementation of a
+ * service provider.
  * 
  * @author vega
- *
+ * 
  */
 public abstract class ImplementationDeclaration extends ComponentDeclaration {
 
@@ -29,10 +28,10 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
      */
     private final SpecificationReference specification;
 
-
-    public ImplementationDeclaration(String name, SpecificationReference specification) {
-        super(name);
-        this.specification = specification;
+    public ImplementationDeclaration(String name,
+	    SpecificationReference specification) {
+	super(name);
+	this.specification = specification;
     }
 
     /**
@@ -41,40 +40,42 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     @Override
     protected abstract ImplementationReference<?> generateReference();
 
+    @Override
+    public ComponentReference<?> getGroupReference() {
+	return getSpecification();
+    }
+
     /**
-     * Override the return type to a most specific class in order to avoid unchecked casting when used
+     * Override the return type to a most specific class in order to avoid
+     * unchecked casting when used
      */
     @Override
     public ImplementationReference<?> getReference() {
-        return (ImplementationReference<?>) super.getReference();
+	return (ImplementationReference<?>) super.getReference();
     }
-    
+
     /**
      * Get the specification implemented by this implementation
      */
     public SpecificationReference getSpecification() {
-        return specification;
+	return specification;
     }
 
     @Override
-	public boolean resolves(RelationDeclaration relation) {
-		return super.resolves(relation)
-				|| (getSpecification() != null && getSpecification().equals(
-						relation.getTarget()))
-				|| relation.getTarget().equals(this.getReference());
-   }
+    public boolean resolves(RelationDeclaration relation) {
+	return super.resolves(relation)
+		|| (getSpecification() != null && getSpecification().equals(
+			relation.getTarget()))
+		|| relation.getTarget().equals(this.getReference());
+    }
 
     @Override
     public String toString() {
-        String ret = "Implementation declaration " + super.toString();
-        String specificationName = (specification != null? specification.getIdentifier() : "null");
-        ret += "\n   Specification: " + specificationName;
-        return ret;
+	String ret = "Implementation declaration " + super.toString();
+	String specificationName = (specification != null ? specification
+		.getIdentifier() : "null");
+	ret += "\n   Specification: " + specificationName;
+	return ret;
     }
-    
-	@Override
-	public ComponentReference<?> getGroupReference() {
-		return getSpecification();
-	}
 
 }

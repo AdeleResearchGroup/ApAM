@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.apamMavenPlugin;
+package fr.imag.adele.apam.apammavenplugin;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,9 +52,7 @@ public class ApamCapability {
 	//Only to return a true value
 	public static ApamCapability trueCap = new ApamCapability();
 	private ApamCapability () { } ;
-//		if (group.dcl instanceof SpecificationDeclaration) {
-//			this.dcl = new AtomicImplementationDeclaration ("void-" + group.getName(), group.dcl.getReference()) ;
-//	} ;
+
 	
 	public ApamCapability (ComponentDeclaration dcl) {
 		this.dcl = dcl ;
@@ -81,7 +79,9 @@ public class ApamCapability {
 	}
 
 	public static ApamCapability get(String name) {
-		if (name == null) return null ;
+		if (name == null) {
+		    return null ;
+		}
 		ApamCapability cap = capabilities.get(name) ;
 		if (cap == null && !missing.contains(name)) {
 			missing.add(name) ;
@@ -92,8 +92,12 @@ public class ApamCapability {
 
 	
 	public static ApamCapability get(ComponentReference<?> reference) {
-		if (reference == null) return null ;
-		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) return null;
+		if (reference == null) { 
+		    return null ;
+		}
+		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
+		    return null;
+		}
 		
 		ApamCapability cap = capabilities.get(reference.getName()) ;
 		if (cap == null && !missing.contains(reference.getName())) {
@@ -104,20 +108,30 @@ public class ApamCapability {
 	}
 
 	public static ComponentDeclaration getDcl(String name) {
-		if (name == null) return null ;
-		if (name.equals(CoreMetadataParser.UNDEFINED)) return null;
+		if (name == null) { 
+		    return null ;
+		}
+		if (name.equals(CoreMetadataParser.UNDEFINED)) {
+		    return null;
+		}
 
-		if (capabilities.get(name) != null)
+		if (capabilities.get(name) != null) {
 			return capabilities.get(name).dcl;
+		}
 		return null ;
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
-		if (reference == null) return null ;
-		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) return null;
+		if (reference == null) {
+		    return null ;
+		}
+		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
+		    return null;
+		}
 		
-		if (capabilities.get(reference.getName()) != null)
+		if (capabilities.get(reference.getName()) != null) {
 			return capabilities.get(reference.getName()).dcl;
+		}
 		return null ;
 	}
 
@@ -133,14 +147,13 @@ public class ApamCapability {
 	public boolean putAttr (String attr, String value) {
 		if ((finalProperties.get(attr) != null) || (finalProperties.get(CST.DEFINITION_PREFIX + attr) != null)) {
 			CheckObr.error("Attribute " + attr + " already set on " + dcl.getName() ) ;
-				//	+ " (old value=" + finalProperties.get(attr) + " new value=" + value + ")") ;
 			return false ;
 		}
 		finalProperties.put(attr, value) ;
 		return true ;
 	}
 	
-	public void finalize () {
+	public void freeze () {
 		isFinalized = true;
 		properties = finalProperties ;
 	}
@@ -172,10 +185,12 @@ public class ApamCapability {
 	}
 	
 	public String getImplementationClass() {
-		if (dcl instanceof AtomicImplementationDeclaration)
+		if (dcl instanceof AtomicImplementationDeclaration) {
 			return ((AtomicImplementationDeclaration) dcl).getClassName();
-		else
+		}
+		else {
 			return null;
+		}
 	}
 
 	//Return the definition at the current component level 
@@ -184,14 +199,16 @@ public class ApamCapability {
 	}
 
 	public String getAttrDefinition (String name) {
-		ApamCapability group = this ; // (getGroup() == null) ? this : getGroup() ;
+		ApamCapability group = this ;
 		String defAttr ;
 		if (Attribute.isFinalAttribute(name)) {
 			return "string" ;
 		}
 		while (group != null) {
 			defAttr = group.getLocalAttrDefinition(name)  ;
-			if (defAttr != null) return defAttr ;
+			if (defAttr != null) {
+			    return defAttr ;
+			}
 			group = group.getGroup() ;
 		}
 		return null ;
@@ -212,21 +229,27 @@ public class ApamCapability {
 		Map<String, String> ret = new HashMap<String, String> () ;
 
 		ret.putAll(propertiesTypes);
-		if (getGroup() != null)
+		if (getGroup() != null) {
 			ret.putAll(getGroup().getValidAttrNames()) ;
+		}
 
 		return ret ;
 	}
 
 
 	public ApamCapability getGroup () {
-		if (dcl instanceof SpecificationDeclaration) return null ;
+		if (dcl instanceof SpecificationDeclaration) {
+		    return null ;
+		}
 		if (dcl instanceof ImplementationDeclaration) {
-			if (((ImplementationDeclaration)dcl).getSpecification() == null)
+			if (((ImplementationDeclaration)dcl).getSpecification() == null) {
 				return null ;
+			}
 			return get(((ImplementationDeclaration)dcl).getSpecification()) ;
 		}
-		if (dcl instanceof InstanceDeclaration) return get(((InstanceDeclaration)dcl).getImplementation()) ;
+		if (dcl instanceof InstanceDeclaration) {
+		    return get(((InstanceDeclaration)dcl).getImplementation()) ;
+		}
 		return null ;
 	}
 	
@@ -240,8 +263,9 @@ public class ApamCapability {
 	 * @return
 	 */
 	public String shared () {
-			if (dcl.isDefinedShared()) 
+			if (dcl.isDefinedShared()) {
 				return Boolean.toString(dcl.isShared()) ;
+			}
 			return null ;
 	}
 
@@ -251,8 +275,9 @@ public class ApamCapability {
 	 * @return
 	 */
 	public String instantiable () {
-			if (dcl.isDefinedInstantiable()) 
+			if (dcl.isDefinedInstantiable()) {
 				return Boolean.toString(dcl.isInstantiable()) ;
+			}
 			return null ;
 	}
 
@@ -262,8 +287,9 @@ public class ApamCapability {
 	 * @return
 	 */
 	public String singleton () {
-			if (dcl.isDefinedSingleton()) 
+			if (dcl.isDefinedSingleton()) {
 				return Boolean.toString(dcl.isSingleton()) ;
+			}
 			return null ;
 	}
 

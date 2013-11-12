@@ -14,8 +14,6 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
-import static org.ops4j.pax.exam.CoreOptions.systemPackage;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +24,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
@@ -37,259 +37,288 @@ import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(JUnit4TestRunner.class)
-public class ConstraintTest extends ExtensionAbstract{
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
+public class ConstraintTest extends ExtensionAbstract {
 
     @Override
     public List<Option> config() {
-	Map<String, String> mapOfRequiredArtifacts= new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1", "fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-iface", "fr.imag.adele.apam.tests.services");
-	
-	List<Option> addon = super.config(mapOfRequiredArtifacts,true);
+	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
+		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
+		"fr.imag.adele.apam.tests.services");
+
+	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
 	return addon;
-    
-    
+
     }
-    
-    
-	@Test
-	public void ConstraintsCheckingImplementation_tc009() {
 
-		
-		Implementation s1Impl = waitForImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+    @Test
+    public void ConstraintsCheckingImplementation_tc009() {
 
-		Instance s1Inst = s1Impl.createInstance(null, null);
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+	Instance s1Inst = s1Impl.createInstance(null, null);
 
-		Instance philipsSwitch = CST.componentBroker.getInstService(s1
-				.getSimpleDevice110v());
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		philipsSwitch.setProperty("currentVoltage", "110");
-		
-		String manufacturer=philipsSwitch.getProperty("manufacturer");
-		String currentVoltage=philipsSwitch.getProperty("currentVoltage");
-		String voltage=philipsSwitch.getProperty("voltage");
-		
-		String messageTemplate="The filter %s should result in a %s statement since manufacturer:%s, currentVoltage:%s and voltage:%s";
-		
-		String expression="(manufacturer=philips)";
-		Boolean result=true;
-		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(voltage=110)";
-		result=true;
-		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(currentVoltage <= 110)";
-		result=true;
-		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(currentVoltage >= 111)";
-		result=false;
-		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(futfut)";
-		result=false;
-		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(&(manufacturer!=philips)(manufacturer=philips))";
-		result=false;
-		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
-		
-		expression="(&(manufacturer=philips)(manufacturer=philips))";
-		result=true;
-		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
+	Instance philipsSwitch = CST.componentBroker.getInstService(s1
+		.getSimpleDevice110v());
 
-	}
-	
-	@Test
-	public void ConstraintsCheckingInstanceFilteringByInitialProperty_tc010()
-			throws InvalidSyntaxException {
+	philipsSwitch.setProperty("currentVoltage", "110");
 
-		
-		Implementation samsungImpl = waitForImplByName(null,
-				"SamsungSwitch");
-		final Instance samsungInst = samsungImpl.createInstance(null,
-				new HashMap<String, String>() {
-					{
-						put("currentVoltage", "95");
-					}
-				});
+	String manufacturer = philipsSwitch.getProperty("manufacturer");
+	String currentVoltage = philipsSwitch.getProperty("currentVoltage");
+	String voltage = philipsSwitch.getProperty("voltage");
 
-		Implementation lgImpl = waitForImplByName(null,
-				"LgSwitch");
-		final Instance lgInst = lgImpl.createInstance(null,
-				new HashMap<String, String>() {
-					{
-						put("currentVoltage", "100");
-					}
-				});
+	String messageTemplate = "The filter %s should result in a %s statement since manufacturer:%s, currentVoltage:%s and voltage:%s";
 
-		Implementation siemensImpl = waitForImplByName(null,
-				"SiemensSwitch");
-		final Instance siemensInst = siemensImpl.createInstance(null,
-				new HashMap<String, String>() {
-					{
-						put("currentVoltage", "105");
-					}
-				});
+	String expression = "(manufacturer=philips)";
+	Boolean result = true;
 
-		Implementation boschImpl = waitForImplByName(null,
-				"BoschSwitch");
-		final Instance boschInst = boschImpl.createInstance(null,
-				new HashMap<String, String>() {
-					{
-						put("currentVoltage", "110");
-					}
-				});
+	Assert.assertTrue(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
 
-		Implementation philipsImpl = waitForImplByName(null,
-				"philipsSwitch");
-		final Instance philipsInst = philipsImpl.createInstance(null,
-				new HashMap<String, String>() {
-					{
-						put("currentVoltage", "117");
-					}
-				});
-		
-		Set<Instance> validInstances = new HashSet<Instance>() {
-			{
-				add(siemensInst);
-				add(lgInst);
-				add(boschInst);
-				add(samsungInst);
-			}
-		};
+	expression = "(voltage=110)";
+	result = true;
 
-		Implementation s1Impl = waitForImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+	Assert.assertTrue(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
 
-//		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+	expression = "(currentVoltage <= 110)";
+	result = true;
 
-//		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
-			Instance p = CST.componentBroker.getInstService(e);
-			System.out.println("---- Voltage:"
-					+ p.getProperty("currentVoltage") + " / Name:"
-					+ p.getName());
+	Assert.assertTrue(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
 
-			boolean found = false;
+	expression = "(currentVoltage >= 111)";
+	result = false;
 
-			for (Instance l : validInstances)
-				if (l.getName().equals(p.getName())) {
-					found = true;
-					break;
-				}
+	Assert.assertFalse(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
 
-			// Check if all valid instances were injected 
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage<=110)", p.getName(),p.getProperty("currentVoltage")),
-					p.match("(currentVoltage<=110)"));
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage<=110)", p.getName(),p.getProperty("currentVoltage")),
-					found);
+	expression = "(futfut)";
+	result = false;
 
+	Assert.assertFalse(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
+
+	expression = "(&(manufacturer!=philips)(manufacturer=philips))";
+	result = false;
+
+	Assert.assertFalse(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
+
+	expression = "(&(manufacturer=philips)(manufacturer=philips))";
+	result = true;
+
+	Assert.assertTrue(String.format(messageTemplate, expression, result,
+		manufacturer, currentVoltage, voltage), philipsSwitch
+		.match(expression));
+
+    }
+
+    @Test
+    public void ConstraintsCheckingInstanceFilteringByInitialProperty_tc010()
+	    throws InvalidSyntaxException {
+
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
+	final Instance samsungInst = samsungImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "95");
+		    }
+		});
+
+	Implementation lgImpl = waitForImplByName(null, "LgSwitch");
+	final Instance lgInst = lgImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "100");
+		    }
+		});
+
+	Implementation siemensImpl = waitForImplByName(null, "SiemensSwitch");
+	final Instance siemensInst = siemensImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "105");
+		    }
+		});
+
+	Implementation boschImpl = waitForImplByName(null, "BoschSwitch");
+	final Instance boschInst = boschImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "110");
+		    }
+		});
+
+	Implementation philipsImpl = waitForImplByName(null, "philipsSwitch");
+	final Instance philipsInst = philipsImpl.createInstance(null,
+		new HashMap<String, String>() {
+		    {
+			put("currentVoltage", "117");
+		    }
+		});
+
+	Set<Instance> validInstances = new HashSet<Instance>() {
+	    {
+		add(siemensInst);
+		add(lgInst);
+		add(boschInst);
+		add(samsungInst);
+	    }
+	};
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	// apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	// apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
+	    Instance p = CST.componentBroker.getInstService(e);
+	    System.out.println("---- Voltage:"
+		    + p.getProperty("currentVoltage") + " / Name:"
+		    + p.getName());
+
+	    boolean found = false;
+
+	    for (Instance l : validInstances) {
+		if (l.getName().equals(p.getName())) {
+		    found = true;
+		    break;
 		}
+	    }
 
-		auxListInstances("--------------");
-		
-		// check if there is no other instance injected
-		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
-				.size());
-		
+	    // Check if all valid instances were injected
+	    Assert.assertTrue(
+		    String.format(
+			    "Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage<=110)",
+			    p.getName(), p.getProperty("currentVoltage")), p
+			    .match("(currentVoltage<=110)"));
+	    Assert.assertTrue(
+		    String.format(
+			    "Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage<=110)",
+			    p.getName(), p.getProperty("currentVoltage")),
+		    found);
+
 	}
 
-	@Test
-	public void ConstraintsCheckingInstanceFilteringBySetProperty_tc011()
-			throws InvalidSyntaxException {
+	auxListInstances("--------------");
 
-		
-		Implementation samsungImpl = waitForImplByName(null,
-				"SamsungSwitch");
-		final Instance samsungInst = samsungImpl.createInstance(null, null);
+	// check if there is no other instance injected
+	Assert.assertTrue(
+		String.format(
+			"The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",
+			s1.getEletronicInstancesConstraintsInstance().size(),
+			validInstances.size()),
+		s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+			.size());
 
-		Implementation lgImpl = waitForImplByName(null,
-				"LgSwitch");
-		final Instance lgInst = lgImpl.createInstance(null, null);
+    }
 
-		Implementation siemensImpl = waitForImplByName(null,
-				"SiemensSwitch");
-		final Instance siemensInst = siemensImpl.createInstance(null, null);
+    @Test
+    public void ConstraintsCheckingInstanceFilteringBySetProperty_tc011()
+	    throws InvalidSyntaxException {
 
-		Implementation boschImpl = waitForImplByName(null,
-				"BoschSwitch");
-		final Instance boschInst = boschImpl.createInstance(null, null);
+	Implementation samsungImpl = waitForImplByName(null, "SamsungSwitch");
+	final Instance samsungInst = samsungImpl.createInstance(null, null);
 
-		Implementation philipsImpl = waitForImplByName(null,
-				"philipsSwitch");
-		final Instance philipsInst = philipsImpl.createInstance(null, null);
-		
-		samsungInst.setProperty("currentVoltage", "95");
-		lgInst.setProperty("currentVoltage", "100");
-		siemensInst.setProperty("currentVoltage", "105");
-		boschInst.setProperty("currentVoltage", "110");
-		philipsInst.setProperty("currentVoltage", "117");
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		Set<Instance> validInstances = new HashSet<Instance>() {
-			{
-				add(siemensInst);
-				add(lgInst);
-				add(boschInst);
-				add(samsungInst);
-			}
-		};
+	Implementation lgImpl = waitForImplByName(null, "LgSwitch");
+	final Instance lgInst = lgImpl.createInstance(null, null);
 
-		Implementation s1Impl = waitForImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-		
-		//auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
-		auxListInstances("-------Available instances before using the list-------");	
-		
-		System.out.println("Size of the injected list:"+s1.getEletronicInstancesConstraintsInstance().size());
-		
-		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
-			Instance p = CST.componentBroker.getInstService(e);
-			System.out.println("---- Voltage:"
-					+ p.getProperty("currentVoltage") + " / Name:"
-					+ p.getName());
+	Implementation siemensImpl = waitForImplByName(null, "SiemensSwitch");
+	final Instance siemensInst = siemensImpl.createInstance(null, null);
 
-			boolean found = false;
+	Implementation boschImpl = waitForImplByName(null, "BoschSwitch");
+	final Instance boschInst = boschImpl.createInstance(null, null);
 
-			for (Instance l : validInstances)
-				if (l.getName().equals(p.getName())) {
-					found = true;
-					break;
-				}
-			
-			// Check if all valid instances were injected 
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage <= 110)", p.getName(),p.getProperty("currentVoltage")),p.match("(currentVoltage <= 110)"));
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage <= 110)", p.getName(),p.getProperty("currentVoltage")),found);
+	Implementation philipsImpl = waitForImplByName(null, "philipsSwitch");
+	final Instance philipsInst = philipsImpl.createInstance(null, null);
 
+	samsungInst.setProperty("currentVoltage", "95");
+	lgInst.setProperty("currentVoltage", "100");
+	siemensInst.setProperty("currentVoltage", "105");
+	boschInst.setProperty("currentVoltage", "110");
+	philipsInst.setProperty("currentVoltage", "117");
+
+	apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+	Set<Instance> validInstances = new HashSet<Instance>() {
+	    {
+		add(siemensInst);
+		add(lgInst);
+		add(boschInst);
+		add(samsungInst);
+	    }
+	};
+
+	Implementation s1Impl = waitForImplByName(null,
+		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+	Instance s1Inst = s1Impl.createInstance(null, null);
+	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+	// auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
+	auxListInstances("-------Available instances before using the list-------");
+
+	System.out.println("Size of the injected list:"
+		+ s1.getEletronicInstancesConstraintsInstance().size());
+
+	for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
+	    Instance p = CST.componentBroker.getInstService(e);
+	    System.out.println("---- Voltage:"
+		    + p.getProperty("currentVoltage") + " / Name:"
+		    + p.getName());
+
+	    boolean found = false;
+
+	    for (Instance l : validInstances) {
+		if (l.getName().equals(p.getName())) {
+		    found = true;
+		    break;
 		}
+	    }
 
-		auxListInstances("-------Available instances after using the list-------");
-
-		// check if there is no other instance injected
-		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
-				.size());
+	    // Check if all valid instances were injected
+	    Assert.assertTrue(
+		    String.format(
+			    "Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage <= 110)",
+			    p.getName(), p.getProperty("currentVoltage")), p
+			    .match("(currentVoltage <= 110)"));
+	    Assert.assertTrue(
+		    String.format(
+			    "Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage <= 110)",
+			    p.getName(), p.getProperty("currentVoltage")),
+		    found);
 
 	}
-	
+
+	auxListInstances("-------Available instances after using the list-------");
+
+	// check if there is no other instance injected
+	Assert.assertTrue(
+		String.format(
+			"The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",
+			s1.getEletronicInstancesConstraintsInstance().size(),
+			validInstances.size()),
+		s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+			.size());
+
+    }
+
 }

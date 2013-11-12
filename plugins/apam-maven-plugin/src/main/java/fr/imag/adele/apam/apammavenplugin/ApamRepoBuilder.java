@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package fr.imag.adele.apam.apamMavenPlugin;
+package fr.imag.adele.apam.apammavenplugin;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
@@ -44,11 +46,20 @@ public class ApamRepoBuilder {
 	/**
 	 * Metadata (in internal format).
 	 */
+    
+    private static Logger logger = LoggerFactory.getLogger(ApamRepoBuilder.class);
+
 
 
 	private final Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
 
 	private static List <ComponentDeclaration> components   ;
+	
+	private static final String BEGIN_P = "      <p n='";
+	private static final String END_P = "' />\n";
+	private static final String END_M = "' >\n";
+	private static final String ATT_V = "' v='";
+	
 
 	/**
 	 * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
@@ -68,23 +79,27 @@ public class ApamRepoBuilder {
 		StringBuffer obrContent = new StringBuffer("<obr> \n");
 
 		// print maven groupId, artifactId and version as resource capability
-		printOBRMavenElement(obrContent, "");
+		printOBRMavenElement(obrContent);
 
 		for (ComponentDeclaration comp : components) {
-			if (comp instanceof SpecificationDeclaration)
-				printOBRElement(obrContent, comp, "");
+			if (comp instanceof SpecificationDeclaration) {
+				printOBRElement(obrContent, comp);
+			}
 		}
 		for (ComponentDeclaration comp : components) {
-			if (comp instanceof AtomicImplementationDeclaration)
-				printOBRElement(obrContent, comp, "");
+			if (comp instanceof AtomicImplementationDeclaration) {
+				printOBRElement(obrContent, comp);
+			}
 		}
 		for (ComponentDeclaration comp : components) {
-			if (comp instanceof CompositeDeclaration)
-				printOBRElement(obrContent, comp, "");
+			if (comp instanceof CompositeDeclaration) {
+				printOBRElement(obrContent, comp);
+			}
 		}
 		for (ComponentDeclaration comp : components) {
-			if (comp instanceof InstanceDeclaration)
-				printOBRElement(obrContent, comp, "");
+			if (comp instanceof InstanceDeclaration) {
+				printOBRElement(obrContent, comp);
+			}
 		}
 
 		generateFilters (obrContent) ;
@@ -93,29 +108,33 @@ public class ApamRepoBuilder {
 		return obrContent;
 	}
 
-	private void printOBRMavenElement(StringBuffer obrContent, String indent) {
-		obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
-		obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
-		obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
-		obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
+	private void printOBRMavenElement(StringBuffer obrContent) {
+		obrContent.append("   <capability name='" + CST.MAVEN + END_M);
+		obrContent.append(BEGIN_P + CST.GROUP_ID + ATT_V + OBRGeneratorMojo.currentProjectGroupId + END_P);
+		obrContent.append(BEGIN_P + CST.ARTIFACT_ID + ATT_V + OBRGeneratorMojo.currentProjectArtifactId + END_P);
+		obrContent.append(BEGIN_P + CST.VERSION + ATT_V + OBRGeneratorMojo.currentProjectVersion + END_P);
 		obrContent.append("   </capability>\n");
 	}
 
 
-	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
-		System.out.print("Checking ");
-		if (component instanceof ImplementationDeclaration)
-			System.out.print("implementation ");
-		if (component instanceof CompositeDeclaration)
-			System.out.print("composite ");
-		if (component instanceof InstanceDeclaration)
-			System.out.print("instance ");
-		if (component instanceof SpecificationDeclaration)
-			System.out.print("specification ");
-		System.out.println(component.getName() + " ...");
+	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component) {
+		logger.info("Checking ");
+		if (component instanceof ImplementationDeclaration) {
+			logger.info("implementation ");
+		}
+		if (component instanceof CompositeDeclaration) {
+			logger.info("composite ");
+		}
+		if (component instanceof InstanceDeclaration) {
+			logger.info("instance ");
+		}
+		if (component instanceof SpecificationDeclaration) {
+			logger.info("specification ");
+		}
+		logger.info(component.getName() + " ...");
 
 		//headers
-		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + "'>\n");
+		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + END_M);
 		generateProperty (obrContent, component, CST.NAME, component.getName()) ;
 
 		if (component instanceof ImplementationDeclaration) {
@@ -131,8 +150,9 @@ public class ApamRepoBuilder {
 		if (component instanceof CompositeDeclaration) {
 			CompositeDeclaration composite = (CompositeDeclaration) component;
 			generateProperty (obrContent, component, CST.APAM_COMPOSITE, CST.V_TRUE);
-			if (composite.getMainComponent() != null)
+			if (composite.getMainComponent() != null) {
 				generateProperty (obrContent, component, CST.APAM_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
+			}
 			CheckObr.checkCompoMain((CompositeDeclaration) component);
 			//check the information for composite : grant, start, own, visibility etc.
 			CheckObr.checkCompositeContent ((CompositeDeclaration) component) ;
@@ -157,7 +177,7 @@ public class ApamRepoBuilder {
 
 
 		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
-		ApamCapability.get(component.getReference()).finalize() ;
+		ApamCapability.get(component.getReference()).freeze() ;
 		obrContent.append("   </capability>\n");
 	}
 
@@ -181,16 +201,18 @@ public class ApamRepoBuilder {
 			CheckObr.checkInterfaceExist(ref.getName()) ;
 		}
 		String val = setReference2String (interfaces) ;	
-		if (val != null)
+		if (val != null) {
 			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES, setReference2String(interfaces)) ;
+		}
 
 		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
 		for (MessageReference ref : messages) {
 			CheckObr.checkInterfaceExist(ref.getName()) ;
 		}
 		val = setReference2String (messages) ;	
-		if (val != null)
+		if (val != null) {
 			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
+		}
 
 		if (component instanceof ImplementationDeclaration) {
 			SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
@@ -229,7 +251,9 @@ public class ApamRepoBuilder {
 	 */
 
 	private String setReference2String (Set<? extends ResolvableReference> refs) {
-		if (refs.isEmpty()) return null ;
+		if (refs.isEmpty()) {
+		    return null ;
+		}
 		String val = "";
 		for (ResolvableReference mess : refs) {
 			val += mess.getName() + "," ;
@@ -266,7 +290,7 @@ public class ApamRepoBuilder {
 
 	private void generateProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String value) {
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
-			obrContent.append("      <p n='" + attr + "' v='" + value + "' />\n");
+			obrContent.append(BEGIN_P + attr + ATT_V + value + END_P);
 			return ;
 		}
 		//CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
@@ -278,7 +302,7 @@ public class ApamRepoBuilder {
 		}
 
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
-			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
+			obrContent.append(BEGIN_P + attr + "' t='" + type + ATT_V + value + END_P);
 			return ;
 		}
 		//CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
@@ -300,11 +324,16 @@ public class ApamRepoBuilder {
 
 	private String getVersionExpression (String name) {
 		VersionRange range = getVersionRange(name) ;
-		if (range == null) return null ;
+		if (range == null) {
+		    return null ;
+		}
 		String version ;
-		if (range.toString().indexOf('-') != -1 )
+		if (range.toString().indexOf('-') != -1 ) {
 			version = range.toString().substring(0, range.toString().indexOf('-')) ;
-		else version = range.toString().replace('-', '.') ;
+		}
+		else {
+		    version = range.toString().replace('-', '.') ;
+		}
 		return "(version&gt;=" + version + ")" ;
 	}	
 
@@ -327,7 +356,9 @@ public class ApamRepoBuilder {
 				CheckObr.error("In " + comp + ": component " + comp.getName() + " already defined") ;
 				components.remove(comp) ;
 			}
-			else defined.add(comp.getName()) ;
+			else {
+			    defined.add(comp.getName()) ;
+			}
 		}
 
 		/*
@@ -344,15 +375,16 @@ public class ApamRepoBuilder {
 			/*
 			 * never built is OK to process
 			 */
-			if (existingDefinition == null)
+			if (existingDefinition == null) {
 				continue;
+			}
 
 			/*
 			 * already built in the repository is OK to process
 			 */
-			if (!existingDefinition.isFinalized())
+			if (!existingDefinition.isFinalized()) {
 				continue;
-
+			}
 			/*
 			 * Already processed in this build execution
 			 */

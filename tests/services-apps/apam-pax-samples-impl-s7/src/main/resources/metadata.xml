@@ -246,10 +246,6 @@
 
     <!-- CASE-11 -->
 
-    <specification name="S07-Dependency-NotInstantiable"
-        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency"
-        instantiable="false">
-    </specification>
 
     <specification name="S07-specification-11"
         interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface11">
@@ -266,11 +262,6 @@
     </implementation>
 
     <!-- CASE-12 -->
-
-    <specification name="S07-Dependency-NotInstantiable"
-        interfaces="fr.imag.adele.apam.pax.test.implS7.S07Dependency"
-        instantiable="false">
-    </specification>
 
     <specification name="S07-specification-12"
         interfaces="fr.imag.adele.apam.pax.test.implS7.S07Interface12">
