@@ -51,6 +51,7 @@ import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 
 public class ApamResolverImpl implements ApamResolver {
+    
     /**
      * Impl is either unused or deployed (and therefore also unused). It becomes
      * embedded in compoType. If unused, remove from unused list.
@@ -418,7 +419,7 @@ public class ApamResolverImpl implements ApamResolver {
 	return null;
     }
 
-    private void checkImplicitPromotion(Instance client,
+    private Resolved<?>  checkImplicitPromotion(Instance client,
 	    RelationDefinition relDef, Resolved resolved,
 	    RelToResolve relToResolve, Composite composite, Component source) {
 
@@ -429,18 +430,19 @@ public class ApamResolverImpl implements ApamResolver {
 	while (group != null) {
 	    for (RelationDefinition compoDep : group.getLocalRelations()) {
 		if (relDef.matchRelation(client, compoDep)) {
-		    resolvePromotion(compoDep, resolved, relToResolve,
+		    resolved=resolvePromotion(compoDep, resolved, relToResolve,
 			    composite, source);
 		}
 	    }
 	    group = group.getGroup();
 	}
+	return resolved;
     }
 
-    private boolean checkExplicitPromotion(Instance client,
+    private Resolved<?>  checkExplicitPromotion(Instance client,
 	    RelationDefinition relDef, Resolved resolved,
 	    RelToResolve relToResolve, Composite composite, Component source) {
-	boolean isExplicitPromotion = false;
+	boolean isExplicitPromotion=false;
 
 	// look if a promotion is explicitly declared for that client component
 	// <promotion implementation="A" relation="clientDep" to="compoDep" />
@@ -463,13 +465,12 @@ public class ApamResolverImpl implements ApamResolver {
 		String toName = promo.getCompositeRelation().getIdentifier();
 		RelationDefinition foundPromo = composite.getCompType()
 			.getRelation(toName);
+		isExplicitPromotion=true;
 		// if (compoDep.getIdentifier().equals(toName)) {
 		// We found the composite side. It is an explicit promotion.
-		// It
-		// should match.
+		// It should match.
 		if (foundPromo.matchRelation(client, foundPromo)) {
-		    isExplicitPromotion = true;
-		    resolvePromotion(foundPromo, resolved, relToResolve,
+		    resolved=resolvePromotion(foundPromo, resolved, relToResolve,
 			    composite, source);
 		} else {
 		    logger.error("Promotion is invalid. relation "
@@ -480,10 +481,18 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 	    }
 	}
-	return isExplicitPromotion;
+	if(isExplicitPromotion) {
+	    if(resolved==null) {
+		resolved=new Resolved<Component>(null,false);
+	    }
+	    return resolved;
+	}
+	else {
+	    return null;
+	}
     }
 
-    private void resolvePromotion(RelationDefinition promotionRelation,
+    private Resolved<?>  resolvePromotion(RelationDefinition promotionRelation,
 	    Resolved resolved, RelToResolve relToResolve, Composite compo,
 	    Component source) {
 	// if it is a promotion, get the composite relation targets.
@@ -495,7 +504,7 @@ public class ApamResolverImpl implements ApamResolver {
 	    isPromotion = true;
 	    promoHasConstraints = promotionRelation.hasConstraints();
 	    if (promotionRelation.isMultiple()) {
-		if (resolved == null) {
+		if (resolved == null ) {
 		    resolved = new Resolved(
 			    compo.getLinkDests(promotionRelation.getName()));
 		} else {
@@ -531,7 +540,7 @@ public class ApamResolverImpl implements ApamResolver {
 		source.createLink(resolved.singletonResolved, relToResolve,
 			relToResolve.hasConstraints() || promoHasConstraints,
 			isPromotion);
-		return;
+		return resolved;
 	    }
 	    for (Object target : resolved.setResolved) {
 		source.createLink((Component) target, relToResolve,
@@ -539,6 +548,7 @@ public class ApamResolverImpl implements ApamResolver {
 			isPromotion);
 	    }
 	}
+	return resolved;
     }
 
     /**
@@ -826,23 +836,38 @@ public class ApamResolverImpl implements ApamResolver {
 	// Invoke managers for resolution, add mng constraints and compute
 	// relToResolve
 
-	Resolved resolved = null;
-	boolean explicitRel = false;
+	Resolved resolved = null; //new Resolved<Component>(null,false);
 
 	if (compo != null && source instanceof Instance) {
-	    explicitRel = checkExplicitPromotion((Instance) source, rel,
+	    resolved = checkExplicitPromotion((Instance) source, rel,
 		    resolved, relToResolve, compo, source);
 	}
 
-	if (!explicitRel) {
+	if (resolved==null) {
+	    resolved=null;
 	    resolved = this.resolveByManagers(relToResolve);
-	    resolvePromotion(null, resolved, relToResolve, compo, source);
+	    resolved = resolvePromotion(null, resolved, relToResolve, compo, source);
 	    if (compo != null && source instanceof Instance) {
-		checkImplicitPromotion((Instance) source, rel, resolved,
+		resolved = checkImplicitPromotion((Instance) source, rel, resolved,
 			relToResolve, compo, source);
 	    }
+	    return resolveLinkEmpty(
+		    rel, resolved,
+		    relToResolve, source);
+	    
+	} else {
+	    return resolveLinkEmpty(
+		    rel, resolved,
+		    relToResolve, source);
 	}
 
+
+
+    }
+    
+    private Resolved<?>  resolveLinkEmpty(
+	    RelationDefinition rel, Resolved resolved,
+	    RelToResolve relToResolve, Component source) {    
 	/*
 	 * If managers could not resolve and relation cannot be promoted, give a
 	 * chance to failure manager
@@ -863,6 +888,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 	return resolved;
     }
+    
 
     /**
      * An APAM client instance requires to be wired with one or all the

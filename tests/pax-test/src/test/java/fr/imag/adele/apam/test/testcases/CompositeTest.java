@@ -615,8 +615,9 @@ public class CompositeTest extends ExtensionAbstract {
 		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(1000);
-
+	waitForInstByName(null,
+		"SmartTabletDevice");
+	
 	auxListInstances();
 	Instance instCtl = waitForInstByName(ctAV02,
 		"AVEntertainment-Controller");
@@ -626,6 +627,7 @@ public class CompositeTest extends ExtensionAbstract {
 
 	MediaControlPoint mediaCtl = (MediaControlPoint) instCtl
 		.getServiceObject();
+	
 	mediaCtl.resolveServersNumber();
 
 	for (Link link : instAV02.getLinks("promotedServers")) {
@@ -643,10 +645,11 @@ public class CompositeTest extends ExtensionAbstract {
 
 	Assert.assertEquals(
 		"Two media renderers should be resolved (internal to composite)",
-		mediaCtl.resolveRenderersNumber(), 2);
+		2, mediaCtl.resolveRenderersNumber());
 	Assert.assertEquals(
 		"Only one media server should be resolved (external, using promoted relation only",
-		mediaCtl.resolveServersNumber(), 1);
+		1, mediaCtl.resolveServersNumber());
+
 	Assert.assertTrue(
 		"One remote controller should be resolved (external, in root composite)",
 		mediaCtl.resolveRemoteControl());
@@ -664,8 +667,9 @@ public class CompositeTest extends ExtensionAbstract {
 	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
 		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
+	waitForInstByName(null,
+		"SmartTabletDevice");
 
-	apam.waitForIt(1000);
 
 	auxListInstances();
 	Instance instCtl = waitForInstByName(ctAV03,
@@ -714,8 +718,8 @@ public class CompositeTest extends ExtensionAbstract {
 	CompositeType ctDC00 = (CompositeType) waitForImplByName(null,
 		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
-
-	apam.waitForIt(1000);
+	waitForInstByName(null,
+		"SmartTabletDevice");
 
 	auxListInstances();
 	Instance instCtl = waitForInstByName(ctAV02,
@@ -759,7 +763,8 @@ public class CompositeTest extends ExtensionAbstract {
 		"HomeDigitalContent-00");
 	Composite instDC00 = (Composite) ctDC00.createInstance(null, null);
 
-	apam.waitForIt(1000);
+	waitForInstByName(null,
+		"SmartTabletDevice");
 
 	auxListInstances();
 	Instance instCtl = waitForInstByName(ctAV03,

@@ -42,12 +42,14 @@ public class Visible {
 	}
 
 	if (source instanceof Instance) {
-//	    if (source instanceof Composite) {
-//		return isVisibleIn((Composite)source, target);
-		//TODO
-//	    } else {
+	    if (source instanceof Composite && 
+		    target instanceof Instance
+		    && ((Instance) target).getComposite().equals(source)) {
+		return false; // Forbid a link between a Composite and a component contained by this composite
+//TODO
+	    } else {
 		return isVisibleIn(((Instance) source).getComposite(), target);
-//	    }
+	    }
 	}
 
 	return false;

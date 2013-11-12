@@ -234,7 +234,7 @@
 
             <own specification="MediaRenderer" />
             
-            <promote implementation="SoftwareMediaController"
+            <promote implementation="SoftwareMediaController" 
                 dependency="theServers" to="promotedServers" />
 
             <promote implementation="SoftwareMediaController"
