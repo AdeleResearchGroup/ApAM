@@ -495,14 +495,14 @@ public class ApamResolverImpl implements ApamResolver {
 	    isPromotion = true;
 	    promoHasConstraints = promotionRelation.hasConstraints();
 	    if (promotionRelation.isMultiple()) {
-		if (resolved==null) {
-		resolved = new Resolved(compo.getLinkDests(promotionRelation
-			.getName()));
+		if (resolved == null) {
+		    resolved = new Resolved(
+			    compo.getLinkDests(promotionRelation.getName()));
 		} else {
-		    resolved = resolved.merge(new Resolved(compo.getLinkDests(promotionRelation
-				.getName())));
+		    resolved = resolved.merge(new Resolved(compo
+			    .getLinkDests(promotionRelation.getName())));
 		}
-		
+
 	    } else {
 		resolved = new Resolved(compo.getLinkDest(promotionRelation
 			.getName()));
@@ -526,16 +526,18 @@ public class ApamResolverImpl implements ApamResolver {
 	/*
 	 * It is resolved.
 	 */
-	if (resolved.singletonResolved != null) {
-	    source.createLink(resolved.singletonResolved, relToResolve,
-		    relToResolve.hasConstraints() || promoHasConstraints,
-		    isPromotion);
-	    return;
-	}
-	for (Object target : resolved.setResolved) {
-	    source.createLink((Component) target, relToResolve,
-		    relToResolve.hasConstraints() || promoHasConstraints,
-		    isPromotion);
+	if (resolved != null) {
+	    if (resolved.singletonResolved != null) {
+		source.createLink(resolved.singletonResolved, relToResolve,
+			relToResolve.hasConstraints() || promoHasConstraints,
+			isPromotion);
+		return;
+	    }
+	    for (Object target : resolved.setResolved) {
+		source.createLink((Component) target, relToResolve,
+			relToResolve.hasConstraints() || promoHasConstraints,
+			isPromotion);
+	    }
 	}
     }
 
@@ -834,8 +836,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 	if (!explicitRel) {
 	    resolved = this.resolveByManagers(relToResolve);
-	    resolvePromotion(null, resolved, relToResolve,
-		    compo, source);
+	    resolvePromotion(null, resolved, relToResolve, compo, source);
 	    if (compo != null && source instanceof Instance) {
 		checkImplicitPromotion((Instance) source, rel, resolved,
 			relToResolve, compo, source);

@@ -42,7 +42,12 @@ public class Visible {
 	}
 
 	if (source instanceof Instance) {
-	    return isVisibleIn(((Instance) source).getComposite(), target);
+//	    if (source instanceof Composite) {
+//		return isVisibleIn((Composite)source, target);
+		//TODO
+//	    } else {
+		return isVisibleIn(((Instance) source).getComposite(), target);
+//	    }
 	}
 
 	return false;
