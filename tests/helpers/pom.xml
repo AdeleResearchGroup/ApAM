@@ -1,107 +1,135 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>apam-tests</artifactId>
-		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.5-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>apam-tests</artifactId>
+        <groupId>fr.imag.adele.apam</groupId>
+        <version>0.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
-	</parent>
-	<groupId>fr.imag.adele.apam.tests</groupId>
-	<artifactId>apam-helpers</artifactId>
-	<packaging>bundle</packaging>
+    </parent>
+    <groupId>fr.imag.adele.apam.tests</groupId>
+    <artifactId>apam-helpers</artifactId>
+    <packaging>bundle</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ow2.chameleon.testing</groupId>
-			<artifactId>osgi-helpers</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.ow2.chameleon.testing</groupId>
+            <artifactId>osgi-helpers</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-container-forked</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-forked</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-junit4</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-junit4</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-link-assembly</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-link-assembly</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.url</groupId>
-			<artifactId>pax-url-aether</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-aether</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.url</groupId>
-			<artifactId>pax-url-mvn</artifactId>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-mvn</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
-<!-- 			<artifactId>obrman</artifactId> -->
-<!-- 			<version>${project.version}</version> -->
-<!-- 		</dependency> -->
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- <dependency> -->
+        <!-- <groupId>fr.imag.adele.apam</groupId> -->
+        <!-- <artifactId>obrman</artifactId> -->
+        <!-- <version>${project.version}</version> -->
+        <!-- </dependency> -->
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>manager.conflict</artifactId>
         </dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-bundle</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-bundle</artifactId>
+        </dependency>
 
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-<!-- 				<configuration> -->
-<!-- 					<instructions> -->
-<!-- 						<Import-Package> -->
-<!-- 							!org.ops4j.pax.exam.junit, -->
-<!-- 							* -->
-<!-- 						</Import-Package> -->
-<!-- 					</instructions> -->
-<!-- 				</configuration> -->
-			</plugin>
-			<plugin>
-				<groupId>org.apache.servicemix.tooling</groupId>
-				<artifactId>depends-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+        <!-- For testing Distriman -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>com.springsource.javax.mail</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.wsdl</groupId>
+            <artifactId>com.springsource.javax.wsdl</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>com.springsource.javax.xml.stream</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xml</groupId>
+            <artifactId>com.springsource.org.apache.xml.resolver</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>com.springsource.org.dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <!-- <configuration> -->
+                <!-- <instructions> -->
+                <!-- <Import-Package> -->
+                <!-- !org.ops4j.pax.exam.junit, -->
+                <!-- * -->
+                <!-- </Import-Package> -->
+                <!-- </instructions> -->
+                <!-- </configuration> -->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

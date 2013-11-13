@@ -54,8 +54,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 
     // Based on the current running, no test should take longer than 2 minute
     @Rule
-    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? 3600000
-	    : 60000);
+    public TestRule globalTimeout = new ApamTimeoutRule(
+	    isDebugModeOn() ? 3600000 : 60000);
 
     @Rule
     public TestName name = new TestName();
@@ -200,14 +200,11 @@ public abstract class ExtensionAbstract extends TestUtils {
 		// "http://repository.ow2.org/nexus/content/groups/public"),
 
 		mavenBundle("org.ow2.asm", "asm-all").version("4.1"),
-		mavenBundle("javax.mail", "com.springsource.javax.mail")
-			.version("1.4.1"), mavenBundle("javax.wsdl",
-			"com.springsource.javax.wsdl").version("1.6.1"),
-		mavenBundle("javax.xml.stream",
-			"com.springsource.javax.xml.stream").version("1.0.1"),
-		mavenBundle("org.apache.xml",
-			"com.springsource.org.apache.xml.resolver").version(
-			"1.2.0"), mavenBundle("org.dom4j",
+		mavenBundle("javax.mail", "com.springsource.javax.mail").version("1.4.1"),
+		mavenBundle("javax.wsdl","com.springsource.javax.wsdl").version("1.6.1"),
+		mavenBundle("javax.xml.stream","com.springsource.javax.xml.stream").version("1.0.1"),
+		mavenBundle("org.apache.xml","com.springsource.org.apache.xml.resolver").version("1.2.0"),
+		mavenBundle("org.dom4j",
 			"com.springsource.org.dom4j").version("1.6.1"),
 		mavenBundle("joda-time", "joda-time").version("1.6.2"),
 		mavenBundle("org.apache.cxf", "cxf-bundle-minimal").version(
