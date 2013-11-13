@@ -85,6 +85,14 @@ public abstract class BaseApformComponent<C extends Component, D extends Compone
 
 	return true;
     }
+    
+    @Override
+    public boolean checkLink(Component destInst, String depName) {
+	/*
+	 * Does nothing 
+	 */
+	return true;
+    }
 
     @Override
     public void setProperty(String attr, String value) {

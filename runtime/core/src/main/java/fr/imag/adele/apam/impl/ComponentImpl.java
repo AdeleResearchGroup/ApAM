@@ -170,24 +170,22 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object>
 	}
 
 	// creation
-	// if (dep.isWire()) {
-	if (!getApformComponent().setLink(to, depName)) {
+	if (!getApformComponent().checkLink(to, depName)) {
 	    logger.error("CreateLink: INTERNAL ERROR: link from " + this
 		    + " to " + to
 		    + " could not be created in the real instance.");
 	    return false;
 	}
-	// }
+	
 	Link link = new LinkImpl(this, to, dep, hasConstraints, promotion);
 	links.add(link);
 	((ComponentImpl) to).invlinks.add(link);
+	getApformComponent().setLink(to, depName);
 
 	/*
 	 * if "to" is an instance in the unused pull, move it to the from
 	 * composite.
 	 */
-	// if (dep.isWire() && this instanceof Instance && to instanceof
-	// Instance && !((Instance) to).isUsed())
 	if (this instanceof Instance && to instanceof Instance
 		&& !((Instance) to).isUsed()) {
 	    ((InstanceImpl) to).setOwner(((Instance) this).getComposite());
@@ -196,8 +194,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object>
 	// TODO What to do if it is a link towards an unused implem or spec ?
 	// Nothing ?
 	// TODO Does isUsed (and shared) limited to the wires ?
-	// else if (to instanceof Implementation) && !((Implementation)
-	// to).isUsed() ?????
 
 	// Notify Dynamic managers that a new link has been created
 	for (DynamicManager manager : ApamManagers.getDynamicManagers()) {

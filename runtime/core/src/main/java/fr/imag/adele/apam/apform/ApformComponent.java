@@ -71,6 +71,15 @@ public interface ApformComponent {
      * 
      */
     public boolean setLink(Component destInst, String depName);
+    
+    /**
+     * Check if link is valid (and therefore can be created)
+     * The Apform component can veto the creation of the link by returning false
+     * to ths call.
+     * 
+     */
+    public boolean checkLink(Component destInst, String depName);
+    
 
     /**
      * Notifies the underlying platform of a change in a component property,

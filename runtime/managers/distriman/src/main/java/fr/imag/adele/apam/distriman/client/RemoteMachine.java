@@ -143,6 +143,15 @@ public class RemoteMachine implements ApformInstance {
 	public void setProperty(String attr, String value) {
 	}
 
+	/* (non-Javadoc)
+	 * @see fr.imag.adele.apam.apform.ApformComponent#checkLink(fr.imag.adele.apam.Component, java.lang.String)
+	 */
+	@Override
+	public boolean checkLink(Component destInst, String depName) {
+	    // TODO Auto-generated method stub
+	    return false;
+	}
+
     }
 
     private static class RemoteImplementationDeclaration extends
@@ -458,6 +467,10 @@ public class RemoteMachine implements ApformInstance {
     public boolean setLink(Component destInst, String depName) {
 	return false;
     }
+    @Override
+    public boolean checkLink(Component destInst, String depName) {
+	return false;
+    }    
 
     @Override
     public void setProperty(String attr, String value) {

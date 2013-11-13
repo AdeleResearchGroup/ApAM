@@ -270,6 +270,12 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,
 	// TODO Auto-generated method stub
 	return false;
     }
+    
+    @Override
+    public boolean checkLink(fr.imag.adele.apam.Component destInst, String depName) {
+	// TODO Auto-generated method stub
+	return false;
+    }    
 
     @Override
     public void setProperty(String attr, String value) {

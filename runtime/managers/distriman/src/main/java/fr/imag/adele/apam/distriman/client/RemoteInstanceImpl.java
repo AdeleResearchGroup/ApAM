@@ -88,6 +88,11 @@ public class RemoteInstanceImpl implements ApformInstance {
     public boolean setLink(Component destInst, String depName) {
 	return false;
     }
+    
+    @Override
+    public boolean checkLink(Component destInst, String depName) {
+	return false;
+    }    
 
     @Override
     public void setProperty(String attr, String value) {

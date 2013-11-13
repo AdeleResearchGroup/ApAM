@@ -170,11 +170,13 @@ public class LightScenarioTest extends ExtensionAbstract {
 
     @Test
     public void testMyKitchenBinding() {
+
 	waitForInstByName(null, "LightApplicationKitchen-0");
 
 
 	// Wait for the binding between lightApplication myKitchen and devices
 	// upon filter location
+	auxListInstances();
 
 	Set<Link> listRelations = myKitchen.getRawLinks();
 	Iterator<Link> it = listRelations.iterator();
@@ -182,6 +184,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 	    Link rel = it.next();
 	    // Should find one binding with buttonKitchen and one binding with a
 	    // lightKitchen
+	    System.out.println("Link : "+rel);
 	    if (theoricLinks.contains(rel.getDestination().getName())) {
 		theoricLinks.remove(rel.getDestination().getName());
 	    } else {
