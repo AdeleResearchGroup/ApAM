@@ -49,7 +49,11 @@ public class HistMan implements PropertyManager, DynamicManager {
     private String dropCollections = null;
     private LinkedProperties histModel = new LinkedProperties();
     private MongoClient mongoClient;
-
+    
+    private String dbName;
+    private String dbHost;
+    private int dbPort;
+    
     /*
      * The collection containing the attributes created, changed and removed.
      */
@@ -315,19 +319,23 @@ public class HistMan implements PropertyManager, DynamicManager {
 
 	ManagerModel model = CompositeTypeImpl.getRootCompositeType().getModel(
 		this.getName());
+	System.out.println(" DB Port : "+dbPort);
 
 	/*
 	 * if no model for the compositeType, set the default values
 	 */
 	if (model == null) {
-	    histURL = DB_URL_VALUE_DEFAULT;
+	    histURL = new String(dbHost+":"+dbPort);
+	    if(histURL==null ||histURL.length() <1)
+		    histURL = DB_URL_VALUE_DEFAULT;
+		
 	    histDBName = DB_NAME_VALUE_DEFAULT;
 	    histDBTimeout = Integer.parseInt(DB_CONNECT_TIMEOUT_VALUE_DEFAULT);
 	} else {
 	    try {// try to load the compositeType model
 		logger.info("Loading properties from {}", model.getURL());
 		histModel.load(model.getURL().openStream());
-		histURL = histModel.getProperty(DB_URL_KEY);
+		//histURL = histModel.getProperty(DB_URL_KEY);
 		histDBName = histModel.getProperty(DB_NAME_KEY,
 			DB_NAME_VALUE_DEFAULT);
 

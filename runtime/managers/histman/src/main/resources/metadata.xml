@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright Universite Joseph Fourier (www.ujf-grenoble.fr) Licensed under 
-	the Apache License, Version 2.0 (the "License"); you may not use this file 
-	except in compliance with the License. You may obtain a copy of the License 
-	at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable 
-	law or agreed to in writing, software distributed under the License is distributed 
-	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
-	express or implied. See the License for the specific language governing permissions 
-	and limitations under the License. -->
-<ipojo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd"
-	xmlns="org.apache.felix.ipojo">
+    the Apache License, Version 2.0 (the "License"); you may not use this file 
+    except in compliance with the License. You may obtain a copy of the License 
+    at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable 
+    law or agreed to in writing, software distributed under the License is distributed 
+    on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+    express or implied. See the License for the specific language governing permissions 
+    and limitations under the License. -->
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+    
+    <implementation name="HISTMAN" classname="fr.imag.adele.histMan.HistMan">
+        <ipojo:provides specifications="fr.imag.adele.apam.DynamicManager" />
+        
+        <callback onInit="start" onRemove="stop" />
+        
+        <definition name="dbName" field="dbName"
+            type="string" default="ApamRootHistory" />        
+        
+        <definition name="dbHost" field="dbHost"
+            type="string" default="localhost" />        
+        
+        <definition name="dbPort" field="dbPort"
+            type="int" default="27017" />        
+        </implementation>
 
 
+    <apam-instance name="HISTMAN-Instance" implementation="HISTMAN">
+        <property name="dbPort" value="8017"/>
+        
+    </apam-instance>
 
-	<component name="HISTMAN" classname="fr.imag.adele.histMan.HistMan"
-		immediate="true">
-		<provides specifications="fr.imag.adele.apam.DynamicManager"/>
-	<callback transition="validate" method="start" />
-		<callback transition="invalidate" method="stop" />
-	</component>
-
-	
-	<instance name="HISTMAN-Instance" component="HISTMAN"></instance>
-
-</ipojo>
+</apam>
