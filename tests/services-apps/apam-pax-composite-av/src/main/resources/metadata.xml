@@ -235,10 +235,10 @@
             <own specification="MediaRenderer" />
             
             <promote implementation="SoftwareMediaController" 
-                dependency="theServers" to="promotedServers" />
+                relation="theServers" to="promotedServers" />
 
             <promote implementation="SoftwareMediaController"
-                dependency="userInterface" to="promotedRemoteControl" />
+                relation="userInterface" to="promotedRemoteControl" />
 
             <!-- must use the relation defined by composite, or inside the 
                 composite -->
@@ -274,10 +274,10 @@
             <own specification="MediaRenderer" />
             
             <promote specification="MediaControlPoint"
-                dependency="theServers" to="promotedServers" />
+                relation="theServers" to="promotedServers" />
 
             <promote  specification="MediaControlPoint"
-                dependency="userInterface" to="promotedRemoteControl"  />
+                relation="userInterface" to="promotedRemoteControl"  />
 
             <!-- must use the relation defined by composite, or inside the 
                 composite -->

@@ -21,80 +21,80 @@
 	<implementation name="group-a"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" resolve="internal"/>
-		<dependency field="c" resolve="internal" />
+		<relation field="element" resolve="internal"/>
+		<relation field="c" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-a-fail-wait"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private"
+		<relation field="element" specification="eletronic-device-private"
 			fail="wait" resolve="internal" />
-		<dependency field="c" resolve="internal" />
+		<relation field="c" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-a-fail-exception"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private"
+		<relation field="element" specification="eletronic-device-private"
 			fail="exception" exception="fr.imag.adele.apam.pax.test.implS3.FailException" resolve="internal" />
-		<dependency field="c" />
+		<relation field="c" />
 	</implementation>
 	
 	<implementation name="group-a-fail-exception-native"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private"
+		<relation field="element" specification="eletronic-device-private"
 			fail="exception" exception="javax.xml.parsers.ParserConfigurationException" resolve="internal" />
-		<dependency field="c" />
+		<relation field="c" />
 	</implementation>
 
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency name="eletronic-device-private" field="element" specification="eletronic-device-private" resolve="internal"/>
-		<dependency field="c" resolve="internal"/>
+		<relation name="eletronic-device-private" field="element" specification="eletronic-device-private" resolve="internal"/>
+		<relation field="c" resolve="internal"/>
 	</implementation>
 
 	<implementation name="group-b-specification"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<relation field="element" resolve="internal"/>
-		<dependency field="d" specification="eletronic-device" multiple="false" resolve="internal"/>
-		<dependency field="e" specification="eletronic-device" multiple="false" resolve="internal"/>
+		<relation field="d" specification="eletronic-device" multiple="false" resolve="internal"/>
+		<relation field="e" specification="eletronic-device" multiple="false" resolve="internal"/>
 	</implementation>
 	
 	<implementation name="group-b"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<relation field="element" resolve="internal"/>
-		<dependency field="d" resolve="internal"/>
-		<dependency field="e" resolve="internal"/>
+		<relation field="d" resolve="internal"/>
+		<relation field="e" resolve="internal"/>
 	</implementation>
 
 	<implementation name="group-c"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupCImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" resolve="internal" />
+		<relation field="element" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-d"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupDImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" resolve="internal"/>
+		<relation field="element" resolve="internal"/>
 	</implementation>
 
 	<implementation name="group-e"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupEImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" resolve="internal"/>
-		<dependency field="f"  resolve="internal"/>
+		<relation field="element" resolve="internal"/>
+		<relation field="f"  resolve="internal"/>
 	</implementation>
 
 	<implementation name="group-f"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupFImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" resolve="internal"/>
+		<relation field="element" resolve="internal"/>
 	</implementation>
 
 	<composite name="composite-a" main="group-a">
@@ -195,8 +195,8 @@
 	<implementation name="group-a-dispute-inject-own"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="c" />
+		<relation field="element" />
+		<relation field="c" />
 	</implementation>
 
 	<composite name="composite-a-dispute-inject-own" main="group-a"
@@ -234,14 +234,14 @@
 	<implementation name="group-b-started-by-trigger"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
+		<relation field="element" />
 	</implementation>
 
 	<implementation name="group-a-start-trigger"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="c" />
+		<relation field="element" />
+		<relation field="c" />
 	</implementation>
 
 	<composite name="composite-a-start-by-specification"

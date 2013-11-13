@@ -73,18 +73,18 @@
 
 	<specification name="Sensor-Producer" messages="{fr.imag.adele.apam.pax.test.msg.M1}">
 		<definition name="location" type="{living, kitchen, bedroom}" />
-		<dependency specification="Edevice-Producer" />
+		<relation specification="Edevice-Producer" />
 	</specification>
 
 	<specification name="Mobile-Producer" messages="fr.imag.adele.apam.pax.test.msg.M2">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="Edevice-Producer" />
+		<relation specification="Edevice-Producer" />
 	</specification>
 
 	<specification name="Sunspot-Producer">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="Sensor-Producer" />
-		<dependency specification="Mobile-Producer" />
+		<relation specification="Sensor-Producer" />
+		<relation specification="Mobile-Producer" />
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M1"

@@ -20,26 +20,26 @@
         <definition name="stateNotInternal" field="stateNotInternal"
             type="string" injected="external" default="default" />
 
-        <dependency field="s2" />
-        <dependency field="s3" />
-        <dependency field="eletronicInstancesInSet" />
-        <dependency field="eletronicInstancesInArray" />
+        <relation field="s2" />
+        <relation field="s3" />
+        <relation field="eletronicInstancesInSet" />
+        <relation field="eletronicInstancesInArray" />
 
-        <dependency field="eletronicInstancesConstraintsInstance">
+        <relation field="eletronicInstancesConstraintsInstance">
             <constraints>
                 <!-- <instance filter="(&amp;(currentVoltage &gt;= 105)(currentVoltage 
                     &lt;= 115))" /> -->
                 <instance filter="(currentVoltage&lt;=110)" />
             </constraints>
-        </dependency>
+        </relation>
 
-        <dependency field="devicePreference110v">
+        <relation field="devicePreference110v">
             <preferences>
                 <instance filter="(currentVoltage=500)" />
             </preferences>
-        </dependency>
+        </relation>
 
-        <dependency field="deviceConstraint110v">
+        <relation field="deviceConstraint110v">
             <constraints>
                 <instance filter="(currentVoltage=500)" />
             </constraints>
@@ -48,14 +48,14 @@
 
             </preferences>
 
-        </dependency>
+        </relation>
 
-        <dependency field="simpleDevice110v" resolve="internal">
+        <relation field="simpleDevice110v" resolve="internal">
             <constraints>
                 <implementation filter="(manufacturer=philips)" />
                 <implementation filter="(voltage=110)" />
             </constraints>
-        </dependency>
+        </relation>
 
     </implementation>
 
@@ -65,7 +65,7 @@
 
         <callback onInit="start" onRemove="stop" />
 
-        <dependency field="eletronicInstancesInSet" />
+        <relation field="eletronicInstancesInSet" />
 
     </implementation>	
 
@@ -75,7 +75,7 @@
 
         <callback onInit="start" onRemove="stop" />
 
-        <dependency field="eletronicInstancesInArray" />
+        <relation field="eletronicInstancesInArray" />
 
     </implementation>	
 
@@ -264,36 +264,36 @@
     <implementation name="S1Impl-added-removed-callback-signature-instance"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" added="bindWithInstance"
+        <relation field="s2" added="bindWithInstance"
             removed="unbindWithInstance" resolve="internal" />
-        <!-- This is the correct one, but its not implemented <dependency 
+        <!-- This is the correct one, but its not implemented <relation 
             field="s2" added="start" removed="stop" /> -->
     </implementation>
 
     <implementation name="S1Impl-removed-callback-with-no-constraint"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" removed="unbindWithInstance" resolve="internal" />
+        <relation field="s2" removed="unbindWithInstance" resolve="internal" />
     </implementation>
 
     <implementation name="S1Impl-removed-callback-with-constraint"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" removed="unbindWithInstance" resolve="internal">
+        <relation field="s2" removed="unbindWithInstance" resolve="internal">
             <constraints>
                 <instance filter="(defined-property=expected)" />
             </constraints>
-        </dependency>
+        </relation>
     </implementation>
 
     <implementation name="S1Impl-added-removed-callback-signature-empty"
         classname="fr.imag.adele.apam.pax.test.implS1.S1Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S1">
-        <dependency field="s2" added="bindWithoutInstance"
+        <relation field="s2" added="bindWithoutInstance"
             removed="unbindWithoutInstance" resolve="internal" />
     </implementation>
 
-    <!-- For tct018 No regression test, behavior to release dependency when 
+    <!-- For tct018 No regression test, behavior to release relation when 
         setting field to null, keep it otherwise -->
     <implementation name="ServiceDependencySource_tct018"
         classname="fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018">

@@ -17,23 +17,23 @@
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="outter" resolve="internal">
+        <relation field="outter" resolve="internal">
             <constraints>
                 <implementation
                     filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2OutterImpl)" />
             </constraints>
-        </dependency>
+        </relation>
     </implementation>
 
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2InnerImpl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2InnerImpl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="middle" resolve="internal">
+        <relation field="middle" resolve="internal">
             <constraints>
                 <implementation
                     filter="(impl-name=fr.imag.adele.apam.pax.test.implS2.S2MiddleImpl)" />
             </constraints>
-        </dependency>
+        </relation>
     </implementation>
 
     <implementation name="deadMansSwitch"
@@ -70,16 +70,16 @@
     <implementation name="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         classname="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="deadMansSwitch" resolve="internal">
-        </dependency>
+        <relation field="deadMansSwitch" resolve="internal">
+        </relation>
     </implementation>
 
     <implementation
         name="fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager"
         classname="fr.imag.adele.apam.pax.test.implS2.S2Impl"
         specification="fr.imag.adele.apam.pax.test.iface.S2">
-        <dependency field="deadMansSwitch" specification="eletronic-device" resolve="internal">
-        </dependency>
+        <relation field="deadMansSwitch" specification="eletronic-device" resolve="internal">
+        </relation>
     </implementation>
 
     <composite name="S2Impl-composite-1"

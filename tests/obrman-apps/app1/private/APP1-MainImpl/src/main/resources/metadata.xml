@@ -22,15 +22,15 @@
 		classname="fr.imag.adele.apam.app1.main.impl.MainApp1" specification="APP1_MAIN_SPEC">
 		<property name="vendor" value="apam-team" />
 		
-		<dependency specification="APP1_S1_SPEC" resolve="external">
+		<relation specification="APP1_S1_SPEC" resolve="external">
 			<interface field="s1" />
-		</dependency>
-		<dependency specification="APP1_S2_SPEC" resolve="external">
+		</relation>
+		<relation specification="APP1_S2_SPEC" resolve="external">
 			<interface field="s2" />
-		</dependency>
-		<dependency specification="APP2_SPEC" resolve="external">
+		</relation>
+		<relation specification="APP2_SPEC" resolve="external">
 			<interface field="app2" />
-		</dependency>
+		</relation>
 
 	</implementation>
 

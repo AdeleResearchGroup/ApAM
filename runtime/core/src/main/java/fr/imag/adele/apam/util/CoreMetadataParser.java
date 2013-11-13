@@ -730,6 +730,7 @@ public class CoreMetadataParser implements CoreParser {
     private static final String ATT_FILTER = "filter";
     private static final String ATT_PROPERTY = "property";
     private static final String ATT_DEPENDENCY = "dependency";
+    private static final String ATT_RELATION = "relation";
     private static final String ATT_TO = "to";
     private static final String ATT_WHEN = "when";
     private static final String ATT_ON_REMOVE = "onRemove";
@@ -1273,8 +1274,7 @@ public class CoreMetadataParser implements CoreParser {
 	/*
 	 * Iterate over all sub elements looking for relation declarations
 	 */
-	for (Element relation : every(element.getElements(
-		CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM),
+	for (Element relation : every(
 		element.getElements(CoreMetadataParser.RELATION,
 			CoreMetadataParser.APAM), element.getElements(
 			CoreMetadataParser.OVERRIDE, CoreMetadataParser.APAM))) {
@@ -1575,7 +1575,7 @@ public class CoreMetadataParser implements CoreParser {
 		ComponentReference<?> definingComponent = parseComponentReference(
 			composite.getName(), grant, true);
 		String identifier = parseString(composite.getName(), grant,
-			CoreMetadataParser.ATT_DEPENDENCY, false);
+			CoreMetadataParser.ATT_RELATION, false);
 		identifier = identifier != null ? identifier : ownedComponent
 			.getComponent().getName();
 		RelationDeclaration.Reference relation = new RelationDeclaration.Reference(
@@ -1599,7 +1599,7 @@ public class CoreMetadataParser implements CoreParser {
 		ComponentReference<?> definingComponent = parseComponentReference(
 			composite.getName(), deny, true);
 		String identifier = parseString(composite.getName(), deny,
-			CoreMetadataParser.ATT_DEPENDENCY, false);
+			CoreMetadataParser.ATT_RELATION, false);
 		identifier = identifier != null ? identifier : ownedComponent
 			.getComponent().getName();
 		RelationDeclaration.Reference relation = new RelationDeclaration.Reference(
@@ -2390,7 +2390,7 @@ public class CoreMetadataParser implements CoreParser {
 	ComponentReference<?> definingComponent = parseComponentReference(
 		inComponent, element, mandatory);
 	String identifier = parseString(definingComponent.getName(), element,
-		CoreMetadataParser.ATT_DEPENDENCY, mandatory);
+		CoreMetadataParser.ATT_RELATION, mandatory);
 
 	if (!mandatory && (definingComponent == null || identifier == null)) {
 	    return null;

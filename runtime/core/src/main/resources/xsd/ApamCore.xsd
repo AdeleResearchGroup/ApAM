@@ -15,21 +15,21 @@
 
     <xs:element name="apam">
         <xs:annotation>
-            <xs:documentation>ApAM top level element.</xs:documentation>
-
+            <xs:documentation>ApAM top level element,
+            descriptor for an OSGi bundle</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="specification" />
                 <xs:element ref="implementation" />
-                <xs:element ref="composite" />
-                <xs:element ref="instance" />
                 <xs:element ref="apam-instance" />
+                
+                <xs:element ref="composite" />
             </xs:choice>
         </xs:complexType>
     </xs:element>
 
-    <!-- ApAM top level elements description -->
+    <!-- ApAM top-level elements description -->
 
     <xs:element name="specification">
         <xs:complexType>
@@ -51,7 +51,6 @@
                     </xs:annotation>
                 </xs:element>
 
-                <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
 
             </xs:choice>
@@ -79,7 +78,7 @@
 
                 <xs:element name="definition" type="InjectedDefinitionType" />
 
-                <xs:element name="dependency" type="InjectedRelationType">
+                <xs:element name="relation" type="InjectedRelationType">
                     <xs:annotation>
                         <xs:documentation> A property definition, it
                             must be valued by the instance.
@@ -88,8 +87,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="relation" type="InjectedRelationType" />
-
+                
                 <xs:element ref="callback" />
                 <xs:element ref="ipojo:requires" />
                 <xs:element ref="ipojo:provides" />
@@ -116,7 +114,6 @@
                 <xs:element name="definition" type="DefinitionType" />
             
                 <xs:element name="property" type="PropertyType" />
-                <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
             </xs:choice>
             <xs:attribute name="implementation" type="xs:string"
@@ -124,29 +121,6 @@
             <xs:attribute name="name" type="xs:string" use="required" />
         </xs:complexType>
     </xs:element>
-
-    <xs:element name="instance">
-        <xs:complexType>
-            <xs:annotation>
-                <xs:documentation>Declaration of a instance Component
-                    (ApAM primitive type).
-                    WARNING : possible mismatch
-                    with iPojo instance (use of element
-                    apam-instance is
-                    safer)
-                </xs:documentation>
-            </xs:annotation>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="property" type="PropertyType" />
-                <xs:element name="dependency" type="RelationType" />
-                <xs:element name="relation" type="RelationType" />
-            </xs:choice>
-            <xs:attribute name="implementation" type="xs:string"
-                use="required" />
-            <xs:attribute name="name" type="xs:string" use="required" />
-        </xs:complexType>
-    </xs:element>
-
 
     <xs:element name="composite">
         <xs:complexType>
@@ -159,7 +133,6 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element name="property" type="PropertyType" />
                 <xs:element name="definition" type="DefinitionType" />
-                <xs:element name="dependency" type="RelationType" />
                 <xs:element name="relation" type="RelationType" />
                 <xs:element name="contentMngt" minOccurs="0"
                     maxOccurs="1">
@@ -197,7 +170,7 @@
                                         type="xs:string" use="optional" />
                                     <xs:attribute name="implementation"
                                         type="xs:string" use="optional" />
-                                    <xs:attribute name="dependency"
+                                    <xs:attribute name="relation"
                                         type="xs:string" use="optional" />
                                     <xs:attribute name="to"
                                         type="xs:string" use="optional" />
@@ -414,7 +387,7 @@
     <xs:complexType name="StartType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="property" type="PropertyType" />
-            <xs:element name="dependency" type="RelationType" />
+            <xs:element name="relation" type="RelationType" />
             <xs:element name="trigger" type="TriggerType"
                 minOccurs="0" maxOccurs="1" />
         </xs:choice>
@@ -449,7 +422,7 @@
             use="optional" />
         <xs:attribute name="implementation" type="xs:string"
             use="optional" />
-        <xs:attribute name="dependency" type="xs:string"
+        <xs:attribute name="relation" type="xs:string"
             use="optional" />
         <xs:attribute name="when" type="xs:string" use="optional" />
     </xs:complexType>
@@ -482,31 +455,6 @@
         </xs:complexContent>
     </xs:complexType>
 
-
-    <xs:complexType name="ContextDependencyType">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="constraints" type="ConstraintsType"
-                minOccurs="0" maxOccurs="1" />
-            <xs:element name="preferences" type="PreferencesType"
-                minOccurs="0" maxOccurs="1" />
-        </xs:choice>
-
-        <xs:attribute name="hide" type="xs:string" use="optional" />
-        <xs:attribute name="override" type="xs:boolean"
-            use="optional" />
-        <xs:attribute name="source" type="xs:string" use="optional" />
-        <xs:attribute name="target" type="xs:string" use="optional" />
-
-        <xs:attributeGroup ref="basicRelationAttributes" />
-
-    </xs:complexType>
-
-    <xs:complexType name="ResourceDependencyType">
-        <xs:attribute name="field" type="xs:string" use="optional" />
-        <xs:attribute name="method" type="xs:string" use="optional" />
-        <xs:attribute name="type" type="xs:string" use="optional" />
-    </xs:complexType>
-
     <xs:complexType name="TriggerType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="specification" type="TriggerConstraintType"
@@ -515,7 +463,6 @@
                 minOccurs="0" maxOccurs="unbounded" />
         </xs:choice>
     </xs:complexType>
-
 
     <xs:complexType name="TriggerConstraintType">
         <xs:choice>

@@ -22,13 +22,13 @@
 		classname="fr.imag.adele.apam.pax.distriman.test.impl.p1.P1Impl"
 		specification="P1-spec">
 		<property name="description" value="samsung" />
-		<dependency field="p2">
+		<relation field="p2">
 		<!-- 
 			<constraints>
 				<instance filter="(rule=two)"/>
 			</constraints>
  		-->			
-		</dependency>
+		</relation>
 		<callback onInit="instantiate" onRemove="desinstantiate"/>
 </implementation>
 

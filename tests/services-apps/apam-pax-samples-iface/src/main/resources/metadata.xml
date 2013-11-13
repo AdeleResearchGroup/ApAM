@@ -57,18 +57,18 @@
 
 	<specification name="sensor" interfaces="{fr.imag.adele.apam.pax.test.iface.S1}">
 		<definition name="location" type="{living, kitchen, bedroom}" />
-		<dependency specification="eletronic-device" />
+		<relation specification="eletronic-device" />
 	</specification>
 
 	<specification name="mobile" interfaces="fr.imag.adele.apam.pax.test.iface.S2">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="eletronic-device" />
+		<relation specification="eletronic-device" />
 	</specification>
 
 	<specification name="sunspot">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="sensor" />
-		<dependency specification="mobile" />
+		<relation specification="sensor" />
+		<relation specification="mobile" />
 	</specification>
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S1"
