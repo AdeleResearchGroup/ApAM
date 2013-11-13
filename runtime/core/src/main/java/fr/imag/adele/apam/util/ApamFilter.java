@@ -54,10 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Component;
-//import java.util.Dictionary;
-//import java.util.Enumeration;
-//import org.osgi.framework.Filter;
-//import org.osgi.framework.ServiceReference;
 
 /**
  * This filter implementation is based on the official OSGi filter with
@@ -66,6 +62,8 @@ import fr.imag.adele.apam.Component;
  */
 @SuppressWarnings("rawtypes")
 public class ApamFilter /* implements Filter */{
+    
+    private static final String UNCHECKED="unchecked";
     /**
      * This Map is used for case-insensitive key lookup during filter
      * evaluation. This Map implementation only supports the get operation using
@@ -184,11 +182,11 @@ public class ApamFilter /* implements Filter */{
 	ApamFilter parse() throws InvalidSyntaxException {
 	    ApamFilter filter;
 	    try {
-		filter = parse_filter();
+		filter = parseFilter();
 	    } catch (ArrayIndexOutOfBoundsException e) {
 		throw new InvalidSyntaxException(
 			"Filter ended abruptly. Filter : " + filterstring,
-			filterstring);
+			filterstring,e);
 	    }
 
 	    if (pos != filterChars.length) {
@@ -199,20 +197,20 @@ public class ApamFilter /* implements Filter */{
 	    return filter;
 	}
 
-	@SuppressWarnings("unchecked")
-	private ApamFilter parse_and() throws InvalidSyntaxException {
+	@SuppressWarnings(UNCHECKED)
+	private ApamFilter parseAnd() throws InvalidSyntaxException {
 	    int lookahead = pos;
 	    skipWhiteSpace();
 
 	    if (filterChars[pos] != '(') {
 		pos = lookahead - 1;
-		return parse_item();
+		return parseItem();
 	    }
 
 	    List operands = new ArrayList(10);
 
 	    while (filterChars[pos] == '(') {
-		ApamFilter child = parse_filter();
+		ApamFilter child = parseFilter();
 		operands.add(child);
 	    }
 
@@ -220,7 +218,7 @@ public class ApamFilter /* implements Filter */{
 		    operands.toArray(new ApamFilter[operands.size()]));
 	}
 
-	private String parse_attr() throws InvalidSyntaxException {
+	private String parseAttr() throws InvalidSyntaxException {
 	    skipWhiteSpace();
 
 	    int begin = pos;
@@ -261,7 +259,7 @@ public class ApamFilter /* implements Filter */{
 	    return str;
 	}
 
-	private ApamFilter parse_filter() throws InvalidSyntaxException {
+	private ApamFilter parseFilter() throws InvalidSyntaxException {
 	    ApamFilter filter;
 	    skipWhiteSpace();
 
@@ -272,7 +270,7 @@ public class ApamFilter /* implements Filter */{
 
 	    pos++;
 
-	    filter = parse_filtercomp();
+	    filter = parseFiltercomp();
 
 	    skipWhiteSpace();
 
@@ -288,7 +286,7 @@ public class ApamFilter /* implements Filter */{
 	    return filter;
 	}
 
-	private ApamFilter parse_filtercomp() throws InvalidSyntaxException {
+	private ApamFilter parseFiltercomp() throws InvalidSyntaxException {
 	    skipWhiteSpace();
 
 	    char c = filterChars[pos];
@@ -296,22 +294,22 @@ public class ApamFilter /* implements Filter */{
 	    switch (c) {
 	    case '&': {
 		pos++;
-		return parse_and();
+		return parseAnd();
 	    }
 	    case '|': {
 		pos++;
-		return parse_or();
+		return parseOr();
 	    }
 	    case '!': {
 		pos++;
-		return parse_not();
+		return parseNot();
 	    }
 	    }
-	    return parse_item();
+	    return parseItem();
 	}
 
-	private ApamFilter parse_item() throws InvalidSyntaxException {
-	    String attr = parse_attr();
+	private ApamFilter parseItem() throws InvalidSyntaxException {
+	    String attr = parseAttr();
 
 	    skipWhiteSpace();
 
@@ -320,7 +318,7 @@ public class ApamFilter /* implements Filter */{
 		if (filterChars[pos + 1] == '>') {
 		    pos += 2;
 		    return new ApamFilter(ApamFilter.SUPERSET, attr,
-			    parse_value());
+			    parseValue());
 		}
 		break;
 	    }
@@ -328,7 +326,7 @@ public class ApamFilter /* implements Filter */{
 		if (filterChars[pos + 1] == '=') {
 		    pos += 2;
 		    return new ApamFilter(ApamFilter.APPROX, attr,
-			    parse_value());
+			    parseValue());
 		}
 		break;
 	    }
@@ -336,19 +334,19 @@ public class ApamFilter /* implements Filter */{
 		if (filterChars[pos + 1] == '=') {
 		    pos += 2;
 		    return new ApamFilter(ApamFilter.GREATER, attr,
-			    parse_value());
+			    parseValue());
 		}
 		break;
 	    }
 	    case '<': {
 		if (filterChars[pos + 1] == '=') {
 		    pos += 2;
-		    return new ApamFilter(ApamFilter.LESS, attr, parse_value());
+		    return new ApamFilter(ApamFilter.LESS, attr, parseValue());
 		}
 		if (filterChars[pos + 1] == '*') {
 		    pos += 2;
 		    return new ApamFilter(ApamFilter.SUBSET, attr,
-			    parse_value());
+			    parseValue());
 		}
 		break;
 	    }
@@ -364,7 +362,7 @@ public class ApamFilter /* implements Filter */{
 		}
 
 		pos++;
-		Object string = parse_substring();
+		Object string = parseSubstring();
 
 		if (string instanceof String) {
 		    /*
@@ -372,11 +370,6 @@ public class ApamFilter /* implements Filter */{
 		     * null, we are only checking that it has substitutions or
 		     * not.
 		     */
-		    // if (Substitute.isSubstitution(string) && component ==
-		    // null) {
-		    // string = "###It is an Apam Substitution" ;
-		    // }
-		    // else {
 		    string = Util.toStringAttrValue(Substitute.substitute(null,
 			    string, component));
 		    if (string == null) {
@@ -387,7 +380,6 @@ public class ApamFilter /* implements Filter */{
 		    return new ApamFilter(ApamFilter.EQUAL, attr,
 			    ((String) string).trim());
 		}
-		// }
 		return new ApamFilter(ApamFilter.SUBSTRING, attr, string);
 	    }
 	    }
@@ -396,34 +388,34 @@ public class ApamFilter /* implements Filter */{
 		    + filterstring.substring(pos), filterstring);
 	}
 
-	private ApamFilter parse_not() throws InvalidSyntaxException {
+	private ApamFilter parseNot() throws InvalidSyntaxException {
 	    int lookahead = pos;
 	    skipWhiteSpace();
 
 	    if (filterChars[pos] != '(') {
 		pos = lookahead - 1;
-		return parse_item();
+		return parseItem();
 	    }
 
-	    ApamFilter child = parse_filter();
+	    ApamFilter child = parseFilter();
 
 	    return new ApamFilter(ApamFilter.NOT, null, child);
 	}
 
-	@SuppressWarnings("unchecked")
-	private ApamFilter parse_or() throws InvalidSyntaxException {
+	@SuppressWarnings(UNCHECKED)
+	private ApamFilter parseOr() throws InvalidSyntaxException {
 	    int lookahead = pos;
 	    skipWhiteSpace();
 
 	    if (filterChars[pos] != '(') {
 		pos = lookahead - 1;
-		return parse_item();
+		return parseItem();
 	    }
 
 	    List operands = new ArrayList(10);
 
 	    while (filterChars[pos] == '(') {
-		ApamFilter child = parse_filter();
+		ApamFilter child = parseFilter();
 		operands.add(child);
 	    }
 
@@ -431,9 +423,9 @@ public class ApamFilter /* implements Filter */{
 		    operands.toArray(new ApamFilter[operands.size()]));
 	}
 
-	@SuppressWarnings("unchecked")
-	private Object parse_substring() throws InvalidSyntaxException {
-	    StringBuffer sb = new StringBuffer(filterChars.length - pos);
+	@SuppressWarnings(UNCHECKED)
+	private Object parseSubstring() throws InvalidSyntaxException {
+	    StringBuffer sb = new StringBuffer((int)(filterChars.length - pos));
 
 	    List operands = new ArrayList(10);
 
@@ -498,8 +490,8 @@ public class ApamFilter /* implements Filter */{
 	    return operands.toArray(new String[size]);
 	}
 
-	private String parse_value() throws InvalidSyntaxException {
-	    StringBuffer sb = new StringBuffer(filterChars.length - pos);
+	private String parseValue() throws InvalidSyntaxException {
+	    StringBuffer sb = new StringBuffer((int)(filterChars.length - pos));
 
 	    parseloop: while (true) {
 		char c = filterChars[pos];
@@ -543,8 +535,7 @@ public class ApamFilter /* implements Filter */{
 	    }
 	    return ret;
 
-	    // }
-	    // return sb.toString();
+
 	}
 
 	private void skipWhiteSpace() {
@@ -583,7 +574,7 @@ public class ApamFilter /* implements Filter */{
     public static final int NOT = 9;
     public static final int SUBSET = 10;
     public static final int SUPERSET = 11;
-    private static final Class[] constructorType = new Class[] { String.class };
+    private static final Class[] ConstructorType = new Class[] { String.class };
 
     /**
      * Map a string for an APPROX (~=) comparison.
@@ -745,7 +736,7 @@ public class ApamFilter /* implements Filter */{
 	converted = conv;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     private boolean compare(int operation, Object value1, Object value2) {
 
 	if ((op == ApamFilter.SUPERSET) || (op == ApamFilter.SUBSET)) {
@@ -765,16 +756,16 @@ public class ApamFilter /* implements Filter */{
 	    return false;
 	}
 	if (value1 instanceof String) {
-	    return compare_String(operation, (String) value1, value2);
+	    return compareString(operation, (String) value1, value2);
 	}
 
 	Class clazz = value1.getClass();
 	if (clazz.isArray()) {
 	    Class type = clazz.getComponentType();
 	    if (type.isPrimitive()) {
-		return compare_PrimitiveArray(operation, type, value1, value2);
+		return comparePrimitiveArray(operation, type, value1, value2);
 	    }
-	    return compare_ObjectArray(operation, (Object[]) value1, value2);
+	    return compareObjectArray(operation, (Object[]) value1, value2);
 	}
 	if (value1 instanceof Version) {
 	    if (converted != null) {
@@ -791,49 +782,49 @@ public class ApamFilter /* implements Filter */{
 		}
 		}
 	    } else {
-		return compare_Comparable(operation, (Version) value1, value2);
+		return compareComparable(operation, (Version) value1, value2);
 	    }
 	}
 	if (value1 instanceof Collection) {
-	    return compare_Collection(operation, (Collection) value1, value2);
+	    return compareCollection(operation, (Collection) value1, value2);
 	}
 	if (value1 instanceof Integer) {
-	    return compare_Integer(operation, ((Integer) value1).intValue(),
+	    return compareInteger(operation, ((Integer) value1).intValue(),
 		    value2);
 	}
 	if (value1 instanceof Long) {
-	    return compare_Long(operation, ((Long) value1).longValue(), value2);
+	    return compareLong(operation, ((Long) value1).longValue(), value2);
 	}
 	if (value1 instanceof Byte) {
-	    return compare_Byte(operation, ((Byte) value1).byteValue(), value2);
+	    return compareByte(operation, ((Byte) value1).byteValue(), value2);
 	}
 	if (value1 instanceof Short) {
-	    return compare_Short(operation, ((Short) value1).shortValue(),
+	    return compareShort(operation, ((Short) value1).shortValue(),
 		    value2);
 	}
 	if (value1 instanceof Character) {
-	    return compare_Character(operation,
+	    return compareCharacter(operation,
 		    ((Character) value1).charValue(), value2);
 	}
 	if (value1 instanceof Float) {
-	    return compare_Float(operation, ((Float) value1).floatValue(),
+	    return compareFloat(operation, ((Float) value1).floatValue(),
 		    value2);
 	}
 	if (value1 instanceof Double) {
-	    return compare_Double(operation, ((Double) value1).doubleValue(),
+	    return compareDouble(operation, ((Double) value1).doubleValue(),
 		    value2);
 	}
 	if (value1 instanceof Boolean) {
-	    return compare_Boolean(operation,
+	    return compareBoolean(operation,
 		    ((Boolean) value1).booleanValue(), value2);
 	}
 	if (value1 instanceof Comparable) {
-	    return compare_Comparable(operation, (Comparable) value1, value2);
+	    return compareComparable(operation, (Comparable) value1, value2);
 	}
-	return compare_Unknown(operation, value1, value2); // RFC 59
+	return compareUnknown(operation, value1, value2); // RFC 59
     }
 
-    private boolean compare_Boolean(int operation, boolean boolval,
+    private boolean compareBoolean(int operation, boolean boolval,
 	    Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
@@ -851,7 +842,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Byte(int operation, byte byteval, Object value2) {
+    private boolean compareByte(int operation, byte byteval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -877,7 +868,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Character(int operation, char charval, Object value2) {
+    private boolean compareCharacter(int operation, char charval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -909,8 +900,8 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean compare_Collection(int operation, Collection collection,
+    @SuppressWarnings(UNCHECKED)
+    private boolean compareCollection(int operation, Collection collection,
 	    Object value2) {
 	if ((op == ApamFilter.SUBSET) || (op == ApamFilter.SUPERSET)) {
 	    Set set = new HashSet();
@@ -934,8 +925,8 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean compare_Comparable(int operation, Comparable value1,
+    @SuppressWarnings(UNCHECKED)
+    private boolean compareComparable(int operation, Comparable value1,
 	    Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
@@ -943,7 +934,7 @@ public class ApamFilter /* implements Filter */{
 	Constructor constructor;
 	try {
 	    constructor = value1.getClass().getConstructor(
-		    ApamFilter.constructorType);
+		    ApamFilter.ConstructorType);
 	} catch (NoSuchMethodException e) {
 	    return false;
 	}
@@ -977,7 +968,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Double(int operation, double doubleval,
+    private boolean compareDouble(int operation, double doubleval,
 	    Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
@@ -1004,7 +995,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Float(int operation, float floatval, Object value2) {
+    private boolean compareFloat(int operation, float floatval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -1030,7 +1021,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Integer(int operation, int intval, Object value2) {
+    private boolean compareInteger(int operation, int intval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -1055,7 +1046,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Long(int operation, long longval, Object value2) {
+    private boolean compareLong(int operation, long longval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -1081,7 +1072,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_ObjectArray(int operation, Object[] array,
+    private boolean compareObjectArray(int operation, Object[] array,
 	    Object value2) {
 	for (Object element : array) {
 	    if (compare(operation, element, value2)) {
@@ -1091,12 +1082,12 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_PrimitiveArray(int operation, Class type,
+    private boolean comparePrimitiveArray(int operation, Class type,
 	    Object primarray, Object value2) {
 	if (Integer.TYPE.isAssignableFrom(type)) {
 	    int[] array = (int[]) primarray;
 	    for (int element : array) {
-		if (compare_Integer(operation, element, value2)) {
+		if (compareInteger(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1105,7 +1096,7 @@ public class ApamFilter /* implements Filter */{
 	if (Long.TYPE.isAssignableFrom(type)) {
 	    long[] array = (long[]) primarray;
 	    for (long element : array) {
-		if (compare_Long(operation, element, value2)) {
+		if (compareLong(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1114,7 +1105,7 @@ public class ApamFilter /* implements Filter */{
 	if (Byte.TYPE.isAssignableFrom(type)) {
 	    byte[] array = (byte[]) primarray;
 	    for (byte element : array) {
-		if (compare_Byte(operation, element, value2)) {
+		if (compareByte(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1123,7 +1114,7 @@ public class ApamFilter /* implements Filter */{
 	if (Short.TYPE.isAssignableFrom(type)) {
 	    short[] array = (short[]) primarray;
 	    for (short element : array) {
-		if (compare_Short(operation, element, value2)) {
+		if (compareShort(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1132,7 +1123,7 @@ public class ApamFilter /* implements Filter */{
 	if (Character.TYPE.isAssignableFrom(type)) {
 	    char[] array = (char[]) primarray;
 	    for (char element : array) {
-		if (compare_Character(operation, element, value2)) {
+		if (compareCharacter(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1141,7 +1132,7 @@ public class ApamFilter /* implements Filter */{
 	if (Float.TYPE.isAssignableFrom(type)) {
 	    float[] array = (float[]) primarray;
 	    for (float element : array) {
-		if (compare_Float(operation, element, value2)) {
+		if (compareFloat(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1150,7 +1141,7 @@ public class ApamFilter /* implements Filter */{
 	if (Double.TYPE.isAssignableFrom(type)) {
 	    double[] array = (double[]) primarray;
 	    for (double element : array) {
-		if (compare_Double(operation, element, value2)) {
+		if (compareDouble(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1159,7 +1150,7 @@ public class ApamFilter /* implements Filter */{
 	if (Boolean.TYPE.isAssignableFrom(type)) {
 	    boolean[] array = (boolean[]) primarray;
 	    for (boolean element : array) {
-		if (compare_Boolean(operation, element, value2)) {
+		if (compareBoolean(operation, element, value2)) {
 		    return true;
 		}
 	    }
@@ -1168,7 +1159,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_Short(int operation, short shortval, Object value2) {
+    private boolean compareShort(int operation, short shortval, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
@@ -1194,7 +1185,7 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    private boolean compare_String(int operation, String string, Object value2) {
+    private boolean compareString(int operation, String string, Object value2) {
 	switch (operation) {
 	case SUBSTRING: {
 	    String[] substrings = (String[]) value2;
@@ -1262,15 +1253,15 @@ public class ApamFilter /* implements Filter */{
 	return false;
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean compare_Unknown(int operation, Object value1, Object value2) {
+    @SuppressWarnings(UNCHECKED)
+    private boolean compareUnknown(int operation, Object value1, Object value2) {
 	if (operation == ApamFilter.SUBSTRING) {
 	    return false;
 	}
 	Constructor constructor;
 	try {
 	    constructor = value1.getClass().getConstructor(
-		    ApamFilter.constructorType);
+		    ApamFilter.ConstructorType);
 	} catch (NoSuchMethodException e) {
 	    return false;
 	}
@@ -1327,7 +1318,7 @@ public class ApamFilter /* implements Filter */{
 	return toString().equals(obj.toString());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     private Collection getSet(Object value) {
 	Collection s;
 	if (value instanceof Set) {
@@ -1386,7 +1377,7 @@ public class ApamFilter /* implements Filter */{
      *             key name.
      * 
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(UNCHECKED)
     public boolean match(Map map) {
 	return match0(new CaseInsensitiveMap<Object>(map));
     }
