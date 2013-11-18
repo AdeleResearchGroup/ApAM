@@ -20,20 +20,19 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import fr.imag.adele.apam.test.testcases.CompositeTest;
 import fr.imag.adele.apam.test.testcases.ConstraintTest;
-import fr.imag.adele.apam.test.testcases.DistriManTest;
-import fr.imag.adele.apam.test.testcases.DynamanDependentTest;
+import fr.imag.adele.apam.test.testcases.DynamanTest;
+import fr.imag.adele.apam.test.testcases.FailureTest;
 import fr.imag.adele.apam.test.testcases.InjectionInstantiationTest;
 import fr.imag.adele.apam.test.testcases.MessageTest;
 import fr.imag.adele.apam.test.testcases.MetaSubstitutionTest;
-import fr.imag.adele.apam.test.testcases.OBRMANTest;
 import fr.imag.adele.apam.test.testcases.PropertyTest;
 import fr.imag.adele.apam.test.testcases.RelationTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ CompositeTest.class, ConstraintTest.class,
 	InjectionInstantiationTest.class, PropertyTest.class,
-	DynamanDependentTest.class, OBRMANTest.class, MessageTest.class,
-	MetaSubstitutionTest.class, RelationTest.class, DistriManTest.class })
+	DynamanTest.class, MessageTest.class, FailureTest.class,
+	MetaSubstitutionTest.class, RelationTest.class })
 public class AllTests {
 
 }

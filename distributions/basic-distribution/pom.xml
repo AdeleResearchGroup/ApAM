@@ -96,11 +96,7 @@
 									<artifactId>obrman</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
-								<artifactItem>
-									<groupId>fr.imag.adele.apam</groupId>
-									<artifactId>manager.conflict</artifactId>
-									<version>${project.version}</version>
-								</artifactItem>
+
 								<!-- Felix Dependencies -->
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>

@@ -12,7 +12,7 @@
 
     <groupId>fr.imag.adele.apam.tests.services</groupId>
     <artifactId>apam-pax-test</artifactId>
-    <name>ApAM PaxExam Tests</name>
+    <name>ApAM PaxExam Tests for optional Managers</name>
 
     <dependencies>
 

@@ -35,8 +35,10 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
+import fr.imag.adele.apam.pax.test.implS7.S07Implem14;
 import fr.imag.adele.apam.test.obrman.OBRMANHelper;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -212,11 +214,39 @@ public class OBRMANTest extends ExtensionAbstract {
 	org.junit.Assert
 		.assertFalse(
 			"No exception should be raised as the dependency can be resolved externally",
-			RelationTest.testResolutionExceptionCase14(instance, 3));
+			testResolutionException(instance, 3));
 	Assert.assertEquals("Only one relation should have been created : ", 1,
 		instance.getRawLinks().size());
 
     }
+    
+    public static boolean testResolutionException(Instance inst,
+	    int methodNumber) {
+	// Force field injection (a bit akward with polymorphism)
+	S07Implem14 implem = (S07Implem14) inst.getServiceObject();
+	try {
+	    switch (methodNumber) {
+	    case 2:
+		if (implem.getInjected02() == null) {
+		    return true;
+		}
+		break;
+	    case 3:
+		if (implem.getInjected03() == null) {
+		    return true;
+		}
+		break;
+	    }
+
+	} catch (ResolutionException exc) {
+	    exc.printStackTrace();
+	    return true;
+	} catch (Exception exc) {
+	    exc.printStackTrace();
+	    return true;
+	}
+	return false;
+    }    
 
     @Before
     @Override
