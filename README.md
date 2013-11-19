@@ -57,7 +57,20 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 ## Changelog
 
 * ApAM 0.0.5 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=4&page=1&state=closed) (currently under development) 
-	* Yet to be defined
+	* WARNING : Several changes to apam.xsd (apam components descriptor schema) -> Not compatible with previous versions (0.0.4)
+		* removed ambiguous and unused types as "instance" (ambiguous with same ipojo concept), "ContextDependencyType", "ResourceDependencyType"
+		* "dependency" element deprecated and fully replaced by "relation"
+		* for relations, resolve="exist" is now the default behavior for relation
+		* for properties, removed deprecated internal="true/false" -> replaced by injected="internal/external/both"
+		* replaced "value" attribute by "default" in property definition
+		* added "deny" element as the explicit reverse property of grant for a component
+		* added "implementation" element for granted components
+	* ApAM now works upon iPojo 1.11
+	* updated libraries version (felix 4.2+) and such
+	* New specs for property definition and inheritance
+	* New specs for metasubstitution
+	* Clear separation between ApAM core (runtime and core managers such as ApAMMan, OSGiMan, FailureMan, DynaMan) and optional managers (ObrMan, ConflictMan, DistriMan, Histman)
+	
 * ApAM 0.0.4 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=3&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.4/apam-basic-distribution-0.0.4.zip)
 	* Bugfix
 * ApAM 0.0.3 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=1&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.3/apam-basic-distribution-0.0.3.zip)  
