@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>apam-repositories</artifactId>
 		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
-		<version>0.0.5</version>
+		<version>0.0.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.obrman.repositories</groupId>
