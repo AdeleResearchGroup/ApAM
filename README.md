@@ -56,7 +56,9 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 
 ## Changelog
 
-* ApAM 0.0.5 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=4&page=1&state=closed) (currently under development) 
+* ApAM 0.0.6 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) (currently under development)
+
+* ApAM 0.0.5 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=4&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.5/apam-basic-distribution-0.0.5.zip)
 	* WARNING : Several changes to apam.xsd (apam components descriptor schema) -> Not compatible with previous versions (0.0.4)
 		* removed ambiguous and unused types as "instance" (ambiguous with same ipojo concept), "ContextDependencyType", "ResourceDependencyType"
 		* "dependency" element deprecated and fully replaced by "relation"
