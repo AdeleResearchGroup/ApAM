@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Capability;
@@ -148,7 +149,7 @@ public class OBRManager {
 
     private Resolver resolver;
 
-    private final LinkedProperties obrModel;
+    private final Properties obrModel;
 
     private List<Repository> repositories = new ArrayList<Repository>();
 
@@ -167,7 +168,7 @@ public class OBRManager {
     private File settings;
 
     public OBRManager(OBRMan obrman, String compositeTypeName,
-	    RepositoryAdmin repoAdmin, LinkedProperties obrModel1) {
+	    RepositoryAdmin repoAdmin, Properties obrModel1) {
 	this.compositeTypeName = compositeTypeName;
 	runningbundles = repoAdmin.getLocalRepository();
 	systembundle = repoAdmin.getSystemRepository();
@@ -352,7 +353,7 @@ public class OBRManager {
     }
 
     protected List<Repository> getRepositoriesFromModel(
-	    LinkedProperties obrModel, RepositoryAdmin repoAdmin) {
+	    Properties obrModel, RepositoryAdmin repoAdmin) {
 	List<Repository> declaredRepositories = new ArrayList<Repository>();
 	Enumeration<?> keys = obrModel.keys();
 	while (keys.hasMoreElements()) {

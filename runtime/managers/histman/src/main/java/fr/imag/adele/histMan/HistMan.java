@@ -3,6 +3,7 @@ package fr.imag.adele.histMan;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -28,366 +29,426 @@ import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class HistMan implements PropertyManager, DynamicManager {
 
-    // Link compositeType with it instance of obrManager
-    private final Map<String, String> histDbURLs;
+	public static class HistManData {
+		public String histURL;
+		public String histDBName;
+		public Integer histDBTimeout;
+		public String dropCollections;
+		public String dbName;
+		public String dbHost;
+		public int dbPort;
 
-    private final Logger logger = LoggerFactory.getLogger(HistMan.class);
+		public HistManData(Properties prop) {
+			this.histURL = prop.getProperty(DBURL_KEY);
+			this.histDBName = prop.getProperty(DBNAME_KEY);
+			try {
+				this.histDBTimeout = Integer.parseInt((String)prop.get(DBTIMEOUT_KEY));
+			} catch (NumberFormatException e) {
+				this.histDBTimeout = Integer.parseInt(DBTIMEOUT_DEFAULT);
+			}
 
-    private static final String DB_NAME_KEY = "DBName";
-    private static final String DB_NAME_VALUE_DEFAULT = "ApamRootHistory";
-
-    private static final String DB_URL_KEY = "DBUrl";
-    private static final String DB_URL_VALUE_DEFAULT = "localhost";
-
-    private static final String DB_CONNECT_TIMEOUT_KEY = "DBTimeout";
-    private static final String DB_CONNECT_TIMEOUT_VALUE_DEFAULT = "3000";
-    private static final String DB_DROP_START = "dropCollectionsOnStart";
-
-    private String histURL = null;
-    private String histDBName = null;
-    private Integer histDBTimeout = null;
-    private String dropCollections = null;
-    private LinkedProperties histModel = new LinkedProperties();
-    private MongoClient mongoClient;
-    
-    private String dbName;
-    private String dbHost;
-    private int dbPort;
-    
-    /*
-     * The collection containing the attributes created, changed and removed.
-     */
-    private static final String ChangedAttributes = "Attr";
-
-    /*
-     * The collection containing the entities (spec, implems, instances)
-     * created, and deleted
-     */
-    private static final String Entities = "ME";
-
-    /*
-     * The collection containing the links (wires) created, and deleted
-     */
-    private static final String Links = "Links";
-
-    private DB db = null;
-
-    /**
-     * HISTMAN activated, register with APAM
-     */
-
-    public HistMan(BundleContext context) {
-	histDbURLs = new HashMap<String, String>();
-    }
-
-    @Override
-    public void addedComponent(Component comp) {
-	logger.info("Adding component");
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ME = db.getCollection(Entities);
-
-	    BasicDBObject created = new BasicDBObject("name", comp.getName())
-		    .append("time", System.currentTimeMillis()).append("op",
-			    "created");
-
-	    for (Map.Entry<String, Object> e : comp.getAllProperties()
-		    .entrySet()) {
-		created.append(e.getKey().replace('.', '_'), e.getValue()
-			.toString());
-	    }
-
-	    ME.insert(created);
-
-	} catch (MongoException e) {
-
-	    stop();
+			this.dropCollections = prop.getProperty(DBDROP_KEY);
+			this.dbName = prop.getProperty(DBNAME_KEY);
+			try {
+			this.dbPort = Integer.parseInt(prop.getProperty(DBPORT_KEY));
+			} catch (NumberFormatException e) {
+				this.histDBTimeout = Integer.parseInt(DBPORT_DEFAULT);
+			}
+			
+		}
 	}
+	
+	private int dbNameCounter=0;
 
-    }
+	// Link compositeType with it instance of obrManager
+	private final Map<String, String> histDbURLs;
 
-    @Override
-    public void addedLink(Link wire) {
+	private final Logger logger = LoggerFactory.getLogger(HistMan.class);
 
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ChangedLink = db.getCollection(Links);
-
-	    BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
-		    .getName()).append("time", System.currentTimeMillis())
-		    .append("linkType", "Wire")
-		    .append("linkId", wire.getName())
-		    .append("added", wire.getDestination().getName());
-
-	    ChangedLink.insert(newLink);
-	} catch (MongoException e) {
-
-	    stop();
-	}
-
-    }
-
-    @Override
-    public void attributeAdded(Component comp, String attr, String newValue) {
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
-
-	    BasicDBObject newVal = new BasicDBObject("name", comp.getName())
-		    .append("time", System.currentTimeMillis())
-		    .append("op", "added").append("attribute", attr)
-		    .append("value", newValue);
-	    for (Map.Entry<String, Object> e : comp.getAllProperties()
-		    .entrySet()) {
-		newVal.append(e.getKey(), e.getValue().toString());
-	    }
-	    ChangedAttr.insert(newVal);
-	} catch (MongoException e) {
-	    stop();
-	}
-    }
-
-    @Override
-    public void attributeChanged(Component comp, String attr, String newValue,
-	    String oldValue) {
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
-
-	    BasicDBObject newVal = new BasicDBObject("name", comp.getName())
-		    .append("time", System.currentTimeMillis())
-		    .append("op", "changed").append("attribute", attr)
-		    .append("value", newValue).append("oldValue", oldValue);
-
-	    for (Map.Entry<String, Object> e : comp.getAllProperties()
-		    .entrySet()) {
-		newVal.append(e.getKey(), e.getValue().toString());
-	    }
-	    ChangedAttr.insert(newVal);
-	} catch (MongoException e) {
-
-	    stop();
-	}
-    }
-
-    @Override
-    public void attributeRemoved(Component comp, String attr, String oldValue) {
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
-
-	    BasicDBObject newVal = new BasicDBObject("name", comp.getName())
-		    .append("time", System.currentTimeMillis())
-		    .append("op", "removed").append("attribute", attr)
-		    .append("oldValue", oldValue);
-
-	    for (Map.Entry<String, Object> e : comp.getAllProperties()
-		    .entrySet()) {
-		newVal.append(e.getKey(), e.getValue().toString());
-	    }
-	    ChangedAttr.insert(newVal);
-	} catch (MongoException e) {
-
-	    stop();
-	}
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-	if (obj instanceof HistMan) {
-
-	    return this.getName().equals(((HistMan) obj).getName());
-
-	}
-
-	return false;
-
-    }
-
-    @Override
-    public String getName() {
-	return CST.HISTMAN;
-    }
-
-    @Override
-    public int getPriority() {
-	return 10;
-    }
-
-    @Override
-    public int hashCode() {
-	return (this.getName() == null ? 0 : this.getName().hashCode());
-    }
-
-    @Override
-    public void newComposite(ManagerModel model, CompositeType compositeType) {
-
-	histDbURLs.put(compositeType.getName(), histURL);
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    /*
-	     * if attribute dropComection is true, drop all collections
-	     */
-	    dropCollections = histModel.getProperty(DB_DROP_START, "true");
-	    if ("true".equals(dropCollections)) {
-		db.getCollection(Entities).drop();
-		db.getCollection(ChangedAttributes).drop();
-		db.getCollection(Links).drop();
-	    }
-
-	} catch (MongoException e) {
-	    logger.error("no Mongo Database at URL {} name {}", model.getURL(),
-		    histDBName);
-	    stop();
-	}
-
-    }
-
-    @Override
-    public void removedComponent(Component comp) {
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    logger.info("removing component");
-	    DBCollection ME = db.getCollection(Entities);
-
-	    BasicDBObject created = new BasicDBObject("name", comp.getName())
-		    .append("time", System.currentTimeMillis()).append("op",
-			    "deleted");
-	    ME.insert(created);
-
-	} catch (MongoException e) {
-
-	    stop();
-	}
-
-    }
-
-    @Override
-    public void removedLink(Link wire) {
-
-	try {
-
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
-
-	    DBCollection ChangedLink = db.getCollection(Links);
-
-	    BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
-		    .getName()).append("time", System.currentTimeMillis())
-		    .append("linkType", "Wire")
-		    .append("linkId", wire.getName())
-		    .append("removed", wire.getDestination().getName());
-
-	    ChangedLink.insert(newLink);
-
-	} catch (MongoException e) {
-
-	    stop();
-	}
-
-    }
-
-    public void start() throws Exception {
-
-	ManagerModel model = CompositeTypeImpl.getRootCompositeType().getModel(
-		this.getName());
-	System.out.println(" DB Port : "+dbPort);
+	private Map<String, Properties> histModels = new HashMap<String, Properties>();
+	private MongoClient mongoClient;
 
 	/*
-	 * if no model for the compositeType, set the default values
+	 * The collection containing the attributes created, changed and removed.
 	 */
-	if (model == null) {
-	    histURL = new String(dbHost+":"+dbPort);
-	    if(histURL==null ||histURL.length() <1)
-		    histURL = DB_URL_VALUE_DEFAULT;
-		
-	    histDBName = DB_NAME_VALUE_DEFAULT;
-	    histDBTimeout = Integer.parseInt(DB_CONNECT_TIMEOUT_VALUE_DEFAULT);
-	} else {
-	    try {// try to load the compositeType model
-		logger.info("Loading properties from {}", model.getURL());
-		histModel.load(model.getURL().openStream());
-		//histURL = histModel.getProperty(DB_URL_KEY);
-		histDBName = histModel.getProperty(DB_NAME_KEY,
-			DB_NAME_VALUE_DEFAULT);
+	private static final String ChangedAttributes = "Attr";
 
-		// Case a non number has been assigned to the timeout property
-		// in the properties file
+	/*
+	 * The collection containing the entities (spec, implems, instances)
+	 * created, and deleted
+	 */
+	private static final String Entities = "ME";
+
+	/*
+	 * The collection containing the links (wires) created, and deleted
+	 */
+	private static final String Links = "Links";
+
+	private static final String DEFAULT_MODEL = "default";
+
+	private static final String DBHOST_KEY = "DBHost";
+
+	private static final String DBHOST_DEFAULT = "localhost";
+
+	private static final String DBPORT_KEY = "DBPort";
+
+	private static final String DBPORT_DEFAULT = "27017";
+
+	private static final String DBURL_KEY = "DBUrl";
+
+	private static final String DBNAME_KEY = "DBName";
+	private static final String DBNAME_DEFAULT = "ApamRootHistory";
+
+	private static final String DBTIMEOUT_KEY = "DBTimeout";
+	private static final String DBTIMEOUT_DEFAULT = "3000";
+	private static final String DBDROP_KEY = "dropCollectionsOnStart";
+
+	private static final Object DBDROP_DEFAULT = "true";
+
+	private DB db = null;
+
+	/**
+	 * HISTMAN activated, register with APAM
+	 */
+
+	public HistMan(BundleContext context) {
+		histDbURLs = new HashMap<String, String>();
+	}
+
+	@Override
+	public void addedComponent(Component comp) {
+		logger.info("Adding component");
+
 		try {
-		    histDBTimeout = Integer.parseInt(histModel.getProperty(
-			    DB_CONNECT_TIMEOUT_KEY,
-			    DB_CONNECT_TIMEOUT_VALUE_DEFAULT));
-		} catch (NumberFormatException e) {
-		    histDBTimeout = Integer
-			    .parseInt(DB_CONNECT_TIMEOUT_VALUE_DEFAULT);
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			DBCollection ME = db.getCollection(Entities);
+
+			BasicDBObject created = new BasicDBObject("name", comp.getName())
+					.append("time", System.currentTimeMillis()).append("op",
+							"created");
+
+			for (Map.Entry<String, Object> e : comp.getAllProperties()
+					.entrySet()) {
+				created.append(e.getKey().replace('.', '_'), e.getValue()
+						.toString());
+			}
+
+			ME.insert(created);
+
+		} catch (MongoException e) {
+
+			stop();
 		}
 
-	    } catch (IOException e) {// if impossible to load the model for the
-				     // compositeType, set the root composite
-		logger.error("Invalid OBRMAN Model. Cannot be read stream "
-			+ model.getURL(), e.getCause());
-		throw e;
-	    }
 	}
 
-	try {
+	@Override
+	public void addedLink(Link wire) {
 
-	    Builder options = new MongoClientOptions.Builder();
+		try {
 
-	    options.connectTimeout(histDBTimeout);
+			// force connection to be established
+			mongoClient.getDatabaseNames();
 
-	    mongoClient = new MongoClient(histURL, options.build());
+			DBCollection ChangedLink = db.getCollection(Links);
 
-	    logger.info("trying to connect with database {} in host {}",
-		    histDBName, histURL);
+			BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
+					.getName()).append("time", System.currentTimeMillis())
+					.append("linkType", "Wire")
+					.append("linkId", wire.getName())
+					.append("added", wire.getDestination().getName());
 
-	    // force connection to be established
-	    mongoClient.getDatabaseNames();
+			ChangedLink.insert(newLink);
+		} catch (MongoException e) {
 
-	    db = mongoClient.getDB(histDBName);
+			stop();
+		}
 
-	    ApamManagers.addPropertyManager(this);
-	    ApamManagers.addDynamicManager(this);
-
-	} catch (Exception e) {
-	    logger.error("{} is inactive, it was unable to find the DB in {}",
-		    this.getName(), histURL);
 	}
 
-    }
+	@Override
+	public void attributeAdded(Component comp, String attr, String newValue) {
 
-    public void stop() {
-	ApamManagers.removePropertyManager(this);
-	ApamManagers.removeDynamicManager(this);
-	histDbURLs.clear();
-    }
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
+
+			BasicDBObject newVal = new BasicDBObject("name", comp.getName())
+					.append("time", System.currentTimeMillis())
+					.append("op", "added").append("attribute", attr)
+					.append("value", newValue);
+			for (Map.Entry<String, Object> e : comp.getAllProperties()
+					.entrySet()) {
+				newVal.append(e.getKey(), e.getValue().toString());
+			}
+			ChangedAttr.insert(newVal);
+		} catch (MongoException e) {
+			stop();
+		}
+	}
+
+	@Override
+	public void attributeChanged(Component comp, String attr, String newValue,
+			String oldValue) {
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
+
+			BasicDBObject newVal = new BasicDBObject("name", comp.getName())
+					.append("time", System.currentTimeMillis())
+					.append("op", "changed").append("attribute", attr)
+					.append("value", newValue).append("oldValue", oldValue);
+
+			for (Map.Entry<String, Object> e : comp.getAllProperties()
+					.entrySet()) {
+				newVal.append(e.getKey(), e.getValue().toString());
+			}
+			ChangedAttr.insert(newVal);
+		} catch (MongoException e) {
+
+			stop();
+		}
+	}
+
+	@Override
+	public void attributeRemoved(Component comp, String attr, String oldValue) {
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
+
+			BasicDBObject newVal = new BasicDBObject("name", comp.getName())
+					.append("time", System.currentTimeMillis())
+					.append("op", "removed").append("attribute", attr)
+					.append("oldValue", oldValue);
+
+			for (Map.Entry<String, Object> e : comp.getAllProperties()
+					.entrySet()) {
+				newVal.append(e.getKey(), e.getValue().toString());
+			}
+			ChangedAttr.insert(newVal);
+		} catch (MongoException e) {
+
+			stop();
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj instanceof HistMan) {
+
+			return this.getName().equals(((HistMan) obj).getName());
+
+		}
+
+		return false;
+
+	}
+
+	@Override
+	public String getName() {
+		return CST.HISTMAN;
+	}
+
+	@Override
+	public int getPriority() {
+		return 10;
+	}
+
+	@Override
+	public int hashCode() {
+		return (this.getName() == null ? 0 : this.getName().hashCode());
+	}
+
+	private Properties addDefaultProperties(String modelName, Properties prop_model) {
+		if (prop_model == null) {
+			prop_model = new Properties();
+		}
+		
+		logger.debug("For model : "+modelName);
+		if (prop_model.get(DBHOST_KEY) == null)
+			prop_model.put(DBHOST_KEY, DBHOST_DEFAULT);
+		logger.debug(" -> loaded DB Host : "+prop_model.get(DBHOST_KEY));
+		if (prop_model.get(DBPORT_KEY) == null)
+			prop_model.put(DBPORT_KEY, DBPORT_DEFAULT);
+		logger.debug(" -> loaded DB Port : "+prop_model.get(DBPORT_KEY));
+		if (prop_model.get(DBURL_KEY) == null)
+			prop_model.put(DBURL_KEY, DBHOST_DEFAULT.concat(":"+prop_model.get(DBPORT_KEY)));
+		logger.debug(" -> loaded DB URL : "+prop_model.get(DBURL_KEY));
+		if (prop_model.get(DBNAME_KEY) == null)
+			prop_model.put(DBNAME_KEY, DBNAME_DEFAULT.concat(String.valueOf(dbNameCounter++)));
+		logger.debug(" -> loaded DB Name : "+prop_model.get(DBNAME_KEY));
+		if (prop_model.get(DBTIMEOUT_KEY) == null)
+			prop_model.put(DBTIMEOUT_KEY, DBTIMEOUT_DEFAULT);
+		logger.debug(" -> loaded DB Timeout : "+prop_model.get(DBTIMEOUT_KEY));
+
+		if (prop_model.get(DBDROP_KEY) == null)
+			prop_model.put(DBDROP_KEY, DBDROP_DEFAULT);
+		logger.debug(" -> loaded DB Dropping Collection : "+prop_model.get(DBDROP_KEY));
+
+		
+		histModels.put(modelName, prop_model);
+		return prop_model;
+	}
+
+	private Properties loadProperties(ManagerModel model) {
+		/*
+		 * if no model for the compositeType, set the default values
+		 */
+		if (model == null) {
+			return addDefaultProperties(DEFAULT_MODEL, null);
+		} else {
+			try {// try to load the compositeType model
+				logger.info("Loading properties from {}", model.getURL());
+				Properties prop_model = new Properties();
+				prop_model.load(model.getURL().openStream());
+				return addDefaultProperties(model.getManagerName(), prop_model);
+
+			} catch (IOException e) {// if impossible to load the model for the
+				// compositeType, set the root composite
+				logger.error(
+						"Invalid Model. Cannot be read stream "
+								+ model.getURL(), e.getCause());
+				return addDefaultProperties(model.getManagerName(), null);
+			}
+		}
+	}
+
+	@Override
+	public void newComposite(ManagerModel model, CompositeType compositeType) {
+		logger.debug("HISTMAN, newComposite(ManagerModel model = "
+					+(model==null?"null":model.getManagerName())
+					+ "CompositeType compositeType = "
+					+(compositeType==null?"null":compositeType.getName()));
+
+		if (model == null) { // model is root
+			model = CompositeTypeImpl.getRootCompositeType().getModel(
+					this.getName());
+		}
+
+		
+		HistManData data =new HistManData(loadProperties(model));
+
+		try {
+
+			Builder options = new MongoClientOptions.Builder();
+
+			options.connectTimeout(data.histDBTimeout);
+
+			if(mongoClient==null) {
+				mongoClient = new MongoClient(data.histURL, options.build());
+			}
+
+			logger.info("trying to connect with database {} in host {}",
+					data.histDBName, data.histURL);
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			db = mongoClient.getDB(data.histDBName);
+
+		} catch (Exception e) {
+			logger.error("{} is inactive, it was unable to find the DB in {}",
+					this.getName(), data.histURL);
+		}
+
+		histDbURLs.put(compositeType.getName(), data.histURL);
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			/*
+			 * if attribute dropComection is true, drop all collections
+			 */
+			if (data.dropCollections.equals("true")) {
+				db.getCollection(Entities).drop();
+				db.getCollection(ChangedAttributes).drop();
+				db.getCollection(Links).drop();
+			}
+
+		} catch (MongoException e) {
+			logger.error("no Mongo Database at URL {} name {}", model.getURL(),
+					data.histDBName);
+			stop();
+		}
+
+	}
+
+	@Override
+	public void removedComponent(Component comp) {
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			logger.info("removing component");
+			DBCollection ME = db.getCollection(Entities);
+
+			BasicDBObject created = new BasicDBObject("name", comp.getName())
+					.append("time", System.currentTimeMillis()).append("op",
+							"deleted");
+			ME.insert(created);
+
+		} catch (MongoException e) {
+
+			stop();
+		}
+
+	}
+
+	@Override
+	public void removedLink(Link wire) {
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			DBCollection ChangedLink = db.getCollection(Links);
+
+			BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
+					.getName()).append("time", System.currentTimeMillis())
+					.append("linkType", "Wire")
+					.append("linkId", wire.getName())
+					.append("removed", wire.getDestination().getName());
+
+			ChangedLink.insert(newLink);
+
+		} catch (MongoException e) {
+
+			stop();
+		}
+
+	}
+
+	public void start() throws Exception {
+
+		ApamManagers.addPropertyManager(this);
+		ApamManagers.addDynamicManager(this);
+
+	}
+
+	public void stop() {
+		ApamManagers.removePropertyManager(this);
+		ApamManagers.removeDynamicManager(this);
+		histDbURLs.clear();
+	}
 
 }

@@ -16,19 +16,10 @@
         
         <callback onInit="start" onRemove="stop" />
         
-        <definition name="dbName" field="dbName"
-            type="string" default="ApamRootHistory" />        
-        
-        <definition name="dbHost" field="dbHost"
-            type="string" default="localhost" />        
-        
-        <definition name="dbPort" field="dbPort"
-            type="int" default="27017" />        
         </implementation>
 
 
     <apam-instance name="HISTMAN-Instance" implementation="HISTMAN">
-        <property name="dbPort" value="8017"/>
         
     </apam-instance>
 

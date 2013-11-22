@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Repository;
@@ -312,7 +313,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	    obrManager = searchOBRManager(compositeType);
 	} else {
 	    try {// try to load the compositeType model
-		LinkedProperties obrModel = new LinkedProperties();
+		Properties obrModel = new Properties();
 		obrModel.load(model.getURL().openStream());
 		obrManager = new OBRManager(this, compositeType.getName(),
 			repoAdmin, obrModel);
@@ -453,7 +454,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 			URL urlModel = (new File(rootModelurl)).toURI().toURL();
 			setInitialConfig(urlModel);
 		    } else {
-			LinkedProperties obrModel = new LinkedProperties();
+			Properties obrModel = new Properties();
 			customizedRootModelLocation();
 			obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
 			obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
@@ -467,7 +468,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		    logger.error(
 			    "Invalid Root URL Model. Cannot be read stream "
 				    + rootModelurl, e.getCause());
-		    LinkedProperties obrModel = new LinkedProperties();
+		    Properties obrModel = new Properties();
 		    customizedRootModelLocation();
 		    obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
 		    obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
@@ -482,7 +483,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
     @Override
     public void setInitialConfig(URL modellocation) throws IOException {
-	LinkedProperties obrModel = new LinkedProperties();
+	Properties obrModel = new Properties();
 	if (modellocation != null) {
 	    obrModel.load(modellocation.openStream());
 	    OBRManager obrManager = new OBRManager(this,
