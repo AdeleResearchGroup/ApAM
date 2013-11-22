@@ -33,45 +33,64 @@ import org.xml.sax.helpers.DefaultHandler;
 public class ObrUtil {
 
     public static class SaxHandler extends DefaultHandler {
-	boolean localRepo = false;
 
-	String localRepoPath;
+    	/*
+    	 * The configured local repository in the settings file
+    	 */
+    	File localRepository = null;
+    	
 
-	@Override
-	public void characters(char ch[], int start, int length)
-		throws SAXException {
-	    if (localRepo && ch != null) {
-		System.arraycopy(ch, start, localRepoPath, 0, ch.length - start);
-	    }
-	}
+    	/*
+    	 * Whether we are parsing the local repository tag
+    	 */
+		private boolean parsingRepositoryPath = false;
 
-	@Override
-	public void endElement(String uri, String localName, String qName)
-		throws SAXException {
-	    if (localRepo) {
-		localRepo = false;
-	    }
-	}
+    	/*
+    	 * Temporary buffering of path, only used if parsing location path 
+    	 */
+    	StringBuilder repositoryPath = new StringBuilder();
 
-	public URL getRepo() throws MalformedURLException {
-	    if (localRepoPath == null) {
-		return null;
-	    }
-	    File file = new File(localRepoPath + File.separator
-		    + "repository.xml");
-	    if (!file.exists()) {
-		return null;
-	    }
-	    return file.toURI().toURL();
-	}
 
-	@Override
-	public void startElement(String uri, String localName, String qName,
-		Attributes attributes) throws SAXException {
-	    if (qName.equalsIgnoreCase("localRepository")) {
-		localRepo = true;
-	    }
-	}
+		@Override
+		public void startElement(String uri, String localName, String qName,
+			Attributes attributes) throws SAXException {
+		    if (qName.equalsIgnoreCase("localRepository")) {
+		    	parsingRepositoryPath = true;
+		    }
+		}
+
+		@Override
+		public void characters(char ch[], int start, int length) throws SAXException {
+		    if (parsingRepositoryPath && ch != null) {
+		    	repositoryPath.append(ch,start, length);
+		    }
+		}
+		
+		@Override
+		public void endElement(String uri, String localName, String qName)	throws SAXException {
+		    if (parsingRepositoryPath ) {
+		    	parsingRepositoryPath = false;
+		    }
+		}
+	
+		public URL getRepo() throws MalformedURLException {
+			
+			String repositoryDirectoryName = repositoryPath.toString().trim();
+			
+		    if (repositoryDirectoryName.isEmpty()) {
+		    	return null;
+		    }
+		    
+		    File repositoryDirectory	= new File(repositoryDirectoryName);
+		    File repository 			= new File(repositoryDirectory,"repository.xml");
+		    
+		    if (!repository.exists()) {
+		    	return null;
+		    }
+		    
+		    return repository.toURI().toURL();
+		}
+	
     }
 
     public static final String LOCAL_MAVEN_REPOSITORY = "LocalMavenRepository";
