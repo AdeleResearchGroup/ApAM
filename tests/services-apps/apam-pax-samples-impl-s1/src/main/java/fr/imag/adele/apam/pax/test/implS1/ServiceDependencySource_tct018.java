@@ -18,23 +18,27 @@ package fr.imag.adele.apam.pax.test.implS1;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class ServiceDependencySource_tct018 {
 
     ServiceDependencyTarget_tct018 target;
-    
-    public void getAndReleaseTarget() {
-	if (target != null)
-	    target.use();
-	else System.out.println("Target not found");
-	target=null;
-    }
-    
+
     public void getAndKeepTarget() {
-	if (target != null)
+	if (target != null) {
 	    target.use();
-	else System.out.println("Target not found");
+	} else {
+	    System.out.println("Target not found");
+	}
+    }
+
+    public void getAndReleaseTarget() {
+	if (target != null) {
+	    target.use();
+	} else {
+	    System.out.println("Target not found");
+	}
+	target = null;
     }
 
 }

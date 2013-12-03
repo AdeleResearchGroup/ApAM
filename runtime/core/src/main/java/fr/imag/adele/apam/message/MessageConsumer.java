@@ -21,13 +21,12 @@ package fr.imag.adele.apam.message;
 
 import java.util.List;
 
-
 public interface MessageConsumer<D> {
 
-	public Message<D> pullMessage();
- 
-	public List<Message<D>> getAllMessages();
-	
-	public D pull();
-	
+    public List<Message<D>> getAllMessages();
+
+    public D pull();
+
+    public Message<D> pullMessage();
+
 }

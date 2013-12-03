@@ -20,15 +20,16 @@ import fr.imag.adele.apam.test.lights.devices.messages.ButtonPressed;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public interface SimpleButton extends Device {
-	
-	/**
-	 * This indicate that the button has been pressed,
-	 * this is a simple message producer
-	 * @return a simple ButtonPressed object (which is a message)
-	 */
-	public ButtonPressed pressButton();
+
+    /**
+     * This indicate that the button has been pressed, this is a simple message
+     * producer
+     * 
+     * @return a simple ButtonPressed object (which is a message)
+     */
+    public ButtonPressed pressButton();
 
 }

@@ -17,211 +17,222 @@ package fr.imag.adele.apam.declarations;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 
 /**
- * The declaration of a code instrumentation (injection, interception, invocation, ...)
- * that must be performed at runtime to implement the actual execution semantics of the
- * the requiring end of a dependency.
+ * The declaration of a code instrumentation (injection, interception,
+ * invocation, ...) that must be performed at runtime to implement the actual
+ * execution semantics of the the requiring end of a dependency.
  * 
  * @author vega
  * 
  */
 public abstract class RequirerInstrumentation extends Instrumentation {
 
-	/**
-	 * The relation used to satisfy the requirement.
-	 */
-	protected RelationDeclaration relation;
+    /**
+     * An injected field declaration
+     */
+    public static abstract class InjectedField extends RequirerInstrumentation {
 
-	protected RequirerInstrumentation(AtomicImplementationDeclaration implementation) {
-		super(implementation);
-		this.implementation.getRequirerInstrumentation().add(this);
+	protected final ResourceReference field;
+
+	private final Lazy<ResourceReference> fieldType = new Lazy<ResourceReference>() {
+	    @Override
+	    protected ResourceReference evaluate(CodeReflection reflection) {
+		try {
+		    return reflection.getFieldType(field.getName());
+		} catch (NoSuchFieldException e) {
+		    return null;
+		}
+	    };
+
+	};
+
+	private final Lazy<Boolean> fieldMultiplicity = new Lazy<Boolean>() {
+	    @Override
+	    protected Boolean evaluate(CodeReflection reflection) {
+		try {
+		    return reflection.isCollectionField(field.getName());
+		} catch (NoSuchFieldException e) {
+		    return false;
+		}
+	    };
+
+	};
+
+	protected InjectedField(AtomicImplementationDeclaration implementation,
+		ResourceReference field) {
+	    super(implementation);
+	    this.field = field;
 	}
 
-	/**
-	 * Sets the relation that will be used to satisfy the requirement.
-	 */
-	public void setRelation(RelationDeclaration relation) {
-
-		assert relation.getComponent() == implementation.getReference();
-
-		// bidirectional reference to relation
-		this.relation = relation;
-		this.relation.getInstrumentations().add(this);
+	@Override
+	public boolean acceptMultipleProviders() {
+	    return fieldMultiplicity.get();
 	}
 
-	/**
-	 * Get the relation that will be used to satisfy the requirement.
-	 */
-	public RelationDeclaration getRelation() {
-		return relation;
+	@Override
+	public String getName() {
+	    return field.getName();
 	}
 
-	/**
-	 * An unique identifier for this injection, within the scope of the
-	 * declaring implementation and relation
-	 */
-	public abstract String getName();
-
-	/**
-	 * The type of the java resource that needs to be provided by the
-	 * target component at runtime to perform this instrumentation
-	 */
-	public abstract ResourceReference getRequiredResource();
-
-	/**
-	 * Whether this instrumentation can handle multi-valued relations
-	 */
-	public abstract boolean acceptMultipleProviders();
-
-	/**
-	 * An injected field declaration
-	 */
-	public static abstract class InjectedField extends RequirerInstrumentation {
-		
-		protected final ResourceReference field;
-		
-		
-		private final Lazy<ResourceReference> fieldType = new Lazy<ResourceReference>() {
-			protected ResourceReference evaluate(CodeReflection reflection) {
-				try {
-					return reflection.getFieldType(field.getName());
-				} catch (NoSuchFieldException e) {
-					return null;
-				}
-			};
-
-		};
-		
-		private final Lazy<Boolean> fieldMultiplicity = new Lazy<Boolean>() {
-			protected Boolean evaluate(CodeReflection reflection) {
-				try {
-					return reflection.isCollectionField(field.getName());
-				} catch (NoSuchFieldException e) {
-					return false;
-				}
-			};
-
-		};
-		
-		protected InjectedField(AtomicImplementationDeclaration implementation, ResourceReference field) {
-			super(implementation);
-			this.field = field;
-		}
-		
-		@Override
-		public String getName() {
-			return field.getName();
-		}
-		
-		@Override
-		public boolean isValidInstrumentation() {
-			return fieldType.get() != null;
-		}
-		
-		@Override
-		public ResourceReference getRequiredResource() {
-			ResourceReference target = fieldType.get();
-			return target != null ? target :  new UndefinedReference(field);
-		}
-
-		@Override
-		public boolean acceptMultipleProviders() {
-			return fieldMultiplicity.get();
-		}
-
-		@Override
-		public String toString() {
-			return "field " + getName();
-		}
-		
+	@Override
+	public ResourceReference getRequiredResource() {
+	    ResourceReference target = fieldType.get();
+	    return target != null ? target : new UndefinedReference(field);
 	}
 
-	/**
-	 * An field injected with a service reference (wire or directly the Apam component)
-	 */
-	public static class RequiredServiceField extends InjectedField {
-
-		public RequiredServiceField(AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, new InterfaceReference(fieldName));
-		}
-
-		public boolean isWire() {
-			String type = getRequiredResource().getJavaType();
-
-			boolean isApamComponent = "fr.imag.adele.apam.Component".equals(type)
-					|| "fr.imag.adele.apam.Specification".equals(type)
-					|| "fr.imag.adele.apam.Implementation".equals(type)
-					|| "fr.imag.adele.apam.Instance".equals(type);
-
-			return !isApamComponent;
-		}
-
+	@Override
+	public boolean isValidInstrumentation() {
+	    return fieldType.get() != null;
 	}
 
-	/**
-	 * An field injected with a message queue that allow consumer to pull messages
-	 */
-	public static class MessageQueueField extends InjectedField {
-
-		public MessageQueueField(AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, new MessageReference(fieldName));
-		}
-
-		@Override
-		public boolean acceptMultipleProviders() {
-			return true;
-		}
+	@Override
+	public String toString() {
+	    return "field " + getName();
 	}
 
+    }
 
-	/**
-	 * A callback to push messages to consumer
-	 */
-	public static class MessageConsumerCallback extends RequirerInstrumentation {
+    /**
+     * A callback to push messages to consumer
+     */
+    public static class MessageConsumerCallback extends RequirerInstrumentation {
 
-		private final String methodName;
+	private final String methodName;
 
-		private final Lazy<MessageReference> argumentType = new Lazy<MessageReference>() {
-			protected MessageReference evaluate(CodeReflection reflection) {
-				try {
-					return new MessageReference(reflection.getMethodParameterType(methodName,true));
-				} catch (NoSuchMethodException e) {
-					return null;
-				}
-			};
-
-		};
-		
-		public MessageConsumerCallback(AtomicImplementationDeclaration implementation, String methodName) {
-			super(implementation);
-			this.methodName = methodName;
+	private final Lazy<MessageReference> argumentType = new Lazy<MessageReference>() {
+	    @Override
+	    protected MessageReference evaluate(CodeReflection reflection) {
+		try {
+		    return new MessageReference(
+			    reflection.getMethodParameterType(methodName, true));
+		} catch (NoSuchMethodException e) {
+		    return null;
 		}
+	    };
 
-		@Override
-		public String getName() {
-			return methodName;
-		}
+	};
 
-		@Override
-		public boolean isValidInstrumentation() {
-			return argumentType.get() != null;
-		}
-		
-		@Override
-		public ResourceReference getRequiredResource() {
-			MessageReference target = argumentType.get();
-			return target != null ? target :  new MessageReference(methodName);
-		}
-
-		@Override
-		public boolean acceptMultipleProviders() {
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "method " + getName();
-		}
-
+	public MessageConsumerCallback(
+		AtomicImplementationDeclaration implementation,
+		String methodName) {
+	    super(implementation);
+	    this.methodName = methodName;
 	}
+
+	@Override
+	public boolean acceptMultipleProviders() {
+	    return true;
+	}
+
+	@Override
+	public String getName() {
+	    return methodName;
+	}
+
+	@Override
+	public ResourceReference getRequiredResource() {
+	    MessageReference target = argumentType.get();
+	    return target != null ? target : new MessageReference(methodName);
+	}
+
+	@Override
+	public boolean isValidInstrumentation() {
+	    return argumentType.get() != null;
+	}
+
+	@Override
+	public String toString() {
+	    return "method " + getName();
+	}
+
+    }
+
+    /**
+     * An field injected with a message queue that allow consumer to pull
+     * messages
+     */
+    public static class MessageQueueField extends InjectedField {
+
+	public MessageQueueField(
+		AtomicImplementationDeclaration implementation, String fieldName) {
+	    super(implementation, new MessageReference(fieldName));
+	}
+
+	@Override
+	public boolean acceptMultipleProviders() {
+	    return true;
+	}
+    }
+
+    /**
+     * An field injected with a service reference (wire or directly the Apam
+     * component)
+     */
+    public static class RequiredServiceField extends InjectedField {
+
+	public RequiredServiceField(
+		AtomicImplementationDeclaration implementation, String fieldName) {
+	    super(implementation, new InterfaceReference(fieldName));
+	}
+
+	public boolean isWire() {
+	    String type = getRequiredResource().getJavaType();
+
+	    boolean isApamComponent = "fr.imag.adele.apam.Component"
+		    .equals(type)
+		    || "fr.imag.adele.apam.Specification".equals(type)
+		    || "fr.imag.adele.apam.Implementation".equals(type)
+		    || "fr.imag.adele.apam.Instance".equals(type);
+
+	    return !isApamComponent;
+	}
+
+    }
+
+    /**
+     * The relation used to satisfy the requirement.
+     */
+    protected RelationDeclaration relation;
+
+    protected RequirerInstrumentation(
+	    AtomicImplementationDeclaration implementation) {
+	super(implementation);
+	this.implementation.getRequirerInstrumentation().add(this);
+    }
+
+    /**
+     * Whether this instrumentation can handle multi-valued relations
+     */
+    public abstract boolean acceptMultipleProviders();
+
+    /**
+     * An unique identifier for this injection, within the scope of the
+     * declaring implementation and relation
+     */
+    public abstract String getName();
+
+    /**
+     * Get the relation that will be used to satisfy the requirement.
+     */
+    public RelationDeclaration getRelation() {
+	return relation;
+    }
+
+    /**
+     * The type of the java resource that needs to be provided by the target
+     * component at runtime to perform this instrumentation
+     */
+    public abstract ResourceReference getRequiredResource();
+
+    /**
+     * Sets the relation that will be used to satisfy the requirement.
+     */
+    public void setRelation(RelationDeclaration relation) {
+
+	assert relation.getComponent() == implementation.getReference();
+
+	// bidirectional reference to relation
+	this.relation = relation;
+	this.relation.getInstrumentations().add(this);
+    }
 
 }

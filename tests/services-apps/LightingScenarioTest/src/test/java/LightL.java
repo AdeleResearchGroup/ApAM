@@ -19,19 +19,19 @@ import fr.imag.adele.apam.test.lights.binarylight.SwingBinaryLightImpl;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class LightL {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		SwingBinaryLightImpl defaultLight = new SwingBinaryLightImpl();
-		defaultLight.started();
-//		defaultLight.setLightStatus(true);
-//		defaultLight.setLightStatus(false);
-		defaultLight.stopped();
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+	SwingBinaryLightImpl defaultLight = new SwingBinaryLightImpl();
+	defaultLight.started();
+	// defaultLight.setLightStatus(true);
+	// defaultLight.setLightStatus(false);
+	defaultLight.stopped();
+    }
 
 }

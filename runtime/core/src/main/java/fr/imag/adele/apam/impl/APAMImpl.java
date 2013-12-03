@@ -50,291 +50,332 @@ import fr.imag.adele.apam.util.Util;
 
 public class APAMImpl implements Apam {
 
-    private static Logger logger = LoggerFactory.getLogger(APAMImpl.class);
+    /**
+     * An special apform instance created only for those composites that do not
+     * exist in the Apform ipojo layer. Creates a minimal definition structure.
+     */
+    private static class ApamOnlyComposite extends
+	    BaseApformComponent<Composite, InstanceDeclaration> implements
+	    ApformInstance {
 
-	/*
-	 * The bundle context used for deployment in the execution paltform
+	public ApamOnlyComposite(ImplementationReference<?> implementation,
+		String name, Map<String, String> initialProperties) {
+
+	    super(new InstanceDeclaration(implementation, name, null));
+	    if (initialProperties != null) {
+		for (Map.Entry<String, String> property : initialProperties
+			.entrySet()) {
+		    if (!Attribute.isFinalAttribute(property.getKey())) {
+			declaration.getProperties().put(property.getKey(),
+				property.getValue());
+		    }
+		}
+	    }
+
+	}
+
+	@Override
+	public Object getServiceObject() {
+	    throw new UnsupportedOperationException(
+		    "method not available in application composite instance");
+	}
+
+    }
+
+    /**
+     * An special apform implementation created only for those composites types
+     * that do not exist in the Apform ipojo layer. Creates a minimal definition
+     * structure.
+     */
+    private static class ApamOnlyCompositeType extends
+	    BaseApformComponent<CompositeType, CompositeDeclaration> implements
+	    ApformCompositeType {
+
+	/**
+	 * The associated models
 	 */
-    public static BundleContext context;
-    
+	private final Set<ManagerModel> models = new HashSet<ManagerModel>();
+	/**
+	 * The number of instances created for this composite type
+	 */
+	private int numInstances;
+
+	public ApamOnlyCompositeType(String name, String specificationName,
+		String mainName, Set<ManagerModel> models,
+		Map<String, String> properties) {
+
+	    super(
+		    new CompositeDeclaration(
+			    name,
+			    specificationName != null
+				    && !specificationName.trim().isEmpty() ? new SpecificationReference(
+				    specificationName) : null,
+			    new ComponentReference<ComponentDeclaration>(
+				    mainName)));
+	    if (properties != null) {
+		declaration.getProperties().putAll(properties);
+	    }
+
+	    assert name != null && mainName != null && models != null;
+
+	    this.models.addAll(models);
+
+	    numInstances = 0;
+	}
+
+	@Override
+	public ApformInstance addDiscoveredInstance(
+		Map<String, Object> configuration) throws InvalidConfiguration,
+		UnsupportedOperationException {
+	    throw new UnsupportedOperationException(
+		    "method not available for appliation composite type");
+	}
+
+	@Override
+	public ApformInstance createInstance(
+		Map<String, String> initialProperties) {
+	    numInstances++;
+	    String name = declaration.getName() + "-" + numInstances;
+	    return new ApamOnlyComposite(declaration.getReference(), name,
+		    initialProperties);
+	}
+
+	@Override
+	public Set<ManagerModel> getModels() {
+	    return models;
+	}
+
+    }
+
+    private static Logger logger = LoggerFactory.getLogger(APAMImpl.class);
     /*
-     * A reference to the ApamMan manager. 
+     * The bundle context used for deployment in the execution paltform
+     */
+    public static BundleContext context;
+    /*
+     * A reference to the ApamMan manager.
      * 
      * This are the managers required to start the platform.
      */
-    private RelationManager	apamMan;
-    private UpdateMan	updateMan;
-    private FailedResolutionManager	failureMan;
+    private RelationManager apamMan;
 
-	/**
-	 * The list of expected managers
-	 */
-	private Set<String> expectedManagers = new ConcurrentSkipListSet<String>();
-	
+    private UpdateMan updateMan;
+
+    private FailedResolutionManager failureMan;
+
+    /**
+     * The list of expected managers
+     */
+    private Set<String> expectedManagers = new ConcurrentSkipListSet<String>();
 
     public APAMImpl(BundleContext context) {
-        APAMImpl.context = context;
-        new CST(this);
-        
-        for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
-			expectedManagers.add(rootModel.getManagerName());
-		}
-        
-        /*
-         * disable resolution temporarily, until all the required managers of the root composite
-         * are registered
-         */
-        if (! expectedManagers.isEmpty()) {
-        	((ApamResolverImpl)CST.apamResolver).disable("Registration of the required managers "+expectedManagers, 20*1000/*ms*/);
-        }
-        
-        apamMan = new ApamMan();
-        updateMan = new UpdateMan();
-        failureMan = new FailedResolutionManager();
+	APAMImpl.context = context;
+	apamMan = new ApamMan();
+	if (apamMan == null) {
+	    throw new RuntimeException("Error while constructor of ApamMan");
+	}
+	updateMan = new UpdateMan();
+	if (updateMan == null) {
+	    throw new RuntimeException("Error while constructor of updateMan");
+	}
+	failureMan = new FailedResolutionManager();
+	System.err.println("deadlock ?");
+	new CST(this);
 
-        DynaMan dynaMan = new DynaMan();
+	for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType()
+		.getModels()) {
+	    expectedManagers.add(rootModel.getManagerName());
+	}
 
-        ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
-        ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is not in the main loop
-        ApamManagers.addRelationManager(failureMan, -3); // -2 to be sure it is not in the main loop
-        ApamManagers.addDynamicManager(updateMan);
-        
-        dynaMan.start(this);
-        failureMan.start(this);
-		try {
-			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
-		} catch (IOException e) {
-		}
+	/*
+	 * disable resolution temporarily, until all the required managers of
+	 * the root composite are registered
+	 */
+	if (!expectedManagers.isEmpty()) {
+	    ((ApamResolverImpl) CST.apamResolver)
+		    .disable("Registration of the required managers "
+			    + expectedManagers, 20 * 1000/* ms */);
+	}
+
+	DynaMan dynaMan = new DynaMan();
+
+	ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not
+						      // in the main loop
+	ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is
+							// not in the main loop
+	ApamManagers.addRelationManager(failureMan, -3); // -2 to be sure it is
+							 // not in the main loop
+	ApamManagers.addDynamicManager(updateMan);
+
+	dynaMan.start(this);
+	failureMan.start(this);
+	try {
+	    Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
+	} catch (IOException e) {
+	}
     }
 
-    public void managerRegistered(Manager manager) {
-    	expectedManagers.remove(manager.getName());
-    	if (expectedManagers.isEmpty())
-    		((ApamResolverImpl)CST.apamResolver).enable();
-    }
-    
-    @Override
-    public Composite startAppli(CompositeType composite) {
-        return (Composite) composite.createInstance(null, null);
-    }
-    
-    @Override
-    public Composite startAppli(String compositeName) {
-    	
-        Implementation compoType = CST.apamResolver.findImplByName(null,compositeName);
-        if (compoType == null) {
-            logger.error("Error starting application: " + compositeName + " is not a deployed composite.");
-            return null;
-        }
-        
-        if (!(compoType instanceof CompositeType)) {
-            logger.error("Error starting application: " + compoType.getName() + " is not a composite.");
-            return null;
-        }
-
-        return startAppli((CompositeType) compoType);
-    }
-
-    @Override
-    public Composite startAppli(URL compoURL, String compositeName) {
-    	
-    	Implementation compoType = CST.componentBroker.createImpl(null,compositeName,compoURL,null);
-    	
-        if (compoType == null) {
-            logger.error("Error starting application: " + compositeName + " can not be deployed.");
-            return null;
-        }
-        
-        if (!(compoType instanceof CompositeType)) {
-            logger.error("Error starting application: " + compoType.getName() + " is not a composite.");
-            return null;
-        }
-
-        return startAppli((CompositeType) compoType);
-    }
-
-    @Override
-    public CompositeType createCompositeType(String inCompoType,
-    		String name, String specification, String mainComponent, 
-            Set<ManagerModel> models, Map<String, String> attributes) {
-
-    	/*
-    	 * Verify if it already exists
-    	 */
-    	CompositeType compositeType = getCompositeType(name);
-        if (compositeType != null) {
-            logger.error("Error creating composite type: already exists " + name );
-            return compositeType;
-        }
-    	
-     	/*
-    	 * Get the specified enclosing composite type
-    	 */
-    	Implementation parent = null;
-        if (inCompoType != null) {
-        	parent = CST.apamResolver.findImplByName(null, inCompoType);
-            if (parent == null || !(parent instanceof CompositeType)) {
-            	logger.error("Error creating composite type: specified enclosing composite "+ inCompoType + " is not a deployed composite type.");
-                return null;
-            }
-        }
-        
-        return createCompositeType((CompositeType)parent, name, specification, mainComponent, models, attributes);
-    }
-    
     /**
-     * Creates a composite type from the specified parameters 
+     * Creates a composite type from the specified parameters
      */
     private CompositeType createCompositeType(CompositeType parent,
-    		String name, String specification, String mainComponent,
-            Set<ManagerModel> models, Map<String, String> properties) {
+	    String name, String specification, String mainComponent,
+	    Set<ManagerModel> models, Map<String, String> properties) {
 
-    	assert name != null && mainComponent != null;
-    	
-    	if (models == null)
-    		models = new HashSet<ManagerModel>();
-    	
-    	if (parent == null)
-    		parent = CompositeTypeImpl.getRootCompositeType();
-    	
-    	ApformImplementation apfCompo = new ApamOnlyCompositeType(name,
-    											specification, mainComponent,
-    											models, properties);
-    	
-    	/* 
-    	 * If the provided specification is not installed force a resolution
-    	 */
-    	if (specification != null && CST.componentBroker.getSpec(specification) == null) {
-    		CST.apamResolver.findSpecByName(parent.getInst(),specification);
-    	}
-    	
-    	return (CompositeType) CST.componentBroker.addImpl(parent,apfCompo);
-    }
-    
- 
-    @Override
-    public CompositeType getCompositeType(String name) {
-        return CompositeTypeImpl.getCompositeType(name);
+	assert name != null && mainComponent != null;
+
+	if (models == null) {
+	    models = new HashSet<ManagerModel>();
+	}
+
+	if (parent == null) {
+	    parent = CompositeTypeImpl.getRootCompositeType();
+	}
+
+	ApformImplementation apfCompo = new ApamOnlyCompositeType(name,
+		specification, mainComponent, models, properties);
+
+	/*
+	 * If the provided specification is not installed force a resolution
+	 */
+	if (specification != null
+		&& CST.componentBroker.getSpec(specification) == null) {
+	    CST.apamResolver.findSpecByName(parent.getInst(), specification);
+	}
+
+	return (CompositeType) CST.componentBroker.addImpl(parent, apfCompo);
     }
 
     @Override
-    public Collection<CompositeType> getCompositeTypes() {
-        return CompositeTypeImpl.getCompositeTypes();
+    public CompositeType createCompositeType(String inCompoType, String name,
+	    String specification, String mainComponent,
+	    Set<ManagerModel> models, Map<String, String> attributes) {
+
+	/*
+	 * Verify if it already exists
+	 */
+	CompositeType compositeType = getCompositeType(name);
+	if (compositeType != null) {
+	    logger.error("Error creating composite type: already exists "
+		    + name);
+	    return compositeType;
+	}
+
+	/*
+	 * Get the specified enclosing composite type
+	 */
+	Implementation parent = null;
+	if (inCompoType != null) {
+	    parent = CST.apamResolver.findImplByName(null, inCompoType);
+	    if (parent == null || !(parent instanceof CompositeType)) {
+		logger.error("Error creating composite type: specified enclosing composite "
+			+ inCompoType + " is not a deployed composite type.");
+		return null;
+	    }
+	}
+
+	return createCompositeType((CompositeType) parent, name, specification,
+		mainComponent, models, attributes);
     }
 
-    @Override
-    public Collection<CompositeType> getRootCompositeTypes() {
-        return CompositeTypeImpl.getRootCompositeTypes();
+    public RelationManager getApamMan() {
+	return apamMan;
     }
 
     @Override
     public Composite getComposite(String name) {
-        return CompositeImpl.getComposite(name);
+	return CompositeImpl.getComposite(name);
     }
 
     @Override
     public Collection<Composite> getComposites() {
-        return CompositeImpl.getComposites();
+	return CompositeImpl.getComposites();
+    }
+
+    @Override
+    public CompositeType getCompositeType(String name) {
+	return CompositeTypeImpl.getCompositeType(name);
+    }
+
+    @Override
+    public Collection<CompositeType> getCompositeTypes() {
+	return CompositeTypeImpl.getCompositeTypes();
+    }
+
+    public RelationManager getFailedResolutionManager() {
+	return failureMan;
     }
 
     @Override
     public Collection<Composite> getRootComposites() {
-        return CompositeImpl.getRootComposites();
+	return CompositeImpl.getRootComposites();
     }
 
-	public RelationManager getApamMan() {
-		return apamMan;
-	}
-	
-	public RelationManager getUpdateMan() {
-		return updateMan;
-	}
-	
-	public RelationManager getFailedResolutionManager() {
-		return failureMan;
-	}
-	
-	public boolean isPredefinedManager(RelationManager manager) {
-		return	manager.equals(getApamMan()) || 
-				manager.equals(getUpdateMan()) || 
-				manager.equals(getFailedResolutionManager());
-	}
-
-    /**
-     * An special apform implementation created only for those composites types that do not exist
-     * in the Apform ipojo layer. Creates a minimal definition structure.
-     */
-    private static class ApamOnlyCompositeType extends BaseApformComponent<CompositeType,CompositeDeclaration> implements ApformCompositeType {
-
-       	/**
-       	 * The associated models
-       	 */
-       	private final Set<ManagerModel> models = new HashSet<ManagerModel>();
-    	/**
-    	 * The number of instances created for this composite type
-    	 */
-    	private int  numInstances;
- 
-    	public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String,String> properties) {
-    		
-    		super(new CompositeDeclaration(name,
-    					specificationName != null && !specificationName.trim().isEmpty() ? new SpecificationReference(specificationName) : null,
-    					new ComponentReference<ComponentDeclaration>(mainName))
-    		);
-    		if (properties != null)
-    			declaration.getProperties().putAll(properties);
-
-    	    assert name != null && mainName != null && models != null;
-    	    
-    		
-    		this.models.addAll(models);
-    		
-    		numInstances = 0;
-    	}
-
-		@Override
-		public Set<ManagerModel> getModels() {
-			return models;
-		}
-
-		@Override
-		public ApformInstance createInstance(Map<String, String> initialProperties) {
-			numInstances ++;
-			String name = declaration.getName()+"-"+numInstances;
-			return new ApamOnlyComposite(declaration.getReference(),name,initialProperties);
-		}
-		
-		@Override
-		public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
-			throw new UnsupportedOperationException("method not available for appliation composite type");
-		}
-
+    @Override
+    public Collection<CompositeType> getRootCompositeTypes() {
+	return CompositeTypeImpl.getRootCompositeTypes();
     }
- 
-    /**
-     * An special apform instance created only for those composites that do not exist in
-     * the Apform ipojo layer. Creates a minimal definition structure.
-     */
-    private static class ApamOnlyComposite extends BaseApformComponent<Composite,InstanceDeclaration> implements ApformInstance {
 
-    	public ApamOnlyComposite(ImplementationReference<?>implementation,String name, Map<String, String> initialProperties) {
-    		
-    		super(new InstanceDeclaration(implementation,name,null));
-    		if (initialProperties != null) {
-    			for (Map.Entry<String, String> property : initialProperties.entrySet()) {
-    				if (! Attribute.isFinalAttribute(property.getKey()))
-    					declaration.getProperties().put(property.getKey(),property.getValue());
-				}
-    		}
-    			
-    	} 
+    public RelationManager getUpdateMan() {
+	return updateMan;
+    }
 
-		@Override
-		public Object getServiceObject() {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-    	
-    } 
-    
+    public boolean isPredefinedManager(RelationManager manager) {
+	return manager.equals(getApamMan()) || manager.equals(getUpdateMan())
+		|| manager.equals(getFailedResolutionManager());
+    }
+
+    public void managerRegistered(Manager manager) {
+	expectedManagers.remove(manager.getName());
+	if (expectedManagers.isEmpty()) {
+	    ((ApamResolverImpl) CST.apamResolver).enable();
+	}
+    }
+
+    @Override
+    public Composite startAppli(CompositeType composite) {
+	return (Composite) composite.createInstance(null, null);
+    }
+
+    @Override
+    public Composite startAppli(String compositeName) {
+
+	Implementation compoType = CST.apamResolver.findImplByName(null,
+		compositeName);
+	if (compoType == null) {
+	    logger.error("Error starting application: " + compositeName
+		    + " is not a deployed composite.");
+	    return null;
+	}
+
+	if (!(compoType instanceof CompositeType)) {
+	    logger.error("Error starting application: " + compoType.getName()
+		    + " is not a composite.");
+	    return null;
+	}
+
+	return startAppli((CompositeType) compoType);
+    }
+
+    @Override
+    public Composite startAppli(URL compoURL, String compositeName) {
+
+	Implementation compoType = CST.componentBroker.createImpl(null,
+		compositeName, compoURL, null);
+
+	if (compoType == null) {
+	    logger.error("Error starting application: " + compositeName
+		    + " can not be deployed.");
+	    return null;
+	}
+
+	if (!(compoType instanceof CompositeType)) {
+	    logger.error("Error starting application: " + compoType.getName()
+		    + " is not a composite.");
+	    return null;
+	}
+
+	return startAppli((CompositeType) compoType);
+    }
 
 }

@@ -28,6 +28,10 @@ app-store.xml
 # apam distribution
 distributions/distriman-distribution/conf
 distributions/*-distribution/*
+tests/apam-pax-test-core/src/test/resources/META-INF/maven/dependencies.properties
+tests/apam-pax-test-managers/src/test/resources/META-INF/maven/dependencies.properties
+tests/helpers/src/test/resources/META-INF/maven/dependencies.properties
+
 #merge files
 
 *.orig

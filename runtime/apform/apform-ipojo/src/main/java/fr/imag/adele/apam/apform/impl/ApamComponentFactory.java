@@ -305,7 +305,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
                 instance = null;
             }
             throw e;
-        } catch (Throwable e) { // All others exception are handled here.
+        } catch (Exception e) { // All others exception are handled here.
             if (instance != null) {
                 instance.dispose();
                 instance = null;

@@ -26,61 +26,66 @@ import fr.imag.adele.apam.test.lights.devices.messages.ButtonPressed;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public class SwingButtonImpl implements ActionListener, SimpleButton {
-    private static Logger logger = LoggerFactory.getLogger(SwingButtonImpl.class);
-	
-    private javax.swing.JFrame         frame;
-    private javax.swing.JButton        btn;
-    private String name ="APAM Simple Button";
+    private static Logger logger = LoggerFactory
+	    .getLogger(SwingButtonImpl.class);
+
+    private javax.swing.JFrame frame;
+    private javax.swing.JButton btn;
+    private String name = "APAM Simple Button";
     private String myLocation;
     private String myName;
 
-    public void started() {
-    	logger.debug(myName+".started(), location : "+myLocation);
-    	
-        frame = new javax.swing.JFrame(name);
-        initComponents();
-        //frame.setVisible(true);
+    @Override
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+	pressButton();
     }
 
-    public void stopped() {
-	logger.debug(myName+".stopped(), location : "+myLocation);
-        if (frame != null) {
-            frame.dispose();
-            frame = null;
-        }
+    @Override
+    public String getLocation() {
+	return myLocation;
+    }
+
+    @Override
+    public String getName() {
+	return myName;
     }
 
     private void initComponents() {
-        frame.setSize(200, 80);
-        btn = new javax.swing.JButton("Button "+myLocation);
-        btn.addActionListener(this);
-        frame.setLayout(new java.awt.BorderLayout());
-        frame.add(btn, java.awt.BorderLayout.CENTER);
-    }
-    
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-    	pressButton();
+	frame.setSize(200, 80);
+	btn = new javax.swing.JButton("Button " + myLocation);
+	btn.addActionListener(this);
+	frame.setLayout(new java.awt.BorderLayout());
+	frame.add(btn, java.awt.BorderLayout.CENTER);
     }
 
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.test.lights.devices.SimpleButton#pressButton()
-	 */
-	public ButtonPressed pressButton() {
-	    logger.debug(myName+".pressButton(), location : "+myLocation);
-	    
-		return new ButtonPressed();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see fr.imag.adele.apam.test.lights.devices.SimpleButton#pressButton()
+     */
+    @Override
+    public ButtonPressed pressButton() {
+	logger.debug(myName + ".pressButton(), location : " + myLocation);
+
+	return new ButtonPressed();
+    }
+
+    public void started() {
+	logger.debug(myName + ".started(), location : " + myLocation);
+
+	frame = new javax.swing.JFrame(name);
+	initComponents();
+	// frame.setVisible(true);
+    }
+
+    public void stopped() {
+	logger.debug(myName + ".stopped(), location : " + myLocation);
+	if (frame != null) {
+	    frame.dispose();
+	    frame = null;
 	}
-
-
-    public String getName() {
-        return myName;
-    }
-
-
-    public String getLocation() {
-        return myLocation;
     }
 }

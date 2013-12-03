@@ -22,11 +22,11 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<definition name="application" type="string"/>
 			<property name="application" value="app1" />
 			<definition name="vendor" type="string"/>
-			<dependency specification="APP2_SPEC">
+			<relation specification="APP2_SPEC" resolve="external">
 <!-- 				<constraints> -->
 <!-- 					<implementation filter="(composite=true)"/> -->
 <!-- 				</constraints> -->
-			</dependency>
+			</relation>
 	</specification>
 
 </apam>

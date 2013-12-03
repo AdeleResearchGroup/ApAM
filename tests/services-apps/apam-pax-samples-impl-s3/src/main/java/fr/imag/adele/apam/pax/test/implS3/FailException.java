@@ -16,9 +16,9 @@ package fr.imag.adele.apam.pax.test.implS3;
 
 public class FailException extends RuntimeException {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 }

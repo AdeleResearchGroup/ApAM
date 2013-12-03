@@ -1,0 +1,412 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>apam-tests</artifactId>
+        <groupId>fr.imag.adele.apam</groupId>
+        <version>0.0.6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+
+    <groupId>fr.imag.adele.apam.tests.services</groupId>
+    <artifactId>apam-pax-test-core</artifactId>
+    <name>ApAM PaxExam Tests Core System</name>
+
+    <dependencies>
+
+
+
+        <!-- Pax Exam -->
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-forked</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-link-assembly</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-link</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-classpath</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-commons</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-aether</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Felix Framework -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Apam -->
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- for testing without obrman -->
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-bundle</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-declarations</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apform-ipojo</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>obrman</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests</groupId>
+            <artifactId>apam-helpers</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+            <artifactId>APP1-MainImpl</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+            <artifactId>APP1-MainSpec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+            <artifactId>APP1-S1-Spec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+            <artifactId>APP1-S2-Spec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+            <artifactId>APP1-S3-Spec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
+            <artifactId>APP1-Spec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId>
+            <artifactId>APP2-MainImpl</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId>
+            <artifactId>APP2-MainSpec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId>
+            <artifactId>APP2-Spec</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Services Tests -->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-iface</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s2</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s3</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s6</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s7</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-spec-s7ext</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s7ext</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>specs-s1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>implem-s1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>instance-s1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.test.lights</groupId>
+            <artifactId>LightingScenarioTest</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.app</groupId>
+            <artifactId>apam-pax-composite-av</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.app</groupId>
+            <artifactId>apam-pax-dynaman-grant</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apam-universal-shell</artifactId>
+            <groupId>fr.imag.adele.apam</groupId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Distriman -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <!-- <version>4.1.0</version> -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.ipojo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.fileinstall</artifactId>
+            <version>3.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.jmdns</groupId>
+            <artifactId>jmdns</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090911</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <!-- <dependency> <groupId>org.ow2.chameleon.commons.cxf</groupId> 
+            <artifactId>cxf-bundle-minimal</artifactId> <version>2.5.2-0002</version> 
+            </dependency> -->
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle-minimal</artifactId>
+            <version>2.5.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+        </dependency>
+
+        <!-- Messages Tests -->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.messages</groupId>
+            <artifactId>apam-pax-samples-msg</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.messages</groupId>
+            <artifactId>apam-pax-samples-impl-m1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Log -->
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>2.10.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.main</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <build>
+        <resources>
+            <resource>
+                <directory>models</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

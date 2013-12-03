@@ -15,96 +15,92 @@
 package fr.imag.adele.apam.declarations;
 
 /**
- * This class represents the visibility rules associated to the content management of
- * composites
+ * This class represents the visibility rules associated to the content
+ * management of composites
  * 
  * @author vega
- *
+ * 
  */
 public class VisibilityDeclaration {
 
-	
-	/**
-	 * The borrow content
-	 */
-	private String importImplementations;
-	
-	private String importInstances;
-		
-	/**
-	 * The local content
-	 */
-	private String exportImplementations;
-	
-	private String exportInstances;
-	
-	/**
-	 * The application content
-	 */
-	private String applicationInstances;
+    /**
+     * The borrow content
+     */
+    private String importImplementations;
 
-	public VisibilityDeclaration() {
-	}
-	
+    private String importInstances;
 
-	/**
-	 * An expression that must be satisfied by all imported implementations 
-	 */
-	public String getImportImplementations() {
-		return importImplementations;
-	}
+    /**
+     * The local content
+     */
+    private String exportImplementations;
 
-	public void setBorrowImplementations(String borrowImplementations) {
-		this.importImplementations = borrowImplementations;
-	}
+    private String exportInstances;
 
-	/**
-	 * An expression that must be satisfied by all imported instances 
-	 */
-	public String getImportInstances() {
-		return importInstances;
-	}
-	
-	public void setImportInstances(String borrowInstances) {
-		this.importInstances = borrowInstances;
-	}
+    /**
+     * The application content
+     */
+    private String applicationInstances;
 
-	/**
-	 * An expression that must be satisfied by all implementations that
-	 * are not available for exporting 
-	 */
-	public String getExportImplementations() {
-		return exportImplementations;
-	}
+    public VisibilityDeclaration() {
+    }
 
-	public void setExportImplementations(String localImplementations) {
-		this.exportImplementations = localImplementations;
-	}
+    /**
+     * An expression that must be satisfied by all exported instances that are
+     * available for other composites in the application
+     */
+    public String getApplicationInstances() {
+	return applicationInstances;
+    }
 
+    /**
+     * An expression that must be satisfied by all implementations that are not
+     * available for exporting
+     */
+    public String getExportImplementations() {
+	return exportImplementations;
+    }
 
-	/**
-	 * An expression that must be satisfied by all instances that
-	 * are not available for exporting 
-	 */
-	public String getExportInstances() {
-		return exportInstances;
-	}
+    /**
+     * An expression that must be satisfied by all instances that are not
+     * available for exporting
+     */
+    public String getExportInstances() {
+	return exportInstances;
+    }
 
-	public void setExportInstances(String localInstances) {
-		this.exportInstances = localInstances;
-	}
+    /**
+     * An expression that must be satisfied by all imported implementations
+     */
+    public String getImportImplementations() {
+	return importImplementations;
+    }
 
-	/**
-	 * An expression that must be satisfied by all exported instances that
-	 * are available for other composites in the application 
-	 */
-	public String getApplicationInstances() {
-		return applicationInstances;
-	}
-	
-	public void setApplicationInstances(String applicationInstances) {
-		this.applicationInstances = applicationInstances;
-	}
+    /**
+     * An expression that must be satisfied by all imported instances
+     */
+    public String getImportInstances() {
+	return importInstances;
+    }
 
-	
+    public void setApplicationInstances(String applicationInstances) {
+	this.applicationInstances = applicationInstances;
+    }
+
+    public void setBorrowImplementations(String borrowImplementations) {
+	this.importImplementations = borrowImplementations;
+    }
+
+    public void setExportImplementations(String localImplementations) {
+	this.exportImplementations = localImplementations;
+    }
+
+    public void setExportInstances(String localInstances) {
+	this.exportInstances = localInstances;
+    }
+
+    public void setImportInstances(String borrowInstances) {
+	this.importInstances = borrowInstances;
+    }
+
 }

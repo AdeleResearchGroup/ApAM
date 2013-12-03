@@ -18,18 +18,19 @@ import fr.imag.adele.apam.pax.test.iface.S2;
 
 public class S2InnerImpl implements S2 {
 
-	S2 middle;
-	
-	public String whoami() {
-		return this.getClass().getName();
-	}
+    S2 middle;
 
-	public S2 getMiddle() {
-		return middle;
-	}
+    public S2 getMiddle() {
+	return middle;
+    }
 
-	public void setMiddle(S2 middle) {
-		this.middle = middle;
-	}
+    public void setMiddle(S2 middle) {
+	this.middle = middle;
+    }
+
+    @Override
+    public String whoami() {
+	return this.getClass().getName();
+    }
 
 }

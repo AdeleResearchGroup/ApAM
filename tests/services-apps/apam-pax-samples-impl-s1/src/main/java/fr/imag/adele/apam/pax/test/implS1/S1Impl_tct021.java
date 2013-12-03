@@ -23,8 +23,36 @@ public class S1Impl_tct021 {
     public S1Impl_tct021() {
     }
 
-    public String whoami() {
-	return this.getClass().getName();
+    public String getInjectedBoth() {
+	return injectedBoth;
+    }
+
+    public String getInjectedBothByDefault() {
+	return injectedBothByDefault;
+    }
+
+    public String getInjectedExternal() {
+	return injectedExternal;
+    }
+
+    public String getInjectedInternal() {
+	return injectedInternal;
+    }
+
+    public void setInjectedBoth(String injectedBoth) {
+	this.injectedBoth = injectedBoth;
+    }
+
+    public void setInjectedBothByDefault(String injectedBothByDefault) {
+	this.injectedBothByDefault = injectedBothByDefault;
+    }
+
+    public void setInjectedExternal(String injectedExternal) {
+	this.injectedExternal = injectedExternal;
+    }
+
+    public void setInjectedInternal(String injectedInternal) {
+	this.injectedInternal = injectedInternal;
     }
 
     public void start() {
@@ -35,37 +63,8 @@ public class S1Impl_tct021 {
 	System.out.println("Stopping:" + this.getClass().getName());
     }
 
-    public String getInjectedInternal() {
-	return injectedInternal;
+    public String whoami() {
+	return this.getClass().getName();
     }
-
-    public void setInjectedInternal(String injectedInternal) {
-	this.injectedInternal = injectedInternal;
-    }
-    
-    public String getInjectedExternal() {
-	return injectedExternal;
-    }
-
-    public void setInjectedExternal(String injectedExternal) {
-	this.injectedExternal = injectedExternal;
-    }
-
-    public String getInjectedBoth() {
-	return injectedBoth;
-    }
-
-    public void setInjectedBoth(String injectedBoth) {
-	this.injectedBoth = injectedBoth;
-    }
-
-    public String getInjectedBothByDefault() {
-	return injectedBothByDefault;
-    }
-
-    public void setInjectedBothByDefault(String injectedBothByDefault) {
-	this.injectedBothByDefault = injectedBothByDefault;
-    }
-
 
 }

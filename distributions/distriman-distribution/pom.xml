@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-basic-distribution</artifactId>
-		<version>0.0.5-SNAPSHOT</version>
+		<version>0.0.6-SNAPSHOT</version>
        		<relativePath>../basic-distribution/pom.xml</relativePath>
 	</parent>
 

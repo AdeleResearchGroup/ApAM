@@ -11,121 +11,129 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.util.ApamFilter;
 
-public interface RelToResolve  {
+public interface RelToResolve {
 
-	//the associated relation
-	public RelationDefinition getRelationDefinition () ;
+    public Set<ApamFilter> getAllImplementationConstraintFilters();
 
-	/**
-	 * return true if the component matches the constraints of that relation.
-	 * Preferences are not taken into account Same as matchDep (Component comp)
-	 * since component extends Map<String, Object>
-	 */
-	public boolean matchRelation (Component target) ;
-	public boolean matchRelationConstraints (ComponentKind candidateKind, Map<String, Object> properties)  ;
-	public boolean matchRelationConstraints (Component target) ;
-	public boolean matchRelationTarget (Component target) ;
+    public Set<ApamFilter> getAllInstanceConstraintFilters();
 
-	// Get the reference to the required resource
-	public ResolvableReference getTarget() ;
-	
-	// True if the relation has constraints (preferences ignored)
-	public boolean hasConstraints () ;
+    public CreationPolicy getCreation();
 
-	// Get the constraints that need to be satisfied by the implementation that resolves the reference
-	public Set<String> getImplementationConstraints() ;
+    // Get the constraints that need to be satisfied by the implementation that
+    // resolves the reference
+    public Set<String> getImplementationConstraints();
 
-	// Get the constraints that need to be satisfied by the instance that resolves the reference
-	public Set<String> getInstanceConstraints() ;
-	
-	//return the (modifiable !!) list of preferences, first intrinic, then mng.
-	public List<ApamFilter> getImplementationPreferenceFilters () ;
+    // return the (modifiable !!) list of preferences, first intrinic, then mng.
+    public List<ApamFilter> getImplementationPreferenceFilters();
 
-	//return the (non modifiable) list of constraints,  intrinic and mng.
-	public List<ApamFilter> getInstancePreferenceFilters () ;
+    // Get the resource provider preferences
+    public List<String> getImplementationPreferences();
 
-	public Set<ApamFilter> getAllImplementationConstraintFilters ();
-	public Set<ApamFilter> getAllInstanceConstraintFilters ();
+    // Get the constraints that need to be satisfied by the instance that
+    // resolves the reference
+    public Set<String> getInstanceConstraints();
 
-	// Get the resource provider preferences
-	public List<String> getImplementationPreferences() ;
+    // return the (non modifiable) list of constraints, intrinic and mng.
+    public List<ApamFilter> getInstancePreferenceFilters();
 
-	// Get the instance provider preferences
-	public List<String> getInstancePreferences() ;
+    // Get the instance provider preferences
+    public List<String> getInstancePreferences();
 
-	//Modifiable
-	public Set<String> getMngImplementationConstraints();
+    // Get the source (ancestor) for ctxt relation
+    public Component getLinkSource();
 
-	// Get the constraints that need to be satisfied by the instance that resolves the reference
-	public Set<String> getMngInstanceConstraints() ;
+    // Get the exception associated with the missing policy
+    public String getMissingException();
 
-	// Get the resource provider preferences
-	public List<String> getMngImplementationPreferences() ;
+    // Get the policy associated with this relation
+    public MissingPolicy getMissingPolicy();
 
-	// Get the instance provider preferences
-	public List<String> getMngInstancePreferences();
+    // Modifiable
+    public Set<String> getMngImplementationConstraints();
 
-	//	// The defining component
-	//	public Component getComponent() ;
+    // Get the resource provider preferences
+    public List<String> getMngImplementationPreferences();
 
-	// Get the id of the relation in the declaring component declaration
-	public String getName() ;
-	
-	//	//Get the source (ancestor) for ctxt relation
-	//	public String getSource () ;
-	
-	//Get the source (ancestor) for ctxt relation
-	public Component getLinkSource () ;
-	
-	//Type of source
-	public ComponentKind getSourceKind () ;
-	
-	//Type of target
-	public ComponentKind getTargetKind () ;
+    // Get the constraints that need to be satisfied by the instance that
+    // resolves the reference
+    public Set<String> getMngInstanceConstraints();
 
-	//return the ancestor or base (including base) corresponding to the sourceKind
-	public Component getRelSource (Component base) ;
+    // Get the instance provider preferences
+    public List<String> getMngInstancePreferences();
 
-	// Get the exception associated with the missing policy
-	public String getMissingException() ;
+    // Get the id of the relation in the declaring component declaration
+    public String getName();
 
-	public CreationPolicy getCreation();
-	
-	public ResolvePolicy getResolve();
-	
-	//True if relation cardinality is multiple
-	public boolean isMultiple();
+    public <T extends Component> T getPrefered(Set<T> candidates);
 
-	// Get the policy associated with this relation
-	public MissingPolicy getMissingPolicy();
-	
-	//true if this is a dynamic wire, or a dynamic message ...
-	//TODO to remove
-	public boolean isDynamic () ;
+    // the associated relation
+    public RelationDefinition getRelationDefinition();
 
-	//true if this is there is an associated field
-	public boolean isInjected();
+    // // The defining component
+    // public Component getComponent() ;
 
-	// Whether an error resolving a relation matching this policy should trigger a backtrack
-	public boolean isHide() ;
+    // return the ancestor or base (including base) corresponding to the
+    // sourceKind
+    public Component getRelSource(Component base);
 
+    // //Get the source (ancestor) for ctxt relation
+    // public String getSource () ;
 
-	//true if this is a Wire or a Link 
-	public boolean isWire();
-	public boolean isRelation();
+    public ResolvePolicy getResolve();
 
-	//Ex in Util
-	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) ;
-	
-	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion) ;
-	
-	public <T extends Component> T getPrefered (Set<T> candidates) ;
-	
-	public boolean hasPreferences () ;
+    public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion);
 
+    // Ex in Util
+    public Resolved<?> getResolved(Set<? extends Component> candidates,
+	    boolean isPromotion);
 
-//	public boolean matchRelation(Instance compoInst, RelToResolve compoDep) ;
+    // Type of source
+    public ComponentKind getSourceKind();
+
+    // Get the reference to the required resource
+    public ResolvableReference getTarget();
+
+    // Type of target
+    public ComponentKind getTargetKind();
+
+    // True if the relation has constraints (preferences ignored)
+    public boolean hasConstraints();
+
+    public boolean hasPreferences();
+
+    // true if this is a dynamic wire, or a dynamic message ...
+    // TODO to remove
+    public boolean isDynamic();
+
+    // Whether an error resolving a relation matching this policy should trigger
+    // a backtrack
+    public boolean isHide();
+
+    // true if this is there is an associated field
+    public boolean isInjected();
+
+    // True if relation cardinality is multiple
+    public boolean isMultiple();
+
+    public boolean isRelation();
+
+    // true if this is a Wire or a Link
+    public boolean isWire();
+
+    /**
+     * return true if the component matches the constraints of that relation.
+     * Preferences are not taken into account Same as matchDep (Component comp)
+     * since component extends Map<String, Object>
+     */
+    public boolean matchRelation(Component target);
+
+    public boolean matchRelationConstraints(Component target);
+
+    public boolean matchRelationConstraints(ComponentKind candidateKind,
+	    Map<String, Object> properties);
+
+    public boolean matchRelationTarget(Component target);
+
+    // public boolean matchRelation(Instance compoInst, RelToResolve compoDep) ;
 
 }
-
-

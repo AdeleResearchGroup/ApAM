@@ -81,9 +81,9 @@
 
             <own implementation="JackHammer_singleton">
                 <grant when="morning, afternoon" implementation="Worker_waiting"
-                    dependency="tool" />
+                    relation="tool" />
                 <grant when="night" implementation="Night_worker"
-                    dependency="tool" />
+                    relation="tool" />
             </own>
 
         </contentMngt>
@@ -105,14 +105,14 @@
 
             <own implementation="JackHammer_singleton">
                 <grant when="morning, afternoon" implementation="Worker_waiting"
-                    dependency="tool" />
+                    relation="tool" />
             </own>
 
         </contentMngt>
     </composite>
 
     <!-- tct017 instead of using singleton, the client try to resolve an 
-        existing dependency -->
+        existing relation -->
 
     <implementation name="JackHammer_multiple"
         classname="fr.imag.adele.apam.pax.test.grant.impl.JackHammer"
@@ -146,7 +146,7 @@
 
             <own implementation="JackHammer_multiple">
                 <grant when="morning, afternoon" implementation="Worker_waiting_exists"
-                    dependency="tool" />
+                    relation="tool" />
             </own>
 
         </contentMngt>

@@ -17,25 +17,23 @@ package fr.imag.adele.apam.pax.test.implS1;
 import fr.imag.adele.apam.pax.test.iface.S1;
 import fr.imag.adele.apam.pax.test.iface.S2;
 
-public class S1ImplCallbackAddedValidMethodsOnlyInvalidArguments implements S1
-{
-    
-	S2 s2;
-	
-    public void bindWithInstance(String invalid){
-    	System.out.println("Called:"+this.getClass().getName());
-    	
-    }
-    
-    public void bindWithInstance(Integer invalid){
-    	System.out.println("Called:"+this.getClass().getName());
-    	
+public class S1ImplCallbackAddedValidMethodsOnlyInvalidArguments implements S1 {
+
+    S2 s2;
+
+    public void bindWithInstance(Integer invalid) {
+	System.out.println("Called:" + this.getClass().getName());
+
     }
 
-	@Override
-	public String whoami() {
-		return "titi";
-	}
+    public void bindWithInstance(String invalid) {
+	System.out.println("Called:" + this.getClass().getName());
 
+    }
+
+    @Override
+    public String whoami() {
+	return "titi";
+    }
 
 }

@@ -10,23 +10,26 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 /**
  * 
  * @author barjo / jnascimento
- *
+ * 
  */
-public interface ApamDiscovery extends ServiceListener{
+public interface ApamDiscovery extends ServiceListener {
 
     /**
      * The mdns type to be used.
      */
     public static String MDNS_TYPE = "_apam._http._tcp.local.";
-	
+
     public void publishLocalMachine(LocalMachine local) throws IOException;
 
+    @Override
     public void serviceAdded(ServiceEvent serviceEvent);
 
+    @Override
     public void serviceRemoved(ServiceEvent serviceEvent);
 
+    @Override
     public void serviceResolved(ServiceEvent serviceEvent);
-    
+
     public void stop();
-	
+
 }

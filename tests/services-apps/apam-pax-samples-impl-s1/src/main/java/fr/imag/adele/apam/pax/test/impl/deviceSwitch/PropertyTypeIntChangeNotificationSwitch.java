@@ -16,32 +16,31 @@ package fr.imag.adele.apam.pax.test.impl.deviceSwitch;
 
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
+public class PropertyTypeIntChangeNotificationSwitch extends GenericSwitch
+	implements Eletronic {
 
+    Boolean state;
+    Object objectReceivedInNotification = null;
 
-public class PropertyTypeIntChangeNotificationSwitch extends GenericSwitch implements Eletronic{
+    public Object getObjectReceivedInNotification() {
+	return objectReceivedInNotification;
+    }
 
-	Boolean state;
-	Object objectReceivedInNotification=null;
-	
+    public Boolean getState() {
+	return state;
+    }
 
-	public void stateChanged(Object state) {
-		objectReceivedInNotification=state;
-	}
+    public void setObjectReceivedInNotification(
+	    Object objectReceivedInNotification) {
+	this.objectReceivedInNotification = objectReceivedInNotification;
+    }
 
-	public Boolean getState() {
-		return state;
-	}
+    public void setState(Boolean state) {
+	this.state = state;
+    }
 
-	public void setState(Boolean state) {
-		this.state = state;
-	}
+    public void stateChanged(Object state) {
+	objectReceivedInNotification = state;
+    }
 
-	public Object getObjectReceivedInNotification() {
-		return objectReceivedInNotification;
-	}
-
-	public void setObjectReceivedInNotification(Object objectReceivedInNotification) {
-		this.objectReceivedInNotification = objectReceivedInNotification;
-	}
-	
 }

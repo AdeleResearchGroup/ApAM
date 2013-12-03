@@ -21,33 +21,42 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
 public interface ApformImplementation extends ApformComponent {
-	
-	
-	/**
-	 * Get the associated APAM implementation
-	 */
-	public Implementation getApamComponent();
-	
-	/**
-	 * Get the development model associated with the the implementation
-	 */
-	public ImplementationDeclaration getDeclaration();
-	
-    /**
-     * Creates an instance of this implementation, and initialize its properties with the set of provided properties.
-     * 
-     * This method is called by APAM when a new instance is created by the resolver or directly by API
-     */
-    public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration;
 
     /**
-     * Creates a new instance of this implementation and registers the associated component in APAM.
+     * Creates a new instance of this implementation and registers the
+     * associated component in APAM.
      * 
-     * This method can be used by external services (like device discovery protocols) to create instances in APAM that
-     * are not the result of a resolution.
+     * This method can be used by external services (like device discovery
+     * protocols) to create instances in APAM that are not the result of a
+     * resolution.
      * 
-     * Notice that the configuration can contain values that are not necessarily APAM properties, but specific to
-     * a given ApformImplementation
+     * Notice that the configuration can contain values that are not necessarily
+     * APAM properties, but specific to a given ApformImplementation
      */
-    public ApformInstance addDiscoveredInstance(Map<String, Object> configuration) throws ComponentImpl.InvalidConfiguration, UnsupportedOperationException; 
+    public ApformInstance addDiscoveredInstance(
+	    Map<String, Object> configuration)
+	    throws ComponentImpl.InvalidConfiguration,
+	    UnsupportedOperationException;
+
+    /**
+     * Creates an instance of this implementation, and initialize its properties
+     * with the set of provided properties.
+     * 
+     * This method is called by APAM when a new instance is created by the
+     * resolver or directly by API
+     */
+    public ApformInstance createInstance(Map<String, String> initialproperties)
+	    throws ComponentImpl.InvalidConfiguration;
+
+    /**
+     * Get the associated APAM implementation
+     */
+    @Override
+    public Implementation getApamComponent();
+
+    /**
+     * Get the development model associated with the the implementation
+     */
+    @Override
+    public ImplementationDeclaration getDeclaration();
 }

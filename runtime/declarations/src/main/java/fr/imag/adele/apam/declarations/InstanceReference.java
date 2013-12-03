@@ -19,13 +19,13 @@ package fr.imag.adele.apam.declarations;
  */
 public class InstanceReference extends ComponentReference<InstanceDeclaration> {
 
-	public InstanceReference(String name) {
-		super(name);
-	}
+    public InstanceReference(String name) {
+	super(name);
+    }
 
-	@Override
-	public ComponentKind getKind() {
-		return ComponentKind.INSTANCE;
-	}
+    @Override
+    public ComponentKind getKind() {
+	return ComponentKind.INSTANCE;
+    }
 
 }

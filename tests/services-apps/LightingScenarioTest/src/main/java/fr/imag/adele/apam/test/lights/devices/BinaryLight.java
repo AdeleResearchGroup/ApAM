@@ -16,39 +16,40 @@
  */
 package fr.imag.adele.apam.test.lights.devices;
 
-import fr.imag.adele.apam.test.lights.devices.messages.ButtonPressed;
 import fr.imag.adele.apam.test.lights.devices.messages.LightStatusChanged;
 
 /**
- * @author thibaud
- * Very simple light that can be on or off
- * (freely inspired from the upnp device, but not compliant)
+ * @author thibaud Very simple light that can be on or off (freely inspired from
+ *         the upnp device, but not compliant)
  */
-public interface BinaryLight  extends Device {
-	
-	/**
-	 * @return true if light is on
-	 */
-	public boolean isLightOn();
-	
-	/**
-	 * Set the light on or off
-	 * @param newStatus true mean to set the light on, false to put it off
-	 * (whatever was the previous status)
-	 */
-	public void setLightStatus(boolean newStatus);
-	
-	/**
-	 * Change the light status on <-> off depending on the previous status
-	 */
-	public void switchLightStatus();
-	
-	/**
-	 * This indicate that the light status has changed (on or off)
-	 * this is a simple message producer
-	 * @return a LightStatusChanged object (which is a message).
-	 * Use with the method isLightOn() on this object
-	 */
-	public LightStatusChanged fireLightStatus();
-	
+public interface BinaryLight extends Device {
+
+    /**
+     * This indicate that the light status has changed (on or off) this is a
+     * simple message producer
+     * 
+     * @return a LightStatusChanged object (which is a message). Use with the
+     *         method isLightOn() on this object
+     */
+    public LightStatusChanged fireLightStatus();
+
+    /**
+     * @return true if light is on
+     */
+    public boolean isLightOn();
+
+    /**
+     * Set the light on or off
+     * 
+     * @param newStatus
+     *            true mean to set the light on, false to put it off (whatever
+     *            was the previous status)
+     */
+    public void setLightStatus(boolean newStatus);
+
+    /**
+     * Change the light status on <-> off depending on the previous status
+     */
+    public void switchLightStatus();
+
 }

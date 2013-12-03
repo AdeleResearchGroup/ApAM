@@ -51,229 +51,237 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
 /**
  * Core of distriman dependency manager
+ * 
  * @author jnascimento
- *
+ * 
  */
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman::core")
 @Instantiate
 @Provides
 public class Distriman implements DistrimanIface, RelationManager {
 
-	private static Logger logger = LoggerFactory.getLogger(Distriman.class);
+    private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 
-	@Requires(proxy=false)
-	Apam apam;
-	
-	@Requires(optional = false)
-	private HttpService httpserver;
+    @Requires(proxy = false)
+    Apam apam;
 
-	@Requires(optional = false)
-	private ApamMachineFactory remotes;
-	
-	@Requires(optional = false)
-	private ApamDiscovery discovery;
-	
-	private CxfEndpointFactory endpointFactory;
-	
-	private LocalMachine providerLocal;
+    @Requires(optional = false)
+    private HttpService httpserver;
 
-	private BundleContext context;
-	
-	public Distriman(BundleContext context) {
+    @Requires(optional = false)
+    private ApamMachineFactory remotes;
 
-		System.setProperty("java.net.preferIPv6Addresses", "false");
-		this.context = context;
+    @Requires(optional = false)
+    private ApamDiscovery discovery;
 
-	}
+    private CxfEndpointFactory endpointFactory;
 
-	public String getName() {
-		return CST.DISTRIMAN;
-	}
+    private LocalMachine providerLocal;
 
-	@Override
-	public int getPriority() {
-		return DistrimanConstant.APAM_PRIORITY;
-	}
+    private BundleContext context;
 
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-		// To change body of implemented methods use File | Settings | File
-		// Templates.
-	}
+    public Distriman(BundleContext context) {
 
-	/**
-	 * That's the meat! Ask synchroneously to each available RemoteMachine to
-	 * resolved the <code>dependency</code>, the first to solve it create the
-	 * proxy.
-	 * 
-	 * @param client
-	 *            the instance asking for the resolution (and where to create
-	 *            implementation, if needed). Cannot be null.
-	 * @param relation
-	 *            a dependency declaration containing the type and name of the
-	 *            dependency target. It can be -the specification Name (new
-	 *            SpecificationReference (specName)) -an implementation name
-	 *            (new ImplementationRefernece (name) -an interface name (new
-	 *            InterfaceReference (interfaceName)) -a message name (new
-	 *            MessageReference (dataTypeName)) - or any future resource ...
-	 * @param needsInstances
-	 * @return The Resolved object if a proxy has been created, null otherwise.
-	 */
+	System.setProperty("java.net.preferIPv6Addresses", "false");
+	this.context = context;
 
-	@Validate
-	private void init() {
-		
+    }
+
+    @Override
+    public ComponentBundle findBundle(CompositeType context,
+	    String bundleSymbolicName, String componentName) {
+	// Distriman dont care about it
+	return null;
+    }
+
+    @Override
+    public String getName() {
+	return CST.DISTRIMAN;
+    }
+
+    @Override
+    public int getPriority() {
+	return DistrimanConstant.APAM_PRIORITY;
+    }
+
+    @Override
+    public void getSelectionPath(Component source, RelToResolve relToResolve,
+	    List<RelationManager> selPath) {
+	selPath.add(selPath.size(), this);
+    }
+
+    /**
+     * That's the meat! Ask synchroneously to each available RemoteMachine to
+     * resolved the <code>dependency</code>, the first to solve it create the
+     * proxy.
+     * 
+     * @param client
+     *            the instance asking for the resolution (and where to create
+     *            implementation, if needed). Cannot be null.
+     * @param relation
+     *            a dependency declaration containing the type and name of the
+     *            dependency target. It can be -the specification Name (new
+     *            SpecificationReference (specName)) -an implementation name
+     *            (new ImplementationRefernece (name) -an interface name (new
+     *            InterfaceReference (interfaceName)) -a message name (new
+     *            MessageReference (dataTypeName)) - or any future resource ...
+     * @param needsInstances
+     * @return The Resolved object if a proxy has been created, null otherwise.
+     */
+
+    @Validate
+    private void init() {
+
+	try {
+	    logger.info("Starting...");
+
+	    RelationManager manager; // = ApamManagers.getManager(CST.APAMMAN);
+
+	    while (CST.componentBroker == null
+		    || (manager = ApamManagers.getManager(CST.APAMMAN)) == null) {
+
+		logger.info("Waiting APAMMAN to appear...");
+
 		try {
-			logger.info("Starting...");
-
-			
-			RelationManager manager; //= ApamManagers.getManager(CST.APAMMAN);
-			
-			while(CST.componentBroker==null || (manager = ApamManagers.getManager(CST.APAMMAN))==null){
-				
-				logger.info("Waiting APAMMAN to appear...");
-				
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {}
-				
-			}
-
-			providerLocal=new LocalMachine(Integer.parseInt(context
-					.getProperty("org.osgi.service.http.port")),this);
-			
-			endpointFactory = new CxfEndpointFactory(manager);
-			
-			endpointFactory.start(httpserver);
-
-			// Register this local machine servlet
-
-			httpserver.registerServlet(DistrimanConstant.PROVIDER_URL,
-						providerLocal.getServlet(), null, null);
-
-			// publish this local machine over the network!
-			discovery.publishLocalMachine(providerLocal);
-
-			// Add this manager to Apam
-			ApamManagers.addRelationManager(this, DistrimanConstant.APAM_PRIORITY);
-
-			logger.info("Successfully initialized");
-			
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-			
-			stop();
-			
-		} 
-		
-		
-		ApamManagers.addRelationManager(this,getPriority());
-		
-	}
-
-	@Invalidate
-	private void stop() {
-		logger.info("Stopping...");
-
-		ApamManagers.removeRelationManager(this);
-
-		discovery.stop();
-
-		endpointFactory.stop(httpserver);
-
-		remotes.destroyRemoteMachines();
-
-		httpserver.unregister(DistrimanConstant.PROVIDER_URL);
-
-		logger.info("Successfully stopped");
-	}
-
-	public EndpointRegistration resolveDependencyLocalMachine(
-			RemoteDependencyDeclaration dependency, String providerURL)
-			throws ClassNotFoundException {
-
-		logger.info(
-				String.format("provider (%s) requested resolution of dependency identifier %s in the provider",providerURL,
-				dependency.getIdentifier()).toString());
-
-		logger.info("distriman available machines");
-
-		for (Map.Entry<String, RemoteMachine> entry : remotes.getMachines()
-				.entrySet()) {
-
-			logger.info("distriman machine {} local {}", entry.getKey(),entry.getValue().isLocalhost());
-
+		    Thread.sleep(3000);
+		} catch (InterruptedException e) {
 		}
 
-		// Get the composite that represent the remote machine asking to resolve
-		// the RemoteDependency
-		
-		RemoteMachine remote = remotes.getMachines().get(providerURL);
+	    }
 
-		// No RemoteMachine corresponding to the given url is available
-		if (remote == null) {
-			return null;
+	    providerLocal = new LocalMachine(Integer.parseInt(context
+		    .getProperty("org.osgi.service.http.port")), this);
+
+	    endpointFactory = new CxfEndpointFactory(manager);
+
+	    endpointFactory.start(httpserver);
+
+	    // Register this local machine servlet
+
+	    httpserver.registerServlet(DistrimanConstant.PROVIDER_URL,
+		    providerLocal.getServlet(), null, null);
+
+	    // publish this local machine over the network!
+	    discovery.publishLocalMachine(providerLocal);
+
+	    // Add this manager to Apam
+	    ApamManagers.addRelationManager(this,
+		    DistrimanConstant.APAM_PRIORITY);
+
+	    logger.info("Successfully initialized");
+
+	} catch (Exception e) {
+
+	    e.printStackTrace();
+
+	    stop();
+
+	}
+
+	ApamManagers.addRelationManager(this, getPriority());
+
+    }
+
+    @Override
+    public void newComposite(ManagerModel model, CompositeType composite) {
+	// To change body of implemented methods use File | Settings | File
+	// Templates.
+    }
+
+    @Override
+    public void notifySelection(Component client, ResolvableReference resName,
+	    String depName, Implementation impl, Instance inst,
+	    Set<Instance> insts) {
+	// Distriman dont care about it
+    }
+
+    public EndpointRegistration resolveDependencyLocalMachine(
+	    RemoteDependencyDeclaration dependency, String providerURL)
+	    throws ClassNotFoundException {
+
+	logger.info(String
+		.format("provider (%s) requested resolution of dependency identifier %s in the provider",
+			providerURL, dependency.getIdentifier()).toString());
+
+	logger.info("distriman available machines");
+
+	for (Map.Entry<String, RemoteMachine> entry : remotes.getMachines()
+		.entrySet()) {
+
+	    logger.info("distriman machine {} local {}", entry.getKey(), entry
+		    .getValue().isLocalhost());
+
+	}
+
+	// Get the composite that represent the remote machine asking to resolve
+	// the RemoteDependency
+
+	RemoteMachine remote = remotes.getMachines().get(providerURL);
+
+	// No RemoteMachine corresponding to the given url is available
+	if (remote == null) {
+	    return null;
+	}
+
+	logger.info("remote machine recovered key:{} ", remote.getURLServlet());
+
+	return endpointFactory.resolveAndExport(dependency, remote);
+    }
+
+    @Override
+    public Resolved<?> resolveRelation(Component source,
+	    RelToResolve relToResolve) {
+
+	Resolved resolved = null;
+
+	for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
+		.entrySet()) {
+
+	    RemoteMachine machine = element.getValue();
+	    String urlForResolution = element.getKey();
+
+	    if (machine.isLocalhost()) {
+		continue;
+	    }
+
+	    try {
+
+		logger.info("trying to resolve in machine key {} and url {}",
+			urlForResolution, urlForResolution);
+
+		resolved = machine.resolveRemote((Instance) source,
+			relToResolve);
+
+		if (resolved != null
+			&& (resolved.singletonResolved != null || resolved.setResolved != null)) {
+		    break;
 		}
-		
-		logger.info("remote machine recovered key:{} ", remote.getURLServlet());
 
-		return endpointFactory.resolveAndExport(dependency, remote);
+	    } catch (IOException e) {
+		remotes.destroyRemoteMachine(urlForResolution, element
+			.getValue().getId());
+	    }
 	}
 
-	@Override
-	public void getSelectionPath(Component source, RelToResolve relToResolve,
-			List<RelationManager> selPath) {
-		selPath.add(selPath.size(), this);
-	}
+	return resolved;
 
-	@Override
-	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve) {
-		
-		Resolved resolved = null;
-		
-		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
-				.entrySet()) {
+    }
 
-			RemoteMachine machine = element.getValue();
-			String urlForResolution = element.getKey();
+    @Invalidate
+    private void stop() {
+	logger.info("Stopping...");
 
-			if(machine.isLocalhost()) continue;
-			
-			try {
+	ApamManagers.removeRelationManager(this);
 
-				logger.info("trying to resolve in machine key {} and url {}",
-						urlForResolution, urlForResolution);
+	discovery.stop();
 
-				resolved = machine.resolveRemote((Instance)source, relToResolve);
+	endpointFactory.stop(httpserver);
 
-				if (resolved != null && ( resolved.singletonResolved!= null ||  
-						 				  resolved.setResolved!=null)) 
-					break;
+	remotes.destroyRemoteMachines();
 
-			} catch (IOException e) {
-				remotes.destroyRemoteMachine(urlForResolution, element
-						.getValue().getId());
-			}
-		}
-		
-		return resolved;		
-		
-	}
+	httpserver.unregister(DistrimanConstant.PROVIDER_URL);
 
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName,
-			String depName, Implementation impl, Instance inst,
-			Set<Instance> insts) {
-		//Distriman dont care about it		
-	}
-
-	@Override
-	public ComponentBundle findBundle(CompositeType context,
-			String bundleSymbolicName, String componentName) {
-		//Distriman dont care about it
-		return null;
-	}
-
+	logger.info("Successfully stopped");
+    }
 
 }
