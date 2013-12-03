@@ -19,23 +19,23 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public interface ApformInstance extends ApformComponent {
 
-    /**
-     * Get the associated APAM instance
-     */
-    @Override
-    public Instance getApamComponent();
+	/**
+	 * Get the associated APAM instance
+	 */
+	@Override
+	public Instance getApamComponent();
 
-    /**
-     * Get the development model associated with the the instance
-     */
-    @Override
-    public InstanceDeclaration getDeclaration();
+	/**
+	 * Get the development model associated with the the instance
+	 */
+	@Override
+	public InstanceDeclaration getDeclaration();
 
-    /**
-     * 
-     * @return the real object implementing that instance.
-     */
+	/**
+	 * 
+	 * @return the real object implementing that instance.
+	 */
 
-    public Object getServiceObject();
+	public Object getServiceObject();
 
 }

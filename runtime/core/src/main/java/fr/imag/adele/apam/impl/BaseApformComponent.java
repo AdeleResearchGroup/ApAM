@@ -18,84 +18,83 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
  * @author vega
  * 
  */
-public abstract class BaseApformComponent<C extends Component, D extends ComponentDeclaration>
-	implements ApformComponent {
+public abstract class BaseApformComponent<C extends Component, D extends ComponentDeclaration> implements ApformComponent {
 
-    /**
-     * The Associated declaration
-     */
-    protected final D declaration;
-
-    /**
-     * The associated APAM component
-     */
-    protected C apamComponent;
-
-    protected BaseApformComponent(D declaration) {
-	this.declaration = declaration;
-    }
-
-    @Override
-    public C getApamComponent() {
-	return apamComponent;
-    }
-
-    @Override
-    public Bundle getBundle() {
-	return null;
-    }
-
-    @Override
-    public D getDeclaration() {
-	return declaration;
-    }
-
-    @Override
-    public boolean remLink(Component destInst, String depName) {
-
-	/*
-	 * Propagate down the group hierarchy.
-	 * 
-	 * TODO Should we stop in case of a veto from one of the members?
+	/**
+	 * The Associated declaration
 	 */
-	for (Component member : apamComponent.getMembers()) {
-	    member.getApformComponent().remLink(destInst, depName);
+	protected final D declaration;
+
+	/**
+	 * The associated APAM component
+	 */
+	protected C apamComponent;
+
+	protected BaseApformComponent(D declaration) {
+		this.declaration = declaration;
 	}
 
-	return true;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void setApamComponent(Component apamComponent) {
-	this.apamComponent = (C) apamComponent;
-    }
-
-    @Override
-    public boolean setLink(Component destInst, String depName) {
-
-	/*
-	 * Propagate down the group hierarchy.
-	 * 
-	 * TODO Should we stop in case of a veto from one of the members?
-	 */
-	for (Component member : apamComponent.getMembers()) {
-	    member.getApformComponent().setLink(destInst, depName);
+	@Override
+	public C getApamComponent() {
+		return apamComponent;
 	}
 
-	return true;
-    }
-    
-    @Override
-    public boolean checkLink(Component destInst, String depName) {
-	/*
-	 * Does nothing 
-	 */
-	return true;
-    }
+	@Override
+	public Bundle getBundle() {
+		return null;
+	}
 
-    @Override
-    public void setProperty(String attr, String value) {
-    }
+	@Override
+	public D getDeclaration() {
+		return declaration;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+
+		/*
+		 * Propagate down the group hierarchy.
+		 * 
+		 * TODO Should we stop in case of a veto from one of the members?
+		 */
+		for (Component member : apamComponent.getMembers()) {
+			member.getApformComponent().remLink(destInst, depName);
+		}
+
+		return true;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void setApamComponent(Component apamComponent) {
+		this.apamComponent = (C) apamComponent;
+	}
+
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+
+		/*
+		 * Propagate down the group hierarchy.
+		 * 
+		 * TODO Should we stop in case of a veto from one of the members?
+		 */
+		for (Component member : apamComponent.getMembers()) {
+			member.getApformComponent().setLink(destInst, depName);
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean checkLink(Component destInst, String depName) {
+		/*
+		 * Does nothing
+		 */
+		return true;
+	}
+
+	@Override
+	public void setProperty(String attr, String value) {
+	}
 
 }

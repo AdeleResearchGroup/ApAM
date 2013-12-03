@@ -30,54 +30,53 @@ import java.util.Set;
  */
 
 public class Resolved<T extends Component> {
-    public Implementation toInstantiate;
-    public T singletonResolved;
-    public Set<T> setResolved;
+	public Implementation toInstantiate;
+	public T singletonResolved;
+	public Set<T> setResolved;
 
-    /*
-     * The boolean is useless, only to make a different signature.
-     */
-    public Resolved(Implementation impl, boolean toInstanciate) {
-	this.toInstantiate = impl;
-	this.singletonResolved = null;
-	this.setResolved = null;
-    }
-
-    public Resolved(Set<T> setResolved) {
-	this.singletonResolved = null;
-	this.setResolved = setResolved;
-    }
-
-    public Resolved(T singletonResolved) {
-	this.singletonResolved = singletonResolved;
-	this.setResolved = null;
-    }
-
-    public boolean isEmpty() {
-	return singletonResolved == null && toInstantiate == null
-		&& (setResolved == null || setResolved.isEmpty());
-    }
-
-    public Resolved<T> merge(Resolved<T> that) {
-
-	Set<T> merged = new HashSet<T>();
-
-	if (singletonResolved != null) {
-	    merged.add(singletonResolved);
+	/*
+	 * The boolean is useless, only to make a different signature.
+	 */
+	public Resolved(Implementation impl, boolean toInstanciate) {
+		this.toInstantiate = impl;
+		this.singletonResolved = null;
+		this.setResolved = null;
 	}
 
-	if (that.singletonResolved != null) {
-	    merged.add(that.singletonResolved);
+	public Resolved(Set<T> setResolved) {
+		this.singletonResolved = null;
+		this.setResolved = setResolved;
 	}
 
-	if (setResolved != null) {
-	    merged.addAll(setResolved);
+	public Resolved(T singletonResolved) {
+		this.singletonResolved = singletonResolved;
+		this.setResolved = null;
 	}
 
-	if (that.setResolved != null) {
-	    merged.addAll(that.setResolved);
+	public boolean isEmpty() {
+		return singletonResolved == null && toInstantiate == null && (setResolved == null || setResolved.isEmpty());
 	}
 
-	return new Resolved<T>(merged);
-    }
+	public Resolved<T> merge(Resolved<T> that) {
+
+		Set<T> merged = new HashSet<T>();
+
+		if (singletonResolved != null) {
+			merged.add(singletonResolved);
+		}
+
+		if (that.singletonResolved != null) {
+			merged.add(that.singletonResolved);
+		}
+
+		if (setResolved != null) {
+			merged.addAll(setResolved);
+		}
+
+		if (that.setResolved != null) {
+			merged.addAll(that.setResolved);
+		}
+
+		return new Resolved<T>(merged);
+	}
 }

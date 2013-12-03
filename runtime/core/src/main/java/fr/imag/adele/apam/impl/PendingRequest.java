@@ -36,324 +36,315 @@ import fr.imag.adele.apam.declarations.ResourceReference;
  */
 public class PendingRequest {
 
-    /**
-     * The source of the relation
-     */
-    protected final Component source;
+	/**
+	 * The source of the relation
+	 */
+	protected final Component source;
 
-    /**
-     * The relation to resolve
-     */
-    protected final RelationDefinition relDef;
+	/**
+	 * The relation to resolve
+	 */
+	protected final RelationDefinition relDef;
 
-    /**
-     * The composite in which context the resolution will be performed
-     */
-    protected final Composite context;
+	/**
+	 * The composite in which context the resolution will be performed
+	 */
+	protected final Composite context;
 
-    /**
-     * The resolver
-     */
-    protected final ApamResolver resolver;
+	/**
+	 * The resolver
+	 */
+	protected final ApamResolver resolver;
 
-    /**
-     * The result of the resolution
-     */
-    private Resolved<?> resolution;
+	/**
+	 * The result of the resolution
+	 */
+	private Resolved<?> resolution;
 
-    /**
-     * Whether this request is being resolved in some thread
-     */
-    private boolean isResolving = false;
+	/**
+	 * Whether this request is being resolved in some thread
+	 */
+	private boolean isResolving = false;
 
-    /**
-     * Whether the thread that created this request is blocked
-     */
-    private boolean isBlocked = false;
+	/**
+	 * Whether the thread that created this request is blocked
+	 */
+	private boolean isBlocked = false;
 
-    /**
-     * Whether this request has been disposed, this happen for instance when the
-     * source component is removed
-     */
-    private boolean isDisposed = false;
+	/**
+	 * Whether this request has been disposed, this happen for instance when the
+	 * source component is removed
+	 */
+	private boolean isDisposed = false;
 
-    private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
+	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
-    /**
-     * The request that is being resolved by the current thread
-     */
-    public static PendingRequest current() {
-	return current.get();
-    }
+	/**
+	 * The request that is being resolved by the current thread
+	 */
+	public static PendingRequest current() {
+		return current.get();
+	}
 
-    /**
-     * Whether the current thread is performing a resolution retry
-     */
-    public static boolean isRetry() {
-	return current() != null;
-    }
+	/**
+	 * Whether the current thread is performing a resolution retry
+	 */
+	public static boolean isRetry() {
+		return current() != null;
+	}
 
-    /**
-     * Builds a new pending request reification
-     */
-    public PendingRequest(ApamResolver resolver, Component source,
-	    RelationDefinition relDef) {
-	this.resolver = resolver;
+	/**
+	 * Builds a new pending request reification
+	 */
+	public PendingRequest(ApamResolver resolver, Component source, RelationDefinition relDef) {
+		this.resolver = resolver;
 
-	this.source = source;
-	this.context = (source instanceof Instance) ? ((Instance) source)
-		.getComposite() : CompositeImpl.getRootAllComposites();
-	this.relDef = relDef;
+		this.source = source;
+		this.context = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootAllComposites();
+		this.relDef = relDef;
 
-	this.resolution = null;
-    }
+		this.resolution = null;
+	}
 
-    private synchronized void beginResolve() {
-	current.set(this);
-	isResolving = true;
-    }
+	private synchronized void beginResolve() {
+		current.set(this);
+		isResolving = true;
+	}
 
-    /**
-     * Block the current thread until a component satisfying the request is
-     * available.
-     * 
-     * Resolution must be retried by another thread, and when successful it will
-     * notify this object to unblock the waiting thread.
-     * 
-     */
-    public void block() {
-	synchronized (this) {
-	    try {
+	/**
+	 * Block the current thread until a component satisfying the request is
+	 * available.
+	 * 
+	 * Resolution must be retried by another thread, and when successful it will
+	 * notify this object to unblock the waiting thread.
+	 * 
+	 */
+	public void block() {
+		synchronized (this) {
+			try {
+				/*
+				 * wait for resolution
+				 */
+
+				isBlocked = true;
+				while (!isResolved()) {
+					this.wait();
+				}
+
+				isBlocked = false;
+
+			} catch (InterruptedException ignored) {
+			}
+		}
+	}
+
+	public synchronized void dispose() {
+		isDisposed = true;
+		this.notifyAll();
+	}
+
+	private synchronized void endResolve(Resolved<?> resolverResult) {
+		isResolving = false;
+		resolution = resolverResult;
+		current.set(null);
+
+		this.notifyAll();
+	}
+
+	/**
+	 * The context in which the resolution is requested
+	 */
+	public Composite getContext() {
+		return context;
+	}
+
+	/**
+	 * The relation that needs resolution
+	 */
+	public RelationDefinition getRelation() {
+		return relDef;
+	}
+
+	/**
+	 * The result of the resolution
+	 */
+	public synchronized Resolved<?> getResolution() {
+		return resolution;
+	}
+
+	public Component getSource() {
+		return source;
+	}
+
+	/**
+	 * Whether this request was resolved by the last resolution retry
+	 */
+	private boolean isResolved() {
+		return resolution != null || isDisposed;
+	}
+
+	/**
+	 * Decides whether the specified component could potentially resolve this
+	 * request.
+	 * 
+	 * This is used as a hint to avoid unnecessarily retrying a resolution that
+	 * is not concerned with an event.
+	 * 
+	 * TODO Currently we avoid forcing a resolution that will instantiate an
+	 * implementation we should specify the expected behavior.
+	 */
+	public boolean isSatisfiedBy(Component candidate) {
+
 		/*
-		 * wait for resolution
+		 * Check if the candidate kind matches the target kind of the relation.
+		 * Consider the special case for instantiable implementations that can
+		 * satisfy an instance relation
+		 */
+		boolean matchKind = relDef.getTargetKind().equals(candidate.getKind());
+		/*
+		 * || (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
+		 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
 		 */
 
-		isBlocked = true;
-		while (!isResolved()) {
-		    this.wait();
+		if (!matchKind) {
+			return false;
 		}
 
-		isBlocked = false;
+		/*
+		 * Check if the candidate matches the target of the relation
+		 */
+		boolean matchTarget = false;
 
-	    } catch (InterruptedException ignored) {
-	    }
-	}
-    }
-
-    public synchronized void dispose() {
-	isDisposed = true;
-	this.notifyAll();
-    }
-
-    private synchronized void endResolve(Resolved<?> resolverResult) {
-	isResolving = false;
-	resolution = resolverResult;
-	current.set(null);
-
-	this.notifyAll();
-    }
-
-    /**
-     * The context in which the resolution is requested
-     */
-    public Composite getContext() {
-	return context;
-    }
-
-    /**
-     * The relation that needs resolution
-     */
-    public RelationDefinition getRelation() {
-	return relDef;
-    }
-
-    /**
-     * The result of the resolution
-     */
-    public synchronized Resolved<?> getResolution() {
-	return resolution;
-    }
-
-    public Component getSource() {
-	return source;
-    }
-
-    /**
-     * Whether this request was resolved by the last resolution retry
-     */
-    private boolean isResolved() {
-	return resolution != null || isDisposed;
-    }
-
-    /**
-     * Decides whether the specified component could potentially resolve this
-     * request.
-     * 
-     * This is used as a hint to avoid unnecessarily retrying a resolution that
-     * is not concerned with an event.
-     * 
-     * TODO Currently we avoid forcing a resolution that will instantiate an
-     * implementation we should specify the expected behavior.
-     */
-    public boolean isSatisfiedBy(Component candidate) {
-
-
-	/*
-	 * Check if the candidate kind matches the target kind of the relation.
-	 * Consider the special case for instantiable implementations that can
-	 * satisfy an instance relation
-	 */
-	boolean matchKind = relDef.getTargetKind().equals(candidate.getKind());
-	/*
-	 * || (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
-	 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
-	 */
-
-	if (!matchKind) {
-	    return false;
-	}
-
-	/*
-	 * Check if the candidate matches the target of the relation
-	 */
-	boolean matchTarget = false;
-
-	if (relDef.getTarget() instanceof ComponentReference<?>) {
-	    Component target = CST.componentBroker.getComponent(relDef
-		    .getTarget().getName());
-	    matchTarget = (target != null)
-		    && (target.isAncestorOf(candidate) || target
-			    .equals(candidate));
-	}
-
-	if (relDef.getTarget() instanceof ResourceReference) {
-	    matchTarget = candidate.getProvidedResources().contains(
-		    relDef.getTarget());
-	}
-
-	if (!matchTarget) {
-	    return false;
-	}
-
-	/*
-	 * Check visibility
-	 */
-	if (source instanceof Instance) {
-	    
-	    boolean promotion = false;
-	    for (RelationDefinition compoDep : ((Instance)source).getComposite().getCompType().getLocalRelations()) {
-		if (relDef.matchRelation((Instance)source, compoDep)) {
-		    promotion = true;
+		if (relDef.getTarget() instanceof ComponentReference<?>) {
+			Component target = CST.componentBroker.getComponent(relDef.getTarget().getName());
+			matchTarget = (target != null) && (target.isAncestorOf(candidate) || target.equals(candidate));
 		}
-	    }
-	    
-	    if ( !promotion && !source.canSee(candidate))
-		return false;
-	    
-	} else if (!source.canSee(candidate)) {
-	    return false;
-	}
-	
-	/*
-	 * Special validations for target instances
-	 */
-	if (relDef.getTargetKind().equals(ComponentKind.INSTANCE)) {
 
-	    boolean valid = ((candidate instanceof Instance) && ((Instance) candidate)
-		    .isSharable());
-	    /*
-	     * || ( (candidate instanceof Implementation) && ((Implementation)
-	     * candidate).isInstantiable());
-	     */
+		if (relDef.getTarget() instanceof ResourceReference) {
+			matchTarget = candidate.getProvidedResources().contains(relDef.getTarget());
+		}
 
-	    if (!valid) {
-		return false;
-	    }
+		if (!matchTarget) {
+			return false;
+		}
 
-	}
+		/*
+		 * Check visibility
+		 */
+		if (source instanceof Instance) {
 
-	/*
-	 * If this request has blocked the creating thread we should retry the
-	 * resolution to unblock it.
-	 * 
-	 * Otherwise we verify if this request has not been already resolved by
-	 * this candidate (possibly in another thread) to avoid unnecessary
-	 * resolves.
-	 */
+			boolean promotion = false;
+			for (RelationDefinition compoDep : ((Instance) source).getComposite().getCompType().getLocalRelations()) {
+				if (relDef.matchRelation((Instance) source, compoDep)) {
+					promotion = true;
+				}
+			}
 
-	synchronized (this) {
-	    if (this.isBlocked) {
+			if (!promotion && !source.canSee(candidate))
+				return false;
+
+		} else if (!source.canSee(candidate)) {
+			return false;
+		}
+
+		/*
+		 * Special validations for target instances
+		 */
+		if (relDef.getTargetKind().equals(ComponentKind.INSTANCE)) {
+
+			boolean valid = ((candidate instanceof Instance) && ((Instance) candidate).isSharable());
+			/*
+			 * || ( (candidate instanceof Implementation) && ((Implementation)
+			 * candidate).isInstantiable());
+			 */
+
+			if (!valid) {
+				return false;
+			}
+
+		}
+
+		/*
+		 * If this request has blocked the creating thread we should retry the
+		 * resolution to unblock it.
+		 * 
+		 * Otherwise we verify if this request has not been already resolved by
+		 * this candidate (possibly in another thread) to avoid unnecessary
+		 * resolves.
+		 */
+
+		synchronized (this) {
+			if (this.isBlocked) {
+				return true;
+			}
+		}
+
+		Set<Link> resolutions = ((ComponentImpl) source).getExistingLinks(relDef.getName());
+
+		/*
+		 * For single-valued relations we just verify there is some resolution
+		 */
+		if (!relDef.isMultiple()) {
+			return resolutions.isEmpty();
+		}
+
+		/*
+		 * For multi-valued relations we check if the candidate is already a
+		 * resolution
+		 */
+
+		/*
+		 * boolean instantiatedCandidate =
+		 * (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
+		 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
+		 */
+		for (Link resolution : resolutions) {
+
+			/*
+			 * if (instantiatedCandidate && (resolution.getDestination()
+			 * instanceof Instance) &&
+			 * ((Instance)resolution.getDestination()).getImpl
+			 * ().equals(candidate) ) return false;
+			 */
+			if (resolution.getDestination().equals(candidate)) {
+				return false;
+			}
+
+		}
+
 		return true;
-	    }
 	}
 
-	Set<Link> resolutions = ((ComponentImpl) source)
-		.getExistingLinks(relDef.getName());
-
-	/*
-	 * For single-valued relations we just verify there is some resolution
+	/**
+	 * Tries to resolve the request and wakes up the blocked thread
 	 */
-	if (!relDef.isMultiple()) {
-	    return resolutions.isEmpty();
+	public void resolve() {
+
+		/*
+		 * avoid multiple concurrent resolutions
+		 */
+		synchronized (this) {
+			if (isResolving) {
+				return;
+			}
+		}
+
+		/*
+		 * try to resolve.
+		 * 
+		 * IMPORTANT resolution is performed outside synchronization, as it may
+		 * block in case of deployment. Notice also that the result is
+		 * temporarily confined to the stack before notifying pending threads.
+		 */
+
+		Resolved<?> resolverResult = null;
+
+		try {
+			beginResolve();
+			resolverResult = resolver.resolveLink(source, relDef);
+		} finally {
+			endResolve(resolverResult);
+		}
 	}
-
-	/*
-	 * For multi-valued relations we check if the candidate is already a
-	 * resolution
-	 */
-
-	/*
-	 * boolean instantiatedCandidate =
-	 * (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
-	 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
-	 */
-	for (Link resolution : resolutions) {
-
-	    /*
-	     * if (instantiatedCandidate && (resolution.getDestination()
-	     * instanceof Instance) &&
-	     * ((Instance)resolution.getDestination()).getImpl
-	     * ().equals(candidate) ) return false;
-	     */
-	    if (resolution.getDestination().equals(candidate)) {
-		return false;
-	    }
-
-	}
-
-	return true;
-    }
-
-    /**
-     * Tries to resolve the request and wakes up the blocked thread
-     */
-    public void resolve() {
-
-	/*
-	 * avoid multiple concurrent resolutions
-	 */
-	synchronized (this) {
-	    if (isResolving) {
-		return;
-	    }
-	}
-
-	/*
-	 * try to resolve.
-	 * 
-	 * IMPORTANT resolution is performed outside synchronization, as it may
-	 * block in case of deployment. Notice also that the result is
-	 * temporarily confined to the stack before notifying pending threads.
-	 */
-
-	Resolved<?> resolverResult = null;
-
-	try {
-	    beginResolve();
-	    resolverResult = resolver.resolveLink(source, relDef);
-	} finally {
-	    endResolve(resolverResult);
-	}
-    }
 
 }

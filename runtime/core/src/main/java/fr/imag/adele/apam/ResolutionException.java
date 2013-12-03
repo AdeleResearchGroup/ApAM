@@ -23,17 +23,17 @@ package fr.imag.adele.apam;
  */
 public class ResolutionException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public ResolutionException() {
+	public ResolutionException() {
 
-    }
+	}
 
-    public ResolutionException(String message) {
-	super(message);
-    }
+	public ResolutionException(String message) {
+		super(message);
+	}
 
-    public ResolutionException(Throwable cause) {
-	super(cause);
-    }
+	public ResolutionException(Throwable cause) {
+		super(cause);
+	}
 }

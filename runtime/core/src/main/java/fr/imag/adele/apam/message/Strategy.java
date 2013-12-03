@@ -20,5 +20,5 @@
 package fr.imag.adele.apam.message;
 
 public enum Strategy {
-    push, pull, both
+	push, pull, both
 }

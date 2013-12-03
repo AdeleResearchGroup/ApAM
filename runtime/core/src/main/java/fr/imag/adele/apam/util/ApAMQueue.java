@@ -21,102 +21,102 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class ApAMQueue<T> implements Queue<T> {
 
-    private ArrayBlockingQueue<T> arrayBlockingQueue;
+	private ArrayBlockingQueue<T> arrayBlockingQueue;
 
-    public ApAMQueue(ArrayBlockingQueue<T> arrayBlockingQueue) {
-	assert arrayBlockingQueue != null;
-	this.arrayBlockingQueue = arrayBlockingQueue;
-    }
+	public ApAMQueue(ArrayBlockingQueue<T> arrayBlockingQueue) {
+		assert arrayBlockingQueue != null;
+		this.arrayBlockingQueue = arrayBlockingQueue;
+	}
 
-    @Override
-    public boolean add(T e) {
-	throw new UnsupportedOperationException("not supported");
-    }
+	@Override
+	public boolean add(T e) {
+		throw new UnsupportedOperationException("not supported");
+	}
 
-    @Override
-    public boolean addAll(Collection<? extends T> c) {
-	throw new UnsupportedOperationException("not supported");
-    }
+	@Override
+	public boolean addAll(Collection<? extends T> c) {
+		throw new UnsupportedOperationException("not supported");
+	}
 
-    @Override
-    public void clear() {
-	throw new UnsupportedOperationException("not supported");
-    }
+	@Override
+	public void clear() {
+		throw new UnsupportedOperationException("not supported");
+	}
 
-    @Override
-    public boolean contains(Object o) {
-	return arrayBlockingQueue.contains(o);
-    }
+	@Override
+	public boolean contains(Object o) {
+		return arrayBlockingQueue.contains(o);
+	}
 
-    @Override
-    public boolean containsAll(Collection<?> c) {
-	return arrayBlockingQueue.containsAll(c);
-    }
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return arrayBlockingQueue.containsAll(c);
+	}
 
-    @Override
-    public T element() {
-	return arrayBlockingQueue.element();
-    }
+	@Override
+	public T element() {
+		return arrayBlockingQueue.element();
+	}
 
-    @Override
-    public boolean isEmpty() {
-	return arrayBlockingQueue.isEmpty();
-    }
+	@Override
+	public boolean isEmpty() {
+		return arrayBlockingQueue.isEmpty();
+	}
 
-    @Override
-    public Iterator<T> iterator() {
-	return arrayBlockingQueue.iterator();
-    }
+	@Override
+	public Iterator<T> iterator() {
+		return arrayBlockingQueue.iterator();
+	}
 
-    @Override
-    public boolean offer(T e) {
-	throw new UnsupportedOperationException("not supported");
-    }
+	@Override
+	public boolean offer(T e) {
+		throw new UnsupportedOperationException("not supported");
+	}
 
-    @Override
-    public T peek() {
-	return arrayBlockingQueue.peek();
-    }
+	@Override
+	public T peek() {
+		return arrayBlockingQueue.peek();
+	}
 
-    @Override
-    public T poll() {
-	return arrayBlockingQueue.poll();
-    }
+	@Override
+	public T poll() {
+		return arrayBlockingQueue.poll();
+	}
 
-    @Override
-    public T remove() {
-	return arrayBlockingQueue.remove();
-    }
+	@Override
+	public T remove() {
+		return arrayBlockingQueue.remove();
+	}
 
-    @Override
-    public boolean remove(Object o) {
-	return arrayBlockingQueue.remove(o);
-    }
+	@Override
+	public boolean remove(Object o) {
+		return arrayBlockingQueue.remove(o);
+	}
 
-    @Override
-    public boolean removeAll(Collection<?> c) {
-	return arrayBlockingQueue.removeAll(c);
-    }
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return arrayBlockingQueue.removeAll(c);
+	}
 
-    @Override
-    public boolean retainAll(Collection<?> c) {
-	return arrayBlockingQueue.retainAll(c);
-    }
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return arrayBlockingQueue.retainAll(c);
+	}
 
-    @Override
-    public int size() {
-	return arrayBlockingQueue.size();
-    }
+	@Override
+	public int size() {
+		return arrayBlockingQueue.size();
+	}
 
-    @Override
-    public Object[] toArray() {
-	return arrayBlockingQueue.toArray();
-    }
+	@Override
+	public Object[] toArray() {
+		return arrayBlockingQueue.toArray();
+	}
 
-    @SuppressWarnings("hiding")
-    @Override
-    public <T> T[] toArray(T[] a) {
-	return arrayBlockingQueue.toArray(a);
-    }
+	@SuppressWarnings("hiding")
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return arrayBlockingQueue.toArray(a);
+	}
 
 }

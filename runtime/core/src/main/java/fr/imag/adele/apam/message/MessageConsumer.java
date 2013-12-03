@@ -23,10 +23,10 @@ import java.util.List;
 
 public interface MessageConsumer<D> {
 
-    public List<Message<D>> getAllMessages();
+	public List<Message<D>> getAllMessages();
 
-    public D pull();
+	public D pull();
 
-    public Message<D> pullMessage();
+	public Message<D> pullMessage();
 
 }

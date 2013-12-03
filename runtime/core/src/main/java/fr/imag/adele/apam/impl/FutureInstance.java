@@ -26,165 +26,150 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
  */
 public class FutureInstance {
 
-    private final Composite owner;
-    private final Implementation implementation;
-    private final String name;
-    private final Map<String, String> properties;
-    private final List<RelToResolve> triggers;
+	private final Composite owner;
+	private final Implementation implementation;
+	private final String name;
+	private final Map<String, String> properties;
+	private final List<RelToResolve> triggers;
 
-    private boolean isTriggered;
+	private boolean isTriggered;
 
-    public FutureInstance(Composite owner, InstanceDeclaration declaration)
-	    throws InvalidConfiguration {
+	public FutureInstance(Composite owner, InstanceDeclaration declaration) throws InvalidConfiguration {
 
-	this.owner = owner;
-	this.implementation = CST.apamResolver.findImplByName(
-		owner.getMainInst(), declaration.getImplementation().getName());
-	this.name = declaration.getName();
-	this.properties = declaration.getProperties();
-	this.isTriggered = false;
-
-	/*
-	 * Verify that the implementation exists
-	 */
-	if (implementation == null
-		|| !(implementation instanceof Implementation)) {
-	    throw new InvalidConfiguration(
-		    "Invalid instance declaration, implementation can not be found "
-			    + declaration.getImplementation().getName());
-	}
-
-	/*
-	 * Parse the list of triggering conditions
-	 */
-
-	int counter = 1;
-	triggers = new ArrayList<RelToResolve>();
-	for (ConstrainedReference trigger : declaration.getTriggers()) {
-
-	    RelationDeclaration triggerRelation = new RelationDeclaration(
-		    declaration.getReference(), "trigger-" + counter,
-		    trigger.getTarget(), false);
-	    triggerRelation.getImplementationConstraints().addAll(
-		    trigger.getImplementationConstraints());
-	    triggerRelation.getInstanceConstraints().addAll(
-		    trigger.getInstanceConstraints());
-
-	    RelToResolveImpl parsedTrigger = new RelToResolveImpl(owner,
-		    triggerRelation);
-	    // parsedTrigger.computeFilters(owner);
-	    triggers.add(parsedTrigger);
-	    counter++;
-	}
-
-    }
-
-    /**
-     * Verifies whether all triggering conditions are satisfied, and in that
-     * case instantiate the instance in the APAM state
-     */
-    public void checkInstatiation() {
-
-	/*
-	 * Verify if this instance has already been triggered, to avoid nested
-	 * triggers
-	 */
-	if (isInstantiated()) {
-	    return;
-	}
-
-	/*
-	 * evaluate all triggering conditions
-	 */
-	boolean satisfied = true;
-	for (RelToResolve trigger : triggers) {
-
-	    /*
-	     * evaluate the specified trigger
-	     */
-	    boolean satisfiedTrigger = false;
-	    for (Instance candidate : owner.getContainInsts()) {
+		this.owner = owner;
+		this.implementation = CST.apamResolver.findImplByName(owner.getMainInst(), declaration.getImplementation().getName());
+		this.name = declaration.getName();
+		this.properties = declaration.getProperties();
+		this.isTriggered = false;
 
 		/*
-		 * ignore non matching candidates
+		 * Verify that the implementation exists
 		 */
-
-		ResolvableReference target = trigger.getTarget();
-
-		if (trigger.getTarget() instanceof SpecificationReference
-			&& !candidate.getSpec().getDeclaration().getReference()
-				.equals(target)) {
-		    continue;
-		}
-
-		if (trigger.getTarget() instanceof ImplementationReference<?>
-			&& !candidate.getImpl().getDeclaration().getReference()
-				.equals(target)) {
-		    continue;
-		}
-
-		if (!candidate.matchRelationConstraints(trigger)) {
-		    continue;
-		}
-
-		if (!candidate.getImpl().matchRelationConstraints(trigger)) {
-		    continue;
+		if (implementation == null || !(implementation instanceof Implementation)) {
+			throw new InvalidConfiguration("Invalid instance declaration, implementation can not be found " + declaration.getImplementation().getName());
 		}
 
 		/*
-		 * Stop evaluation at first match
+		 * Parse the list of triggering conditions
 		 */
-		satisfiedTrigger = true;
-		break;
-	    }
 
-	    /*
-	     * stop at the first unsatisfied trigger
-	     */
-	    if (!satisfiedTrigger) {
-		satisfied = false;
-		break;
+		int counter = 1;
+		triggers = new ArrayList<RelToResolve>();
+		for (ConstrainedReference trigger : declaration.getTriggers()) {
 
-	    }
+			RelationDeclaration triggerRelation = new RelationDeclaration(declaration.getReference(), "trigger-" + counter, trigger.getTarget(), false);
+			triggerRelation.getImplementationConstraints().addAll(trigger.getImplementationConstraints());
+			triggerRelation.getInstanceConstraints().addAll(trigger.getInstanceConstraints());
+
+			RelToResolveImpl parsedTrigger = new RelToResolveImpl(owner, triggerRelation);
+			// parsedTrigger.computeFilters(owner);
+			triggers.add(parsedTrigger);
+			counter++;
+		}
+
 	}
 
-	/*
-	 * If some trigger is not satisfied, just keep waiting fort all
-	 * conditions to be satisfied
+	/**
+	 * Verifies whether all triggering conditions are satisfied, and in that
+	 * case instantiate the instance in the APAM state
 	 */
-	if (!satisfied) {
-	    return;
+	public void checkInstatiation() {
+
+		/*
+		 * Verify if this instance has already been triggered, to avoid nested
+		 * triggers
+		 */
+		if (isInstantiated()) {
+			return;
+		}
+
+		/*
+		 * evaluate all triggering conditions
+		 */
+		boolean satisfied = true;
+		for (RelToResolve trigger : triggers) {
+
+			/*
+			 * evaluate the specified trigger
+			 */
+			boolean satisfiedTrigger = false;
+			for (Instance candidate : owner.getContainInsts()) {
+
+				/*
+				 * ignore non matching candidates
+				 */
+
+				ResolvableReference target = trigger.getTarget();
+
+				if (trigger.getTarget() instanceof SpecificationReference && !candidate.getSpec().getDeclaration().getReference().equals(target)) {
+					continue;
+				}
+
+				if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getDeclaration().getReference().equals(target)) {
+					continue;
+				}
+
+				if (!candidate.matchRelationConstraints(trigger)) {
+					continue;
+				}
+
+				if (!candidate.getImpl().matchRelationConstraints(trigger)) {
+					continue;
+				}
+
+				/*
+				 * Stop evaluation at first match
+				 */
+				satisfiedTrigger = true;
+				break;
+			}
+
+			/*
+			 * stop at the first unsatisfied trigger
+			 */
+			if (!satisfiedTrigger) {
+				satisfied = false;
+				break;
+
+			}
+		}
+
+		/*
+		 * If some trigger is not satisfied, just keep waiting fort all
+		 * conditions to be satisfied
+		 */
+		if (!satisfied) {
+			return;
+		}
+
+		String instanceName = owner.isSingleton() ? this.name : owner.getName() + ":" + this.name;
+		properties.put("instance.name", instanceName);
+
+		/*
+		 * Try to instantiate the specified implementation.
+		 * 
+		 * TODO BUG We are initializing the properties of the instance, but we
+		 * lost the relation overrides. We need to modify the API to allow
+		 * specifying explicitly an instance declaration for
+		 * Implementation.createInstance.
+		 */
+		isTriggered = true;
+		implementation.createInstance(owner, properties);
+
 	}
 
-	String instanceName = owner.isSingleton() ? this.name : owner.getName()
-		+ ":" + this.name;
-	properties.put("instance.name", instanceName);
-
-	/*
-	 * Try to instantiate the specified implementation.
-	 * 
-	 * TODO BUG We are initializing the properties of the instance, but we
-	 * lost the relation overrides. We need to modify the API to allow
-	 * specifying explicitly an instance declaration for
-	 * Implementation.createInstance.
+	/**
+	 * The declaring composite
 	 */
-	isTriggered = true;
-	implementation.createInstance(owner, properties);
+	public Composite getOwner() {
+		return owner;
+	}
 
-    }
-
-    /**
-     * The declaring composite
-     */
-    public Composite getOwner() {
-	return owner;
-    }
-
-    /**
-     * Whether this future instance has already bee instantiated
-     */
-    public boolean isInstantiated() {
-	return isTriggered;
-    }
+	/**
+	 * Whether this future instance has already bee instantiated
+	 */
+	public boolean isInstantiated() {
+		return isTriggered;
+	}
 
 }

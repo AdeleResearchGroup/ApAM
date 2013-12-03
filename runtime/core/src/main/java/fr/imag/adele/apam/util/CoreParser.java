@@ -27,31 +27,31 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
  */
 public interface CoreParser {
 
-    /**
-     * This interface allow parser users to be notified of all errors found
-     * during parsing
-     */
-    public interface ErrorHandler {
+	/**
+	 * This interface allow parser users to be notified of all errors found
+	 * during parsing
+	 */
+	public interface ErrorHandler {
 
-	public enum Severity {
-	    SUSPECT, WARNING, ERROR;
+		public enum Severity {
+			SUSPECT, WARNING, ERROR;
+		}
+
+		/**
+		 * Notifies of an error in a declaration
+		 */
+		public void error(Severity severity, String message);
 	}
 
 	/**
-	 * Notifies of an error in a declaration
+	 * An string value that will be used to represent mandatory attributes not
+	 * specified
 	 */
-	public void error(Severity severity, String message);
-    }
+	public final static String UNDEFINED = new String("<undefined value>");
 
-    /**
-     * An string value that will be used to represent mandatory attributes not
-     * specified
-     */
-    public final static String UNDEFINED = new String("<undefined value>");
-
-    /**
-     * Get the list of all the declared components
-     */
-    public List<ComponentDeclaration> getDeclarations(ErrorHandler errorHandler);
+	/**
+	 * Get the list of all the declared components
+	 */
+	public List<ComponentDeclaration> getDeclarations(ErrorHandler errorHandler);
 
 }

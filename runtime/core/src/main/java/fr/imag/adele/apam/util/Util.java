@@ -38,240 +38,237 @@ import fr.imag.adele.apam.declarations.UndefinedReference;
  * @author SAM team
  */
 public final class Util {
-    private static Logger logger = LoggerFactory.getLogger(Util.class);
+	private static Logger logger = LoggerFactory.getLogger(Util.class);
 
-    public static Set<Instance> getSharableInsts(Instance client,
-	    Set<Instance> validInsts) {
-	if (validInsts == null) {
-	    return null;
-	}
-	Set<Instance> ret = new HashSet<Instance>();
+	public static Set<Instance> getSharableInsts(Instance client, Set<Instance> validInsts) {
+		if (validInsts == null) {
+			return null;
+		}
+		Set<Instance> ret = new HashSet<Instance>();
 
-	for (Instance inst : validInsts) {
-	    if (inst.isSharable()) {
-		ret.add(inst);
-	    }
-	}
-	return ret;
-    };
+		for (Instance inst : validInsts) {
+			if (inst.isSharable()) {
+				ret.add(inst);
+			}
+		}
+		return ret;
+	};
 
-    /*
-     * =============== String manipulation =============//
-     */
+	/*
+	 * =============== String manipulation =============//
+	 */
 
-    /**
-     * Transforms an array of int in a string list in the Ldap format
-     * 
-     * @param value
-     * @return
-     */
-    public static String intArray2String(int[] value) {
-	StringBuffer sVal = new StringBuffer();
-	int lv = value.length;
-	for (int i = 0; i < lv; i++) {
-	    sVal.append(Integer.toString(value[i]));
-	    if (i < lv - 1) {
-		sVal.append(", ");
-	    }
-	}
-	return sVal.toString();
-    }
-
-    public static void printFileToConsole(URL path) throws IOException {
-	DataInputStream in = null;
-	BufferedReader br = null;
-	try {
-	    in = new DataInputStream(path.openStream());
-	    br = new BufferedReader(new InputStreamReader(in));
-	    String strLine;
-	    // Read File Line By Line
-	    while ((strLine = br.readLine()) != null) {
-		// Print the content on the console
-		System.out.println(strLine);
-	    }
-	} catch (Exception e) {// Catch exception if any
-	} finally {
-	    // Close the input stream in all cases
-	    if (in != null) {
-		in.close();
-	    }
-	    if (br != null) {
-		br.close();
-	    }
-	}
-    }
-
-    /**
-     * Provided a string contain a list of values, return an array of string
-     * containing the different values. A list is of the form "{A, B, .... G}"
-     * or simply "A, B, .... G" Ignores spaces around commas, and around braces.
-     * 
-     * If the string is empty or empty list ("{}"), return the empty array.
-     * 
-     * @param str
-     * @return a string array. Never null, but can be length 0
-     */
-    public static String[] split(String str) {
-	if ((str == null) || (str.length() == 0)) {
-	    return new String[0];
+	/**
+	 * Transforms an array of int in a string list in the Ldap format
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static String intArray2String(int[] value) {
+		StringBuffer sVal = new StringBuffer();
+		int lv = value.length;
+		for (int i = 0; i < lv; i++) {
+			sVal.append(Integer.toString(value[i]));
+			if (i < lv - 1) {
+				sVal.append(", ");
+			}
+		}
+		return sVal.toString();
 	}
 
-	str = str.trim();
-	if (str.length() == 0) {
-	    return new String[0];
+	public static void printFileToConsole(URL path) throws IOException {
+		DataInputStream in = null;
+		BufferedReader br = null;
+		try {
+			in = new DataInputStream(path.openStream());
+			br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+			// Read File Line By Line
+			while ((strLine = br.readLine()) != null) {
+				// Print the content on the console
+				System.out.println(strLine);
+			}
+		} catch (Exception e) {// Catch exception if any
+		} finally {
+			// Close the input stream in all cases
+			if (in != null) {
+				in.close();
+			}
+			if (br != null) {
+				br.close();
+			}
+		}
 	}
 
-	// It is an explicit set. Remove braces.
-	if (str.charAt(0) == '{') {
-	    if (str.charAt(str.length() - 1) != '}') {
-		logger.error("Invalid string. \"}\" missing: " + str);
-	    }
-	    str = (str.substring(1, str.length() - 1)).trim();
-	    // It was an empty set ("{}"
-	    if (str.length() == 0) {
-		return new String[0];
-	    }
+	/**
+	 * Provided a string contain a list of values, return an array of string
+	 * containing the different values. A list is of the form "{A, B, .... G}"
+	 * or simply "A, B, .... G" Ignores spaces around commas, and around braces.
+	 * 
+	 * If the string is empty or empty list ("{}"), return the empty array.
+	 * 
+	 * @param str
+	 * @return a string array. Never null, but can be length 0
+	 */
+	public static String[] split(String str) {
+		if ((str == null) || (str.length() == 0)) {
+			return new String[0];
+		}
+
+		str = str.trim();
+		if (str.length() == 0) {
+			return new String[0];
+		}
+
+		// It is an explicit set. Remove braces.
+		if (str.charAt(0) == '{') {
+			if (str.charAt(str.length() - 1) != '}') {
+				logger.error("Invalid string. \"}\" missing: " + str);
+			}
+			str = (str.substring(1, str.length() - 1)).trim();
+			// It was an empty set ("{}"
+			if (str.length() == 0) {
+				return new String[0];
+			}
+		}
+
+		// It is a simple set of values or a singleton
+		return stringArrayTrim(str.split(","));
 	}
 
-	// It is a simple set of values or a singleton
-	return stringArrayTrim(str.split(","));
-    }
-
-    /**
-     * Warning: returns an unmodifiable List !
-     * 
-     * @param str
-     * @return
-     */
-    public static List<String> splitList(String str) {
-	return Arrays.asList(Util.split(str));
-    }
-
-    public static Set<String> splitSet(String str) {
-	return new HashSet<String>(Arrays.asList(Util.split(str)));
-    }
-
-    /**
-     * Transforms an array of string in a string list in the Ldap format
-     * 
-     * @param value
-     * @return
-     */
-    public static String stringArray2String(String[] value) {
-	StringBuffer sVal = new StringBuffer();
-	int lv = value.length;
-	for (int i = 0; i < lv; i++) {
-	    sVal.append(value[i]);
-	    if (i < lv - 1) {
-		sVal.append(", ");
-	    }
-	}
-	return sVal.toString();
-    }
-
-    public static String[] stringArrayTrim(String[] strings) {
-	String[] ret = new String[strings.length];
-	for (int i = 0; i < strings.length; i++) {
-	    ret[i] = strings[i].trim();
-	}
-	return ret;
-    }
-
-    /**
-     * Transforms an array of string in a string list in the Ldap format
-     * 
-     * @param value
-     * @return
-     */
-    public static String stringSet2String(Set<String> values) {
-	StringBuffer sVal = new StringBuffer();
-	int lv = values.size();
-	int i = 0;
-	for (String val : values) {
-	    sVal.append(val);
-	    if (i < lv - 1) {
-		sVal.append(", ");
-	    }
-	    i++;
-	}
-	return sVal.toString();
-    }
-
-    public static String toStringArrayString(String[] names) {
-	return toStringResources(new HashSet<String>(Arrays.asList(names)));
-    }
-
-    /**
-     * Transforms an atytribute value into a string. If a set of String, put it
-     * into the LDAP form "a, b, c, d" If Integer, transform in String
-     * 
-     * @param value
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static String toStringAttrValue(Object value) {
-	if (value == null) {
-	    return null;
-	}
-	if (value instanceof Integer) {
-	    return value.toString();
-	}
-	if (value instanceof Boolean) {
-	    return value.toString();
-	}
-	if (value instanceof String) {
-	    return (String) value;
-	}
-	return Util.stringSet2String((Set<String>) value);
-
-    }
-
-    /**
-     * takes a list of string "A" "B" "C" ... and produces "{A, B, C, ...}"
-     * 
-     * @param names
-     * @return
-     */
-    public static String toStringResources(Set<String> names) {
-	if ((names == null) || (names.size() == 0)) {
-	    return null;
+	/**
+	 * Warning: returns an unmodifiable List !
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static List<String> splitList(String str) {
+		return Arrays.asList(Util.split(str));
 	}
 
-	StringBuffer ret = new StringBuffer();
-	ret.append("{");
-	for (String name : names) {
-	    ret.append(name + ", ");
+	public static Set<String> splitSet(String str) {
+		return new HashSet<String>(Arrays.asList(Util.split(str)));
 	}
-	return ret.toString().substring(0, ret.length() - 2) + "}";
-    }
 
-    public static String toStringSetReference(
-	    Set<? extends ResourceReference> setRef) {
-	StringBuffer ret = new StringBuffer();
-	ret.append("{");
-	for (ResourceReference ref : setRef) {
-	    ret.append(ref.getJavaType() + ", ");
+	/**
+	 * Transforms an array of string in a string list in the Ldap format
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static String stringArray2String(String[] value) {
+		StringBuffer sVal = new StringBuffer();
+		int lv = value.length;
+		for (int i = 0; i < lv; i++) {
+			sVal.append(value[i]);
+			if (i < lv - 1) {
+				sVal.append(", ");
+			}
+		}
+		return sVal.toString();
 	}
-	String rets = ret.toString();
-	int i = rets.lastIndexOf(',');
-	return rets.substring(0, i) + "}";
-    }
 
-    public static String toStringUndefinedResource(
-	    Set<UndefinedReference> undefinedReferences) {
-	if ((undefinedReferences == null) || (undefinedReferences.size() == 0)) {
-	    return null;
+	public static String[] stringArrayTrim(String[] strings) {
+		String[] ret = new String[strings.length];
+		for (int i = 0; i < strings.length; i++) {
+			ret[i] = strings[i].trim();
+		}
+		return ret;
 	}
-	StringBuffer ret = new StringBuffer();
-	ret.append("{");
-	for (UndefinedReference undfinedReference : undefinedReferences) {
-	    ret.append(undfinedReference.getSubject() + ", ");
-	}
-	return ret.substring(0, ret.length() - 2) + "}";
-    }
 
-    // cannot be instantiated
-    private Util() {
-    }
+	/**
+	 * Transforms an array of string in a string list in the Ldap format
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public static String stringSet2String(Set<String> values) {
+		StringBuffer sVal = new StringBuffer();
+		int lv = values.size();
+		int i = 0;
+		for (String val : values) {
+			sVal.append(val);
+			if (i < lv - 1) {
+				sVal.append(", ");
+			}
+			i++;
+		}
+		return sVal.toString();
+	}
+
+	public static String toStringArrayString(String[] names) {
+		return toStringResources(new HashSet<String>(Arrays.asList(names)));
+	}
+
+	/**
+	 * Transforms an atytribute value into a string. If a set of String, put it
+	 * into the LDAP form "a, b, c, d" If Integer, transform in String
+	 * 
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static String toStringAttrValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Integer) {
+			return value.toString();
+		}
+		if (value instanceof Boolean) {
+			return value.toString();
+		}
+		if (value instanceof String) {
+			return (String) value;
+		}
+		return Util.stringSet2String((Set<String>) value);
+
+	}
+
+	/**
+	 * takes a list of string "A" "B" "C" ... and produces "{A, B, C, ...}"
+	 * 
+	 * @param names
+	 * @return
+	 */
+	public static String toStringResources(Set<String> names) {
+		if ((names == null) || (names.size() == 0)) {
+			return null;
+		}
+
+		StringBuffer ret = new StringBuffer();
+		ret.append("{");
+		for (String name : names) {
+			ret.append(name + ", ");
+		}
+		return ret.toString().substring(0, ret.length() - 2) + "}";
+	}
+
+	public static String toStringSetReference(Set<? extends ResourceReference> setRef) {
+		StringBuffer ret = new StringBuffer();
+		ret.append("{");
+		for (ResourceReference ref : setRef) {
+			ret.append(ref.getJavaType() + ", ");
+		}
+		String rets = ret.toString();
+		int i = rets.lastIndexOf(',');
+		return rets.substring(0, i) + "}";
+	}
+
+	public static String toStringUndefinedResource(Set<UndefinedReference> undefinedReferences) {
+		if ((undefinedReferences == null) || (undefinedReferences.size() == 0)) {
+			return null;
+		}
+		StringBuffer ret = new StringBuffer();
+		ret.append("{");
+		for (UndefinedReference undfinedReference : undefinedReferences) {
+			ret.append(undfinedReference.getSubject() + ", ");
+		}
+		return ret.substring(0, ret.length() - 2) + "}";
+	}
+
+	// cannot be instantiated
+	private Util() {
+	}
 
 }

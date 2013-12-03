@@ -28,149 +28,146 @@ import fr.imag.adele.apam.declarations.ResourceReference;
 
 public interface ComponentBroker {
 
-    /**
-     * Adds a new implementation to the Apam state from its underlying platform
-     * definition
-     * 
-     * @param compoType
-     *            the composite type that will contain that new implementation.
-     * @param apfImpl
-     *            : the apform implementation.
-     */
-    public Implementation addImpl(CompositeType compo,
-	    ApformImplementation apfImpl);
+	/**
+	 * Adds a new implementation to the Apam state from its underlying platform
+	 * definition
+	 * 
+	 * @param compoType
+	 *            the composite type that will contain that new implementation.
+	 * @param apfImpl
+	 *            : the apform implementation.
+	 */
+	public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl);
 
-    /**
-     * adds in ASM an existing platform Instance.
-     * 
-     * @param compo
-     *            The composite in which to create the instance. Cannot be null.
-     * @param inst
-     *            a SAM Instance
-     * @param properties
-     *            . optional : the initial properties
-     * @return an ASM Instance
-     */
-    public Instance addInst(Composite compo, ApformInstance apformInst);
+	/**
+	 * adds in ASM an existing platform Instance.
+	 * 
+	 * @param compo
+	 *            The composite in which to create the instance. Cannot be null.
+	 * @param inst
+	 *            a SAM Instance
+	 * @param properties
+	 *            . optional : the initial properties
+	 * @return an ASM Instance
+	 */
+	public Instance addInst(Composite compo, ApformInstance apformInst);
 
-    /**
-     * Adds a new specification to the Apam state from its underlying platform
-     * definition
-     * 
-     * @param samSpec
-     *            : A Apform specification.
-     */
-    public Specification addSpec(ApformSpecification apfSpec);
+	/**
+	 * Adds a new specification to the Apam state from its underlying platform
+	 * definition
+	 * 
+	 * @param samSpec
+	 *            : A Apform specification.
+	 */
+	public Specification addSpec(ApformSpecification apfSpec);
 
-    /**
-     * Uninstall the bundle containing the provided component. WARNING: It
-     * removes also all the components inside that bundle. WARNING: It removes
-     * the wires towards the removed component, but at next access to these
-     * components, Apam may re-install the same bundle (or another one having
-     * the needed component).
-     * 
-     * @param component
-     */
-    public void componentBundleRemove(Component component);
+	/**
+	 * Uninstall the bundle containing the provided component. WARNING: It
+	 * removes also all the components inside that bundle. WARNING: It removes
+	 * the wires towards the removed component, but at next access to these
+	 * components, Apam may re-install the same bundle (or another one having
+	 * the needed component).
+	 * 
+	 * @param component
+	 */
+	public void componentBundleRemove(Component component);
 
-    /**
-     * Deploys and creates an implementation
-     * 
-     * @param implName
-     *            the name of implementation to resolve.
-     * @param url
-     *            the location of the executable to deploy
-     * @param properties
-     *            . optional : the initial properties for that implementation
-     * @return an ASM Implementation
-     */
-    public Implementation createImpl(CompositeType compo, String implName,
-	    URL url, Map<String, String> properties);
+	/**
+	 * Deploys and creates an implementation
+	 * 
+	 * @param implName
+	 *            the name of implementation to resolve.
+	 * @param url
+	 *            the location of the executable to deploy
+	 * @param properties
+	 *            . optional : the initial properties for that implementation
+	 * @return an ASM Implementation
+	 */
+	public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, String> properties);
 
-    /**
-     * Creates a specification.
-     * 
-     * @param specName
-     *            the *logical* name of that specification
-     * @param interfaces
-     *            the list of interfaces this spec implements
-     * @param properties
-     *            : The initial properties. return an ASM Specification
-     */
-    public Specification createSpec(String specName,
-	    Set<ResourceReference> resources, Map<String, String> properties);
+	/**
+	 * Creates a specification.
+	 * 
+	 * @param specName
+	 *            the *logical* name of that specification
+	 * @param interfaces
+	 *            the list of interfaces this spec implements
+	 * @param properties
+	 *            : The initial properties. return an ASM Specification
+	 */
+	public Specification createSpec(String specName, Set<ResourceReference> resources, Map<String, String> properties);
 
-    /**
-     * Returns the component with the given logical name.
-     * 
-     * @param name
-     *            the logical name of the specification
-     * @return the component or null if not deployed
-     */
-    public Component getComponent(String name);
+	/**
+	 * Returns the component with the given logical name.
+	 * 
+	 * @param name
+	 *            the logical name of the specification
+	 * @return the component or null if not deployed
+	 */
+	public Component getComponent(String name);
 
-    public Implementation getImpl(String implName);
+	public Implementation getImpl(String implName);
 
-    public Set<Implementation> getImpls();
+	public Set<Implementation> getImpls();
 
-    public Set<Implementation> getImpls(String goal);
+	public Set<Implementation> getImpls(String goal);
 
-    public Instance getInst(String instName);
+	public Instance getInst(String instName);
 
-    public Set<Instance> getInsts();
+	public Set<Instance> getInsts();
 
-    public Set<Instance> getInsts(String goal);
+	public Set<Instance> getInsts(String goal);
 
-    // / specification
+	// / specification
 
-    public Instance getInstService(Object service);
+	public Instance getInstService(Object service);
 
-    public Specification getSpec(String name);
+	public Specification getSpec(String name);
 
-    /**
-     * 
-     * @param resource
-     * @return the first specification that implements the provided resource !
-     *         WARNING this is peligrous.
-     */
-    public Specification getSpecResource(ResolvableReference resource);
+	/**
+	 * 
+	 * @param resource
+	 * @return the first specification that implements the provided resource !
+	 *         WARNING this is peligrous.
+	 */
+	public Specification getSpecResource(ResolvableReference resource);
 
-    // public void disappearedComponent (Component component) ;
-    /**
-     * Returns all the components.
-     * 
-     */
-    // public Set<Component> getComponents();
-    public Set<Specification> getSpecs();
+	// public void disappearedComponent (Component component) ;
+	/**
+	 * Returns all the components.
+	 * 
+	 */
+	// public Set<Component> getComponents();
+	public Set<Specification> getSpecs();
 
-    /**
-     * Returns all the specifications that satisfies the goal. If goal is null
-     * all the specifications are supposed to be matched.
-     * 
-     * @param goal
-     *            the goal
-     * @return the specifications
-     */
-    // public Set<Component> getComponents(Filter goal) ;
-    public Set<Specification> getSpecs(String goal);
+	/**
+	 * Returns all the specifications that satisfies the goal. If goal is null
+	 * all the specifications are supposed to be matched.
+	 * 
+	 * @param goal
+	 *            the goal
+	 * @return the specifications
+	 */
+	// public Set<Component> getComponents(Filter goal) ;
+	public Set<Specification> getSpecs(String goal);
 
-    /**
-     * If the component is not present, wait for the apparition of the
-     * component. WARNING: may be locked forever !
-     * 
-     * @param name
-     * @return
-     */
-    public Component getWaitComponent(String name);
+	/**
+	 * If the component is not present, wait for the apparition of the
+	 * component. WARNING: may be locked forever !
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Component getWaitComponent(String name);
 
-    /**
-     * If the component is not present, wait for the apparition of the
-     * component. WARNING: may be locked forever !
-     * 
-     * @param name
-     * @param timeout
-     * @return
-     */
-    public Component getWaitComponent(String name, long timeout);
+	/**
+	 * If the component is not present, wait for the apparition of the
+	 * component. WARNING: may be locked forever !
+	 * 
+	 * @param name
+	 * @param timeout
+	 * @return
+	 */
+	public Component getWaitComponent(String name, long timeout);
 
 }

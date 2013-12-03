@@ -22,22 +22,22 @@ import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
 public interface ApformCompositeType extends ApformImplementation {
 
-    /**
-     * Get the associated APAM composite
-     */
-    @Override
-    public CompositeType getApamComponent();
+	/**
+	 * Get the associated APAM composite
+	 */
+	@Override
+	public CompositeType getApamComponent();
 
-    /**
-     * Get the development model associated with the the implementation
-     */
-    @Override
-    public CompositeDeclaration getDeclaration();
+	/**
+	 * Get the development model associated with the the implementation
+	 */
+	@Override
+	public CompositeDeclaration getDeclaration();
 
-    /**
-     * returns the models associated with this component
-     * 
-     */
-    public Set<ManagerModel> getModels();
+	/**
+	 * returns the models associated with this component
+	 * 
+	 */
+	public Set<ManagerModel> getModels();
 
 }

@@ -19,101 +19,101 @@ import java.util.Set;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
 public interface CompositeType extends Implementation {
-    /**
-     * Adds an "import" relationship towards "destination". Not in the interface
-     * 
-     * @param destination
-     */
-    public void addImport(CompositeType destination);
+	/**
+	 * Adds an "import" relationship towards "destination". Not in the interface
+	 * 
+	 * @param destination
+	 */
+	public void addImport(CompositeType destination);
 
-    /**
-     * return true if the current type contains "impl"
-     * 
-     * @param spec
-     * @return
-     */
-    public boolean containsImpl(Implementation impl);
+	/**
+	 * return true if the current type contains "impl"
+	 * 
+	 * @param spec
+	 * @return
+	 */
+	public boolean containsImpl(Implementation impl);
 
-    /**
-     * 
-     * @return the declaration of this composite
-     */
-    public CompositeDeclaration getCompoDeclaration();
+	/**
+	 * 
+	 * @return the declaration of this composite
+	 */
+	public CompositeDeclaration getCompoDeclaration();
 
-    /**
-     * return the contextual relation of that Identifier. Needs that the
-     * relation source is an ancestor of parameter source and source same kind
-     * as sourceType
-     * 
-     * @param id
-     * @return
-     */
-    public RelationDefinition getCtxtRelation(Component source, String id);
+	/**
+	 * return the contextual relation of that Identifier. Needs that the
+	 * relation source is an ancestor of parameter source and source same kind
+	 * as sourceType
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public RelationDefinition getCtxtRelation(Component source, String id);
 
-    /**
-     * return the contextual relation of that Identifier. Needs that the
-     * relation source is an ancestor of parameter source and source same kind
-     * as sourceType
-     * 
-     * @param id
-     * @return
-     */
-    public Set<RelationDefinition> getCtxtRelations(Component source);
+	/**
+	 * return the contextual relation of that Identifier. Needs that the
+	 * relation source is an ancestor of parameter source and source same kind
+	 * as sourceType
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Set<RelationDefinition> getCtxtRelations(Component source);
 
-    /**
-     * return the composite types embedded in the current one.
-     * 
-     * @return
-     */
-    public Set<CompositeType> getEmbedded();
+	/**
+	 * return the composite types embedded in the current one.
+	 * 
+	 * @return
+	 */
+	public Set<CompositeType> getEmbedded();
 
-    /**
-     * return all the implementation contained in this type
-     * 
-     * @return
-     */
-    public Set<Implementation> getImpls();
+	/**
+	 * return all the implementation contained in this type
+	 * 
+	 * @return
+	 */
+	public Set<Implementation> getImpls();
 
-    /**
-     * returns all the "import" relationships
-     * 
-     * @return
-     */
-    public Set<CompositeType> getImport();
+	/**
+	 * returns all the "import" relationships
+	 * 
+	 * @return
+	 */
+	public Set<CompositeType> getImport();
 
-    /**
-     * returns the composite types that contain this one.
-     * 
-     * @return
-     */
-    public Set<CompositeType> getInvEmbedded();
+	/**
+	 * returns the composite types that contain this one.
+	 * 
+	 * @return
+	 */
+	public Set<CompositeType> getInvEmbedded();
 
-    /**
-     * 
-     * @return the main implementation
-     */
-    public Implementation getMainImpl();
+	/**
+	 * 
+	 * @return the main implementation
+	 */
+	public Implementation getMainImpl();
 
-    /**
-     * 
-     * @param name
-     * @return the model of that name
-     */
-    public ManagerModel getModel(String name);
+	/**
+	 * 
+	 * @param name
+	 * @return the model of that name
+	 */
+	public ManagerModel getModel(String name);
 
-    /**
-     * returns all the models
-     * 
-     * @return
-     */
-    public Set<ManagerModel> getModels();
+	/**
+	 * returns all the models
+	 * 
+	 * @return
+	 */
+	public Set<ManagerModel> getModels();
 
-    /**
-     * return true if the composite type import "destination"
-     * 
-     * @param destination
-     * @return
-     */
-    public boolean isFriend(CompositeType destination);
+	/**
+	 * return true if the composite type import "destination"
+	 * 
+	 * @param destination
+	 * @return
+	 */
+	public boolean isFriend(CompositeType destination);
 
 }
