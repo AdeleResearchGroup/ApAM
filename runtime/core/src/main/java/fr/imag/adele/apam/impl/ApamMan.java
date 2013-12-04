@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.CST;
@@ -44,8 +45,8 @@ public class ApamMan implements RelationManager {
 
 	private BundleContext context;
 
-	public ApamMan() {
-	}
+	//	public ApamMan() {
+	//	}
 
 	public ApamMan(BundleContext context) {
 		this.context = context;
@@ -218,11 +219,43 @@ public class ApamMan implements RelationManager {
 				valid.add(impl);
 			}
 		}
-		if (valid.isEmpty()) {
-			return null;
+
+		if (!!!valid.isEmpty()) {
+			return new Resolved<Instance>(relToResolve.getPrefered(valid), true);
 		}
 
-		return new Resolved<Instance>(relToResolve.getPrefered(valid), true);
+		//In case no solution is found, before to return null ...
+		//If some bundle are starting, they may contain the solution (especially during the starting phase)
+		//Just way a short while to let these bundles complete their starting phase.
+		try {
+			Resolved <?> solution = null ;
+			for (int i = 0; i < 5; i++) {
+				if ( !!!isStartingBundles()) {
+					//No bundle is currently starting : no possible solution
+					return null ;
+				}
+				Thread.sleep(200) ;
+				//try again
+				solution = resolveRelation (source, relToResolve) ;
+				if (solution != null) {
+					return solution ;
+				}
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+
+	private boolean isStartingBundles () {
+		for (Bundle bundle : context.getBundles()) {
+			if (bundle.getState() == Bundle.STARTING) {
+				return true ;
+			}
+		}
+		return false ;
 	}
 
 	// when in Felix.

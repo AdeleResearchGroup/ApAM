@@ -61,7 +61,7 @@ public class PropertyTest extends ExtensionAbstract {
 	// mapOfRequiredArtifacts.put("instance-s1",
 	// "fr.imag.adele.apam.tests.services");
 
-	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 	return addon;
     }
 

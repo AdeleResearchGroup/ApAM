@@ -70,7 +70,7 @@ public class LightScenarioTest extends ExtensionAbstract {
 			    .toURI().toURL().toExternalForm()).start());
 
 	} catch (Exception error) {
-	    Assert.assertTrue("Error deploying WireAdmin", true);
+	    Assert.assertTrue("Error deploying WireAdmin", false);
 	}
 
 	return defaults;

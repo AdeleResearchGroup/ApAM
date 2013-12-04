@@ -777,6 +777,9 @@ public class CompositeTest extends ExtensionAbstract {
 		.getServiceObject();
 	mediaCtl.resolveRemoteControl();
 
+
+	auxListInstances();
+	
 	for (Link link : instAV02.getLinks("promotedRemoteControl")) {
 	    System.out.println("Promoted remote control --> "
 		    + link.getDestination().getName());
@@ -853,8 +856,10 @@ public class CompositeTest extends ExtensionAbstract {
 		"fr.imag.adele.apam.tests.services");
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
 		"fr.imag.adele.apam.tests.services");
+	mapOfRequiredArtifacts.put("apam-pax-composite-av",
+			"fr.imag.adele.apam.tests.app");
 
-	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());
 	return addon;

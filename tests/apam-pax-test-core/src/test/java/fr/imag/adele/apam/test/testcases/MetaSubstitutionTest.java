@@ -47,7 +47,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
 		"fr.imag.adele.apam.tests.services");
 
-	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 	return addon;
     }
 

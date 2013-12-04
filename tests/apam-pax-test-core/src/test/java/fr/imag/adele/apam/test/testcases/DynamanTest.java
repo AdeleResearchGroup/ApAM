@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,12 +35,6 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.pax.test.grant.impl.DayState;
-import fr.imag.adele.apam.pax.test.grant.impl.ToolManager;
-import fr.imag.adele.apam.pax.test.grant.impl.Worker;
-import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.implS1.ServiceDependencySource_tct018;
-import fr.imag.adele.apam.pax.test.implS3.FailException;
 import fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -269,7 +261,7 @@ public class DynamanTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
 		"fr.imag.adele.apam.tests.services");
 
-	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 
 	addon.add(systemPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());

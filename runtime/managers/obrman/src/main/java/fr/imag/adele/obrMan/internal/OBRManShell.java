@@ -50,47 +50,43 @@ import fr.imag.adele.obrMan.OBRManCommand;
 @Provides(specifications = OBRManShell.class)
 public class OBRManShell {
 
-    @ServiceProperty(name = "org.knowhowlab.osgi.shell.group.id", value = "obrman")
-    String universalShell_groupID;
+	@ServiceProperty(name = "org.knowhowlab.osgi.shell.group.id", value = "obrman")
+	String universalShell_groupID;
 
-    @ServiceProperty(name = "org.knowhowlab.osgi.shell.group.name", value = "OBR Manager Commands")
-    String universalShell_groupName;
+	@ServiceProperty(name = "org.knowhowlab.osgi.shell.group.name", value = "OBR Manager Commands")
+	String universalShell_groupName;
 
-    @ServiceProperty(name = "org.knowhowlab.osgi.shell.commands", value = "{}")
-    String[] universalShell_groupCommands = new String[] {
-	    "cr#cr - list repositories of a composite ",
-	    "ur#ur - update resources from repositories" };
+	@ServiceProperty(name = "org.knowhowlab.osgi.shell.commands", value = "{}")
+	String[] universalShell_groupCommands = new String[] { "cr#cr - list repositories of a composite ", "ur#ur - update resources from repositories" };
 
-    // ipojo injected
-    @Requires
-    OBRManCommand obrmanCommand;
+	// ipojo injected
+	@Requires
+	OBRManCommand obrmanCommand;
 
-    /**
-     * compositeRepositories list repositories of a compositeType
-     */
+	/**
+	 * compositeRepositories list repositories of a compositeType
+	 */
 
-    public void cr(PrintWriter out, String... args) {
-	String compositeTypeName = args[0];
-	String result = "";
-	Set<String> repositories = obrmanCommand
-		.getCompositeRepositories(compositeTypeName);
-	result += (compositeTypeName + " (" + repositories.size() + ") : \n");
-	for (String repository : repositories) {
-	    result += ("    >> " + repository + "\n");
-	}
-	out.println(result);
-    }
-
-    public void ur(PrintWriter out, String... args) {
-	String compositeTypeName = args[0];
-	boolean state = obrmanCommand.updateRepos(compositeTypeName);
-	if (state) {
-	    out.println("Update " + compositeTypeName
-		    + " repositories performed");
-	} else {
-	    out.println("Update " + compositeTypeName + " repositories failed");
+	public void cr(PrintWriter out, String... args) {
+		String compositeTypeName = args[0];
+		String result = "";
+		Set<String> repositories = obrmanCommand.getCompositeRepositories(compositeTypeName);
+		result += (compositeTypeName + " (" + repositories.size() + ") : \n");
+		for (String repository : repositories) {
+			result += ("    >> " + repository + "\n");
+		}
+		out.println(result);
 	}
 
-    }
+	public void ur(PrintWriter out, String... args) {
+		String compositeTypeName = args[0];
+		boolean state = obrmanCommand.updateRepos(compositeTypeName);
+		if (state) {
+			out.println("Update " + compositeTypeName + " repositories performed");
+		} else {
+			out.println("Update " + compositeTypeName + " repositories failed");
+		}
+
+	}
 
 }

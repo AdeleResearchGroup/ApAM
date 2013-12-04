@@ -20,10 +20,10 @@ import java.util.Set;
 
 public interface OBRManCommand {
 
-    public Set<String> getCompositeRepositories(String compositeTypeName);
+	public Set<String> getCompositeRepositories(String compositeTypeName);
 
-    public void setInitialConfig(URL modellocation) throws IOException;
+	public void setInitialConfig(URL modellocation) throws IOException;
 
-    public boolean updateRepos(String compositeName);
+	public boolean updateRepos(String compositeName);
 
 }

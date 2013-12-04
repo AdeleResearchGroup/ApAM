@@ -103,7 +103,7 @@ public class MessageTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("apam-pax-samples-msg",
 		"fr.imag.adele.apam.tests.messages");
 
-	List<Option> defaults = super.config(mapOfRequiredArtifacts, true);
+	List<Option> defaults = super.config(mapOfRequiredArtifacts, false);
 
 	try {
 	    defaults.add(bundle((new File(PathUtils.getBaseDir(),

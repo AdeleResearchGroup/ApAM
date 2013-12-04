@@ -148,7 +148,7 @@ public class APAMImpl implements Apam {
 
 	public APAMImpl(BundleContext context) {
 		APAMImpl.context = context;
-		apamMan = new ApamMan();
+		apamMan = new ApamMan(context);
 		if (apamMan == null) {
 			throw new RuntimeException("Error while constructor of ApamMan");
 		}

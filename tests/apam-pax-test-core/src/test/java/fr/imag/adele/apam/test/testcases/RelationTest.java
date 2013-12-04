@@ -145,7 +145,7 @@ public class RelationTest extends ExtensionAbstract {
 	mapOfRequiredArtifacts.put("apam-pax-samples-spec-s7ext",
 		"fr.imag.adele.apam.tests.services");
 
-	List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 	return addon;
     }
 
