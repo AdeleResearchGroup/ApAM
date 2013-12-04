@@ -228,23 +228,15 @@ public class ApamMan implements RelationManager {
 		//If some bundle are starting, they may contain the solution (especially during the starting phase)
 		//Just way a short while to let these bundles complete their starting phase.
 		try {
-			Resolved <?> solution = null ;
-			for (int i = 0; i < 5; i++) {
-				if ( !!!isStartingBundles()) {
-					//No bundle is currently starting : no possible solution
-					return null ;
-				}
-				Thread.sleep(200) ;
-				//try again
-				solution = resolveRelation (source, relToResolve) ;
-				if (solution != null) {
-					return solution ;
-				}
+			if ( !!!isStartingBundles()) {
+				//No bundle is currently starting : no possible solution
+				return null ;
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
+			Thread.sleep(300) ;
+			//try again
+			return resolveRelation (source, relToResolve) ;
+		} catch (InterruptedException e) { }
+
 		return null;
 	}
 
