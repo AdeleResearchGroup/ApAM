@@ -1,0 +1,167 @@
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam  http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd " >    
+
+
+	<composite name="CompoTestAttr" main="TestAttr"
+		specification="STestAttr" interfaces="{apam.test.attr.TestAttr}" />
+
+	<implementation name="TestAttr"
+		classname="apam.test.attrImpl.TestAttrImpl" specification="STestAttr">
+
+		<relation specification="S2" field="s2" />
+		<relation specification="S2" field="s2seul" >
+			<constraints>
+				<implementation filter="(setint=$$locSetInt)"/>
+				<implementation filter="(c=$$S1toS2Final-String1)"/>
+				<implementation filter="(setstring=$aaaa+$location+bbbb)"/>
+				<implementation filter="(name=$$name)"/>
+				<implementation filter="(setint=$S2Simple$intSet)"/>
+<!-- 				<implementation filter="(setint=\$aaaa+$location+bbbb)"/> -->
+			</constraints>
+		</relation>
+
+<!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
+		<property name="spec-name" value="yyy"  />
+<!-- 		<property name="definition-xx" value="ttt" /> -->
+<!-- 		<property name="s1b" value="xyze=" /> -->
+<!-- 		<property name="OS" value="pas bon" /> -->
+		<property name="testEnumere" value="v2" />
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" default="bidon"/>
+<!-- 		<definition name="s1c" field="fieldAttrS1c" type="string" default="bidon"/> -->
+		<definition name="S1toS2Final-Bool" type="boolean" default="true" />
+		<definition name="S1toS2Final-String1" type="string"  />
+		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="enumeration" type="{f1, f2, f3, f4}" />
+		<definition name="autoString" type="string"/>
+		<property   name="autoString" value="aValue"/>
+		<definition name="autoSet" type="{Z-0, Z-1, Z-2, Z-3}"/>
+		<property   name="autoSet" value="Z-1, Z-2" />
+		<definition name="locSetInt" type="{int}"/>
+		<property   name="locSetInt" value="1, 2, 3, 55" />
+
+<!--  Les erreurs -->
+<!-- 		<definition name="fmetaStr" type="boolean" default="$$S1toS2Final-String1"/> -->
+<!-- 		<definition name="fmetaS1i" type="string" default="$$s1i"/> -->
+<!-- 		<definition name="fmetaS1ifalse" type="int" default="$$s1ifalsee"/> -->
+<!-- 		<definition name="metaBool2" type="bool" default="$$S1toS2Final-Bool"/> -->
+<!-- 		<definition name="metaEnumLoc2" type="living, kitchen, bedroom" default="$aaaa$location+bbbb" /> -->
+<!-- 		<definition name="fd2metaStr" type="string" /> -->
+<!-- 		<property name="fd2metaStr" value="$prefixx+$c+sufixx"/> -->
+<!-- 		<definition name="fd2metaS1i" type="{int}" /> -->
+<!-- 		<property name="fd2metaS1i"  value="$S2Impl$intSet"/> -->
+<!-- 		<definition name="fd2metaBool" type="boolean" /> -->
+<!-- 		<property name="fd2metaBool" value="$prefixx+S2Impl$bmissing"/> -->
+<!-- 		<definition name="metaEnumLoc" type="{string}" /> -->
+<!-- 		<property name="metaEnumLoc" value="$S2Impl.S4_2$location" /> -->
+<!-- 		<definition name="d2xmetaEnumLoc" type="exit, entrance, garage, bedroom" /> -->
+<!-- 		<property name="d2xmetaEnumLoc"  value="$.s2.s4_2$locationSingle" /> -->
+<!-- 		<definition name="dxxxmetaEnumLoc" type="{exit, entrance, garage, bedroom}"  /> -->
+<!-- 		<property name="dxxxmetaEnumLoc" value="$S2Impl.S4_2$locationSingle" /> -->
+<!-- 		<definition name="mfd2metaStr" type="string" default="$this.insts.mauvais$name"  /> -->
+<!-- 		<property name="mauvais"  value="$S2_Instance.S4_2$b" /> -->
+<!-- 		<property name="d5metaEnumLoc"  value="$S2_Instance.S4_2$locationSingle" /> -->
+<!-- 		<property name="d21metaEnumLoc" value="$destinations de S4-2+S2Impl.impls.S4_2$name" /> -->
+<!-- 		<property name="d2m2etaEnumLoc"  value="$destinations de s2+S2Impl.spec.impls.S3$name" /> -->
+
+
+<!-- Correct -->
+		<definition name="metaStr" type="string" default="$$S1toS2Final-String1"/>
+		<definition name="metaS1i" type="int" default="$$s1i"/>
+		<definition name="metaBool" type="boolean" default="$$S1toS2Final-Bool"/>
+		<definition name="metaEnumLoc" type="string" default="$aaaa+$location+bbbb" />
+		<definition name="metaEnumLocbis" type="living, kitchen, bedroom" default="$$location" />
+		<definition name="metaEnumLoc3" type="{string}" default="$aaaa+.$location+bbbb" />
+		<definition name="metaEnumSet" type="{f1, f2, f3, f4}" />
+		<definition name="dmetaStr" type="string" />
+		<property   name="dmetaStr" value="$$S1toS2Final-String1"/>
+		<definition name="dmetaS1i" type="int" />
+		<property name="dmetaS1i"  value="$$s1i"/>
+		<definition name="metaBool2" type="{boolean}" />
+		<property name="metaBool2" value="$$S1toS2Final-Bool"/>
+		<definition name="dmetaEnumLoc" type="living, kitchen, bedroom"  />
+		<property name="dmetaEnumLoc"  value="$$location" />
+		<definition name="dmetaEnumSet" type="{f1, f2, f3, f4}" />
+		<property name="dmetaEnumSet" value="$$enumeration"/>
+
+
+		<definition name="d2metaBool" type="boolean"/>
+		<property name="d2metaBool"  value="$S2Impl$b"/>
+		<definition name="mauvais" type="boolean" />
+		<definition name="d5metaEnumLoc" type="exit, entrance, garage, bedroom" />
+		<definition name="d2metaEnumLoc" type="{exit, entrance, garage, bedroom}" />
+		<property name="d2metaEnumLoc" value="$S2Impl.impls.S4_2$locationSingle" />
+		<definition name="d21metaEnumLoc" type="{string}"  />
+		<definition name="d2m2etaEnumLoc" type="{string}"  />
+		<definition name="metaEnumLoc81" type="{exit, entrance, garage, bedroom}"  />
+		<property name="metaEnumLoc81"  value="$S2Impl.insts.S4_2$location" />
+		<definition name="metaEnumLoc82" type="{exit, entrance, garage, bedroom}" />
+		<property name="metaEnumLoc82"  value="$S2Impl.impl.S4_2$location" />
+		<definition name="metaEnumLoc83" type="{exit, entrance, garage, bedroom}" />
+		<property name="metaEnumLoc83"  value="$S2Impl.impl.insts.S4_2$location" />
+
+		<definition name="metaLoc1" type="{string}"  />
+		<property   name="metaLoc1"  value="$this$name" />
+		<definition name="metaLoc2" type="{string}"  />
+		<property   name="metaLoc2" value="$this.insts$name" />
+		<definition name="metaLoc3" type="{string}"  />
+		<property   name="metaLoc3"  value="$this.spec$name" />
+		<definition name="metaLoc4" type="{string}"  />
+		<property name="metaLoc4"  value="$this.impl$name" />
+		<definition name="metaLoc5" type="{string}"  />
+		<property name="metaLoc5" value="$this.impls$name" />
+		<definition name="metaLoc6" type="{string}" />
+		<property name="metaLoc6" value="$this.spec$name" />
+		<definition name="metaLoc7" type="{string}"  />
+		<property name="metaLoc7" value="$this.insts.impl.insts$name" />
+		<definition name="metaLoc8" type="{string}" />
+		<property name="metaLoc8"  value="$this.impl.spec.impls$name" />
+
+		<definition name="d6metaEnumLoc"  type="{string}"  />
+		<property name="d6metaEnumLoc"  value="$.insts.s2$setstring" />
+		<definition name="d6metaEnumLoc6" type="{string}"  />
+		<property name="d6metaEnumLoc6" value="$xxx+.insts.s2$setstring+YYY" />
+		<definition name="d6metaEnumLoc2" type="{string}"  />
+		<property name="d6metaEnumLoc2"  value="$aaaa+this.insts.s2$setstring+bbbb" />
+		<definition name="d6metaEnumLoc4" type="{string}" />
+		<property name="d6metaEnumLoc4"  value="$this.insts.s2$setstring" />
+
+	<definition name="funcTest" type="string" default="@fonctionTest" />
+	<definition name="funcTestSet" type="{string}" default="@fonctionTestSet" />
+	<definition name="falseSub" type="string" default="\$noSubTest" />
+	<definition name="falseFunc" type="string" default="\@fonctionTest" />
+
+	</implementation>
+
+
+
+<implementation name="MotorolaZ43" specification="CapteurTemp" 
+	classname="apam.test.attrImpl.MotorolaZ43" >
+	<property name="unit" value="C" />
+	<property name="OS" value="Linux, Android" />
+	<definition name="rate" type="high, low, medium" default="high" />
+</implementation>
+
+
+	<apam-instance implementation="TestAttr" name="TestAttr-Mine" >
+			<property name="locationInst" value="kitchen" />
+			<property name="s1c" value="5" />
+	</apam-instance>
+</apam>
+

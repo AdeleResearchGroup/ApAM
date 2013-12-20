@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  	<parent>
+		<artifactId>apam-tests</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.6-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	
+  <artifactId>APAM-MyTests</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+  	<module>S1</module>
+  	<module>S2</module>
+  	<module>S3</module>
+  	<module>S4</module>
+  	<module>S5</module>
+  	<module>S1Impl</module>
+  	<module>S2Impl</module>  	
+  	<module>S3Impl</module>
+  	<module>S4Impl</module>
+  	<module>S5Impl</module>
+  	<module>S5CompEx</module>  	
+  	<module>TestAttrSpec</module>
+  	<module>TestAttrImpl</module> 
+  	<module>TestDependency</module>
+  	<module>mainApam</module>
+  	<module>TestCompile</module>
+	
+  	<!-- <module>TestPromotion</module> -->
+  	<!--<module>SpellCtxt</module>
+  	<module>SpellGui</module>
+  	<module>SpellChecker</module>
+  	<module>SpellDico</module>
+  	<module>SpellConsole</module>
+  	<module>SpellSimple</module>
+  	<module>SpellLocale</module>
+  	<module>SpellDicoFR</module>-->
+  </modules>
+
+</project>
