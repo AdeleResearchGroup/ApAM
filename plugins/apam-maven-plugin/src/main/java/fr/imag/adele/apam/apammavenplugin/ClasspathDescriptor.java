@@ -131,7 +131,8 @@ public class ClasspathDescriptor {
 				@SuppressWarnings("unused")
 				Class sd = Class.forName(className);
 				elements = new HashSet();
-			} catch (ClassNotFoundException e) {}
+			} catch (ClassNotFoundException e) {
+			}
 
 		}
 

@@ -611,7 +611,7 @@ public class ApamResolverImpl implements ApamResolver {
 			 */
 			if (res.toInstantiate != null) {
 				if (relToResolve.getTargetKind() != ComponentKind.INSTANCE) {
-					logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
+					logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not an Instance");
 					continue;
 				}
 
@@ -619,7 +619,7 @@ public class ApamResolverImpl implements ApamResolver {
 				 * If resolveExist, we cannot instanciate.
 				 */
 				if (resolveExist) {
-					logger.error(mess + "create=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot instantiate. Resolve failed.");
+					logger.error(mess + "resolve=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot be instantiated. Resolve failed.");
 					continue;
 				}
 

@@ -28,15 +28,15 @@
   	<module>mainApam</module>
   	<module>TestCompile</module>
 	
-  	<!-- <module>TestPromotion</module> -->
-  	<!--<module>SpellCtxt</module>
-  	<module>SpellGui</module>
-  	<module>SpellChecker</module>
-  	<module>SpellDico</module>
-  	<module>SpellConsole</module>
-  	<module>SpellSimple</module>
-  	<module>SpellLocale</module>
-  	<module>SpellDicoFR</module>-->
+<!--    <module>TestPromotion</module> -->
+<!--    <module>SpellCtxt</module> -->
+<!--   	<module>SpellGui</module> -->
+<!--   	<module>SpellChecker</module> -->
+<!--   	<module>SpellDico</module> -->
+<!--   	<module>SpellConsole</module> -->
+<!--   	<module>SpellSimple</module> -->
+<!--   	<module>SpellLocale</module> -->
+<!--   	<module>SpellDicoFR</module> -->
   </modules>
 
 </project>

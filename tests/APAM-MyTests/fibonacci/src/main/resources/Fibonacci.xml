@@ -14,18 +14,21 @@
       limitations under the License.
 
 -->
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam  http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd " >    
+
 
 	<implementation name="Fibonacci"  classname="fr.imag.adele.apam.fibonacci.Fibonacci" 
 		interfaces="fr.imag.adele.apam.fibonacci.Fib" shared="false">
-		<dependency field="moins1"  />
-		<dependency field="moins2"  />
+		<relation field="moins1"  />
+		<relation field="moins2"  resolve="external"/>
 		
 		<definition name="Ifibo" field="fibnb" type="int"/>
 		<definition name="Sfibo" field="sfibo" type="boolean"/>
-		<definition name="Afibl" field="fibil" injected="internal" type="{ int   }" value="5,6"/>
-		<definition name="Afibn" field="fibn" injected="internal"  type="{string }" value="chaine1, chaine2"/>
+		<definition name="Afibl" field="fibil" injected="internal" type="{ int   }" default="5,6"/>
+
+		<definition name="Afibn" field="fibn" injected="internal"  type="{string }" default="chaine1, chaine2"/>
 
 
 <!-- 		<dependency field="moins1"  implementation="Fibonacci"/> -->
@@ -35,7 +38,7 @@
 	</implementation>
 
 	<implementation name="F"  classname="fr.imag.adele.apam.fibonacci.FibMain" >
-			<dependency field="fib" />
+			<relation field="fib" resolve="external" />
 		<definition name="param"  type="{string}" />
 	</implementation>
 

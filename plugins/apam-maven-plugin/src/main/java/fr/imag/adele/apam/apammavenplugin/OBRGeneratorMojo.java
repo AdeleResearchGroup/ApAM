@@ -59,110 +59,109 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  */
 public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
+	public static Map<String, VersionRange> versionRange = new HashMap<String, VersionRange>();
 
+	public static String thisBundleVersion;
 
+	Logger logger = LoggerFactory.getLogger(OBRGeneratorMojo.class);
 
-    public static Map<String, VersionRange> versionRange       = new HashMap<String, VersionRange>();
+	/**
+	 * The Maven project.
+	 * 
+	 * @parameter expression="${project}"
+	 * @required
+	 * @readonly
+	 */
+	private MavenProject project;
 
-	public static String                    thisBundleVersion;
+	/**
+	 * The project groupID
+	 * 
+	 * @parameter default-value="${project.groupId}"
+	 * @required
+	 * @readonly
+	 */
+	public static String currentProjectGroupId;
 
-	Logger                                  logger             = LoggerFactory.getLogger(OBRGeneratorMojo.class);
+	/**
+	 * The project artifactID
+	 * 
+	 * @parameter default-value="${project.artifactId}"
+	 * @required
+	 * @readonly
+	 */
+	public static String currentProjectArtifactId;
 
-    /**
-     * The Maven project.
-     *
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject project;
+	/**
+	 * The project version
+	 * 
+	 * @parameter default-value="${project.version}"
+	 * @required
+	 * @readonly
+	 */
+	public static String currentProjectVersion;
 
+	/**
+	 * The project file
+	 * 
+	 * @parameter default-value="${project.artifact}"
+	 * @required
+	 * @readonly
+	 */
+	private Artifact artifact;
 
-    /**
-     * The project groupID
-     * @parameter default-value="${project.groupId}"
-     * @required
-     * @readonly
-     */
-	public static String currentProjectGroupId ;
+	/**
+	 * @parameter default-value="${basedir}
+	 */
+	private File baseDirectory;
 
-    /**
-     * The project artifactID
-     * @parameter default-value="${project.artifactId}"
-     * @required
-     * @readonly
-     */
-    public static String currentProjectArtifactId ;
+	private boolean parsingFailed = false;
 
-    /**
-     * The project version
-     * @parameter default-value="${project.version}"
-     * @required
-     * @readonly
-     */
-    public static String currentProjectVersion ;
+	/**
+	 * Contains all classes and resources
+	 */
+	public static ClasspathDescriptor classpathDescriptor;
 
-    /**
-     * The project file
-     * @parameter default-value="${project.artifact}"
-     * @required
-     * @readonly
-     */
-    private Artifact artifact;
-
-    /**
-     * @parameter default-value="${basedir}
-     */
-    private File baseDirectory;
-
-	private boolean parsingFailed =false;
-
-
-    /**
-     * Contains all classes and resources
-     */
-    public static ClasspathDescriptor classpathDescriptor;
-
-    /**
+	/**
 	 * Execute method : this method launches the OBR generation.
 	 * 
 	 * @throws MojoExecutionException
 	 *             : an exception occurs during the OBR generation..
-	 *
+	 * 
 	 */
 	@Override
 	public void execute() throws MojoExecutionException {
 
 		super.execute();
 
-
 		thisBundleVersion = currentProjectVersion.replace('-', '.');
-        classpathDescriptor = new ClasspathDescriptor();
+		classpathDescriptor = new ClasspathDescriptor();
 		try {
 
 			getLog().info("Start bundle header manipulation");
 
-			//The jar to compile
-			List<ComponentDeclaration> components = getComponentFromJar(artifact.getFile());
-			
-			if(components.isEmpty()){
+			// The jar to compile
+			List<ComponentDeclaration> components = getComponentFromJar(artifact
+					.getFile());
+
+			if (components.isEmpty()) {
 				throw new InvalidApamMetadataException();
 			}
-			
-            classpathDescriptor.add(artifact.getFile());
+
+			classpathDescriptor.add(artifact.getFile());
 			/*
 			 * Get the definition of the components needed to compile
 			 */
-			List <ComponentDeclaration> dependencies = new ArrayList <ComponentDeclaration> ();
+			List<ComponentDeclaration> dependencies = new ArrayList<ComponentDeclaration>();
 
-            /*
-             *Clear statics
-             */
-            versionRange.clear();
+			/*
+			 * Clear statics
+			 */
+			versionRange.clear();
 
-            /*
-             * loop  dependencies
-             */
+			/*
+			 * loop dependencies
+			 */
 
 			for (Object artifact : project.getArtifacts()) {
 				if (artifact instanceof Artifact) {
@@ -170,22 +169,25 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 					Artifact relation = (Artifact) artifact;
 
 					VersionRange range = relation.getVersionRange();
-					
+
 					OBRGeneratorMojo.versionRange.put(relation.getArtifactId(),
 							range);
-					
-					List<ComponentDeclaration> subcomponents=getComponentFromJar(((Artifact) artifact).getFile());
-					
-					if(subcomponents!=null) dependencies.addAll(subcomponents);
-					
+
+					List<ComponentDeclaration> subcomponents = getComponentFromJar(((Artifact) artifact)
+							.getFile());
+
+					if (subcomponents != null)
+						dependencies.addAll(subcomponents);
+
 					classpathDescriptor.add(relation.getFile());
 				}
 			}
 
-            ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
+			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
-				throw new MojoExecutionException("Metadata Apam compilation failed.");
+				throw new MojoExecutionException(
+						"Metadata Apam compilation failed.");
 			}
 			if (parsingFailed) {
 				error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
@@ -193,20 +195,20 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 			OutputStream obr;
 			String obrFileStr = baseDirectory.getAbsolutePath()
-			+ File.separator + "src"
-			+ File.separator + "main"
-			+ File.separator + "resources"
-			+ File.separator + "obr.xml";
+					+ File.separator + "src" + File.separator + "main"
+					+ File.separator + "resources" + File.separator + "obr.xml";
 			File obrFile = new File(obrFileStr);
 
-			// maven ?? copies first in target/classes before to look in src/resources
-			// and copies src/resources/obr.xml to target/classes *after* obr modification
-			// Thus we delete first target/classes/obr.xml to be sure the newly generated obr.xml file will be used
+			// maven ?? copies first in target/classes before to look in
+			// src/resources
+			// and copies src/resources/obr.xml to target/classes *after* obr
+			// modification
+			// Thus we delete first target/classes/obr.xml to be sure the newly
+			// generated obr.xml file will be used
 
 			String oldObrFileStr = baseDirectory.getAbsolutePath()
-			+ File.separator + "target"
-			+ File.separator + "classes"
-			+ File.separator + "obr.xml";
+					+ File.separator + "target" + File.separator + "classes"
+					+ File.separator + "obr.xml";
 			File oldObrFile = new File(oldObrFileStr);
 			if (oldObrFile.exists()) {
 				oldObrFile.delete();
@@ -225,18 +227,20 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			error(Severity.ERROR, e.getMessage());
 			throw new MojoExecutionException(e.getMessage());
 		}
-		
+
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
 
-	private List<ComponentDeclaration> getComponentFromJar (File jar) throws InvalidApamMetadataException {
-		
+	private List<ComponentDeclaration> getComponentFromJar(File jar)
+			throws InvalidApamMetadataException {
+
 		try {
 			JarFile jarFile = new JarFile(jar);
 			Manifest manifest = jarFile.getManifest();
-			
-			if(manifest==null) return null;
-			
+
+			if (manifest == null)
+				return null;
+
 			// manifest.getAttributes("").
 			Attributes iPOJOmetadata = manifest.getMainAttributes();
 			String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
@@ -244,44 +248,44 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			iPOJOmetadata = null;
 			manifest = null;
 			jarFile.close();
-			if (ipojoMetadata == null ) {
-				String message=" No Apam metadata for " + jar ;
+			if (ipojoMetadata == null) {
+				String message = " No Apam metadata for " + jar;
 				getLog().error(message);
 				return Collections.emptyList();
 
 			}
-			
+
 			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
 			Element root = ManifestMetadataParser
-			.parseHeaderMetadata(ipojoMetadata);
-			
+					.parseHeaderMetadata(ipojoMetadata);
+
 			CoreParser parser = new CoreMetadataParser(root);
 			List<ComponentDeclaration> ret = parser.getDeclarations(this);
-			
-			String contains = "    contains components: " ;
+
+			String contains = "    contains components: ";
 			for (ComponentDeclaration comp : ret) {
 				contains += comp.getName() + " ";
 			}
-			getLog().info(contains) ;
-			return ret ;
-			
+			getLog().info(contains);
+			return ret;
+
 		} catch (ParseException e) {
-			String message="Parsing manifest metadata for " + jar + " - FAILED ";
+			String message = "Parsing manifest metadata for " + jar
+					+ " - FAILED ";
 			getLog().error(message);
 			error(Severity.ERROR, message);
 		} catch (IOException e) {
 			getLog().error(e.getMessage());
 			error(Severity.ERROR, e.getMessage());
 		}
-		
-		return Collections.emptyList(); 
+
+		return Collections.emptyList();
 	}
-	
+
 	@Override
 	public void error(Severity severity, String message) {
 		logger.error("error parsing component declaration : " + message);
-		parsingFailed  = true;
+		parsingFailed = true;
 	}
-	
 
 }
