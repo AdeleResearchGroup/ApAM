@@ -399,6 +399,7 @@
 				<artifactId>maven-ipojo-plugin</artifactId>
 				<groupId>org.apache.felix</groupId>
 				<version>${ipojo.version}</version>
+				<type>maven-plugin</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
