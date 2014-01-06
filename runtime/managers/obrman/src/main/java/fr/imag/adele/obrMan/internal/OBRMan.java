@@ -33,6 +33,7 @@ import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -61,6 +62,10 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	// iPOJO injected
 	private RepositoryAdmin repoAdmin;
+	
+	//iPOJO injected to ensure proper starting order
+	@SuppressWarnings("unused")
+	private Apam apam;
 
 	private final Logger logger = LoggerFactory.getLogger(OBRMan.class);
 
