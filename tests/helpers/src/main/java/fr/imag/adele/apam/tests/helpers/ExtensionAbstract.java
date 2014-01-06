@@ -238,18 +238,18 @@ public abstract class ExtensionAbstract extends TestUtils {
     }
 
     protected CompositeOption packApamShell() {
-	CompositeOption logConfig = new DefaultCompositeOption(
-	// mavenBundle("fr.imag.adele.apam", "apam-universal-shell")
-	// .versionAsInProject(),
-	// mavenBundle("org.apache.felix", "org.apache.felix.gogo.command")
-	// .version("0.12.0"),
-	// mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime")
-	// .version("0.10.0"), mavenBundle("org.apache.felix",
-	// "org.apache.felix.gogo.shell").version("0.10.0"),
-	// mavenBundle("org.apache.felix",
-	// "org.apache.felix.ipojo.arch.gogo").version("1.0.1"),
-	// mavenBundle("org.knowhowlab.osgi.shell", "felix-gogo").version(
-	// "1.1.0")
+		CompositeOption logConfig = new DefaultCompositeOption(
+		 mavenBundle("fr.imag.adele.apam", "apam-universal-shell")
+		 .versionAsInProject(),
+		 mavenBundle("org.apache.felix", "org.apache.felix.gogo.command")
+		 .version("0.12.0"),
+		 mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime")
+		 .version("0.10.0"), mavenBundle("org.apache.felix",
+		 "org.apache.felix.gogo.shell").version("0.10.0"),
+		 mavenBundle("org.apache.felix",
+		 "org.apache.felix.ipojo.arch.gogo").version("1.0.1"),
+		 mavenBundle("org.knowhowlab.osgi.shell", "felix-gogo").version(
+		 "1.1.0")
 	);
 
 	return logConfig;
