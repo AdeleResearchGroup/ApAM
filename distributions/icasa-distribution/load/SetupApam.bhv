@@ -1,0 +1,25 @@
+<behavior startdate="25/04/2013-14:59:31" factor="1440">
+
+	<!-- Zone Section -->
+
+	<create-zone id="hall" leftX="321" topY="62" width="85" height="482" />
+
+
+	<create-zone id="livingroom" leftX="410" topY="60" width="223" height="300" />
+
+
+	<create-zone id="kitchen" leftX="416" topY="375" width="232" height="184" />
+
+
+	<create-zone id="bathroom" leftX="80" topY="36" width="231" height="328" />
+
+
+	<create-zone id="bedroom" leftX="78" topY="376" width="223" height="188" />
+
+
+	<!-- Device Section -->
+
+
+	<!-- Person Section -->
+
+</behavior>
