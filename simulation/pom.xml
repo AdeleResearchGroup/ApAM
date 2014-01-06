@@ -6,8 +6,8 @@
 
 		<!-- Dependencies version -->
 
-		<apam.version>0.0.4-SNAPSHOT</apam.version>
-		<icasa.version>1.0.1-SNAPSHOT</icasa.version>
+		<apam.version>0.0.6-SNAPSHOT</apam.version>
+		<icasa.version>1.2.5</icasa.version>
 
 		<!-- java compilation version -->
 		<compiler.plugin.version>2.5.1</compiler.plugin.version>
@@ -20,8 +20,8 @@
 		<osgi.version>4.2.0</osgi.version>
 		<bundle.plugin.version>2.3.7</bundle.plugin.version>
 
-		<ipojo.version>1.8.0</ipojo.version>
-		<ipojo.plugin.version>1.8.6</ipojo.plugin.version>
+		<ipojo.version>1.10.1</ipojo.version>
+		<ipojo.plugin.version>1.10.1</ipojo.plugin.version>
 		
 	</properties>
 
@@ -35,11 +35,10 @@
 	
 	<modules>
 		<module>devices</module>
-     	<module>applications</module>
-     	<module>home</module>
-     	<module>security</module>
+	     	<module>applications</module>
+	     	<module>home</module>
+	     	<module>security</module>
 	</modules>
-	
 	
 	<dependencyManagement>
 		<dependencies>
@@ -132,6 +131,15 @@
 					<groupId>fr.imag.adele.apam</groupId>
 					<artifactId>apam-maven-plugin</artifactId>
 					<version>${apam.version}</version>
+					
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.felix</groupId>
+							<artifactId>maven-ipojo-plugin</artifactId>
+							<version>${ipojo.plugin.version}</version>
+            						<type>maven-plugin</type>
+						</dependency>
+					</dependencies>
 					<executions>
 						<execution>
 							<goals>

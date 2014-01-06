@@ -40,7 +40,6 @@ public class ZoneManager implements ZoneListener {
 	@Requires(proxy = false)
 	private SimulationManager manager;
 	
-	@SuppressWarnings("unused")
 	@Requires(proxy = false)
 	private Apam apam;
 	
@@ -189,26 +188,11 @@ public class ZoneManager implements ZoneListener {
 		execute(this.new RemoveRequest(zone));
 	}
 
-	@Override
-	public void zoneMoved(Zone arg0, Position arg1) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void zoneResized(Zone zone) {
 	}
 
-	@Override
-	public void zoneParentModified(Zone arg0, Zone arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-	@Override
-	public void zoneVariableModified(Zone arg0, String arg1, Object arg2) {
-	}
 
 	@Override
 	public void zoneVariableAdded(Zone zone, String variable) {
@@ -224,6 +208,19 @@ public class ZoneManager implements ZoneListener {
 
 	@Override
 	public void deviceDetached(Zone zone, LocatedDevice device) {
+	}
+
+	@Override
+	public void zoneVariableModified(Zone arg0, String arg1, Object arg2, Object arg3) {
+	}
+
+	@Override
+	public void zoneMoved(Zone arg0, Position arg1, Position arg2) {
+	}
+
+	@Override
+	public void zoneParentModified(Zone arg0, Zone arg1, Zone arg2) {
+		
 	}
 
 	

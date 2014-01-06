@@ -110,4 +110,16 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
     	location = zones.isEmpty() ? SimulatedDevice.LOCATION_UNKNOWN : zones.get(0).getId();
 
 	}
+
+	@Override
+	public void turnOff() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void turnOn() {
+		// TODO Auto-generated method stub
+		
+	}
 }

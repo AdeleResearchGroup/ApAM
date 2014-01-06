@@ -18,8 +18,9 @@ import fr.imag.adele.apam.Instance;
 import fr.liglab.adele.apam.device.fire.EmergencyEvent;
 
 /**
- * This class implements simple test application that unlock the doors in
- * case of fire
+ * This class keeps track of the current state of the fire management domain.
+ * 
+ * Applications in this domain may signal an emergency by sending an EmergencyEvent message
  * 
  * @author vega
  *

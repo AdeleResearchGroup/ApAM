@@ -11,7 +11,7 @@
 
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 	<!--
@@ -26,13 +26,13 @@
 			<start implementation="BuildingAccessDomain" name="buildingAccessDomain" />
 
 			<own specification="Door">
-				<grant implementation="FireManagementDomain" dependency="emergencyDoors" when="fire"/>
+				<grant implementation="FireManagementDomain" relation="emergencyDoors" when="fire"/>
 			</own>
 			
 			<export instance="false"/>
 			<exportApp instance="true"/>
 						
-			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
+			<override source=".*" name=".*" specification="Presence" creation="eager"  />
 
 		</contentMngt>
 	</composite>
@@ -48,30 +48,29 @@
 
 	<!--
 		This is the domain scope for fire management applications that are self contained, with a
-		fine graine control of the shared components
+		fine grain control of the shared components
 	-->
 	<composite name="FireManagementDomain" singleton="true">
 
-		<dependency  name="emergencyDoors" specification="Door" multiple="true">
+		<relation  name="emergencyDoors" specification="Door" multiple="true">
 			<constraints>
 				<instance filter="(access=true)"/>
 			</constraints>
-		</dependency>
+		</relation>
 
 		<definition name="emergency" type="emergency,normal"/>
 		
 		<contentMngt>
 	
 			<state implementation="EmergencyDetection" property="emergency"/>
-			<dependency override="true" source="EmergencyState" name="emergencyEvents" eager="true" />
 			
 			<import instance="false" />
 			<export instance="false"/>
-
+			
 			<own specification="SmokeDetector"/>
 			
-			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
-			<dependency override="true" source=".*" name=".*" specification="SmokeDetector" eager="true" />
+			<override source=".*" name=".*" specification="Presence" creation="eager" />
+			<override source=".*" name=".*" specification="SmokeDetector" creation="eager" />
 
 		</contentMngt>
 
@@ -87,7 +86,7 @@
 			<import instance="true" />
 			<export instance="true"/>
 
-			<dependency override="true" source=".*" name=".*" specification="Presence" eager="true" />
+			<override source=".*" name=".*" specification="Presence" creation="eager" />
 		</contentMngt>
 	</composite>
 
@@ -98,7 +97,7 @@
 	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
 		<callback onInit="start"/>
 		<definition name="emergency" type="emergency,normal" field="stateProperty" injected="internal" />
-		<dependency name="emergencyEvents" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
+		<relation name="emergencyEvents" creation="eager" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
 	</implementation>
 	
 </apam>

@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>simulated.presence</artifactId>
+	<artifactId>icasa.simulated.presence</artifactId>
 	<name>ApAM iCasa simulated  presence sensor</name>
 	<packaging>bundle</packaging>
 	<dependencies>

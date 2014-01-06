@@ -16,20 +16,20 @@
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
                           
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
         
-        <dependency field="doors" specification="Door">
+        <relation field="doors" specification="Door">
             <constraints>
             	<instance filter="(access=true)"/>
             </constraints>
-        </dependency>
+        </relation>
         
-        <dependency specification="Presence">
+        <relation specification="Presence">
             <message push="presenceChanged"/>
-        </dependency>
+        </relation>
         
     </implementation>
 

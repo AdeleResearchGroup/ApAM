@@ -16,18 +16,18 @@
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
                           
     <implementation name="BasicLightAutomation" classname="fr.imag.adele.apam.application.ligthen.BasicLightAutomation">
         
-        <dependency field="lights" specification="Light" added="bindLight" removed="unBindLight">
+        <relation field="lights" specification="Light" added="bindLight" removed="unBindLight">
             <constraints>
             	<instance filter="(location=$$location)"/>
             </constraints>
-        </dependency>
+        </relation>
         
-        <dependency specification="Presence">
+        <relation specification="Presence">
         	
         	<interface 	field="presenceSensor"/>
             <message 	push="presenceChanged"/>
@@ -35,7 +35,7 @@
             <constraints>
             	<instance filter="(location=$$location)"/>
             </constraints>
-        </dependency>
+        </relation>
         
         <definition name="location" type="string"/>
         
