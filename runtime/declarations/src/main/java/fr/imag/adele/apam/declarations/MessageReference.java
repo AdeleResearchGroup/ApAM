@@ -22,13 +22,13 @@ package fr.imag.adele.apam.declarations;
  */
 public class MessageReference extends ResourceReference {
 
-    public MessageReference(String name) {
-	super(name);
-    }
+	public MessageReference(String name) {
+		super(name);
+	}
 
-    @Override
-    public String toString() {
-	return "message " + getIdentifier();
-    }
+	@Override
+	public String toString() {
+		return "message " + getIdentifier();
+	}
 
 }

@@ -27,62 +27,61 @@ import java.util.Set;
  */
 public class InstanceDeclaration extends ComponentDeclaration {
 
-    public static class RemoteDeclaration extends CompositeDeclaration {
-	public RemoteDeclaration(String name,
-		SpecificationReference specification,
-		ComponentReference<?> mainComponent) {
-	    super(name, specification, mainComponent);
+	public static class RemoteDeclaration extends CompositeDeclaration {
+		public RemoteDeclaration(String name,
+				SpecificationReference specification,
+				ComponentReference<?> mainComponent) {
+			super(name, specification, mainComponent);
+		}
 	}
-    }
 
-    /**
-     * A reference to the implementation
-     */
-    private final ImplementationReference<?> implementation;
+	/**
+	 * A reference to the implementation
+	 */
+	private final ImplementationReference<?> implementation;
 
-    /**
-     * The list of triggers that must be met to start this instance
-     */
-    private final Set<ConstrainedReference> triggers;
+	/**
+	 * The list of triggers that must be met to start this instance
+	 */
+	private final Set<ConstrainedReference> triggers;
 
-    public InstanceDeclaration(ImplementationReference<?> implementation,
-	    String name, Set<ConstrainedReference> triggers) {
-	super(name);
+	public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<ConstrainedReference> triggers) {
+		super(name);
 
-	assert implementation != null;
+		assert implementation != null;
 
-	this.implementation = implementation;
-	this.triggers = triggers;
-    }
+		this.implementation = implementation;
+		this.triggers = triggers;
+	}
 
-    @Override
-    protected ComponentReference<InstanceDeclaration> generateReference() {
-	return new InstanceReference(getName());
-    }
+	@Override
+	protected ComponentReference<InstanceDeclaration> generateReference() {
+		return new InstanceReference(getName());
+	}
 
-    @Override
-    public ComponentReference<?> getGroupReference() {
-	return getImplementation();
-    }
+	@Override
+	public ComponentReference<?> getGroupReference() {
+		return getImplementation();
+	}
 
-    /**
-     * The implementation of this instance
-     */
-    public ImplementationReference<?> getImplementation() {
-	return implementation;
-    }
+	/**
+	 * The implementation of this instance
+	 */
+	public ImplementationReference<?> getImplementation() {
+		return implementation;
+	}
 
-    /**
-     * The triggering specification
-     */
-    public Set<ConstrainedReference> getTriggers() {
-	return triggers;
-    }
+	/**
+	 * The triggering specification
+	 */
+	public Set<ConstrainedReference> getTriggers() {
+		return triggers;
+	}
 
-    @Override
-    public String toString() {
-	String ret = "Instance declaration " + super.toString();
-	ret += "\n    Implementation: " + implementation.getIdentifier();
-	return ret;
-    }
+	@Override
+	public String toString() {
+		String ret = "Instance declaration " + super.toString();
+		ret += "\n    Implementation: " + implementation.getIdentifier();
+		return ret;
+	}
 }

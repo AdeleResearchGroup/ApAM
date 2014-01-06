@@ -33,6 +33,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.impl.handlers.MessageProviderHandler;
@@ -166,7 +167,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      * @param apam
      */
 	protected void unbindFromApam(Apam apam) {
-        ComponentBrokerImpl.disappearedComponent(getName());
+		((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(getName());
     }
 
     /**

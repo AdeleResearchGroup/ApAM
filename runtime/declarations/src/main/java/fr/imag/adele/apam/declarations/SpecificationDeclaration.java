@@ -28,38 +28,38 @@ package fr.imag.adele.apam.declarations;
  */
 public class SpecificationDeclaration extends ComponentDeclaration {
 
-    public SpecificationDeclaration(String name) {
-	super(name);
-    }
+	public SpecificationDeclaration(String name) {
+		super(name);
+	}
 
-    @Override
-    protected SpecificationReference generateReference() {
-	return new SpecificationReference(getName());
-    }
+	@Override
+	protected SpecificationReference generateReference() {
+		return new SpecificationReference(getName());
+	}
 
-    @Override
-    public ComponentReference<?> getGroupReference() {
-	return null;
-    }
+	@Override
+	public ComponentReference<?> getGroupReference() {
+		return null;
+	}
 
-    /**
-     * Override the return type to a most specific class in order to avoid
-     * unchecked casting when used
-     */
-    @Override
-    public final SpecificationReference getReference() {
-	return (SpecificationReference) super.getReference();
-    }
+	/**
+	 * Override the return type to a most specific class in order to avoid
+	 * unchecked casting when used
+	 */
+	@Override
+	public final SpecificationReference getReference() {
+		return (SpecificationReference) super.getReference();
+	}
 
-    @Override
-    public boolean resolves(RelationDeclaration relation) {
-	return super.resolves(relation)
-		|| relation.getTarget().equals(this.getReference());
-    }
+	@Override
+	public boolean resolves(RelationDeclaration relation) {
+		return super.resolves(relation)
+				|| relation.getTarget().equals(this.getReference());
+	}
 
-    @Override
-    public String toString() {
-	return "Specification " + super.toString();
-    }
+	@Override
+	public String toString() {
+		return "Specification " + super.toString();
+	}
 
 }

@@ -28,75 +28,75 @@ package fr.imag.adele.apam.declarations;
  */
 public abstract class Reference {
 
-    /**
-     * A class to represent different namespaces.
-     * 
-     * Notice that namespaces must be unique objects, this is not verified but
-     * must be enforced by concrete subclasses of this base class.
-     */
-    public interface Namespace {
+	/**
+	 * A class to represent different namespaces.
+	 * 
+	 * Notice that namespaces must be unique objects, this is not verified but
+	 * must be enforced by concrete subclasses of this base class.
+	 */
+	public interface Namespace {
 
-    }
-
-    /**
-     * The namespace associated to the identifier
-     */
-    protected final Namespace namespace;
-
-    /**
-     * Default constructor
-     */
-    protected Reference(Namespace namespace) {
-
-	assert namespace != null;
-	this.namespace = namespace;
-    }
-
-    /**
-     * Cast this reference to a more specific class of references.
-     * 
-     * Returns null if the cast is not possible
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends Reference> R as(Class<R> kind) {
-
-	if (kind.isAssignableFrom(this.getClass())) {
-	    return (R) this;
 	}
 
-	return null;
-    }
+	/**
+	 * The namespace associated to the identifier
+	 */
+	protected final Namespace namespace;
 
-    /**
-     * Resources are uniquely identified by identifier and namespace.
-     * 
-     */
-    @Override
-    public final boolean equals(Object object) {
-	if (this == object) {
-	    return true;
+	/**
+	 * Default constructor
+	 */
+	protected Reference(Namespace namespace) {
+
+		assert namespace != null;
+		this.namespace = namespace;
 	}
 
-	if (!(object instanceof Reference)) {
-	    return false;
+	/**
+	 * Cast this reference to a more specific class of references.
+	 * 
+	 * Returns null if the cast is not possible
+	 */
+	@SuppressWarnings("unchecked")
+	public <R extends Reference> R as(Class<R> kind) {
+
+		if (kind.isAssignableFrom(this.getClass())) {
+			return (R) this;
+		}
+
+		return null;
 	}
 
-	Reference that = (Reference) object;
-	return this.namespace.equals(that.namespace)
-		&& this.getIdentifier().equals(that.getIdentifier());
-    }
+	/**
+	 * Resources are uniquely identified by identifier and namespace.
+	 * 
+	 */
+	@Override
+	public final boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
 
-    /**
-     * The identifier of the referenced resource
-     */
-    protected abstract String getIdentifier();
+		if (!(object instanceof Reference)) {
+			return false;
+		}
 
-    /**
-     * Hash code is based on identity
-     */
-    @Override
-    public final int hashCode() {
-	return namespace.hashCode() + getIdentifier().hashCode();
-    }
+		Reference that = (Reference) object;
+		return this.namespace.equals(that.namespace)
+				&& this.getIdentifier().equals(that.getIdentifier());
+	}
+
+	/**
+	 * The identifier of the referenced resource
+	 */
+	protected abstract String getIdentifier();
+
+	/**
+	 * Hash code is based on identity
+	 */
+	@Override
+	public final int hashCode() {
+		return namespace.hashCode() + getIdentifier().hashCode();
+	}
 
 }

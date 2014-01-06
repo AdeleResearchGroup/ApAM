@@ -236,7 +236,7 @@ public class ApamManagers {
 		if (manager.getName() != null) {
 
 			((APAMImpl) CST.apam).managerRegistered(manager);
-			logger.info("[" + manager.getName() + "] registered an initialized");
+			logger.info("[" + manager.getName() + "] registered and initialized");
 			ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
 			// the root model maybe null
 			manager.newComposite(rootModel, CompositeTypeImpl.getRootCompositeType());

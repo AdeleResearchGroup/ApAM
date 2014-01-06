@@ -23,23 +23,23 @@ package fr.imag.adele.apam.declarations;
  */
 public enum MissingPolicy {
 
-    /**
-     * The default policy is just to ignore this event. If a client uses the
-     * relation a null reference will be returned to the calling thread.
-     */
-    OPTIONAL,
+	/**
+	 * The default policy is just to ignore this event. If a client uses the
+	 * relation a null reference will be returned to the calling thread.
+	 */
+	OPTIONAL,
 
-    /**
-     * Automatically creates the wire for resolving the relation when a suitable
-     * instance is available. If a client tries to use the relation, the
-     * invoking thread will be blocked until the relation is resolved again.
-     */
-    WAIT,
+	/**
+	 * Automatically creates the wire for resolving the relation when a suitable
+	 * instance is available. If a client tries to use the relation, the
+	 * invoking thread will be blocked until the relation is resolved again.
+	 */
+	WAIT,
 
-    /**
-     * If a client effectively accesses the relation an exception will be thrown
-     * to signal the missing target.
-     */
-    EXCEPTION
+	/**
+	 * If a client effectively accesses the relation an exception will be thrown
+	 * to signal the missing target.
+	 */
+	EXCEPTION
 
 }

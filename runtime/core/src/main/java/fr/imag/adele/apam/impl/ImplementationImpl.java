@@ -416,7 +416,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 */
 		for (Instance inst : instances) {
 			// ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
-			ComponentBrokerImpl.disappearedComponent(inst);
+			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst);
 		}
 
 		// Do not remove inverse links, in case threads are still here.

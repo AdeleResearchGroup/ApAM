@@ -22,20 +22,20 @@ package fr.imag.adele.apam.declarations;
  */
 public enum ResolvePolicy {
 
-    EXIST,
+	EXIST,
 
-    INTERNAL,
+	INTERNAL,
 
-    EXTERNAL;
+	EXTERNAL;
 
-    public static ResolvePolicy getPolicy(String id) {
-	for (ResolvePolicy p : values()) {
-	    if (p.toString().toLowerCase().equals(id)) {
-		return p;
-	    }
+	public static ResolvePolicy getPolicy(String id) {
+		for (ResolvePolicy p : values()) {
+			if (p.toString().toLowerCase().equals(id)) {
+				return p;
+			}
+		}
+
+		return null;
 	}
-
-	return null;
-    }
 
 }

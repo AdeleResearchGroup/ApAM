@@ -23,59 +23,59 @@ package fr.imag.adele.apam.declarations;
  */
 public abstract class ImplementationDeclaration extends ComponentDeclaration {
 
-    /**
-     * The specification implemented by this implementation
-     */
-    private final SpecificationReference specification;
+	/**
+	 * The specification implemented by this implementation
+	 */
+	private final SpecificationReference specification;
 
-    public ImplementationDeclaration(String name,
-	    SpecificationReference specification) {
-	super(name);
-	this.specification = specification;
-    }
+	public ImplementationDeclaration(String name,
+			SpecificationReference specification) {
+		super(name);
+		this.specification = specification;
+	}
 
-    /**
-     * Override with a narrower return type
-     */
-    @Override
-    protected abstract ImplementationReference<?> generateReference();
+	/**
+	 * Override with a narrower return type
+	 */
+	@Override
+	protected abstract ImplementationReference<?> generateReference();
 
-    @Override
-    public ComponentReference<?> getGroupReference() {
-	return getSpecification();
-    }
+	@Override
+	public ComponentReference<?> getGroupReference() {
+		return getSpecification();
+	}
 
-    /**
-     * Override the return type to a most specific class in order to avoid
-     * unchecked casting when used
-     */
-    @Override
-    public ImplementationReference<?> getReference() {
-	return (ImplementationReference<?>) super.getReference();
-    }
+	/**
+	 * Override the return type to a most specific class in order to avoid
+	 * unchecked casting when used
+	 */
+	@Override
+	public ImplementationReference<?> getReference() {
+		return (ImplementationReference<?>) super.getReference();
+	}
 
-    /**
-     * Get the specification implemented by this implementation
-     */
-    public SpecificationReference getSpecification() {
-	return specification;
-    }
+	/**
+	 * Get the specification implemented by this implementation
+	 */
+	public SpecificationReference getSpecification() {
+		return specification;
+	}
 
-    @Override
-    public boolean resolves(RelationDeclaration relation) {
-	return super.resolves(relation)
-		|| (getSpecification() != null && getSpecification().equals(
-			relation.getTarget()))
-		|| relation.getTarget().equals(this.getReference());
-    }
+	@Override
+	public boolean resolves(RelationDeclaration relation) {
+		return super.resolves(relation)
+				|| (getSpecification() != null && getSpecification().equals(
+						relation.getTarget()))
+				|| relation.getTarget().equals(this.getReference());
+	}
 
-    @Override
-    public String toString() {
-	String ret = "Implementation declaration " + super.toString();
-	String specificationName = (specification != null ? specification
-		.getIdentifier() : "null");
-	ret += "\n   Specification: " + specificationName;
-	return ret;
-    }
+	@Override
+	public String toString() {
+		String ret = "Implementation declaration " + super.toString();
+		String specificationName = (specification != null ? specification
+				.getIdentifier() : "null");
+		ret += "\n   Specification: " + specificationName;
+		return ret;
+	}
 
 }

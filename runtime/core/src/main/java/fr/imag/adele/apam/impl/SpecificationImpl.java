@@ -169,7 +169,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 		 * modification.
 		 */
 		for (Implementation impl : implementations) {
-			ComponentBrokerImpl.disappearedComponent(impl);
+			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(impl);
 		}
 
 		/*

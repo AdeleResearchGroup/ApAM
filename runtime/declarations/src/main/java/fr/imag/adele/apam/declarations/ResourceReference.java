@@ -25,34 +25,34 @@ package fr.imag.adele.apam.declarations;
  */
 public class ResourceReference extends Reference implements ResolvableReference {
 
-    /**
-     * The namespace for all references to resources identified by java class
-     * names
-     */
-    private final static Namespace JAVA_NAMESPACE = new Namespace() {
-    };
+	/**
+	 * The namespace for all references to resources identified by java class
+	 * names
+	 */
+	private final static Namespace JAVA_NAMESPACE = new Namespace() {
+	};
 
-    private final String type;
+	private final String type;
 
-    public ResourceReference(String type) {
-	super(ResourceReference.JAVA_NAMESPACE);
-	this.type = type;
-    }
+	public ResourceReference(String type) {
+		super(ResourceReference.JAVA_NAMESPACE);
+		this.type = type;
+	}
 
-    @Override
-    protected final String getIdentifier() {
-	return getJavaType();
-    }
+	@Override
+	protected final String getIdentifier() {
+		return getJavaType();
+	}
 
-    /**
-     * The java type associated with this resource
-     */
-    public final String getJavaType() {
-	return type;
-    }
+	/**
+	 * The java type associated with this resource
+	 */
+	public final String getJavaType() {
+		return type;
+	}
 
-    @Override
-    public String getName() {
-	return type;
-    }
+	@Override
+	public String getName() {
+		return type;
+	}
 }

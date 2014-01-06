@@ -202,7 +202,8 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 
 	/**
 	 * Apam ensures statically that this manager has the minimum priority, so
-	 * that it is called only in case of binding resolution failure.
+	 * that it is called only in case of binding resolution failure. This priority
+	 * is not used
 	 * 
 	 */
 	@Override
@@ -210,6 +211,13 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		return -1;
 	}
 
+	/**
+	 * Apam ensures statically that this manager has the minimum priority, so
+	 * that it is called only in case of binding resolution failure. The failure
+	 * manager is invoked even if it is not added explicitely to the selection
+	 * path
+	 * 
+	 */
 	@Override
 	public void getSelectionPath(Component client, RelToResolve relToResolve, List<RelationManager> selPath) {
 	}
@@ -349,7 +357,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 
 		this.apam = apam;
 
-		ApamManagers.addRelationManager(this, getPriority());
 		ApamManagers.addDynamicManager(this);
 		ApamManagers.addPropertyManager(this);
 	}
@@ -361,7 +368,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	public synchronized void stop() {
 		this.apam = null;
 
-		ApamManagers.removeRelationManager(this);
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
 

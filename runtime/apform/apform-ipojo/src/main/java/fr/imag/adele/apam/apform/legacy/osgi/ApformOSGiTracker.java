@@ -103,7 +103,7 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
     	
     	Instance instance = CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
     	if (instance != null)
-            ComponentBrokerImpl.disappearedComponent(instance.getName()) ;
+    		((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(instance.getName()) ;
     }
 
     /**

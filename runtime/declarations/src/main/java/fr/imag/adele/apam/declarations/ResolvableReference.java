@@ -23,15 +23,15 @@ package fr.imag.adele.apam.declarations;
  */
 public interface ResolvableReference {
 
-    /**
-     * Cast this reference to a particular class of reference. Returns null if
-     * the cast is not possible
-     */
-    public <R extends Reference> R as(Class<R> kind);
+	/**
+	 * Cast this reference to a particular class of reference. Returns null if
+	 * the cast is not possible
+	 */
+	public <R extends Reference> R as(Class<R> kind);
 
-    /**
-     * The name of the reference
-     */
-    public String getName();
+	/**
+	 * The name of the reference
+	 */
+	public String getName();
 
 }

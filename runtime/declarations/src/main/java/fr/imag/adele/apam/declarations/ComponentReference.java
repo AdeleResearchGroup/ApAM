@@ -26,42 +26,42 @@ package fr.imag.adele.apam.declarations;
  * 
  */
 public class ComponentReference<D extends ComponentDeclaration> extends
-	Reference implements Reference.Namespace, ResolvableReference {
+		Reference implements Reference.Namespace, ResolvableReference {
 
-    /**
-     * The global name space associated with all APAM components.
-     * 
-     * NOTE All APAM declarations share a single name space, this means that
-     * even declarations at different abstraction levels (Specification,
-     * Implementation, Instance) must have unique names.
-     */
-    private final static Namespace APAM_COMPONENT_NAMESPACE = new Namespace() {
-    };
+	/**
+	 * The global name space associated with all APAM components.
+	 * 
+	 * NOTE All APAM declarations share a single name space, this means that
+	 * even declarations at different abstraction levels (Specification,
+	 * Implementation, Instance) must have unique names.
+	 */
+	private final static Namespace APAM_COMPONENT_NAMESPACE = new Namespace() {
+	};
 
-    /**
-     * The name of the component
-     */
-    private final String name;
+	/**
+	 * The name of the component
+	 */
+	private final String name;
 
-    public ComponentReference(String name) {
-	super(APAM_COMPONENT_NAMESPACE);
-	this.name = name;
-    }
+	public ComponentReference(String name) {
+		super(APAM_COMPONENT_NAMESPACE);
+		this.name = name;
+	}
 
-    @Override
-    protected final String getIdentifier() {
-	return getName();
-    }
+	@Override
+	protected final String getIdentifier() {
+		return getName();
+	}
 
-    public ComponentKind getKind() {
-	return ComponentKind.COMPONENT;
-    }
+	public ComponentKind getKind() {
+		return ComponentKind.COMPONENT;
+	}
 
-    /**
-     * The component name
-     */
-    @Override
-    public final String getName() {
-	return name;
-    }
+	/**
+	 * The component name
+	 */
+	@Override
+	public final String getName() {
+		return name;
+	}
 }

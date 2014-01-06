@@ -22,13 +22,13 @@ package fr.imag.adele.apam.declarations;
  */
 public class InterfaceReference extends ResourceReference {
 
-    public InterfaceReference(String name) {
-	super(name);
-    }
+	public InterfaceReference(String name) {
+		super(name);
+	}
 
-    @Override
-    public String toString() {
-	return "interface " + getIdentifier();
-    }
+	@Override
+	public String toString() {
+		return "interface " + getIdentifier();
+	}
 
 }

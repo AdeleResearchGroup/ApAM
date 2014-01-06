@@ -23,30 +23,30 @@ package fr.imag.adele.apam.declarations;
  */
 public enum CreationPolicy {
 
-    /**
-     * Resolution is done only via XML
-     */
-    MANUAL,
+	/**
+	 * Resolution is done only via XML
+	 */
+	MANUAL,
 
-    /**
-     * Resolves only when the client tries to use the dependency for the first
-     * time
-     */
-    LAZY,
+	/**
+	 * Resolves only when the client tries to use the dependency for the first
+	 * time
+	 */
+	LAZY,
 
-    /**
-     * Resolves the dependency as soon as the client starts
-     */
-    EAGER;
+	/**
+	 * Resolves the dependency as soon as the client starts
+	 */
+	EAGER;
 
-    public static CreationPolicy getPolicy(String id) {
-	for (CreationPolicy p : values()) {
-	    if (p.toString().toLowerCase().equals(id)) {
-		return p;
-	    }
+	public static CreationPolicy getPolicy(String id) {
+		for (CreationPolicy p : values()) {
+			if (p.toString().toLowerCase().equals(id)) {
+				return p;
+			}
+		}
+
+		return null;
 	}
-
-	return null;
-    }
 
 }

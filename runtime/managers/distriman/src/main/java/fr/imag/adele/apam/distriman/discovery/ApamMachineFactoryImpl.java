@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -99,7 +100,7 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,
     @Invalidate
     public void destroy() {
 	// Remove this implem from the broker
-	ComponentBrokerImpl.disappearedComponent(getDeclaration().getName());
+    	((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(getDeclaration().getName());
     }
 
     /**

@@ -23,84 +23,84 @@ package fr.imag.adele.apam.declarations;
  */
 public class VisibilityDeclaration {
 
-    /**
-     * The borrow content
-     */
-    private String importImplementations;
+	/**
+	 * The borrow content
+	 */
+	private String importImplementations;
 
-    private String importInstances;
+	private String importInstances;
 
-    /**
-     * The local content
-     */
-    private String exportImplementations;
+	/**
+	 * The local content
+	 */
+	private String exportImplementations;
 
-    private String exportInstances;
+	private String exportInstances;
 
-    /**
-     * The application content
-     */
-    private String applicationInstances;
+	/**
+	 * The application content
+	 */
+	private String applicationInstances;
 
-    public VisibilityDeclaration() {
-    }
+	public VisibilityDeclaration() {
+	}
 
-    /**
-     * An expression that must be satisfied by all exported instances that are
-     * available for other composites in the application
-     */
-    public String getApplicationInstances() {
-	return applicationInstances;
-    }
+	/**
+	 * An expression that must be satisfied by all exported instances that are
+	 * available for other composites in the application
+	 */
+	public String getApplicationInstances() {
+		return applicationInstances;
+	}
 
-    /**
-     * An expression that must be satisfied by all implementations that are not
-     * available for exporting
-     */
-    public String getExportImplementations() {
-	return exportImplementations;
-    }
+	/**
+	 * An expression that must be satisfied by all implementations that are not
+	 * available for exporting
+	 */
+	public String getExportImplementations() {
+		return exportImplementations;
+	}
 
-    /**
-     * An expression that must be satisfied by all instances that are not
-     * available for exporting
-     */
-    public String getExportInstances() {
-	return exportInstances;
-    }
+	/**
+	 * An expression that must be satisfied by all instances that are not
+	 * available for exporting
+	 */
+	public String getExportInstances() {
+		return exportInstances;
+	}
 
-    /**
-     * An expression that must be satisfied by all imported implementations
-     */
-    public String getImportImplementations() {
-	return importImplementations;
-    }
+	/**
+	 * An expression that must be satisfied by all imported implementations
+	 */
+	public String getImportImplementations() {
+		return importImplementations;
+	}
 
-    /**
-     * An expression that must be satisfied by all imported instances
-     */
-    public String getImportInstances() {
-	return importInstances;
-    }
+	/**
+	 * An expression that must be satisfied by all imported instances
+	 */
+	public String getImportInstances() {
+		return importInstances;
+	}
 
-    public void setApplicationInstances(String applicationInstances) {
-	this.applicationInstances = applicationInstances;
-    }
+	public void setApplicationInstances(String applicationInstances) {
+		this.applicationInstances = applicationInstances;
+	}
 
-    public void setBorrowImplementations(String borrowImplementations) {
-	this.importImplementations = borrowImplementations;
-    }
+	public void setBorrowImplementations(String borrowImplementations) {
+		this.importImplementations = borrowImplementations;
+	}
 
-    public void setExportImplementations(String localImplementations) {
-	this.exportImplementations = localImplementations;
-    }
+	public void setExportImplementations(String localImplementations) {
+		this.exportImplementations = localImplementations;
+	}
 
-    public void setExportInstances(String localInstances) {
-	this.exportInstances = localInstances;
-    }
+	public void setExportInstances(String localInstances) {
+		this.exportInstances = localInstances;
+	}
 
-    public void setImportInstances(String borrowInstances) {
-	this.importInstances = borrowInstances;
-    }
+	public void setImportInstances(String borrowInstances) {
+		this.importInstances = borrowInstances;
+	}
 
 }

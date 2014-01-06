@@ -98,7 +98,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
             return;
 
         if (factory instanceof IPojoFactory) {
-            ComponentBrokerImpl.disappearedComponent(factory.getName()) ;
+        	((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(factory.getName()) ;
         }
 
     }
@@ -162,7 +162,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
          * For ipojo instances, unregister the corresponding declaration in
          * APAM
          */
-        ComponentBrokerImpl.disappearedComponent(ipojoInstance.getInstanceName()) ;
+        ((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(ipojoInstance.getInstanceName()) ;
     }
 
     /**

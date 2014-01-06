@@ -58,7 +58,6 @@ public class OSGiMan implements RelationManager {
 	 * A reference to the APAM machine
 	 */
 	@Requires(proxy = false)
-	@SuppressWarnings("unused")
 	private Apam apam;
 
     /**
@@ -87,13 +86,11 @@ public class OSGiMan implements RelationManager {
 	}
 
 	@Validate
-	@SuppressWarnings("unused")
 	private synchronized void start() {
 		ApamManagers.addRelationManager(this,getPriority());
 	}
 	
 	@Invalidate
-	@SuppressWarnings("unused")
 	private synchronized void stop() {
 		ApamManagers.removeRelationManager(this);
 	}

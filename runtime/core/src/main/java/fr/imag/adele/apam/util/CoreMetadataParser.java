@@ -685,7 +685,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String ATT_HIDE = "hide";
 	private static final String ATT_FILTER = "filter";
 	private static final String ATT_PROPERTY = "property";
-	private static final String ATT_DEPENDENCY = "dependency";
 	private static final String ATT_RELATION = "relation";
 	private static final String ATT_TO = "to";
 	private static final String ATT_WHEN = "when";
@@ -959,10 +958,10 @@ public class CoreMetadataParser implements CoreParser {
 		component.setSingleton(isSingleton);
 		component.setShared(isShared);
 
-		boolean isDefinedInstantiable = parseisDefinedBoolean(component.getName(), element, CoreMetadataParser.ATT_INSTANTIABLE);
-		boolean isDefinedExclusive = parseisDefinedBoolean(component.getName(), element, CoreMetadataParser.ATT_EXCLUSIVE);
-		boolean isDefinedSingleton = parseisDefinedBoolean(component.getName(), element, CoreMetadataParser.ATT_SINGLETON);
-		boolean isDefinedShared = parseisDefinedBoolean(component.getName(), element, CoreMetadataParser.ATT_SHARED);
+		boolean isDefinedInstantiable 	= isDefined(component.getName(), element, CoreMetadataParser.ATT_INSTANTIABLE);
+		boolean isDefinedExclusive 		= isDefined(component.getName(), element, CoreMetadataParser.ATT_EXCLUSIVE);
+		boolean isDefinedSingleton 		= isDefined(component.getName(), element, CoreMetadataParser.ATT_SINGLETON);
+		boolean isDefinedShared 		= isDefined(component.getName(), element, CoreMetadataParser.ATT_SHARED);
 
 		component.setDefinedExclusive(isDefinedExclusive);
 		component.setDefinedInstantiable(isDefinedInstantiable);
@@ -1275,9 +1274,9 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	/**
-	 * Get a boolean attribute value
+	 * Test if an attribute is explicitly defined
 	 */
-	private boolean parseisDefinedBoolean(String componentName, Element element, String attribute) {
+	private boolean isDefined(String componentName, Element element, String attribute) {
 		return (parseString(componentName, element, attribute, false) != null);
 	}
 

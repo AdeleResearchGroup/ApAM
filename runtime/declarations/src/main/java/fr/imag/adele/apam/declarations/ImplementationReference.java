@@ -23,20 +23,20 @@ package fr.imag.adele.apam.declarations;
  * 
  */
 public class ImplementationReference<D extends ImplementationDeclaration>
-	extends ComponentReference<D> {
+		extends ComponentReference<D> {
 
-    public ImplementationReference(String name) {
-	super(name);
-    }
+	public ImplementationReference(String name) {
+		super(name);
+	}
 
-    @Override
-    public ComponentKind getKind() {
-	return ComponentKind.IMPLEMENTATION;
-    }
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.IMPLEMENTATION;
+	}
 
-    @Override
-    public String toString() {
-	return "Implementation " + getIdentifier();
-    }
+	@Override
+	public String toString() {
+		return "Implementation " + getIdentifier();
+	}
 
 }

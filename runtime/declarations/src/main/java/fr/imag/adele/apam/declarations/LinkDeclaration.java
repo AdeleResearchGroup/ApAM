@@ -8,28 +8,28 @@ package fr.imag.adele.apam.declarations;
  */
 public class LinkDeclaration {
 
-    private final ComponentReference<?> source;
+	private final ComponentReference<?> source;
 
-    private final ComponentReference<?> target;
+	private final ComponentReference<?> target;
 
-    private final String identifier;
+	private final String identifier;
 
-    public LinkDeclaration(String identifier, ComponentReference<?> source,
-	    ComponentReference<?> target) {
-	this.source = source;
-	this.identifier = identifier;
-	this.target = target;
-    }
+	public LinkDeclaration(String identifier, ComponentReference<?> source,
+			ComponentReference<?> target) {
+		this.source = source;
+		this.identifier = identifier;
+		this.target = target;
+	}
 
-    public String getIdentifier() {
-	return identifier;
-    }
+	public String getIdentifier() {
+		return identifier;
+	}
 
-    public ComponentReference<?> getSource() {
-	return source;
-    }
+	public ComponentReference<?> getSource() {
+		return source;
+	}
 
-    public ComponentReference<?> getTarget() {
-	return target;
-    }
+	public ComponentReference<?> getTarget() {
+		return target;
+	}
 }

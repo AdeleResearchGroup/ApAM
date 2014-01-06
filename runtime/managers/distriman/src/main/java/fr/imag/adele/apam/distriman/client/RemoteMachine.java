@@ -366,13 +366,12 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	for (String componentName : remoteInstances) {
-	    ComponentBrokerImpl.disappearedComponent(componentName);
+		((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(componentName);
 	    remoteInstances.remove(componentName);
 	}
 
 	// Remove this Instance from the broker
-	ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
-		.getName());
+	((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(this.getDeclaration().getName());
 
     }
 

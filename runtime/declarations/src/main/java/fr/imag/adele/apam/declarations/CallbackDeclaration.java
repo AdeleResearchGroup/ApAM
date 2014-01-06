@@ -26,68 +26,68 @@ import java.util.List;
  */
 public class CallbackDeclaration extends Instrumentation {
 
-    /**
-     * The name of the method that must be invoked
-     */
-    protected final String methodName;
+	/**
+	 * The name of the method that must be invoked
+	 */
+	protected final String methodName;
 
-    private static final List<String> APAM_COMPONENTS = Arrays.asList(
-	    "fr.imag.adele.apam.Component", "fr.imag.adele.apam.Instance",
-	    "fr.imag.adele.apam.Implementation",
-	    "fr.imag.adele.apam.Specification");
+	private static final List<String> APAM_COMPONENTS = Arrays.asList(
+			"fr.imag.adele.apam.Component", "fr.imag.adele.apam.Instance",
+			"fr.imag.adele.apam.Implementation",
+			"fr.imag.adele.apam.Specification");
 
-    public CallbackDeclaration(AtomicImplementationDeclaration implementation,
-	    String methodName) {
-	super(implementation);
+	public CallbackDeclaration(AtomicImplementationDeclaration implementation,
+			String methodName) {
+		super(implementation);
 
-	assert methodName != null;
-	this.methodName = methodName;
-    }
-
-    /**
-     * The component declaring this injection
-     */
-    @Override
-    public AtomicImplementationDeclaration getImplementation() {
-	return implementation;
-    }
-
-    /**
-     * The name of the method to call
-     */
-    public String getMethodName() {
-	return methodName;
-    }
-
-    @Override
-    public boolean isValidInstrumentation() {
-	try {
-
-	    int parameterNumber = implementation.getReflection()
-		    .getMethodParameterNumber(methodName, true);
-
-	    if (parameterNumber == 0) {
-		return true;
-	    }
-
-	    if (parameterNumber > 1) {
-		return false;
-	    }
-
-	    String[] types = implementation.getReflection()
-		    .getMethodParameterTypes(methodName, true);
-
-	    return APAM_COMPONENTS.contains(types[0]);
-
-	} catch (NoSuchMethodException e) {
-	    return false;
+		assert methodName != null;
+		this.methodName = methodName;
 	}
 
-    }
+	/**
+	 * The component declaring this injection
+	 */
+	@Override
+	public AtomicImplementationDeclaration getImplementation() {
+		return implementation;
+	}
 
-    @Override
-    public String toString() {
-	return "Method name: " + methodName;
-    }
+	/**
+	 * The name of the method to call
+	 */
+	public String getMethodName() {
+		return methodName;
+	}
+
+	@Override
+	public boolean isValidInstrumentation() {
+		try {
+
+			int parameterNumber = implementation.getReflection()
+					.getMethodParameterNumber(methodName, true);
+
+			if (parameterNumber == 0) {
+				return true;
+			}
+
+			if (parameterNumber > 1) {
+				return false;
+			}
+
+			String[] types = implementation.getReflection()
+					.getMethodParameterTypes(methodName, true);
+
+			return APAM_COMPONENTS.contains(types[0]);
+
+		} catch (NoSuchMethodException e) {
+			return false;
+		}
+
+	}
+
+	@Override
+	public String toString() {
+		return "Method name: " + methodName;
+	}
 
 }

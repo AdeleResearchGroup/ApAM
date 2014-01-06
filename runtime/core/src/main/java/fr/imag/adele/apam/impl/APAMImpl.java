@@ -147,6 +147,7 @@ public class APAMImpl implements Apam {
 	private Set<String> expectedManagers = new ConcurrentSkipListSet<String>();
 
 	public APAMImpl(BundleContext context) {
+		
 		APAMImpl.context = context;
 		apamMan = new ApamMan(context);
 		if (apamMan == null) {
@@ -177,8 +178,6 @@ public class APAMImpl implements Apam {
 		ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not
 		// in the main loop
 		ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is
-		// not in the main loop
-		ApamManagers.addRelationManager(failureMan, -3); // -2 to be sure it is
 		// not in the main loop
 		ApamManagers.addDynamicManager(updateMan);
 
@@ -268,7 +267,7 @@ public class APAMImpl implements Apam {
 		return CompositeTypeImpl.getCompositeTypes();
 	}
 
-	public RelationManager getFailedResolutionManager() {
+	public FailedResolutionManager getFailedResolutionManager() {
 		return failureMan;
 	}
 

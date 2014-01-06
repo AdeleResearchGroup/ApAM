@@ -15,7 +15,6 @@
 package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;

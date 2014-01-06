@@ -22,31 +22,31 @@ package fr.imag.adele.apam.declarations;
  */
 public enum InjectedPropertyPolicy {
 
-    /**
-     * Property can only be set or modified by the java class
-     */
-    INTERNAL,
+	/**
+	 * Property can only be set or modified by the java class
+	 */
+	INTERNAL,
 
-    /**
-     * Property can only be set by ApAM API
-     */
-    EXTERNAL,
+	/**
+	 * Property can only be set by ApAM API
+	 */
+	EXTERNAL,
 
-    /**
-     * Both is default value, changes are bidirectionnal from java OR from ApAM
-     * (the last one who spoke who's right). A value defined in ApAM descriptor
-     * will erase the one defined by the constructor.
-     */
-    BOTH;
+	/**
+	 * Both is default value, changes are bidirectionnal from java OR from ApAM
+	 * (the last one who spoke who's right). A value defined in ApAM descriptor
+	 * will erase the one defined by the constructor.
+	 */
+	BOTH;
 
-    public static InjectedPropertyPolicy getPolicy(String id) {
-	for (InjectedPropertyPolicy p : values()) {
-	    if (p.toString().toLowerCase().equals(id)) {
-		return p;
-	    }
+	public static InjectedPropertyPolicy getPolicy(String id) {
+		for (InjectedPropertyPolicy p : values()) {
+			if (p.toString().toLowerCase().equals(id)) {
+				return p;
+			}
+		}
+
+		return null;
 	}
-
-	return null;
-    }
 
 }

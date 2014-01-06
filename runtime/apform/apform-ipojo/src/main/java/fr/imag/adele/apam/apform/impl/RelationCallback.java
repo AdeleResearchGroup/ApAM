@@ -112,6 +112,11 @@ public class RelationCallback extends Callback {
         		case INSTANCE:
         			parameterKind = Instance.class;
         			break;
+				case COMPONENT:
+					parameterKind = Component.class;
+					break;
+			default:
+				break;
         	}
 
 

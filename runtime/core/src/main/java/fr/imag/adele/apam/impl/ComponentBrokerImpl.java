@@ -70,12 +70,12 @@ public class ComponentBrokerImpl implements ComponentBroker {
 	/*
 	 * The three main table to maintain.
 	 */
-	private static final Set<Specification> specifications = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
-	private static final Set<Implementation> implementations = Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+	private final Set<Specification> specifications = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
+	private final Set<Implementation> implementations = Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
-	private static final Set<Instance> instances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+	private final Set<Instance> instances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
-	public static void disappearedComponent(Component component) {
+	public void disappearedComponent(Component component) {
 		try {
 			/*
 			 * in case it is an Apam unregister that produced the disappear,
@@ -124,7 +124,7 @@ public class ComponentBrokerImpl implements ComponentBroker {
 	 * a component disappeared in the platform; we have to delete it from the
 	 * ASM.
 	 */
-	public static void disappearedComponent(String componentName) {
+	public void disappearedComponent(String componentName) {
 		Component component = CST.componentBroker.getComponent(componentName);
 		if (component == null) {
 			// previous remove of the factory removed instances
