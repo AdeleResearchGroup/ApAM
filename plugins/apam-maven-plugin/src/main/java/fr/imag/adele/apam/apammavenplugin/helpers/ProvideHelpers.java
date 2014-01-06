@@ -27,60 +27,58 @@ import fr.imag.adele.apam.util.Util;
 
 /**
  * @author thibaud
- *
+ * 
  */
 public final class ProvideHelpers {
-    
-    /**
-     * @param impl
-     * @param messages
-     * @param messagesUndefined
-     * @param specMessages
-     */
-    public static void checkMessages(ComponentDeclaration impl,
-	    Set<MessageReference> messages,
-	    Set<UndefinedReference> messagesUndefined,
-	    Set<MessageReference> specMessages) {
-	if (!messages.containsAll(specMessages)) {
-	    if (!messagesUndefined.isEmpty()) {
-		CheckObr.warning("Unable to verify message type at compilation time, this may cause errors at the runtime!"
-			+ "\n make sure that "
-			+ Util.toStringUndefinedResource(messagesUndefined)
-			+ " are of the following message types "
-			+ Util.toStringSetReference(specMessages));
-	    } else {
-		CheckObr.error("Implementation " + impl.getName()
-			+ " must produce messages "
-			+ Util.toStringSetReference(specMessages));
-	    }
-	}
-    }
-    
-    /**
-     * @param impl
-     * @param interfaces
-     * @param interfacesUndefined
-     * @param specInterfaces
-     */
-    public static void checkInterfaces(ComponentDeclaration impl,
-	    Set<InterfaceReference> interfaces,
-	    Set<UndefinedReference> interfacesUndefined,
-	    Set<InterfaceReference> specInterfaces) {
-	if (!interfaces.containsAll(specInterfaces)) {
-	    if (!(interfacesUndefined.isEmpty())) {
-		CheckObr.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
-			+ "\n make sure that "
-			+ Util.toStringUndefinedResource(interfacesUndefined)
-			+ " are of the following interface types "
-			+ Util.toStringSetReference(specInterfaces));
-	    } else {
-		CheckObr.error("Implementation " + impl.getName()
-			+ " must implement interfaces "
-			+ Util.toStringSetReference(specInterfaces));
-	    }
-	}
-    }
-    
 
+	/**
+	 * @param impl
+	 * @param messages
+	 * @param messagesUndefined
+	 * @param specMessages
+	 */
+	public static void checkMessages(ComponentDeclaration impl,
+			Set<MessageReference> messages,
+			Set<UndefinedReference> messagesUndefined,
+			Set<MessageReference> specMessages) {
+		if (!messages.containsAll(specMessages)) {
+			if (!messagesUndefined.isEmpty()) {
+				CheckObr.warning("Unable to verify message type at compilation time, this may cause errors at the runtime!"
+						+ "\n make sure that "
+						+ Util.toStringUndefinedResource(messagesUndefined)
+						+ " are of the following message types "
+						+ Util.toStringSetReference(specMessages));
+			} else {
+				CheckObr.error("Implementation " + impl.getName()
+						+ " must produce messages "
+						+ Util.toStringSetReference(specMessages));
+			}
+		}
+	}
+
+	/**
+	 * @param impl
+	 * @param interfaces
+	 * @param interfacesUndefined
+	 * @param specInterfaces
+	 */
+	public static void checkInterfaces(ComponentDeclaration impl,
+			Set<InterfaceReference> interfaces,
+			Set<UndefinedReference> interfacesUndefined,
+			Set<InterfaceReference> specInterfaces) {
+		if (!interfaces.containsAll(specInterfaces)) {
+			if (!(interfacesUndefined.isEmpty())) {
+				CheckObr.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
+						+ "\n make sure that "
+						+ Util.toStringUndefinedResource(interfacesUndefined)
+						+ " are of the following interface types "
+						+ Util.toStringSetReference(specInterfaces));
+			} else {
+				CheckObr.error("Implementation " + impl.getName()
+						+ " must implement interfaces "
+						+ Util.toStringSetReference(specInterfaces));
+			}
+		}
+	}
 
 }

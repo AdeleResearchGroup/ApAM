@@ -35,264 +35,269 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 
-
 public class ApamCapability {
 
 	private static Map<String, ApamCapability> capabilities = new HashMap<String, ApamCapability>();
 	private static Set<String> missing = new HashSet<String>();
-	
-	public ComponentDeclaration dcl = null ;
-	private boolean isFinalized		= false;
 
-	private Map <String, String> properties ;
-	private Map <String,String>  propertiesTypes 	=  new HashMap <String, String> ();
-	private Map <String,String>  propertiesDefaults =  new HashMap <String, String> ();
-	private Map <String, String> finalProperties = new HashMap <String, String> () ;
+	public ComponentDeclaration dcl = null;
+	private boolean isFinalized = false;
 
-	//Only to return a true value
+	private Map<String, String> properties;
+	private Map<String, String> propertiesTypes = new HashMap<String, String>();
+	private Map<String, String> propertiesDefaults = new HashMap<String, String>();
+	private Map<String, String> finalProperties = new HashMap<String, String>();
+
+	// Only to return a true value
 	public static ApamCapability trueCap = new ApamCapability();
-	private ApamCapability () { } ;
 
-	
-	public ApamCapability (ComponentDeclaration dcl) {
-		this.dcl = dcl ;
-		capabilities.put(dcl.getName(), this) ;
+	private ApamCapability() {
+	};
+
+	public ApamCapability(ComponentDeclaration dcl) {
+		this.dcl = dcl;
+		capabilities.put(dcl.getName(), this);
 		properties = dcl.getProperties();
 
 		for (PropertyDefinition definition : dcl.getPropertyDefinitions()) {
-			propertiesTypes.put(definition.getName(), definition.getType());
+			propertiesTypes.put(definition.getName().toLowerCase(), definition.getType());
 			if (definition.getDefaultValue() != null)
-				propertiesDefaults.put(definition.getName(),definition.getDefaultValue());
+				propertiesDefaults.put(definition.getName().toLowerCase(),
+						definition.getDefaultValue());
 		}
 	}
 
-	public static void init (List<ComponentDeclaration> components, List<ComponentDeclaration> dependencies) {
-		capabilities.clear() ;
-		missing.clear() ;
+	public static void init(List<ComponentDeclaration> components,
+			List<ComponentDeclaration> dependencies) {
+		capabilities.clear();
+		missing.clear();
 		for (ComponentDeclaration dcl : components) {
-			new ApamCapability(dcl) ;
+			new ApamCapability(dcl);
 		}
 		for (ComponentDeclaration dcl : dependencies) {
 			if (!capabilities.containsKey(dcl.getName()))
-				new ApamCapability(dcl) ;
+				new ApamCapability(dcl);
 		}
 	}
 
 	public static ApamCapability get(String name) {
 		if (name == null) {
-		    return null ;
+			return null;
 		}
-		ApamCapability cap = capabilities.get(name) ;
+		ApamCapability cap = capabilities.get(name);
 		if (cap == null && !missing.contains(name)) {
-			missing.add(name) ;
-			CheckObr.error("Component " + name + " is not in your Maven dependencies.") ;
+			missing.add(name);
+			CheckObr.error("Component " + name
+					+ " is not in your Maven dependencies.");
 		}
 		return cap;
 	}
 
-	
 	public static ApamCapability get(ComponentReference<?> reference) {
-		if (reference == null) { 
-		    return null ;
+		if (reference == null) {
+			return null;
 		}
 		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-		    return null;
+			return null;
 		}
-		
-		ApamCapability cap = capabilities.get(reference.getName()) ;
+
+		ApamCapability cap = capabilities.get(reference.getName());
 		if (cap == null && !missing.contains(reference.getName())) {
-			missing.add(reference.getName()) ;
-			CheckObr.error("Component " + reference.getName() + " is not in your Maven dependencies.") ;
+			missing.add(reference.getName());
+			CheckObr.error("Component " + reference.getName()
+					+ " is not in your Maven dependencies.");
 		}
 		return cap;
 	}
 
 	public static ComponentDeclaration getDcl(String name) {
-		if (name == null) { 
-		    return null ;
+		if (name == null) {
+			return null;
 		}
 		if (name.equals(CoreMetadataParser.UNDEFINED)) {
-		    return null;
+			return null;
 		}
 
 		if (capabilities.get(name) != null) {
 			return capabilities.get(name).dcl;
 		}
-		return null ;
+		return null;
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
 		if (reference == null) {
-		    return null ;
+			return null;
 		}
 		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-		    return null;
+			return null;
 		}
-		
+
 		if (capabilities.get(reference.getName()) != null) {
 			return capabilities.get(reference.getName()).dcl;
 		}
-		return null ;
+		return null;
 	}
 
 	/**
-	 * Warning: should be used only once in generateProperty.
-	 * finalProperties contains the attributes generated in OBR i.e. the right attributes.
-	 * properties contains the attributes found in the xml, i.e. before to check and before to compute inheritance.
-	 * At the end of the component processing we switch in order to use the right attributes 
-	 *          if the component is used after its processing
+	 * Warning: should be used only once in generateProperty. finalProperties
+	 * contains the attributes generated in OBR i.e. the right attributes.
+	 * properties contains the attributes found in the xml, i.e. before to check
+	 * and before to compute inheritance. At the end of the component processing
+	 * we switch in order to use the right attributes if the component is used
+	 * after its processing
+	 * 
 	 * @param attr
 	 * @param value
 	 */
-	public boolean putAttr (String attr, String value) {
-		if ((finalProperties.get(attr) != null) || (finalProperties.get(CST.DEFINITION_PREFIX + attr) != null)) {
-			CheckObr.error("Attribute " + attr + " already set on " + dcl.getName() ) ;
-			return false ;
+	public boolean putAttr(String attr, String value) {
+		if ((finalProperties.get(attr) != null)
+				|| (finalProperties.get(CST.DEFINITION_PREFIX + attr) != null)) {
+			CheckObr.error("Attribute " + attr + " already set on "
+					+ dcl.getName());
+			return false;
 		}
-		finalProperties.put(attr, value) ;
-		return true ;
+		finalProperties.put(attr, value);
+		return true;
 	}
-	
-	public void freeze () {
+
+	public void freeze() {
 		isFinalized = true;
-		properties = finalProperties ;
+		properties = finalProperties;
 	}
 
 	public boolean isFinalized() {
 		return isFinalized;
 	}
 
-
-	public String getProperty (String name) {
-		return (String)properties.get(name) ;
+	public String getProperty(String name) {
+		return (String) properties.get(name);
 	}
 
-	public Map<String, String> getProperties () {
-		return Collections.unmodifiableMap(properties);	
+	public Map<String, String> getProperties() {
+		return Collections.unmodifiableMap(properties);
 	}
 
-	public Set<InterfaceReference> getProvideInterfaces () {
-		return dcl.getProvidedResources(InterfaceReference.class) ;
+	public Set<InterfaceReference> getProvideInterfaces() {
+		return dcl.getProvidedResources(InterfaceReference.class);
 	}
 
-	public Set<ResourceReference> getProvideResources () {
-		return dcl.getProvidedResources() ;
+	public Set<ResourceReference> getProvideResources() {
+		return dcl.getProvidedResources();
 	}
 
-
-	public Set<MessageReference> getProvideMessages () {
-		return dcl.getProvidedResources(MessageReference.class) ;
+	public Set<MessageReference> getProvideMessages() {
+		return dcl.getProvidedResources(MessageReference.class);
 	}
-	
+
 	public String getImplementationClass() {
 		if (dcl instanceof AtomicImplementationDeclaration) {
 			return ((AtomicImplementationDeclaration) dcl).getClassName();
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
 
-	//Return the definition at the current component level 
-	public String getLocalAttrDefinition (String name) {
-		return propertiesTypes.get(name);
+	// Return the definition at the current component level
+	public String getLocalAttrDefinition(String name) {
+		return propertiesTypes.get(name.toLowerCase());
 	}
 
-	public String getAttrDefinition (String name) {
-		ApamCapability group = this ;
-		String defAttr ;
+	public String getAttrDefinition(String name) {
+		ApamCapability group = this;
+		name = name.toLowerCase() ;
+		String defAttr;
 		if (Attribute.isFinalAttribute(name)) {
-			return "string" ;
+			return "string";
 		}
 		while (group != null) {
-			defAttr = group.getLocalAttrDefinition(name)  ;
+			defAttr = group.getLocalAttrDefinition(name);
 			if (defAttr != null) {
-			    return defAttr ;
+				return defAttr;
 			}
-			group = group.getGroup() ;
+			group = group.getGroup();
 		}
-		return null ;
+		return null;
 	}
 
-
-	public String getAttrDefault (String name) {
-		return propertiesDefaults.get(name);
+	public String getAttrDefault(String name) {
+		return propertiesDefaults.get(name.toLowerCase());
 	}
 
 	/**
-	 * returns all the attribute that can be found associated with this component members.
-	 * i.e. all the actual attributes plus those defined on component, 
-	 * and those defined above.
+	 * returns all the attribute that can be found associated with this
+	 * component members. i.e. all the actual attributes plus those defined on
+	 * component, and those defined above.
+	 * 
 	 * @return
 	 */
-	public Map<String, String> getValidAttrNames () {
-		Map<String, String> ret = new HashMap<String, String> () ;
+	public Map<String, String> getValidAttrNames() {
+		Map<String, String> ret = new HashMap<String, String>();
 
 		ret.putAll(propertiesTypes);
 		if (getGroup() != null) {
-			ret.putAll(getGroup().getValidAttrNames()) ;
+			ret.putAll(getGroup().getValidAttrNames());
 		}
 
-		return ret ;
+		return ret;
 	}
 
-
-	public ApamCapability getGroup () {
+	public ApamCapability getGroup() {
 		if (dcl instanceof SpecificationDeclaration) {
-		    return null ;
+			return null;
 		}
 		if (dcl instanceof ImplementationDeclaration) {
-			if (((ImplementationDeclaration)dcl).getSpecification() == null) {
-				return null ;
+			if (((ImplementationDeclaration) dcl).getSpecification() == null) {
+				return null;
 			}
-			return get(((ImplementationDeclaration)dcl).getSpecification()) ;
+			return get(((ImplementationDeclaration) dcl).getSpecification());
 		}
 		if (dcl instanceof InstanceDeclaration) {
-		    return get(((InstanceDeclaration)dcl).getImplementation()) ;
+			return get(((InstanceDeclaration) dcl).getImplementation());
 		}
-		return null ;
+		return null;
 	}
-	
-	public String getName () {
-		return dcl.getName() ;
+
+	public String getName() {
+		return dcl.getName();
 	}
 
 	/**
-	 * return null if Shared is undefined, 
-	 * true of false if it is defined as true or false.
+	 * return null if Shared is undefined, true of false if it is defined as
+	 * true or false.
+	 * 
 	 * @return
 	 */
-	public String shared () {
-			if (dcl.isDefinedShared()) {
-				return Boolean.toString(dcl.isShared()) ;
-			}
-			return null ;
+	public String shared() {
+		if (dcl.isDefinedShared()) {
+			return Boolean.toString(dcl.isShared());
+		}
+		return null;
 	}
 
 	/**
-	 * return null if Instantiable is undefined, 
-	 * true of false if it is defined as true or false.
+	 * return null if Instantiable is undefined, true of false if it is defined
+	 * as true or false.
+	 * 
 	 * @return
 	 */
-	public String instantiable () {
-			if (dcl.isDefinedInstantiable()) {
-				return Boolean.toString(dcl.isInstantiable()) ;
-			}
-			return null ;
+	public String instantiable() {
+		if (dcl.isDefinedInstantiable()) {
+			return Boolean.toString(dcl.isInstantiable());
+		}
+		return null;
 	}
 
 	/**
-	 * return null if Singleton is undefined, 
-	 * true of false if it is defined as true or false.
+	 * return null if Singleton is undefined, true of false if it is defined as
+	 * true or false.
+	 * 
 	 * @return
 	 */
-	public String singleton () {
-			if (dcl.isDefinedSingleton()) {
-				return Boolean.toString(dcl.isSingleton()) ;
-			}
-			return null ;
+	public String singleton() {
+		if (dcl.isDefinedSingleton()) {
+			return Boolean.toString(dcl.isSingleton());
+		}
+		return null;
 	}
 
-	
 }
-

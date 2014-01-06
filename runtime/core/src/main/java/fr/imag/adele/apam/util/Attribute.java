@@ -85,7 +85,9 @@ public class Attribute {
 					logger.error("In attribute value " + value + " is not an Integer Set, for attribute " + attribute);
 					return false;
 				}
-				return Collections.unmodifiableSet(valSetInt);
+				//TODO
+				//return Collections.unmodifiableSet(valSetInt);
+				return valSetInt ;
 			}
 			// A singleton
 			if (value instanceof Integer) {
@@ -133,7 +135,9 @@ public class Attribute {
 		 * String array
 		 */
 		if (aType.type == AttrType.STRING) {
-			return Collections.unmodifiableSet((Set<String>) value);
+			//TODO
+			//return Collections.unmodifiableSet((Set<String>) value);
+			return (Set<String>) value ;
 		}
 
 		/*
@@ -142,7 +146,9 @@ public class Attribute {
 		 */
 		// Set<String> enumType = Util.splitSet(type) ;
 		if (aType.enumValues.containsAll((Set<String>) value)) {
-			return Collections.unmodifiableSet((Set<String>) value);
+			//TODO
+			//return Collections.unmodifiableSet((Set<String>) value);
+			return (Set<String>) value ;
 		} else {
 			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + aType.typeString);
 			return false;

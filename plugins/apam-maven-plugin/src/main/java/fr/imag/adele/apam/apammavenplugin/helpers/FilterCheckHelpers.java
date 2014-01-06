@@ -31,65 +31,60 @@ import fr.imag.adele.apam.util.Attribute;
  * 
  */
 public final class FilterCheckHelpers {
-    
-    private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
-    
 
-    /**
-     * @param filt
-     * @param component
-     * @param validAttr
-     * @param f
-     * @param spec
-     * @return
-     */
-    public static boolean checkFilterOR(ApamFilter filt,
-	    ComponentDeclaration component, Map<String, String> validAttr,
-	    String f, String spec) {
-	ApamFilter[] filters = (ApamFilter[]) filt.value;
-	for (ApamFilter filter : filters) {
-	    if (!CheckObr.checkFilter(filter, component, validAttr, f, spec)) {
-		return false;
-	    }
-	}
-	return true;
-    }
-    
-    
-    /**
-     * @param filt
-     * @param component
-     * @param validAttr
-     * @param f
-     * @param spec
-     */
-    public static boolean checkFilterPRESENT(ApamFilter filt,
-	    ComponentDeclaration component, Map<String, String> validAttr,
-	    String f, String spec) {
-	if (!Attribute.isFinalAttribute(filt.attr)
-	    && !validAttr.containsKey(filt.attr)) {
-	logger.error("Members of component " + spec
-		+ " cannot have property " + filt.attr
-		+ ". Invalid constraint " + f);
-	return false;
-	}
-	if (validAttr.containsKey(filt.attr)) {
-	if (CheckObr.isSubstitute(component, filt.attr)) {
-	    CheckObr.error("Filter attribute  " + filt.attr
-		    + " is a substitution: .  Invalid constraint " + f);
-	    return false;
+	private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
+
+	/**
+	 * @param filt
+	 * @param component
+	 * @param validAttr
+	 * @param f
+	 * @param spec
+	 * @return
+	 */
+	public static boolean checkFilterOR(ApamFilter filt,
+			ComponentDeclaration component, Map<String, String> validAttr,
+			String f, String spec) {
+		ApamFilter[] filters = (ApamFilter[]) filt.value;
+		for (ApamFilter filter : filters) {
+			if (!CheckObr.checkFilter(filter, component, validAttr, f, spec)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
-	if (Attribute.checkAttrType(filt.attr, filt.value,
-		validAttr.get(filt.attr)) == null) {
-	    return false;
-	}
-	return CheckObr.checkSubstitute(component, filt.attr,
-		validAttr.get(filt.attr), (String) filt.value);
+	/**
+	 * @param filt
+	 * @param component
+	 * @param validAttr
+	 * @param f
+	 * @param spec
+	 */
+	public static boolean checkFilterPRESENT(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
+		if (!Attribute.isFinalAttribute(filt.attr)
+				&& !validAttr.containsKey(filt.attr)) {
+			CheckObr.error("Members of component " + spec
+					+ " cannot have property " + filt.attr
+					+ ". Invalid constraint " + f);
+			return false;
+		}
+		if (validAttr.containsKey(filt.attr)) {
+			if (CheckObr.isSubstitute(component, filt.attr)) {
+				CheckObr.error("Filter attribute  " + filt.attr
+						+ " is a substitution: .  Invalid constraint " + f);
+				return false;
+			}
 
+			if (Attribute.checkAttrType(filt.attr, filt.value,
+					validAttr.get(filt.attr)) == null) {
+				return false;
+			}
+			return CheckObr.checkSubstitute(component, filt.attr,
+					validAttr.get(filt.attr), (String) filt.value);
+
+		}
+		return true;
 	}
-	return true;
-    }
-    
 
 }

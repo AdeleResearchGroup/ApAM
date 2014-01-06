@@ -1,9 +1,8 @@
 package fr.imag.adele.apam.apammavenplugin;
 
-
 /**
  * @author jnascimento
- *
+ * 
  */
 public class InvalidApamMetadataException extends Exception {
 
