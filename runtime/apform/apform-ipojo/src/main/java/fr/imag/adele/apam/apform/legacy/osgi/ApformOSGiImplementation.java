@@ -74,7 +74,7 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	private final ApformOSGiInstance prototype;
 	
 	/**
-	 * Creates a new implementation reference from aprototype instance
+	 * Creates a new implementation reference from a prototype instance
 	 */
 	public ApformOSGiImplementation(ApformOSGiInstance prototype) {
 
