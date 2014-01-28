@@ -1563,7 +1563,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 		logger.debug("Testing Implementation properties");
 		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
-		logger.debug("*********-->" + implemS1.getAllPropertiesString());
+		logger.debug("*********-->" + implemS1.getAllProperties());
 		for (int i = 0; i <= 6; i++) {
 			if (!implemS1.setProperty("def" + i + "-specs-s1", "test-prop"))
 			// if property is not settable, it must be final
