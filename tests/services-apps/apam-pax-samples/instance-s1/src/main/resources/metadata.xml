@@ -25,6 +25,20 @@
         <definition name="def1-instance-s1" type="string" default="default-value" />
         <property name="def1-instance-s1" value="final-value" />
         
+        <!--  Testing float properties -->
+        <property name="prop-def3" value="34.56"/>
+
+        <property name="prop-impl1" value="34.56" />
+        
+        <property name="prop-impl2" value="34.56" />
+        
+        <definition name="prop-inst0" type="float" />
+        <property name="prop-inst0" value="34.56" />
+
+        <definition name="prop-inst1" type="float" default="34.56" />
+        
+        <definition name="prop-inst2" type="float" />        
+        
 
     </apam-instance>
 

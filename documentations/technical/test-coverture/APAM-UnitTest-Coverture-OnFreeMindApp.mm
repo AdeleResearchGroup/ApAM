@@ -1,4 +1,4 @@
-<map version="0.9.0">
+<map version="1.0.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1377768742779" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
@@ -202,6 +202,25 @@
 </node>
 <node CREATED="1378998304466" ID="ID_1555166557" MODIFIED="1378998417087" TEXT="definition of properties at instance level - tct028 (in progress // bugs in the core)">
 <icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1390832707034" ID="ID_829079872" MODIFIED="1390832719309" TEXT="PropertiesTypes">
+<node CREATED="1390832725195" ID="ID_381302404" MODIFIED="1390917290257" TEXT="float">
+<node CREATED="1390832896643" ID="ID_1974637513" MODIFIED="1390917221551" TEXT="testPropertyDefinitionFloat_tct029">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1390917239094" ID="ID_1811278725" MODIFIED="1390917243904" TEXT="testPropertySettingFloat_tct030">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1390917255910" ID="ID_406392211" MODIFIED="1390917263095" TEXT="testPropertyInjectionFloat_tct031">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1390917276065" ID="ID_7985505" MODIFIED="1390917279846" TEXT="testPropertyInheritanceFloat_tct032">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1390917292522" ID="ID_1441023794" MODIFIED="1390917296642" TEXT="testPropertyCompareFloat_tct033">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 </node>

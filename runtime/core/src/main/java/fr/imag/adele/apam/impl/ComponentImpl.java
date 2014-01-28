@@ -248,6 +248,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object>
 	public final ApformComponent getApformComponent() {
 		return apform;
 	}
+	
+	/**
+	 * Tries to find the definition of a property, the property can be valued in this component
+	 * or in its defining group
+	 * 
+	 * @param attribute
+	 * @return
+	 */	
+	@Override
+	public PropertyDefinition getPropertyDefinition(String attribute) {
+		return getAttrDefinition(attribute);
+	}
+	
 
 	/**
 	 * Tries to find the definition of attribute "attr" associated with

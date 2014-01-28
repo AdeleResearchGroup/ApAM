@@ -220,20 +220,13 @@
 			<xs:annotation>
 				<xs:documentation> Type of the property.
 					Basic types are
-					'int' (value
-					is a signed integer), 'string' (value
-					is a
-					string of characters),
-					'boolean' (value is
-					"true" or
-					"false""),
-					enumeration (comma separated
-					list
-					of string, ex "red, green, blue"). It can
-					also be a
-					set of values
-					: {string} or {int} or
-					{enumeration}.
+					'int' (value is a signed integer),
+					'string' (value	is a string of characters),
+					'boolean' (value is	"true" or "false"),
+					'float' (a floating point value),
+					enumeration (comma separated list of string, ex "red, green, blue").
+					It can also be a set of values
+					: {string} or {int} or {enumeration}.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
