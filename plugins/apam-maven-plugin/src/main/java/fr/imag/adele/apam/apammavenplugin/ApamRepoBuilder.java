@@ -39,6 +39,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 
 public class ApamRepoBuilder {
@@ -51,6 +52,7 @@ public class ApamRepoBuilder {
 			.getLogger(ApamRepoBuilder.class);
 
 	private final Set<SpecificationReference> bundleRequiresSpecifications = new HashSet<SpecificationReference>();
+	private final Set<ImplementationReference> bundleRequiresImplementations = new HashSet<ImplementationReference>();
 
 	private static List<ComponentDeclaration> components;
 
@@ -198,8 +200,14 @@ public class ApamRepoBuilder {
 
 	private void printProvided(StringBuffer obrContent,
 			ComponentDeclaration component) {
-		if (component instanceof InstanceDeclaration)
+		if (component instanceof InstanceDeclaration) {
+			ImplementationReference<?> impl = ((InstanceDeclaration) component)
+					.getImplementation();
+			if ((impl != null) && !impl.getName().isEmpty()) {
+				bundleRequiresImplementations.add(impl);
+			}
 			return;
+		}
 		Set<UndefinedReference> undefinedMessages = new HashSet<UndefinedReference>();
 		Set<UndefinedReference> undefinedInterfaces = new HashSet<UndefinedReference>();
 		Set<UndefinedReference> undefinedReferences = component
@@ -233,7 +241,6 @@ public class ApamRepoBuilder {
 		if (val != null) {
 			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
 		}
-
 		if (component instanceof ImplementationDeclaration) {
 			SpecificationReference spec = ((ImplementationDeclaration) component)
 					.getSpecification();
@@ -244,7 +251,8 @@ public class ApamRepoBuilder {
 				CheckObr.checkImplProvide(component, spec.getName(),
 						interfaces, messages, undefinedInterfaces,
 						undefinedMessages);
-			}
+			} 
+			
 		}
 	}
 
@@ -318,6 +326,10 @@ public class ApamRepoBuilder {
 			generateRequire(obrContent, res.getName(),
 					getVersionExpression(res.getName()));
 		}
+		for (ImplementationReference<?> res : bundleRequiresImplementations) {
+			generateRequire(obrContent, res.getName(),
+					getVersionExpression(res.getName()));
+		}		
 	}
 
 	private void generateProperty(StringBuffer obrContent,

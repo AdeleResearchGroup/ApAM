@@ -16,6 +16,18 @@
 
         <definition name="def1-implem-s1" type="string" default="default-value" />
         <property name="def1-implem-s1" value="final-value" />
+        
+        <!--  Testing float properties -->
+        <property name="prop-def1" value="23.45"/>
+        
+        <property name="prop-def2" value="23.45"/>
+        
+        <definition name="prop-impl0" type="float" />
+        <property name="prop-impl0" value="23.45" />
+
+        <definition name="prop-impl1" type="float" default="23.45" />
+        
+        <definition name="prop-impl2" type="float" />
 
     </implementation>
 
