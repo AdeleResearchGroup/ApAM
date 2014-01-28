@@ -105,26 +105,45 @@ public class LinkImpl implements Link {
 
 	@Override
 	public void reevaluate(boolean force, boolean eager) {
-		boolean removed = true;
-		if (force) {
+		if (force || (hasConstraints() && !this.getRelToResolve().matchRelationConstraints(this.getDestination()))) {
 			remove();
-		} else {
-			if (hasConstraints() && !this.getRelToResolve().matchRelationConstraints(this.getDestination())) {
-				remove();
+			if (eager) {
+				CST.apamResolver.resolveLink(getSource(), getRelDefinition());
 			}
-
-			else {
-				if (!((RelationDefinitionImpl) this.getRelDefinition()).isStaticImplemConstraints() || ((RelationDefinitionImpl) this.getRelDefinition()).isStaticImplemConstraints()) {
-					remove();
-				}
-			}
-			removed = false;
-		}
-		if (removed && eager) {
-			CST.apamResolver.resolveLink(getSource(), getRelDefinition());
 		}
 	}
 
+	/**
+	 * Check if the current link is valid. Makes all the validations.
+	 * @return
+	 */
+	public boolean isValid () {
+		if (!this.isPromotion && ! source.canSee(destination)) {
+			//logger.error("CreateLink: Source  " + this + " does not see its target " + to);
+			return false;
+		}
+		RelToResolve rel = getRelToResolve() ;
+		if (source.getKind() != rel.getSourceKind()) {
+//			logger.error("CreateLink: Source kind " + getKind()
+//					+ " is not compatible with relation sourceType "
+//					+ dep.getSourceKind());
+			return false;
+		}
+		
+		if (destination.getKind() != rel.getTargetKind()) {
+//			logger.error("CreateLink: Target kind " + to.getKind()
+//					+ " is not compatible with relation targetType "
+//					+ dep.getTargetKind());
+			return false;
+		}
+		
+		if (hasConstraints && !rel.matchRelationConstraints(destination)) {
+//			logger.error("CreateLink: Target does not satisfies the constraints" );
+			return false ;
+		}
+		return true ;
+	}
+	
 	@Override
 	public void remove() {
 		source.removeLink(this);
