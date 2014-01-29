@@ -28,6 +28,11 @@
         <definition name="prop-impl1" type="float" default="23.45" />
         
         <definition name="prop-impl2" type="float" />
+        
+        <definition name="prop-injboth" type="float" field="injboth" />
+        <definition name="prop-injinternal" type="float" field="injinternal" injected="internal" />
+        <definition name="prop-injexternal" type="float" field="injexternal" injected="external" />
+        
 
     </implementation>
 
