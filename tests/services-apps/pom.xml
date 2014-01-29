@@ -23,6 +23,9 @@
 		<module>apam-pax-samples-impl-s7</module>
 		<module>apam-pax-samples-spec-s7ext</module>
 		<module>apam-pax-samples-impl-s7ext</module>
+        <module>apam-pax-samples-impl-s8-dep</module>     		
+        <module>apam-pax-samples-impl-s8</module>
+   		
 		<module>apam-pax-distriman-iface</module>
 		<module>apam-pax-distriman-P1</module>
 		<module>apam-pax-distriman-P2</module>

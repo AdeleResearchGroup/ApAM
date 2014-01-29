@@ -864,6 +864,10 @@ public class CompositeTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.tests.services");
 		mapOfRequiredArtifacts.put("apam-pax-composite-av",
 				"fr.imag.adele.apam.tests.app");
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s8",
+				"fr.imag.adele.apam.tests.services");
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s8-dep",
+				"fr.imag.adele.apam.tests.services");
 
 		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 		addon.add(systemPackage("javax.xml.parsers"));
@@ -907,4 +911,40 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}
 
+	@Test
+	public void compositeWithMainImplem_tct034() {
+
+		InstanceCreator creator = new InstanceCreator("compositeWithMainImplem_tct034");
+		creator.start();
+		try {
+			Thread.sleep(500);
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		auxListInstances();
+
+		Assert.assertTrue(
+				"Composite should be created when main implem in another bundle",
+				creator.created != null);
+	}
+
+	class InstanceCreator extends Thread {
+
+		String myCompositeName;
+		public Instance created;
+
+		public InstanceCreator(String compositeName) {
+			myCompositeName = compositeName;
+			created = null;
+		}
+
+		@Override
+		public void run() {
+			CompositeType compo = (CompositeType) waitForComponentByName(null,
+					myCompositeName);			
+			if (compo != null) {
+				created = compo.createInstance(null, null);
+			}
+		}
+	}
 }
