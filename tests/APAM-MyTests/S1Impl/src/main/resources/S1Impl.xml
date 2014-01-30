@@ -12,15 +12,120 @@
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.
-      -->
 
+-->
+<!-- <apam xmlns="fr.imag.adele.apam" > -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam  http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd " >    
+ xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
 	<implementation name="S1ImplEmpty"
 		classname="fr.imag.adele.apam.test.s1Impl.S1ImplEmpty" specification="S1" > 
-		<definition name="debit" type="int" default="10"/>
+		<definition name="debit" type="int"/>
 	</implementation>
 
+
+	<implementation name="S1Impl"
+		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1" > <!-- specification="S1" -->
+		
+		<definition name="debit" type="int"/>
+		
+		<dependency name="S2" field="s2Spec" />
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" 	field="s2Interf" />
+		<!--  plante sur ce field: ne trouve pas son type?? -->
+		
+		<dependency specification="S3" name="S3Multiple"  multiple="true">
+			<interface field="s3List" />
+			<interface field="s3ListBis" />
+		</dependency>
+		<dependency specification="S3">
+			<interface field="s3_1" />
+			<interface field="s3_2" />
+		</dependency>
+		<dependency implementation="S2Impl" field="lastS2" />
+		
+		<!--  Injected Links  -->
+		<dependency field="s2Inst" implementation="S2Impl" />  
+		<dependency field="s2Impl" targetKind="implementation" specification="S2" /> 
+		<dependency field="s2Specif"  targetKind="specification" specification="S2" /> 
+		<dependency field="s3Insts" targetKind="instance" specification="S3" name="ids3Insts" /> 
+		
+		<!--  Links -->
+		<dependency sourceKind="instance" targetKind="implementation" specification="S2" name="linkS2"/> 
+		<dependency sourceKind="implementation" targetKind="implementation" specification="S2" name="testID" /> 
+		<dependency sourceKind="specification" targetKind="implementation" specification="S3" name="testIDS3" /> 
+		<dependency targetKind="specification" interface="fr.imag.adele.apam.test.s2.S2" name="spec2interf" /> 
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2" targetKind="implementation"  multiple="true"/>  -->
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" name="towardInterfS2" targetKind="implementation"  /> 
+		<dependency implementation="S2Impl" name="withoutkinds" multiple="true"/> 
+		
+	</implementation>
+
+<!-- 	<apam-instance implementation="S1Impl" name="S1Impl-instance" > -->
+<!-- 			<dependency id="S2" > -->
+<!-- 				<constraints> -->
+<!-- 					<implementation filter="(impl-name=S2Impl)"/> -->
+<!-- 				</constraints> -->
+<!-- 			</dependency> -->
+<!-- 	</apam-instance> -->
+
+<!-- 	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" > -->
+<!-- 	</apam-instance> -->
+
+<!-- 	<composite name="S1CompoFinal" main="S1toS2Final" -->
+<!-- 		interfaces="fr.imag.adele.apam.test.s1.S1"> -->
+<!-- 	</composite> -->
+
+<!-- 	<implementation name="S1toS2Final" -->
+<!-- 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1"> -->
+<!-- 		<dependency implementation="S2Final" field="s2" /> -->
+<!-- 	</implementation> -->
+
+	
+
+ 	<!-- Will install and start immediately the composite and its instance.  
+		Main being auto start: it starts alone  -->
+<!-- 	<apam-instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" /> -->
+
+<!-- An implementation without any provided resource --> 
+<!-- 	<implementation name="S1Main" -->
+<!-- 		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">		 -->
+<!-- 		<dependency id="tos1" field="s1"> -->
+<!-- 			<constraints> -->
+<!-- 				<implementation filter="(impl-name=S1Impl)" /> -->
+<!-- 			</constraints> -->
+<!-- 			<preferences> -->
+<!-- 				<implementation filter="(OS=Linux)" /> -->
+<!-- 				<implementation filter="(impl-name=S2Impl)" /> -->
+<!-- 				<implementation filter="(impl-name=S3Impl)" /> -->
+<!-- 				<implementation filter="(impl-name=S1Impl)" /> -->
+<!-- 			</preferences> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency id="tos1" field="s1" /> -->
+<!-- 		<dependency field="s1" /> -->
+<!-- 		<dependency implementation="S1Impl" field="s1" /> -->
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s1.S1" field="s1" multiple="false" /> -->
+<!-- 	</implementation> -->
+
+<!-- 	<composite name="S1MainCompo" main="S1Main"> -->
+		<!-- <dependency specification="S2" /> -->
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" /> -->
+<!-- 		<dependency implementation="S3Impl" multiple="true" /> -->
+<!-- 		<dependency specification="S3" name="S3Id1" /> -->
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> should be an error   -->
+<!-- 		<dependency specification="S3" id="S3Idmult" multiple="true"> should be an error   -->
+<!-- 			<constraints>  -->
+<!-- 				<implementation filter="(shared=false)" />  -->
+<!-- 			</constraints>  -->
+<!-- 		</dependency> -->
+		
+<!-- 		<contentMngt> -->
+<!-- 				<import implementation="false" instance="false" /> -->
+<!-- 				<export  implementation="true"  instance="true"  /> -->
+<!-- 		</contentMngt>	 -->
+		
+<!-- 	</composite> -->
+
+		
 </apam>
+
