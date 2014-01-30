@@ -77,21 +77,27 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	/**
 	 * The project groupID
 	 * 
-	 * @parameter(default-value="${project.groupID}",required=true,readonly=true)
+	 * @parameter default-value="${project.groupId}"
+	 * @required
+	 * @readonly
 	 */
 	public static String currentProjectGroupId;
 
 	/**
 	 * The project artifactID
 	 * 
-	 * @parameter(default-value="project.artifactId",required=true,readonly=true)
+	 * @parameter default-value="${project.artifactId}"
+	 * @required
+	 * @readonly
 	 */
 	public static String currentProjectArtifactId;
 
 	/**
 	 * The project version
 	 * 
-	 * @parameter(default-value="${project.version}",required=true,readonly=true)
+	 * @parameter default-value="${project.version}"
+	 * @required
+	 * @readonly
 	 */
 	public static String currentProjectVersion;
 
@@ -128,7 +134,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 		super.execute();
 
-		thisBundleVersion = project.getArtifactId().replace('-', '.');
+		thisBundleVersion = currentProjectVersion.replace('-', '.');
 		classpathDescriptor = new ClasspathDescriptor();
 		try {
 
