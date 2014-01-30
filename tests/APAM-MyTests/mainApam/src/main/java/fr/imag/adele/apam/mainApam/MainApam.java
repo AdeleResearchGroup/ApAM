@@ -817,18 +817,18 @@ public class MainApam implements Runnable, ApamComponent {
 		String sync = "" ;
 //		synchronized (sync) {		
 			System.out.println("Starting new mainApam " + cpt);
-			if (cpt == 0) {
-				cpt ++ ;
-				new Thread(this, "MainApam change Properties").start();
-				testPerfLink  () ;
-			} else {
-				changeProperties() ;
-			}
+//			if (cpt == 0) {
+//				cpt ++ ;
+//				new Thread(this, "MainApam change Properties").start();
+//				testPerfLink  () ;
+//			} else {
+//				changeProperties() ;
+//			}
 //		}
-		//		testFindImplByName () ;
-		//		//testCompoURL () ;
-		//		testCreateCompoRootS1toS2Final () ;
-		//		testCreateCompoBySpec () ;
+//				testFindImplByName () ;
+				//testCompoURL () ;
+				testCreateCompoRootS1toS2Final () ;
+				testCreateCompoBySpec () ;
 
 		//		testInitialAttributes () ;
 		//		testSettingAttributes () ;

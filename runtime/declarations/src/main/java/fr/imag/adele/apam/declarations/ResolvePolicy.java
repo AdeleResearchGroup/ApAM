@@ -29,13 +29,15 @@ public enum ResolvePolicy {
 	EXTERNAL;
 
 	public static ResolvePolicy getPolicy(String id) {
+//		System.out.println("dans gespolicy : id = " + id);	
+		if (id == null) 
+			return null ;
+		
 		for (ResolvePolicy p : values()) {
-			if (p.toString().toLowerCase().equals(id)) {
+			if (p.toString().toLowerCase().equals(id.toLowerCase())) {
 				return p;
 			}
 		}
-
 		return null;
 	}
-
 }

@@ -1945,7 +1945,9 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * Create the relation and add the declared instrumentation
 		 */
-		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, sourceName, sourceKind, targetDef, targetKind, creationPolicy, (resolvePolicy != null ? resolvePolicy : ResolvePolicy.EXIST), isMultiple, missingPolicy, missingException, isOverride, mustHide != null ? Boolean.valueOf(mustHide) : null);
+//		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, sourceName, sourceKind, targetDef, targetKind, creationPolicy, (resolvePolicy != null ? resolvePolicy : ResolvePolicy.EXIST), isMultiple, missingPolicy, missingException, isOverride, mustHide != null ? Boolean.valueOf(mustHide) : null);
+		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, sourceName, sourceKind, targetDef, targetKind, creationPolicy, resolvePolicy, 
+				isMultiple, missingPolicy, missingException, isOverride, mustHide != null ? Boolean.valueOf(mustHide) : null);
 
 		for (RequirerInstrumentation instrumentation : instrumentations) {
 			instrumentation.setRelation(relation);

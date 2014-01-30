@@ -104,7 +104,7 @@ public class CompositeTest extends ExtensionAbstract {
 				+ "If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 
 		CompositeType cta = (CompositeType) waitForImplByName(null,
-				"composite-a-local-implementation");
+				"composite-a-local-implementation",200000);
 
 		CompositeType ctb = (CompositeType) waitForImplByName(null,
 				"composite-b");

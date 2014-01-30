@@ -276,8 +276,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		Component group = source;
 		while (group != null) {
 			if (group.getName().equals(dep.getCtxtSourceName())
-			// getLinkSource().getName())
-			&& source.getKind() == dep.getSourceKind()) {
+					// getLinkSource().getName())
+					&& source.getKind() == dep.getSourceKind()) {
 				return dep;
 			}
 		}
@@ -407,8 +407,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		CompositeTypeImpl.compositeTypes.put(getName(), this);
 
 		/*
-		 * Compute Dependencies from relation declarations. TODO I am not sure
-		 * this is needed
+		 * Compute Dependencies from relation declarations. 
+		 * TODO I am not sure this is needed
 		 */
 		for (RelationDeclaration relation : ((CompositeDeclaration) this.getDeclaration()).getContextualDependencies()) {
 			// Build the corresponding relation and attach it to the component
@@ -419,6 +419,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * Complete normal registration
 		 */
 		super.register(initialProperties);
+
 	}
 
 	@Override
@@ -461,7 +462,37 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	 * not call super.register until the main implementation is resolved.
 	 * 
 	 */
+
 	private void resolveMainImplem() throws InvalidConfiguration {
+		if (getCompoDeclaration().getMainComponent() == null) {
+			if (!getProvidedResources().isEmpty()) {
+				unregister();
+				throw new InvalidConfiguration("invalid composite type " + getName() + ". No Main implementation but provides resources " + getProvidedResources());
+			}
+			return ;
+		}
+
+		logger.debug("looking for main implem " + getCompoDeclaration().getMainComponent().getName()) ;
+		
+		//try 5 time in case the main implem is in the same bundle and not yet created into Apam
+		for (int i = 0; i< 5; i++) {
+			synchronized (this) {
+				try {
+					if (i_resolveMainImplem()) return ;
+					wait(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			logger.debug("main implem " + getCompoDeclaration().getMainComponent().getName() + " not yet available");
+		}
+		// failed to find the main implem
+		unregister();
+		//logger.error ("Cannot find main implementation " +  getCompoDeclaration().getMainComponent().getName() + " for composite type " + getName()) ;
+		throw new InvalidConfiguration("Cannot find main implementation " +  getCompoDeclaration().getMainComponent().getName() + " for composite type " + getName());
+	}
+
+	private boolean i_resolveMainImplem() throws InvalidConfiguration {
 		/*
 		 * Abstract Composite
 		 */
@@ -470,7 +501,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 				unregister();
 				throw new InvalidConfiguration("invalid composite type " + getName() + ". No Main implementation but provides resources " + getProvidedResources());
 			}
-			return;
+			return true ;
 		}
 
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
@@ -478,13 +509,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * This is a false composite / instance, not registered anywhere. just
 		 * to provide an instance to the find and resolve.
 		 */
-		Composite dummyComposite = new CompositeImpl(this, "dummyComposite");
+		//Composite dummyComposite = new CompositeImpl(this, "dummyComposite");
+		//CompositeTypeImpl dummyComposite = this ; //TODO to check if it works ...
+		//Back chain to get the default project settings
 
-		mainImpl = CST.apamResolver.findImplByName(dummyComposite, mainComponent);
+
+		mainImpl = CST.apamResolver.findImplByName(null, mainComponent);
 		if (mainImpl != null) {
 			logger.debug("The main component of " + this.getName() + " is an Implementation : " + mainImpl.getName());
 		} else {
-			Specification spec = CST.apamResolver.findSpecByName(dummyComposite, mainComponent);
+			Specification spec = CST.apamResolver.findSpecByName(null, mainComponent);
 			if (spec != null) {
 				logger.debug("The main component of " + this.getName() + " is a Specification : " + spec.getName());
 				/*
@@ -493,7 +527,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 				 */
 				Set<String> constraints = new HashSet<String>();
 				constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
-				mainImpl = CST.apamResolver.resolveSpecByName(dummyComposite, mainComponent, constraints, null);
+				mainImpl = CST.apamResolver.resolveSpecByName(null, mainComponent, constraints, null);
 			}
 		}
 
@@ -502,11 +536,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * registration in APAM, taking care of undoing the partial processing
 		 * already performed.
 		 */
+
 		if (mainImpl == null) {
-			// logger.debug("The main component is " + mComponent);
-			unregister();
-			throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
+			return false ;
 		}
+		//			unregister();
+		//			throw new InvalidConfiguration("Cannot find main implementation " + mainComponent + " for composite type " + getName());
+		//		}
 
 		// assert mainImpl != null;
 
@@ -529,6 +565,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			unregister();
 			throw new InvalidConfiguration("invalid main implementation " + mainImpl.getName() + " for composite type " + getName() + "Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources() + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
 		}
+		return true ;
 
 		// TODO Other control, other than provided resources ?
 	}

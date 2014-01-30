@@ -369,8 +369,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle().groupId("org.apache.felix")
 						.artifactId("org.apache.felix.bundlerepository")
 						.version("1.6.6"), systemProperty(
-						"ipojo.processing.synchronous").value("true"),
-				frameworkProperty("ipojo.processing.synchronous").value("true"));
+						"ipojo.processing.synchronous").value("false"),
+				frameworkProperty("ipojo.processing.synchronous").value("false"));
 
 		return osgiConfig;
 

@@ -936,7 +936,7 @@ implements Component, Comparable<Component> {
 			 */
 			else {
 				for (Map.Entry<String, String> entry : props.entrySet()) {
-					if (!!!group.getProperty(entry.getKey()).equals(entry.getValue()))
+					if (group.getProperty(entry.getKey())!= null && !!!group.getProperty(entry.getKey()).equals(entry.getValue()))
 						props.put(entry.getKey(), entry.getValue());
 				}
 			}

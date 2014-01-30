@@ -211,6 +211,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
 			this.declaration = declarations.get(0);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			this.declaration		= null;
 			this.declarationError 	= new ConfigurationException(e.getLocalizedMessage());
 			return requiredHandlers;
