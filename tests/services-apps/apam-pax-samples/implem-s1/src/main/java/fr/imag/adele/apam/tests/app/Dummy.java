@@ -21,5 +21,29 @@ package fr.imag.adele.apam.tests.app;
  *
  */
 public class Dummy {
+	
+	public Float getInjboth() {
+		return injboth;
+	}
+	public Float getInjinternal() {
+		return injinternal;
+	}
+	public Float getInjexternal() {
+		return injexternal;
+	}
+	public void setInjboth(Float injboth) {
+		this.injboth = injboth;
+	}
+	public void setInjinternal(Float injinternal) {
+		this.injinternal = injinternal;
+	}
+	public void setInjexternal(Float injexternal) {
+		this.injexternal = injexternal;
+	}
+	private Float injboth;
+	private Float injinternal;
+	private Float injexternal;
+
+	
 
 }

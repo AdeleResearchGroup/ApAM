@@ -32,6 +32,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -43,13 +44,14 @@ import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotifi
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct021;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct025;
+import fr.imag.adele.apam.tests.app.Dummy;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public class PropertyTest extends ExtensionAbstract {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(PropertyTest.class);
 
 	@Override
@@ -64,7 +66,7 @@ public class PropertyTest extends ExtensionAbstract {
 		mapOfRequiredArtifacts.put("implem-s1",
 				"fr.imag.adele.apam.tests.services");
 		mapOfRequiredArtifacts.put("instance-s1",
-		 "fr.imag.adele.apam.tests.services");
+				"fr.imag.adele.apam.tests.services");
 
 		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 		return addon;
@@ -550,8 +552,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 		for (String key : initialProperties.keySet()) {
 
-			logger.debug(key + ":"
-					+ samsungInst.getAllProperties().get(key));
+			logger.debug(key + ":" + samsungInst.getAllProperties().get(key));
 
 			Assert.assertTrue(message, samsungInst.getAllProperties()
 					.containsKey(key));
@@ -1650,74 +1651,181 @@ public class PropertyTest extends ExtensionAbstract {
 
 	}
 
+	private void testPropertyDefinition(Component component,
+			String propertyName, String propertyType, String expectedClass) {
+		logger.debug("Testing for " + component.getName() + " : "
+				+ component.getPropertyDefinition(propertyName) + ", "
+				+ component.getPropertyObject(propertyName)
+				+ " - Expected property Type : " + propertyType
+				+ " - Expected java Class : " + expectedClass);
+
+		Assert.assertEquals("Expected property type is " + propertyType
+				+ " in " + component.getName(), propertyType, component
+				.getPropertyDefinition(propertyName).getType());
+
+		if (component.getPropertyObject(propertyName) != null)
+			Assert.assertEquals("Expected java class is " + expectedClass
+					+ " in " + component.getName(), expectedClass, component
+					.getPropertyObject(propertyName).getClass().getName());
+
+	}
+
 	@Test
 	public void testPropertyDefinitionFloat_tct029() {
 
-		double myval=12.34;
-		logger.debug("Testing defintion of Float ");
+		logger.debug("Testing definition of Float in apam descriptors ");
 		Specification specsS1 = waitForSpecByName(null, "specs-s1-tct026");
 		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
 		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
-		
-		for(int i=0; i<3; i++) {
-			logger.debug("Testing for "+specsS1.getName()+" : "+specsS1.getPropertyDefinition("prop-def"+i)+", "+specsS1.getPropertyObject("prop-def"+i));
-			logger.debug("Testing for "+implemS1.getName()+" : "+implemS1.getPropertyDefinition("prop-def"+i)+", "+implemS1.getPropertyObject("prop-def"+i));
-			logger.debug("Testing for "+implemS1.getName()+" : "+implemS1.getPropertyDefinition("prop-impl"+i)+", "+implemS1.getPropertyObject("prop-impl"+i));
-			logger.debug("Testing for "+instanceS1.getName()+" : "+instanceS1.getPropertyDefinition("prop-def"+i)+", "+instanceS1.getPropertyObject("prop-def"+i));
-			logger.debug("Testing for "+instanceS1.getName()+" : "+instanceS1.getPropertyDefinition("prop-impl"+i)+", "+instanceS1.getPropertyObject("prop-impl"+i));
-			logger.debug("Testing for "+instanceS1.getName()+" : "+instanceS1.getPropertyDefinition("prop-inst"+i)+", "+instanceS1.getPropertyObject("prop-inst"+i));
-			
-			Assert.assertEquals("expected type is float in spec", "float",specsS1
-					.getPropertyDefinition("prop-def"+i).getType());
-			Assert.assertEquals("expected type is float in implem", "float",implemS1
-					.getPropertyDefinition("prop-def"+i).getType());
-			Assert.assertEquals("expected type is float in implem", "float",implemS1
-					.getPropertyDefinition("prop-impl"+i).getType());			
-			Assert.assertEquals("expected type is float in instance", "float",instanceS1
-					.getPropertyDefinition("prop-def"+i).getType());
-			Assert.assertEquals("expected type is float in instance", "float",instanceS1
-					.getPropertyDefinition("prop-impl"+i).getType());
-			Assert.assertEquals("expected type is float in instance", "float",instanceS1
-					.getPropertyDefinition("prop-inst"+i).getType());			
-			
-			if(specsS1.getPropertyObject("prop-def"+i) != null)
-				Assert.assertTrue(specsS1.getPropertyObject("prop-def"+i) instanceof Float);
-			
-			if(implemS1.getPropertyObject("prop-def"+i) != null)
-				Assert.assertTrue(implemS1.getPropertyObject("prop-def"+i) instanceof Float);
-			if(implemS1.getPropertyObject("prop-impl"+i) != null)
-				Assert.assertTrue(implemS1.getPropertyObject("prop-impl"+i) instanceof Float);
-			
-			if(instanceS1.getPropertyObject("prop-def"+i) != null)
-				Assert.assertTrue(instanceS1.getPropertyObject("prop-def"+i) instanceof Float);
-			if(instanceS1.getPropertyObject("prop-impl"+i) != null)
-				Assert.assertTrue(instanceS1.getPropertyObject("prop-impl"+i) instanceof Float);
-			if(instanceS1.getPropertyObject("prop-inst"+i) != null)
-				Assert.assertTrue(instanceS1.getPropertyObject("prop-inst"+i) instanceof Float);
+
+		for (int i = 0; i < 3; i++) {
+			testPropertyDefinition(specsS1, "prop-def" + i, "float",
+					Float.class.getName());
+
+			testPropertyDefinition(implemS1, "prop-impl" + i, "float",
+					Float.class.getName());
+
+			testPropertyDefinition(instanceS1, "prop-inst" + i, "float",
+					Float.class.getName());
 		}
-		
-//		Assert.assertEquals("expected type is float", Float.parseFloat("12.34"), specsS1.getPropertyObject("prop-def0"));
-	}	
-	
-	@Test
-	public void testPropertySettingFloat_tct030() {
-		//TODO
-	}
-	
-	@Test
-	public void testPropertyInjectionFloat_tct031() {
-		// TODO
-	}
-	
-	@Test
-	public void testPropertyInheritanceFloat_tct032() {
-		//TODO
-	}
-	
-	
-	@Test
-	public void testPropertyCompareFloat_tct033() {
-		// TODO
+
 	}
 
+	private void testPropertyGetFloat(Component component, String propertyName,
+			float expectedValue) {
+		logger.debug("Testing for " + component.getName() + " : "
+				+ component.getPropertyDefinition(propertyName)
+				+ " - Expected Value : " + expectedValue);
+
+		Assert.assertEquals("Incorrect float value ",
+				Float.valueOf(expectedValue),
+				(Float) component.getPropertyObject(propertyName));
+	}
+
+	@Test
+	public void testPropertySettingFloat_tct030() {
+		logger.debug("Testing get and set of Float from apam descriptors (values and default values)");
+
+		Specification specsS1 = waitForSpecByName(null, "specs-s1-tct026");
+		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
+
+		logger.debug("Testing properties already setted in descriptor");
+		testPropertyGetFloat(specsS1, "prop-def0", (float) 12.34);
+		testPropertyGetFloat(implemS1, "prop-def0", (float) 12.34);
+		testPropertyGetFloat(instanceS1, "prop-def0", (float) 12.34);
+
+		testPropertyGetFloat(implemS1, "prop-impl0", (float) 23.45);
+		testPropertyGetFloat(instanceS1, "prop-impl0", (float) 23.45);
+
+		testPropertyGetFloat(instanceS1, "prop-inst0", (float) 34.56);
+
+		logger.debug("Testing properties default values setted in descriptor (not working - specification of apam behavior ambiguous)");
+
+		logger.debug("Testing setting and getting properties using apam API");
+		specsS1.setProperty("prop-def1", new Float(98.76));
+		testPropertyGetFloat(specsS1, "prop-def1", (float) 98.76);
+
+		instanceS1.setProperty("prop-inst2", new Float(98.76));
+		testPropertyGetFloat(instanceS1, "prop-inst2", (float) 98.76);
+	}
+
+	@Test
+	public void testPropertyInjectionFloat_tct031() {
+		logger.debug("Testing injected properties setting for float, using the API");
+		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
+		Dummy objectS1 = (Dummy)instanceS1.getServiceObject();
+
+		
+		instanceS1.setProperty("prop-injboth", new Float(10.12));
+		testPropertyGetFloat(instanceS1, "prop-injboth", (float) 10.12);
+		Assert.assertEquals("Incorrect float value ",
+				Float.valueOf((float)10.12),
+				objectS1.getInjboth());
+		
+		instanceS1.setProperty("prop-injexternal", new Float(10.12));
+		testPropertyGetFloat(instanceS1, "prop-injexternal", (float) 10.12);
+		Assert.assertEquals("Incorrect float value ",
+				Float.valueOf((float)10.12),
+				objectS1.getInjexternal());
+		
+
+		logger.debug("Testing injected properties setting for float, using java");
+		objectS1.setInjboth((float)77.88);
+		testPropertyGetFloat(instanceS1, "prop-injboth", (float) 77.88);
+		Assert.assertEquals("Incorrect float value ",
+				Float.valueOf((float)77.88),
+				objectS1.getInjboth());	
+
+		objectS1.setInjinternal((float)88.99);
+		testPropertyGetFloat(instanceS1, "prop-injinternal", (float) 88.99);
+		Assert.assertEquals("Incorrect float value ",
+				Float.valueOf((float)88.99),
+				objectS1.getInjinternal());		
+	}
+
+	@Test
+	public void testPropertyInheritanceFloat_tct032() {
+		logger.debug("Testing definition  inheritance of Float in apam descriptors ");
+		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
+
+		for (int i = 0; i < 3; i++) {
+			testPropertyDefinition(implemS1, "prop-def" + i, "float",
+					Float.class.getName());
+			testPropertyDefinition(instanceS1, "prop-def" + i, "float",
+					Float.class.getName());
+
+			testPropertyDefinition(instanceS1, "prop-impl" + i, "float",
+					Float.class.getName());
+		}
+		
+		logger.debug("Testing get and set of Float with inheritance");
+
+		logger.debug("Testing properties already setted in descriptor");
+		testPropertyGetFloat(implemS1, "prop-def0", (float) 12.34);
+		testPropertyGetFloat(instanceS1, "prop-def0", (float) 12.34);
+
+		testPropertyGetFloat(instanceS1, "prop-impl0", (float) 23.45);
+
+		logger.debug("Testing setting and getting properties using apam API");
+		instanceS1.setProperty("prop-def3", new Float(98.76));
+		testPropertyGetFloat(instanceS1, "prop-def3", (float) 98.76);
+
+		instanceS1.setProperty("prop-def3", new Float(0));
+		testPropertyGetFloat(instanceS1, "prop-def3", (float) 0);
+
+		instanceS1.setProperty("prop-impl2", new Float(98.76));
+		testPropertyGetFloat(instanceS1, "prop-impl2", (float) 98.76);
+	}
+
+	@Test
+	public void testPropertyCompareFloat_tct033() {
+
+		//TODO
+
+		
+		
+	}
+
+	@Test
+	public void testSettingAPropertySettedInGroup_tct036() {
+		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
+
+		implemS1.setProperty("def0-specs-s1", "new value");
+		System.err.println("value : "
+				+ implemS1.getPropertyObject("def0-specs-s1"));
+		Assert.assertNotEquals("Value should not have been changed ",
+				String.valueOf("new value"),
+				(String) implemS1.getPropertyObject("def0-specs-s1"));
+		
+		instanceS1.setProperty("def0-specs-s1", "new value");
+		System.err.println("value : "
+				+ instanceS1.getPropertyObject("def0-specs-s1"));
+		Assert.assertNotEquals("Value should not have been changed ",
+				String.valueOf("new value"),
+				(String) instanceS1.getPropertyObject("def0-specs-s1"));
+
+	}
 }
