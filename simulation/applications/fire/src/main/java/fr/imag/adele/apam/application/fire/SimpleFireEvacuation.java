@@ -14,8 +14,13 @@
  */
 package fr.imag.adele.apam.application.fire;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.json.JSONException;
+
+import appsgate.lig.button_switch.sensor.messages.SwitchNotificationMsg;
+import appsgate.lig.core.object.messages.NotificationMsg;
 import fr.liglab.adele.apam.device.access.Lock;
 import fr.liglab.adele.apam.device.fire.EmergencyEvent;
 
@@ -41,34 +46,52 @@ public class SimpleFireEvacuation {
 	/**
 	 * Notification callback for a smoke detection message
 	 */
-	@SuppressWarnings("unused")
 	private void smokeDetected(boolean smokeDetected) {
 		
 		/*
 		 * calculate emergency state. 
 		 * 
-		 * In this toy example, simply use the smoke detection value
+		 * In this toy example, simply use the smoke detection value.
+		 * 
+		 * Notify event to allow conflict arbitration before accessing devices
 		 */
 		
 		fireDetected(smokeDetected);
 
-		if (!smokeDetected)
-			return;
-
 		/*
-		 * Unlock doors to allow evacuation
+		 * Disable doors acces control to allow evacuation when smoke detceted
 		 */
-		
-		List<Lock> boundDoors = doors;
-		
-		if (boundDoors == null)
-			return;
-		
-		for(Lock lock:boundDoors){
-			lock.unlock();
+				
+		for(Lock door: optional(doors)) {
+			if (smokeDetected)
+				door.disableAcces(false);
+			else
+				door.enableAcces();
 		}
 		
 	}
 
+	private boolean toogle = false;
+	
+	@SuppressWarnings("unused")
+	private void simulationNotification(NotificationMsg notification) {
+		try {
+			
+			SwitchNotificationMsg switchNotification = (SwitchNotificationMsg) notification;
+			boolean triggered = switchNotification.isOn() && switchNotification.JSONize().get("varName").equals("buttonStatus");
+			if (triggered) {
+				toogle = ! toogle;
+				smokeDetected(toogle);
+			}
+		
+		} catch (JSONException ignored) {
+		}
+		
+		
+	}
+
+	private static <T> List<T> optional(List<T> list) {
+		return list != null ? list : Collections.<T> emptyList();
+	}
 
 }

@@ -11,7 +11,7 @@
 	<artifactId>applications.fire</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>ApAM iCasa fire evacuation test application</name>
+	<name>ApAM fire evacuation test application</name>
 
 	<dependencies>
 		<dependency>
@@ -25,12 +25,14 @@
 			<version>${project.version}</version>
 		</dependency>
 
+
+
 		<dependency>
-			<groupId>fr.liglab.adele.icasa</groupId>
-			<artifactId>device.light</artifactId>
+			<groupId>appsgate.components</groupId>
+			<artifactId>CoreSwitchSensorSpec</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
 		</dependency>
-
-
 	</dependencies>
 
 	<build>

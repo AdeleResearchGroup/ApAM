@@ -8,7 +8,6 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>security</artifactId>
 	<packaging>bundle</packaging>
 	
@@ -24,11 +23,29 @@
 			<artifactId>device.specifications</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>appsgate.components</groupId>
+			<artifactId>CoreColorLightBulbSpec</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>applications.lock</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>bundle</type>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>applications.fire</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>bundle</type>
+		</dependency>
 	</dependencies>
 	
 	
-	<name>ApAM iCasa security related domains</name>
-	<description>ApAM iCasa security related domains</description>
+	<name>ApAM security related domains</name>
+	<description>ApAM security related domains</description>
 	<build>
 		<plugins>
 			<plugin>

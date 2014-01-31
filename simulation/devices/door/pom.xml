@@ -7,16 +7,16 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>icasa.simulated.door</artifactId>
+	<artifactId>apam.simulated.door</artifactId>
 	<packaging>bundle</packaging>
-	<name>ApAM iCasa basic lock simulator</name>
+	<name>ApAM basic simulated (card reader based) lock</name>
 
 	<dependencies>
 
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>simulator.api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apam-core</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
@@ -24,6 +24,13 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.ow2.chameleon.fuchsia.extra.ard</groupId>
+			<artifactId>ard-importer</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>

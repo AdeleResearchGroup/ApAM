@@ -14,23 +14,35 @@
       limitations under the License.
 
 -->
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
-                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+<apam 	xmlns="fr.imag.adele.apam" 
+	xmlns:ipojo="org.apache.felix.ipojo"
+     	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     	xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
+     	
+      	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd
+                          http://www.osgi.org/xmlns/scr/v1.1.0 http://www.osgi.org/xmlns/scr/v1.1.0">
                           
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
+ 
+ 	<callback onInit="start"/>
         
         <relation field="doors" specification="Door">
             <constraints>
             	<instance filter="(access=true)"/>
             </constraints>
         </relation>
+
+        <relation field="plugs" specification="CoreSmartPlugSpec"/>
         
-        <relation specification="Presence">
-            <message push="presenceChanged"/>
+        <relation name="notification" specification="CoreSwitchSensorSpec" creation="eager">
+            <message push="simulationNotification"/>
+            <constraints>
+            	<instance filter="(deviceId=ENO27b2b1)"/>
+            </constraints>
         </relation>
         
     </implementation>
+    
 
 </apam>

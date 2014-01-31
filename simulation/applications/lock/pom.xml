@@ -11,7 +11,7 @@
 	<artifactId>applications.lock</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>ApAM iCasa lock doors test application</name>
+	<name>ApAM OTB lock doors test application</name>
 
 	<dependencies>
 		<dependency>
@@ -26,6 +26,18 @@
 		</dependency>
 
 
+		<dependency>
+			<groupId>appsgate.components</groupId>
+			<artifactId>CoreSwitchSensorSpec</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
+		<dependency>
+			<groupId>appsgate.components</groupId>
+			<artifactId>CoreSmartPlugSpec</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -33,6 +45,11 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Service-Component>scr.xml</Service-Component>
+					</instructions>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>

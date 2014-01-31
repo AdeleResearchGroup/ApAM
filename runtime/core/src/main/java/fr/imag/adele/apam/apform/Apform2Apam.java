@@ -193,7 +193,9 @@ public class Apform2Apam {
 	}
 
 	/**
-	 * A description of a waiting request in Apam
+	 * A description of a waiting request in Apam, 
+	 * 
+	 * This only handles waiting for another component.
 	 * 
 	 * @author vega
 	 */
