@@ -98,7 +98,7 @@ public class LightManagerTester implements ActionListener {
      */
 
     public void newButton(Instance inst) {
-	SimpleButton btn = (SimpleButton) inst;
+	SimpleButton btn = (SimpleButton) inst.getServiceObject();
 	logger.debug("newButton(SimpleButton button : " + btn.getName()
 		+ " in " + btn.getLocation() + ")");
 	rebuildButtonsColumn();
@@ -117,7 +117,7 @@ public class LightManagerTester implements ActionListener {
     }
 
     private void rebuildButtonsColumn() {
-	logger.debug("rebuildButtonsColumn(), found " + theButtons.size()
+    	logger.debug("rebuildButtonsColumn(), found " + ((theButtons==null)?0:theButtons.size())
 		+ " buttons to add to the list");
 
 	if (theButtons != null && theButtons.size() > 0) {
@@ -132,7 +132,7 @@ public class LightManagerTester implements ActionListener {
     }
 
     private void rebuildLightsColumn() {
-	logger.debug("rebuildLightsColumn(), found " + theLights.size()
+	logger.debug("rebuildLightsColumn(), found " + ((theLights==null)?0:theLights.size())
 		+ " lights to add to the list");
 
 	if (theLights != null && theLights.size() > 0) {
