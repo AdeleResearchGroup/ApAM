@@ -99,6 +99,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${compiler.plugin.version}</version>
 					<configuration>
+						<debug>true</debug>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
 					</configuration>

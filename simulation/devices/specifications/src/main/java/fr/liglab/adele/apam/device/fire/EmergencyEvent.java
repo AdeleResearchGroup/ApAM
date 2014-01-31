@@ -1,7 +1,7 @@
 package fr.liglab.adele.apam.device.fire;
 
 /**
- * A simple message used by applications to nofify there is an emergency
+ * A simple message used by applications to notify there is an emergency
  * at  home
  * 
  * @author vega

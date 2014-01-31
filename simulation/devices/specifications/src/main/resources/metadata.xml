@@ -13,17 +13,6 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 
-	<specification name="Light"
-		interfaces="fr.liglab.adele.icasa.device.light.BinaryLight">
-		<definition name="location" type="string" />
-	</specification>
-
-	<specification name="Presence"
-		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor"
-		messages="java.lang.Boolean">
-		<definition name="location" type="string" />
-	</specification>
-
 	<specification name="SmokeDetector"
 		interfaces="fr.liglab.adele.apam.device.fire.SmokeDetector"
 		messages="java.lang.Boolean">
@@ -40,10 +29,24 @@
 		<definition name="location" type="string" />
 	</specification>
 
-	<specification name="Door" shared="false"
+	<specification name="Door" shared="true"
 		interfaces="fr.liglab.adele.apam.device.access.Lock">
 		<definition name="location" type="string" />
 		<definition name="access" type="true,false" />
 	</specification>
+	
+
+	<specification name="PushButton"
+		interfaces="fr.liglab.adele.apam.device.button.Push"
+		messages="java.lang.Boolean">
+		<definition name="location" type="string" />
+	</specification>
+
+	<specification name="PowerOnOff"
+		interfaces="fr.liglab.adele.apam.device.power.OnOff"
+		messages="java.lang.Boolean">
+		<definition name="location" type="string" />
+	</specification>
+	
 
 </apam>

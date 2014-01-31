@@ -32,19 +32,10 @@
 			<export instance="false"/>
 			<exportApp instance="true"/>
 						
-			<override source=".*" name=".*" specification="Presence" creation="eager"  />
 
 		</contentMngt>
 	</composite>
 
-	<!--
-		This is the component in charge of calculating the global security state that is used to arbitrate 
-		dynamic device access
-	-->
-	<implementation name="SecurityStateManager" classname="fr.imag.adele.apam.application.security.SecurityStateManager">
-		<callback onInit="start"/>
-		<definition name="state" type="normal,fire,intrusion" field="stateProperty" injected="internal" />
-	</implementation>
 
 	<!--
 		This is the domain scope for fire management applications that are self contained, with a
@@ -61,17 +52,14 @@
 		<definition name="emergency" type="emergency,normal"/>
 		
 		<contentMngt>
+
+			<own implementation="SimpleFireEvacuation"/>
 	
 			<state implementation="EmergencyDetection" property="emergency"/>
 			
 			<import instance="false" />
 			<export instance="false"/>
 			
-			<own specification="SmokeDetector"/>
-			
-			<override source=".*" name=".*" specification="Presence" creation="eager" />
-			<override source=".*" name=".*" specification="SmokeDetector" creation="eager" />
-
 		</contentMngt>
 
 	</composite>
@@ -81,14 +69,31 @@
 		with other applications in the security domain 
 	-->
 	<composite name="BuildingAccessDomain" singleton="true">
+
+		<definition name="locked" type="boolean"/>
+
 		<contentMngt>
-		
+
+			<own implementation="LockHomeAutomation"/>
+			
 			<import instance="true" />
 			<export instance="true"/>
-
-			<override source=".*" name=".*" specification="Presence" creation="eager" />
+			
 		</contentMngt>
 	</composite>
+
+	<!--
+		This is the component in charge of calculating the global security state that is used to arbitrate 
+		dynamic device access
+	-->
+	<implementation name="SecurityStateManager" classname="fr.imag.adele.apam.application.security.SecurityStateManager">
+
+		<definition name="state" type="normal,fire,locked" field="stateProperty" injected="internal" />
+
+		<callback onInit="start"/>
+		<relation field="light" specification="CoreColorLightSpec" creation="eager"/>
+
+	</implementation>
 
 	<!--
 		This is the component in charge of calculating the current emergency state in the fire management
