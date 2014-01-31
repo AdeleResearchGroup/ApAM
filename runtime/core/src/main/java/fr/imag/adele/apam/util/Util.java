@@ -215,6 +215,9 @@ public final class Util {
 		if (value instanceof Integer) {
 			return value.toString();
 		}
+		if (value instanceof Float) {
+			return value.toString();
+		}		
 		if (value instanceof Boolean) {
 			return value.toString();
 		}
