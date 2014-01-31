@@ -33,6 +33,9 @@ public interface Link {
 	public boolean isPromotion();
 
 	public boolean isWire();
+	
+	public boolean isValid () ;
+
 
 	/**
 	 * re evaluate the link. A link is automaticaly reevaluated if the target

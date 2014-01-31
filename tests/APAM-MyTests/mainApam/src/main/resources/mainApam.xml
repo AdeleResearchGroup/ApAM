@@ -37,7 +37,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</implementation>
 
 
-	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
+	<implementation name="M"  classname="fr.imag.adele.apam.mainApam.MainApam" >
 			<relation field="apam" />
 			<relation field="testPerf" fail="wait" resolve="exist">
 				<constraints>

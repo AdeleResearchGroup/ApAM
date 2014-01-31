@@ -96,6 +96,44 @@ public class Attribute {
 			logger.error("Invalid integer value " + value + " for attribute " + attribute);
 			return false;
 		}
+		
+		/*
+		 * doubles. They are stored as Float if singleton, as Set<String> for
+		 * sets<String> or Set<Float>
+		 */
+		if (aType.type == AttrType.FLOAT) {
+			if (aType.isSet) {
+				// Value MUST be a Set of Float
+				if (!(value instanceof Set<?>)) {
+					logger.error("Attribute value " + value + " not an a Set<Float> for attribute " + attribute);
+					return false;
+				}
+				Set<String> valSetFloat = new HashSet<String>();
+				try {
+					for (Object i : (Set<?>) value) {
+						if (i instanceof Double) {
+							valSetFloat.add(Float.toString((Float) i));
+						} else {
+							if (i instanceof String) {
+								// to be sure it is an integer
+								Float.valueOf((String) i);
+								valSetFloat.add((String) i);
+							}
+						}
+					}
+				} catch (Exception e) {
+					logger.error("In attribute value " + value + " is not an Float Set, for attribute " + attribute);
+					return false;
+				}
+				return valSetFloat ;
+			}
+			// A singleton
+			if (value instanceof Float) {
+				return value;
+			}
+			logger.error("Invalid Float value " + value + " for attribute " + attribute);
+			return false;
+		}		
 
 		/*
 		 * Booleans
@@ -156,7 +194,7 @@ public class Attribute {
 	};
 
 	/**
-	 * only string, int, boolean and enumerations attributes are accepted.
+	 * only string, int, boolean, double and enumerations attributes are accepted.
 	 * Return the value if it is correct. For "int" returns an Integer object,
 	 * otherwise it is the string "value" does not work for set of integer,
 	 * treated as string set. Matching may fail.
@@ -164,7 +202,7 @@ public class Attribute {
 	 * @param value
 	 *            : a singleton, or a set "a, b, c, ...."
 	 * @param type
-	 *            : a singleton "int", "boolean" or "string" or enumeration
+	 *            : a singleton "int", "boolean", "double" or "string" or enumeration
 	 *            "v1, v2, v3 ..." or a set of these : "{int}", "{boolean}" or
 	 *            "{string}" or enumeration "{v1, v2, v3 ...}"
 	 */
@@ -220,6 +258,22 @@ public class Attribute {
 				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Integer value(s) expected");
 				return null;
 			}
+		case AttrType.FLOAT:
+			try {
+				if (!at.isSet) {
+					return Float.valueOf(value);
+				}
+				// unfortunately, match does not recognizes a set of integer.
+				// return the list as a string ;
+				Set<String> normalizedValues = new HashSet<String>();
+				for (String val : values) {
+					normalizedValues.add(Float.toString(Float.parseFloat(val)));
+				}
+				return normalizedValues;
+			} catch (Exception e) {
+				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Float value(s) expected");
+				return null;
+			}			
 		case AttrType.STRING:
 			// if (type.equals("string")) {
 			// All values are Ok for string.
@@ -311,8 +365,8 @@ public class Attribute {
 		}
 		type = enumVals.iterator().next();
 
-		if (type == null || !(type.equals("string") || type.equals("int") || type.equals("boolean") || type.charAt(0) == '{')) {
-			logger.error("Invalid type " + type + ". Supported: string, int, boolean, enumeration; and sets");
+		if (type == null || !(type.equals("string") || type.equals("int") || type.equals("boolean") || type.equals("float") || type.charAt(0) == '{')) {
+			logger.error("Invalid type " + type + ". Supported: string, int, boolean, double, enumeration; and sets");
 			return false;
 		}
 		return true;

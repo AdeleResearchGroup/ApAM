@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
-      Licensed under the Apache License, Version 2.0 (the "License");
-      you may not use this file except in compliance with the License.
-      You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-      Unless required by applicable law or agreed to in writing, software
-      distributed under the License is distributed on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      See the License for the specific language governing permissions and
-      limitations under the License.
-
--->
+<!-- Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team Licensed 
+	under the Apache License, Version 2.0 (the "License"); you may not use this 
+	file except in compliance with the License. You may obtain a copy of the 
+	License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by 
+	applicable law or agreed to in writing, software distributed under the License 
+	is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
+	KIND, either express or implied. See the License for the specific language 
+	governing permissions and limitations under the License. -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
 
 	<implementation name="group-a"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
+		<relation field="element" resolve="internal" />
 		<relation field="c" resolve="internal" />
 	</implementation>
 
@@ -37,39 +29,44 @@
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<relation field="element" specification="eletronic-device-private"
-			fail="exception" exception="fr.imag.adele.apam.pax.test.implS3.FailException" resolve="internal" />
+			fail="exception" exception="fr.imag.adele.apam.pax.test.implS3.FailException"
+			resolve="internal" />
 		<relation field="c" />
 	</implementation>
-	
+
 	<implementation name="group-a-fail-exception-native"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<relation field="element" specification="eletronic-device-private"
-			fail="exception" exception="javax.xml.parsers.ParserConfigurationException" resolve="internal" />
+			fail="exception" exception="javax.xml.parsers.ParserConfigurationException"
+			resolve="internal" />
 		<relation field="c" />
 	</implementation>
 
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation name="eletronic-device-private" field="element" specification="eletronic-device-private" resolve="internal"/>
-		<relation field="c" resolve="internal"/>
+		<relation name="eletronic-device-private" field="element"
+			specification="eletronic-device-private" resolve="internal" />
+		<relation field="c" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-b-specification"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
-		<relation field="d" specification="eletronic-device" multiple="false" resolve="internal"/>
-		<relation field="e" specification="eletronic-device" multiple="false" resolve="internal"/>
+		<relation field="element" resolve="internal" />
+		<relation field="d" specification="eletronic-device"
+			multiple="false" resolve="internal" />
+		<relation field="e" specification="eletronic-device"
+			multiple="false" resolve="internal" />
 	</implementation>
-	
+
 	<implementation name="group-b"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
-		<relation field="d" resolve="internal"/>
-		<relation field="e" resolve="internal"/>
+		<relation field="element" resolve="internal" />
+		<relation field="d" resolve="internal" />
+		<relation field="e" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-c"
@@ -81,20 +78,20 @@
 	<implementation name="group-d"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupDImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
+		<relation field="element" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-e"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupEImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
-		<relation field="f"  resolve="internal"/>
+		<relation field="element" resolve="internal" />
+		<relation field="f" resolve="internal" />
 	</implementation>
 
 	<implementation name="group-f"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupFImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<relation field="element" resolve="internal"/>
+		<relation field="element" resolve="internal" />
 	</implementation>
 
 	<composite name="composite-a" main="group-a">
@@ -105,19 +102,19 @@
 			<export implementation="true" instance="false" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-local-instance-nomain">
 		<contentMngt>
 			<export implementation="true" instance="false" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-local-implementation-nomain">
 		<contentMngt>
-			<export implementation="false" instance="true"/>
+			<export implementation="false" instance="true" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-local-implementation" main="group-a">
 		<contentMngt>
 			<export implementation="false" />
@@ -136,7 +133,7 @@
 			<import implementation="false" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-import-implementation-notinstance"
 		main="group-a">
 		<contentMngt>
@@ -156,7 +153,7 @@
 		main="group-a">
 		<contentMngt>
 			<export instance="true" />
-			<exportApp instance="false" /> <!--  not interpreted -->
+			<exportApp instance="false" /> <!-- not interpreted -->
 		</contentMngt>
 	</composite>
 
@@ -168,25 +165,25 @@
 
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
-			<override name=".*" specification="eletronic-device-private" fail="exception"
-				exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
+			<override name=".*" specification="eletronic-device-private"
+				fail="exception" exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-fail-wait" main="group-a-private-component">
 		<contentMngt>
-			<override name=".*" specification="eletronic-device-private" fail="wait" />
+			<override name=".*" specification="eletronic-device-private"
+				fail="wait" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-hide" main="group-a-private-component">
 		<contentMngt>
-			<override name=".*" specification="eletronic-device-private"/>
+			<override name=".*" specification="eletronic-device-private" />
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-own-specification"
-		singleton="true">
+	<composite name="composite-a-own-specification" singleton="true">
 		<contentMngt>
 			<own specification="eletronic-device" property="voltage" value="110" />
 		</contentMngt>
@@ -265,5 +262,6 @@
 			</start>
 		</contentMngt>
 	</composite>
+
 
 </apam>

@@ -65,7 +65,10 @@ public class RelationInjectionHandler extends ApformHandler {
     			return true;
     		
         	for (RelationDeclaration.Event trigger : RelationDeclaration.Event.values()) {
-        		if (!relation.getCallback(trigger).isEmpty())
+        		
+           		Set<CallbackDeclaration> callbacks = relation.getCallback(trigger);
+
+        		if (callbacks != null && !callbacks.isEmpty())
         			return true;
         	}    		
     	}

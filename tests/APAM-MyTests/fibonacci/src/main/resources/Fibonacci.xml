@@ -21,7 +21,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="Fibonacci"  classname="fr.imag.adele.apam.fibonacci.Fibonacci" 
 		interfaces="fr.imag.adele.apam.fibonacci.Fib" shared="false">
-		<relation field="moins1"  />
+		<relation field="moins1"  resolve="external"/>
 		<relation field="moins2"  resolve="external"/>
 		
 		<definition name="Ifibo" field="fibnb" type="int"/>

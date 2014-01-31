@@ -19,7 +19,19 @@
         <definition name="def5-specs-s1" type="string" />
 
         <definition name="def6-specs-s1" type="string" />
+        
+        <!--  Testing float properties -->
+        <definition name="prop-def0" type="float" />
+        <property name="prop-def0" value="12.34" />
+
+        <definition name="prop-def1" type="float" default="12.34" />
+        
+        <definition name="prop-def2" type="float" />
+        
+        <definition name="prop-def3" type="float"  />    
+        
+        <definition name="prop-def4" type="float" default="12.34" />        
 
     </specification>
-
+        
 </apam>

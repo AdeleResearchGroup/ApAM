@@ -21,6 +21,7 @@ import java.util.Set;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 
@@ -215,6 +216,15 @@ public interface Component {
 	 * @return
 	 */
 	String getProperty(String attribute);
+
+	/**
+	 * Tries to find the definition of a property, the property can be valued in this component
+	 * or in its defining group
+	 * 
+	 * @param attribute
+	 * @return
+	 */
+	public PropertyDefinition getPropertyDefinition(String attribute);
 
 	/**
 	 * Get the value of a property, the property can be valued in this component

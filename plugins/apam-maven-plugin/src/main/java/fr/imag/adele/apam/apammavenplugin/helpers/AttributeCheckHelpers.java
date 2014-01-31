@@ -134,9 +134,19 @@ public final class AttributeCheckHelpers {
 	 * @param name
 	 * @param group
 	 */
-	public static boolean checkGroupProperty(ComponentDeclaration component,
-			String name, ApamCapability group) {
+	public static boolean checkGroupProperty(ComponentDeclaration component, String name, ApamCapability group) {
 		// redefinition check
+		
+		if (Attribute.isFinalAttribute(name)) {
+			CheckObr.error("Cannot redefine final attribute \"" + name + "\"");
+			return false;
+		}
+
+		if (Attribute.isReservedAttributePrefix(name)) {
+			CheckObr.error("Attribute\"" + name + "\" is reserved");
+			return false;
+		}
+
 		if (group != null) {
 			String groupType = group.getAttrDefinition(name);
 			if (groupType != null) {

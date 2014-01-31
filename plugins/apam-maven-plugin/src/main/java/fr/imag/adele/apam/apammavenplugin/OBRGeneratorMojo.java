@@ -86,7 +86,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	/**
 	 * The project artifactID
 	 * 
-	 * @parameter default-value="${project.artifactId}"
+	 * @parameter expression="${project.artifactId}"
 	 * @required
 	 * @readonly
 	 */
@@ -190,7 +190,8 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 						"Metadata Apam compilation failed.");
 			}
 			if (parsingFailed) {
-				error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
+				throw new MojoExecutionException("Invalid xml Apam Metadata syntax");
+//				error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
 			}
 
 			OutputStream obr;
@@ -238,8 +239,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			JarFile jarFile = new JarFile(jar);
 			Manifest manifest = jarFile.getManifest();
 
-			if (manifest == null)
+			if (manifest == null) {
+				jarFile.close();
 				return null;
+			}
 
 			// manifest.getAttributes("").
 			Attributes iPOJOmetadata = manifest.getMainAttributes();

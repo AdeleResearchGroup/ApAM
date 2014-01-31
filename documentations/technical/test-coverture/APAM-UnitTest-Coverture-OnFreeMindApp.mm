@@ -1,4 +1,4 @@
-<map version="0.9.0">
+<map version="1.0.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1377768742779" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
@@ -203,6 +203,28 @@
 <node CREATED="1378998304466" ID="ID_1555166557" MODIFIED="1378998417087" TEXT="definition of properties at instance level - tct028 (in progress // bugs in the core)">
 <icon BUILTIN="help"/>
 </node>
+<node CREATED="1391004798382" ID="ID_502470009" MODIFIED="1391004804191" TEXT="testSettingAPropertySettedInGroup_tct036">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1390832707034" ID="ID_829079872" MODIFIED="1390832719309" TEXT="PropertiesTypes">
+<node CREATED="1390832725195" ID="ID_381302404" MODIFIED="1390917290257" TEXT="float">
+<node CREATED="1390832896643" ID="ID_1974637513" MODIFIED="1390917221551" TEXT="testPropertyDefinitionFloat_tct029">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1390917239094" ID="ID_1811278725" MODIFIED="1391013405438" TEXT="testPropertySettingFloat_tct030">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1390917255910" ID="ID_406392211" MODIFIED="1391013411384" TEXT="testPropertyInjectionFloat_tct031">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1390917276065" ID="ID_7985505" MODIFIED="1391013417488" TEXT="testPropertyInheritanceFloat_tct032">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1390917292522" ID="ID_1441023794" MODIFIED="1390917296642" TEXT="testPropertyCompareFloat_tct033">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
@@ -329,6 +351,9 @@
 <node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1365062464253" TEXT="create a composite without mainimpl-compilationtest">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1390999376970" ID="ID_269687831" MODIFIED="1390999382009" TEXT="compositeWithMainImplem_tct034">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
 <node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1354710170087" TEXT="import">
@@ -412,6 +437,9 @@
 <node CREATED="1374669994338" ID="ID_1824328752" MODIFIED="1375099009964" TEXT="tct005">
 <icon BUILTIN="button_ok"/>
 </node>
+</node>
+<node CREATED="1390999290420" ID="ID_17867007" MODIFIED="1390999330666" TEXT="compositeWithMainImplemUsingOBR_tct035">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>

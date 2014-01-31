@@ -234,23 +234,26 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		 * Force recalculation of dependencies that may have been invalidated by
 		 * the ownership change
 		 */
-		for (Link incoming : this.getInvLinks()) {
-			if (!incoming.isPromotion() && !incoming.getSource().canSee(this)) {
-				incoming.remove();
-			}
-		}
+//		for (Link incoming : this.getInvLinks()) {
+//			if (!incoming.isPromotion() && !incoming.getSource().canSee(this)) {
+//				incoming.remove();
+//			}
+//		}
+//
+//		/*
+//		 * Remove outgoing wires (definitions or visibilities may have changed)
+//		 */
+//		for (Link outgoing : this.getLocalLinks()) {
+//			if (!this.canSee(outgoing.getDestination())) {
+//				outgoing.remove();
+//			}
+//		}
 
 		/*
-		 * Remove outgoing wires (definitions or visibilities may have changed)
+		 *  Compute again the properties and relation definition, 
+		 *  and removes the properties and links now invalid
 		 */
-		for (Link outgoing : this.getLocalLinks()) {
-			if (!this.canSee(outgoing.getDestination())) {
-				outgoing.remove();
-			}
-		}
-
-		// recalculer les declarations d'attribut et de relships contextuelles
-		// ((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
+		((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
 
 	}
 
