@@ -20,7 +20,7 @@ package fr.imag.adele.apam.tests.app;
  * @author thibaud
  *
  */
-public class Dummy {
+public class Implems1tct026 {
 	
 	public Float getInjboth() {
 		return injboth;
@@ -44,6 +44,15 @@ public class Dummy {
 	private Float injinternal;
 	private Float injexternal;
 
+	private Float propValued;
+
+	public Float getPropValued() {
+		return propValued;
+	}
+	public void setPropValued(Float propValued) {
+		this.propValued = propValued;
+	}
+	
 	
 
 }

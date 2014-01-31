@@ -1,39 +1,63 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-    <implementation name="implem-s1-tct026"
-        classname="fr.imag.adele.apam.tests.app.Dummy" specification="specs-s1-tct026">
+	<implementation name="implem-s1-tct026"
+		classname="fr.imag.adele.apam.tests.app.Implems1tct026" specification="specs-s1-tct026">
 
-        <property name="def2-specs-s1" value="final-value" />
-        
-        <property name="def5-specs-s1" value="final-value" />
-        
-        
-        <definition name="def0-implem-s1" type="string"/>
-        <property name="def0-implem-s1"   value="final-value" />
+		<property name="def2-specs-s1" value="final-value" />
 
-        <definition name="def1-implem-s1" type="string" default="default-value" />
-        <property name="def1-implem-s1" value="final-value" />
-        
-        <!--  Testing float properties -->
-        <property name="prop-def1" value="23.45"/>
-        
-        <property name="prop-def2" value="23.45"/>
-        
-        <definition name="prop-impl0" type="float" />
-        <property name="prop-impl0" value="23.45" />
+		<property name="def5-specs-s1" value="final-value" />
 
-        <definition name="prop-impl1" type="float" default="23.45" />
-        
-        <definition name="prop-impl2" type="float" />
-        
-        <definition name="prop-injboth" type="float" field="injboth" />
-        <definition name="prop-injinternal" type="float" field="injinternal" injected="internal" />
-        <definition name="prop-injexternal" type="float" field="injexternal" injected="external" />
-        
 
-    </implementation>
+		<definition name="def0-implem-s1" type="string" />
+		<property name="def0-implem-s1" value="final-value" />
+
+		<definition name="def1-implem-s1" type="string" default="default-value" />
+		<property name="def1-implem-s1" value="final-value" />
+
+		<!-- Testing float properties -->
+		<property name="prop-def1" value="23.45" />
+
+		<property name="prop-def2" value="23.45" />
+
+		<definition name="prop-impl0" type="float" />
+		<property name="prop-impl0" value="23.45" />
+
+		<definition name="prop-impl1" type="float" default="23.45" />
+
+		<definition name="prop-impl2" type="float" />
+
+		<definition name="prop-injboth" type="float" field="injboth" />
+		<definition name="prop-injinternal" type="float" field="injinternal"
+			injected="internal" />
+		<definition name="prop-injexternal" type="float" field="injexternal"
+			injected="external" />
+
+		<definition name="prop-valued" field="propValued" type="float" default="0.1" />
+	</implementation>
+
+	<implementation name="relationToImplem-s1-tct026"
+		classname="fr.imag.adele.apam.tests.app.Dummy">
+		<relation name="lessImplems" implementation="implem-s1-tct026"
+			resolve="exist" multiple="true" >
+			<constraints>
+				<instance filter="(prop-valued&lt;=0.4)" />
+			</constraints>
+		</relation>
+		<relation name="highImplems" implementation="implem-s1-tct026"
+			resolve="exist" multiple="true">
+			<constraints>
+				<instance filter="(prop-valued&gt;=0.6)" />
+			</constraints>
+		</relation>
+        <relation name="equalImplems" implementation="implem-s1-tct026"
+            resolve="exist" multiple="true">
+            <constraints>
+                <instance filter="(prop-valued=0.5)" />
+            </constraints>
+        </relation>		
+	</implementation>
 
 </apam>

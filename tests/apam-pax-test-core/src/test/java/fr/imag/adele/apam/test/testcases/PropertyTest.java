@@ -44,7 +44,7 @@ import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotifi
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct021;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct025;
-import fr.imag.adele.apam.tests.app.Dummy;
+import fr.imag.adele.apam.tests.app.Implems1tct026;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -1719,6 +1719,8 @@ public class PropertyTest extends ExtensionAbstract {
 		testPropertyGetFloat(instanceS1, "prop-impl0", (float) 23.45);
 
 		testPropertyGetFloat(instanceS1, "prop-inst0", (float) 34.56);
+		
+		testPropertyGetFloat(implemS1, "prop-def4", (float) 12.34);
 
 		logger.debug("Testing properties default values setted in descriptor (not working - specification of apam behavior ambiguous)");
 
@@ -1734,7 +1736,7 @@ public class PropertyTest extends ExtensionAbstract {
 	public void testPropertyInjectionFloat_tct031() {
 		logger.debug("Testing injected properties setting for float, using the API");
 		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");
-		Dummy objectS1 = (Dummy)instanceS1.getServiceObject();
+		Implems1tct026 objectS1 = (Implems1tct026)instanceS1.getServiceObject();
 
 		
 		instanceS1.setProperty("prop-injboth", new Float(10.12));
@@ -1801,10 +1803,42 @@ public class PropertyTest extends ExtensionAbstract {
 
 	@Test
 	public void testPropertyCompareFloat_tct033() {
-
-		//TODO
-
+		Instance instanceS1 = waitForInstByName(null, "instance-s1-tct026");//prop valued 0.5
+		Instance instanceS2 = waitForInstByName(null, "instance-s1_tct033");//prop valued 0.8
 		
+		logger.debug("resolving a simple navigation through float");
+		testPropertyGetFloat(instanceS2, "navig", (float) 34.56);		
+
+		logger.debug("resolving a relation with comparison on float");
+		Implementation implemS1 = waitForImplByName(null, "implem-s1-tct026");
+		Instance instanceDefault = implemS1.createInstance(null, null); //prop valued default = 0.1
+		Instance instanceNegative = implemS1.createInstance(null, null);
+		instanceNegative.setProperty("prop-valued", "-12.43"); //setted using descriptor
+		
+		Instance instancePositive = implemS1.createInstance(null, null);//setted using java
+		Implems1tct026 obj = (Implems1tct026)instancePositive.getServiceObject();
+		obj.setPropValued((float)43);
+		
+		Implementation implemR = waitForImplByName(null, "relationToImplem-s1-tct026");
+		Instance instR = implemR.createInstance(null, null);
+
+		Assert.assertEquals("Should have only two instance lower than 0.4",2, instR.getLinkDests("lessImplems").size());
+		for(Component lessImplem : instR.getLinkDests("lessImplems")) {
+			System.err.println(lessImplem.getPropertyObject("prop-valued"));
+			Assert.assertTrue((Float)lessImplem.getPropertyObject("prop-valued")<Float.valueOf((float)0.4));
+		}
+		
+		Assert.assertEquals("Should have two instances higher than 0.6",2, instR.getLinkDests("highImplems").size());
+		for(Component highImplems : instR.getLinkDests("highImplems")) {
+			System.err.println(highImplems.getPropertyObject("prop-valued"));
+			Assert.assertTrue((Float)highImplems.getPropertyObject("prop-valued")>Float.valueOf((float)0.6));
+		}		
+		
+		Assert.assertEquals("Should have une instance equal to 0.5 ",1, instR.getLinkDests("equalImplems").size());
+		for(Component equalImplems : instR.getLinkDests("equalImplems")) {
+			System.err.println(equalImplems.getPropertyObject("prop-valued"));
+			Assert.assertTrue(equalImplems.getPropertyObject("prop-valued").equals((float)0.5) );
+		}		
 		
 	}
 
