@@ -85,6 +85,16 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	}
 
 	/**
+	 * Reduce the priority of a request
+	 */
+	private void reducePriorityDynamicRequest(PendingRequest request) {
+		synchronized (dynamicDependencies) {
+			if (dynamicDependencies.remove(request))
+				dynamicDependencies.add(request);
+		}
+	}
+
+	/**
 	 * Updates the list of dynamic dependencies when a new component is managed
 	 */
 	private void addDynamicRequests(Component component) {
@@ -298,8 +308,20 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	private void resolveDynamicRequests(Component candidate) {
 		for (PendingRequest request : getDynamicRequests()) {
 			if (request.isSatisfiedBy(candidate)) {
+
 				request.resolve();
-			}
+				
+				/*
+				 * If the target is a non sharable instance, and the resolution was successful, 
+				 * we reduce the priority of the request to avoid starvation of other dynamic
+				 * request expecting the same target
+				 */
+				if ( request.getResolution() != null && candidate instanceof Instance) {
+					if (!((Instance)candidate).isSharable())
+						reducePriorityDynamicRequest(request);
+				}
+
+			}	
 		}
 	}
 
