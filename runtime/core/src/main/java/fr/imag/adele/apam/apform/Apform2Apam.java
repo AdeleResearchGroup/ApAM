@@ -149,6 +149,7 @@ public class Apform2Apam {
 				required.add(specification);
 			}
 
+			/*
 			if (getComponent() instanceof ApformCompositeType) {
 				ApformCompositeType composite = (ApformCompositeType) getComponent();
 				ComponentReference<?> main = composite.getDeclaration().getMainComponent();
@@ -156,7 +157,8 @@ public class Apform2Apam {
 					required.add(main);
 				}
 			}
-
+			 */
+			
 			return required;
 		}
 
@@ -415,6 +417,7 @@ public class Apform2Apam {
 	 * @param client
 	 */
 	public static void newImplementation(ApformImplementation client) {
+		//System.err.println(" Thread "+Thread.currentThread()+" new implem "+client.getDeclaration().getName());
 		Apform2Apam.executor.execute(new ImplementationDeploymentProcessing(client));
 	}
 

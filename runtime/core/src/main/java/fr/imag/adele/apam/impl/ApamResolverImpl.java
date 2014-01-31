@@ -311,9 +311,9 @@ public class ApamResolverImpl implements ApamResolver {
 		logger.debug("creating a dummy root composite type " + applicationName + " to contain unused " + mainInst);
 
 		CompositeType application = apam.createCompositeType(null,
-		// applicationName, specification != null ? specification.getName() :
-		// null, mainComponent.getName(),
-		applicationName, null, mainComponent.getName(), models, null);
+				// applicationName, specification != null ? specification.getName() :
+				// null, mainComponent.getName(),
+				applicationName, null, mainComponent.getName(), models, null);
 
 		/*
 		 * Create an instance of the application with the specified main
@@ -676,6 +676,7 @@ public class ApamResolverImpl implements ApamResolver {
 			return res;
 		}
 		// No solution found
+		logger.debug(mess + " : not found");
 		return null;
 	}
 
@@ -767,18 +768,18 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		if (resolved == null) {
-			resolved = null;
+			//			resolved = null;
 			resolved = this.resolveByManagers(relToResolve);
 			resolved = resolvePromotion(null, resolved, relToResolve, compo, source);
 			if (compo != null && source instanceof Instance) {
 				resolved = checkImplicitPromotion((Instance) source, rel, resolved, relToResolve, compo, source);
 			}
-			return resolveLinkEmpty(rel, resolved, relToResolve, source);
-
-		} else {
-			return resolveLinkEmpty(rel, resolved, relToResolve, source);
+			//			return resolveLinkEmpty(rel, resolved, relToResolve, source);
+			//
+			//		} else {
 		}
 
+		return resolveLinkEmpty(rel, resolved, relToResolve, source);
 	}
 
 	private Resolved<?> resolveLinkEmpty(RelationDefinition rel, Resolved<?> resolved, RelToResolve relToResolve, Component source) {
@@ -794,7 +795,10 @@ public class ApamResolverImpl implements ApamResolver {
 		 * If failure manager could not recover, just give up
 		 */
 		if (resolved == null || resolved.isEmpty()) {
-			logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source + "(relation " + rel.getName() + ")");
+			if (rel.getName().isEmpty())
+				logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source );
+			else
+				logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source + "(relation " + rel.getName() + ")");
 			return null;
 		}
 

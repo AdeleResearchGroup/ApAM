@@ -101,6 +101,21 @@ public class ApamMan implements RelationManager {
 		Set<Implementation> impls = null;
 		String name = relToResolve.getTarget().getName();
 
+//		//In case no solution is found, before to return null ...
+//		//If some bundle are starting, they may contain the solution (especially during the starting phase)
+//		//Just way a short while to let these bundles complete their starting phase.
+//		try {
+//			while ( isStartingBundles()) {
+//				//No bundle is currently starting : no possible solution
+//				System.err.println("if ( isStartingBundles()");
+//				
+//				Thread.sleep(300) ;
+//				System.err.println("try again") ;
+//			//return resolveRelation (source, relToResolve) ;
+//			}
+//		} catch (InterruptedException e) { }
+//		System.err.println("everything is started !") ;
+
 		/*
 		 * First analyze the component references
 		 */
@@ -109,6 +124,7 @@ public class ApamMan implements RelationManager {
 			if (spec == null) {
 				// logger.debug("No spec with name " + name + " from component"
 				// + source);
+				//System.err.println("if (spec == null)");
 				return null;
 			}
 			if (relToResolve.getTargetKind() == ComponentKind.SPECIFICATION) {
@@ -118,6 +134,7 @@ public class ApamMan implements RelationManager {
 		} else if (relToResolve.getTarget() instanceof ImplementationReference) {
 			Implementation impl = CST.componentBroker.getImpl(name);
 			if (impl == null) {
+				//System.err.println("if (impl == null)");
 				return null;
 			}
 			if (relToResolve.getTargetKind() == ComponentKind.IMPLEMENTATION) {
@@ -128,11 +145,13 @@ public class ApamMan implements RelationManager {
 		} else if (relToResolve.getTarget() instanceof InstanceReference) {
 			Instance inst = CST.componentBroker.getInst(name);
 			if (inst == null) {
+				//System.err.println("if (inst == null)");
 				return null;
 			}
 			if (relToResolve.getTargetKind() == ComponentKind.INSTANCE) {
 				return new Resolved<Instance>(inst);
 			}
+			System.err.println("if (relToResolve.getTarget() instanceof InstanceReference) ") ;
 			return null;
 		} else if (relToResolve.getTarget() instanceof ComponentReference<?>) {
 			System.err.println("Invalid target reference : " + relToResolve.getTarget());
@@ -168,6 +187,7 @@ public class ApamMan implements RelationManager {
 
 		// TargetKind is implem or instance, but no implem found.
 		if (impls == null || impls.isEmpty()) {
+			System.err.println("if (impls == null || impls.isEmpty()");
 			return null;
 		}
 
@@ -230,13 +250,14 @@ public class ApamMan implements RelationManager {
 		try {
 			if ( !!!isStartingBundles()) {
 				//No bundle is currently starting : no possible solution
+				//System.err.println("if ( !!!isStartingBundles()");
 				return null ;
 			}
 			Thread.sleep(300) ;
 			//try again
 			return resolveRelation (source, relToResolve) ;
 		} catch (InterruptedException e) { }
-
+		//System.err.println("finaly not found") ;
 		return null;
 	}
 
@@ -244,6 +265,7 @@ public class ApamMan implements RelationManager {
 	private boolean isStartingBundles () {
 		for (Bundle bundle : context.getBundles()) {
 			if (bundle.getState() == Bundle.STARTING) {
+				//logger.debug("is starting : " + bundle.getSymbolicName());
 				return true ;
 			}
 		}
