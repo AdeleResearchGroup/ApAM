@@ -25,6 +25,9 @@ import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Unbind;
 import org.apache.felix.ipojo.annotations.Validate;
+import org.apache.felix.ipojo.extender.queue.JobInfo;
+import org.apache.felix.ipojo.extender.queue.QueueListener;
+import org.apache.felix.ipojo.extender.queue.QueueService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -51,13 +54,16 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 @org.apache.felix.ipojo.annotations.Component(name = "ApformIpojoTracker" , immediate=true)
 @Instantiate(name = "ApformIpojoTracker-Instance")
 
-public class ApformIpojoTracker implements ServiceTrackerCustomizer {
+public class ApformIpojoTracker implements ServiceTrackerCustomizer, Apform2Apam.Platform {
 
     /**
      * The reference to the APAM platform
      */
-	@Requires
+	@Requires(id="apam")
     private Apam                apam;
+
+    @Requires(optional=false, proxy=false) 
+    private QueueService queueService;
 
     /**
      * The instances service tracker.
@@ -72,6 +78,41 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
 
     public ApformIpojoTracker(BundleContext context) {
         this.context = context;
+    }
+    
+
+    @Bind(id="apam")
+    private void bindToApam() {
+    	Apform2Apam.setPlatform(this);
+    }
+
+    @Unbind(id="apam")
+    private void unbindFromApam() {
+    	Apform2Apam.setPlatform(null);
+    }
+
+    /**
+     * Starting.
+     */
+    @Validate
+    public void start() {
+
+        try {
+            Filter filter = context.createFilter("(instance.name=*)");
+            instancesServiceTracker = new ServiceTracker(context, filter, this);
+            instancesServiceTracker.open();
+
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    /**
+     * Stopping.
+     */
+    @Invalidate
+    public void stop() {
+        instancesServiceTracker.close();
     }
 
     /**
@@ -106,8 +147,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
     /**
      * Callback to handle instance binding
      */
-    public boolean instanceBound(ServiceReference reference,
-            ComponentInstance ipojoInstance) {
+    public boolean instanceBound(ServiceReference reference, ComponentInstance ipojoInstance) {
         /*
          * ignore handler instances
          */
@@ -166,29 +206,80 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
     }
 
     /**
-     * Starting.
+     * Whether there is pending declarations currently being deployed in the iPOJO platform
      */
-    @Validate
-    public void start() {
+	@Override
+	public boolean hasPendingDeclarations() {
+		return queueService.getWaiters() > 0;
+	}
 
-        try {
-            Filter filter = context.createFilter("(instance.name=*)");
-            instancesServiceTracker = new ServiceTracker(context, filter, this);
-            instancesServiceTracker.open();
+	/**
+	 * Waits for all pending declarations to be processed by the iPOJO platform
+	 */
+	@Override
+	public void waitForDeclarations() {
+		
+		QueueWaiter waiter = new QueueWaiter(queueService);
+		waiter.block();
+		waiter.dispose();
+	}
 
-        } catch (InvalidSyntaxException e) {
-            e.printStackTrace(System.err);
-        }
-    }
+	private static class QueueWaiter implements QueueListener {
 
-    /**
-     * Stopping.
-     */
-    @Invalidate
-    public void stop() {
-        instancesServiceTracker.close();
-    }
+		private QueueService queueService;
+		private String threadName;
+		
+		public QueueWaiter(QueueService queueService) {
+			this.queueService = queueService;
+			this.queueService.addQueueListener(this);
+			
+			this.threadName = Thread.currentThread().getName();
+		}
+		
+		public void dispose() {
+			this.queueService.removeQueueListener(this);
+		}
+		
+		public void block() {
+			synchronized (this) {
+				
+				try {
+					while (queueService.getWaiters() > 0)
+						this.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 
+			}
+		}
+		
+		private synchronized void checkUnblock() {
+			this.notifyAll();
+		}
+		
+		@Override
+		public void enlisted(JobInfo info) {
+			checkUnblock();
+		}
+
+		@Override
+		public void started(JobInfo info) {
+			checkUnblock();
+		}
+
+		@Override
+		public void executed(JobInfo info, Object result) {
+			System.err.println(threadName+" JOB EXECUTED "+info.getDescription());
+			checkUnblock();
+		}
+
+		@Override
+		public void failed(JobInfo info, Throwable throwable) {
+			checkUnblock();
+		}
+		
+	}
+    
     @Override
     public Object addingService(ServiceReference reference) {
 
@@ -249,4 +340,5 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
             }
         }
     }
+
 }

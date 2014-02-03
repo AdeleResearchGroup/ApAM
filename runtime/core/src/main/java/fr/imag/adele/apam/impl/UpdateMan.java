@@ -39,6 +39,7 @@ import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
 public class UpdateMan implements RelationManager, DynamicManager {
@@ -239,6 +240,15 @@ public class UpdateMan implements RelationManager, DynamicManager {
 
 	@Override
 	public Resolved<?> resolveRelation(Component client, RelToResolve dep) {
+		
+		/*
+		 * For components look up by name, wait until the declaration has been processed
+		 */
+		if (! dep.isRelation()) {
+			if (Apform2Apam.isReifying(dep.getTarget().as(ComponentReference.class)) )
+				Apform2Apam.waitForComponent(dep.getTarget().getName());
+		}
+		
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) {
 			return null;

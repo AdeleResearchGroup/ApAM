@@ -35,6 +35,78 @@ import fr.imag.adele.apam.declarations.ComponentReference;
 public class Apform2Apam {
 
 	/**
+	 * This interface represents information regarding the current status of the underlying platform
+	 * 
+	 * @author vega
+	 *
+	 */
+	public interface Platform {
+		
+		/**
+		 * Whether there is pending declarations, being currently deployed, in the platform
+		 */
+		public boolean hasPendingDeclarations();
+		
+		/**
+		 * Waits until all pending declarations are processed
+		 */
+		public void waitForDeclarations();
+	}
+	
+	
+	private static Platform platform = null;
+	
+	
+	/**
+	 * Get access to information regarding the underlying platform
+	 */
+	private static Platform getPlatform() {
+		return platform;
+	}
+	
+	/**
+	 * This method is invoked by the underlying platform, to give controlled access to its internal
+	 * status 
+	 */
+	public static void setPlatform(Platform platform) {
+		Apform2Apam.platform = platform;
+	}
+
+
+	/**
+	 * The list of declarations currently being reified
+	 */
+	private static Set<ApformComponent> reifying = new HashSet<ApformComponent>();
+	
+	/**
+	 * Test whether a component is currently being reified
+	 */
+	public static boolean isReifying(ComponentReference<?> component) {
+		
+		/*
+		 * Wait for platform to finish deploying declarations 
+		 */
+		if (getPlatform().hasPendingDeclarations())
+			getPlatform().waitForDeclarations();
+
+		/*
+		 * Check if the specified component declaration is currently being 
+		 * processed
+		 */
+
+		Set<ApformComponent> inProcessComponents = null;
+		synchronized (reifying) {
+			inProcessComponents = new HashSet<ApformComponent>(reifying);
+		}
+		
+		for (ApformComponent inProcess : inProcessComponents) {
+			if (inProcess.getDeclaration().getReference().equals(component))
+				
+				return true;
+		}
+		return false;
+	}
+	/**
 	 * A request from apform to add a component to APAM, this is executed
 	 * asynchronously and may block waiting for another components.
 	 * 
@@ -49,6 +121,10 @@ public class Apform2Apam {
 		protected ComponentAppearenceRequest(ApformComponent component) {
 			super("Adding component " + component.getDeclaration().getName());
 			this.component = component;
+			
+			synchronized (Apform2Apam.reifying) {
+				reifying.add(component);
+			}
 		}
 
 		/**
@@ -116,6 +192,11 @@ public class Apform2Apam {
 			} catch (Exception unhandledException) {
 				logger.error("Error handling Apform event :", unhandledException);
 			} finally {
+				
+				synchronized (Apform2Apam.reifying) {
+					reifying.remove(component);
+				}
+
 				finished();
 			}
 
@@ -363,7 +444,7 @@ public class Apform2Apam {
 	 * The request executing in the context of the current thread.
 	 * 
 	 */
-	public static Request getCurrent() {
+	private static Request getCurrent() {
 		Request currentRequest = current.get();
 		if (currentRequest == null) {
 			currentRequest = new WaitRequest();
@@ -376,7 +457,7 @@ public class Apform2Apam {
 	 * The stack of the request executing in the context of the current thread.
 	 * 
 	 */
-	public static List<StackTraceElement> getCurrentStack() {
+	private static List<StackTraceElement> getCurrentStack() {
 
 		List<StackTraceElement> stack = new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
 
@@ -414,9 +495,6 @@ public class Apform2Apam {
 	 * A new implementation, represented by object "client" just appeared in the
 	 * platform.
 	 * 
-	 * @param implemName
-	 *            : the symbolic name.
-	 * @param client
 	 */
 	public static void newImplementation(ApformImplementation client) {
 		//System.err.println(" Thread "+Thread.currentThread()+" new implem "+client.getDeclaration().getName());
@@ -435,13 +513,12 @@ public class Apform2Apam {
 	 * A new specification, represented by object "client" just appeared in the
 	 * platform.
 	 * 
-	 * @param specName
-	 * @param client
 	 */
 	public static void newSpecification(ApformSpecification client) {
 		Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
 	}
-
+	
+	
 	/**
 	 * Wait for a future component to be deployed
 	 */
