@@ -48,6 +48,7 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
+import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class ApamInstanceManager extends InstanceManager implements
 		RelationInjectionManager.Resolver {
@@ -287,10 +288,8 @@ public class ApamInstanceManager extends InstanceManager implements
 			return false;
 		}
 
-		RelationDeclaration relation = injection.getRelationInjection()
-				.getRelation();
-		for (Link outgoing : getApform().getApamComponent().getLinks(
-				relation.getIdentifier())) {
+		RelationDeclaration relation = injection.getRelationInjection().getRelation();
+		for (Link outgoing : ((InstanceImpl)getApform().getApamComponent()).getExistingLinks(relation.getIdentifier())) {
 			outgoing.remove();
 		}
 

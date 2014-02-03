@@ -293,7 +293,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 
  
     			/*
-    			 * If the filed has been modified, and the injection type is not EXTERNAL update the Apam value
+    			 * If the field has been modified, and the injection type is not EXTERNAL update the Apam value
     			 */
  
         			if (newValue != null && newValue instanceof BoundSet<?>)
