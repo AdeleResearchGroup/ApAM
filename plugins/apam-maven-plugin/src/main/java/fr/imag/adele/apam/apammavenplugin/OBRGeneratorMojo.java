@@ -86,7 +86,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	/**
 	 * The project artifactID
 	 * 
-	 * @parameter default-value="${project.artifactId}"
+	 * @parameter expression="${project.artifactId}"
 	 * @required
 	 * @readonly
 	 */

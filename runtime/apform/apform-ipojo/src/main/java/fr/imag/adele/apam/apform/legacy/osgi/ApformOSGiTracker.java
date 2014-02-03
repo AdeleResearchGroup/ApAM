@@ -15,8 +15,6 @@
 package fr.imag.adele.apam.apform.legacy.osgi;
 
 
-import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.Pojo;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Requires;
@@ -34,7 +32,6 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 /**
@@ -78,7 +75,7 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
    		/*
    		 * Ignore service registration if its corresponding implementation is not managed in APAM (by the OSGi Manager)
    		 */
-   		Implementation implementation 		= CST.componentBroker.getImpl(osgiInstance.getDeclaration().getImplementation().getName());
+   		Implementation implementation = CST.componentBroker.getImpl(osgiInstance.getDeclaration().getImplementation().getName());
    		if (implementation == null)
    			return false;
 
@@ -116,7 +113,7 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
 		try {
 			filter = context.createFilter("(" + Constants.OBJECTCLASS + "=*)");
 	        instancesServiceTracker = new ServiceTracker(context,filter, this);
-	        instancesServiceTracker.open();
+	        instancesServiceTracker.open(true);
 		} catch (InvalidSyntaxException ignored) {
 		}
     }
@@ -140,45 +137,52 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
 
         /*
          * ignore services that are iPojo, these are treated separately
+         * 
+         * In this tracker we avoid getting the service object, as this 
+         * may interfere with delayed service creation when using the
+         * service factory pattern
+         *
          */
-        Object service = context.getService(reference);
-        if (service instanceof Pojo || service instanceof Factory)
+        
+        if (reference.getProperty("factory.name") != null)
+        	return null;
+
+        if (reference.getProperty("instance.name") != null)
         	return null;
         
         ApformOSGiInstance osgiInstance	= new ApformOSGiInstance(reference);
         if (instanceBound(osgiInstance))
-            return service;
+            return osgiInstance;
 
         /*
          * If service is not a recognized OSGi legacy instance, don't track it
          */
-        context.ungetService(reference);
         return null;
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object service) {
+    public void removedService(ServiceReference reference, Object instance) {
 
-       ApformOSGiInstance osgiInstance	= new ApformOSGiInstance(reference);
+       ApformOSGiInstance osgiInstance	= (ApformOSGiInstance) instance;
        instanceUnbound(osgiInstance);
        osgiInstance.dispose();
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
+    public void modifiedService(ServiceReference reference, Object instance) {
     	
-    	ApformInstance osgiInstance	= new ApformOSGiInstance(reference);
-    	Instance instance 			= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
+        ApformOSGiInstance osgiInstance	= (ApformOSGiInstance) instance;
+    	Instance apamInstnstance 		= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
 
-    	if (instance == null)
+    	if (apamInstnstance == null)
     		return;
     	
 
         for (String key : reference.getPropertyKeys()) {
             if (!Apform2Apam.isPlatformPrivateProperty(key)) {
                 String value = reference.getProperty(key).toString();
-                if (value != instance.getProperty(key))
-                	instance.setProperty(key, value);
+                if (value != apamInstnstance.getProperty(key))
+                	apamInstnstance.setProperty(key, value);
             }
         }
 

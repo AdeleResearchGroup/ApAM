@@ -7,16 +7,12 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>icasa.simulated.smoke.detector</artifactId>
+	<artifactId>apam.simulated.smoke.detector</artifactId>
 	<packaging>bundle</packaging>
-	<name>ApAM iCasa basic simulated  smoke detector</name>
+	<name>ApAM  simulated  smoke detector (switch based)</name>
 
 	<dependencies>
 
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>simulator.api</artifactId>
-        </dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
@@ -24,6 +20,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>appsgate.components</groupId>
+			<artifactId>CoreSwitchSensorSpec</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

@@ -41,11 +41,6 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
      * The osgi service reference represented by this object
      */
     private final ServiceReference		reference;
-
-    /**
-     * The service object
-     */
-    private final Object				service;
     
     /**
      * The list of provided interfaces
@@ -58,6 +53,11 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
 	private final Bundle				bundle;
 
     /**
+     * The cached service object
+     */
+    private  Object				service;
+
+	/**
      * An apform instance to represent a legacy component discovered in the OSGi registry
      * 
      * @param ipojoInstance
@@ -72,7 +72,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     	
     	this.reference			= reference;
     	this.bundle				= reference.getBundle();
-        this.service			= bundle.getBundleContext().getService(reference);
+        this.service			= null;
     	
 		this.providedInterfaces = new HashSet<InterfaceReference>();
 		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
@@ -104,6 +104,22 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     
     @Override
     public Object getServiceObject() {
+    	
+    	/*
+    	 * return cached value if available
+    	 */
+    	
+    	if (service != null)
+    		return service;
+    	
+    	/*
+    	 * Get the service reference, this may activate delayed component in the case of
+    	 * declarative services
+    	 */
+    	synchronized (this) {
+    		service = bundle.getBundleContext().getService(reference);
+		}
+    	
         return service;
     }
     
@@ -115,6 +131,8 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     }
 
     public void dispose() {
+    	service = null;
+    	
     	if (bundle.getBundleContext() != null)
     		bundle.getBundleContext().ungetService(reference);
     }

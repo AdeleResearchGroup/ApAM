@@ -109,6 +109,7 @@ public class PendingRequest {
 	private synchronized void beginResolve() {
 		current.set(this);
 		isResolving = true;
+		resolution = null;
 	}
 
 	/**

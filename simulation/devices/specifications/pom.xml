@@ -12,12 +12,6 @@
 	<name>ApAM  basic device specifications</name>
 	<packaging>bundle</packaging>
 
-	<dependencies>
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>context.api</artifactId>
-        </dependency>
-	</dependencies>
 	
 	<build>
 		<plugins>

@@ -32,7 +32,14 @@
         <relation specification="SmokeDetector">
             <message push="smokeDetected"/>
         </relation>
-        
+    
+        <relation name="notification" specification="CoreSwitchSensorSpec" creation="eager">
+            <message push="simulationNotification"/>
+            <constraints>
+            	<instance filter="(deviceId=ENO2796f3)"/>
+            </constraints>
+        </relation>
+     
         <definition name="location" type="string"/>
         
     </implementation>

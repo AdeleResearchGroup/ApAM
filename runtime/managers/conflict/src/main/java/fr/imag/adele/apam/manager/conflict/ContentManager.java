@@ -352,7 +352,7 @@ public class ContentManager {
 
 		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
 		for (Link incoming : ownedInstance.getInvLinks()) {
-			if (grant != null && !match(grant, incoming)) {
+			if (grant == null || !match(grant, incoming)) {
 				incoming.remove();
 			}
 		}
@@ -361,27 +361,14 @@ public class ContentManager {
 		 * Wake pending request that could be satisfied by the new grant
 		 */
 		for (PendingRequest request : manager.getFailureManager().getWaitingRequests()) {
-			if (request.isSatisfiedBy(ownedInstance)) {
-				/*
-				 * If there is a new active grant,wake up matching request
-				 */
-				if (grant != null && match(grant, request)) {
-					request.resolve();
-				}
-			}
 
+			
 			/*
-			 * If there is no active grant, accord temporary access to waiting
-			 * requests to avoid starvation (even if this means preempting an
-			 * existing user)
+			 * If there is a new active grant or no grant, wake up matching request
 			 */
-			if (grant == null) {
-
-				for (Link incoming : ownedInstance.getInvLinks()) {
-					incoming.remove();
-				}
-
-				request.resolve();
+			if (grant == null || match(grant, request)) {
+				if (request.isSatisfiedBy(ownedInstance))
+					request.resolve();
 			}
 
 		}

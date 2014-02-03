@@ -15,36 +15,18 @@
 package fr.imag.adele.apam.device.smoke.impl;
 
 
-import java.util.List;
 
+import appsgate.lig.button_switch.sensor.messages.SwitchNotificationMsg;
+import appsgate.lig.core.object.messages.NotificationMsg;
 import fr.liglab.adele.apam.device.fire.SmokeDetector;
-import fr.liglab.adele.icasa.device.util.AbstractDevice;
-import fr.liglab.adele.icasa.location.LocatedDevice;
-import fr.liglab.adele.icasa.location.Position;
-import fr.liglab.adele.icasa.location.Zone;
-import fr.liglab.adele.icasa.simulator.Person;
-import fr.liglab.adele.icasa.simulator.SimulatedDevice;
-import fr.liglab.adele.icasa.simulator.SimulationManager;
-import fr.liglab.adele.icasa.simulator.listener.PersonListener;
 
 /**
  * Implementation of a simulated Oven device.
  *
  */
 
-public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetector, SimulatedDevice, PersonListener { 
+public class SimulatedSmokeDetector implements SmokeDetector { 
 
-	private SimulationManager manager;
-
-	private final static String FIRE_DETECTED_PROPERTY_NAME = "fire";
-	
-	private String m_serialNumber;
-
-    private String fault;
-
-    private String state;
-    
-    protected String location;
 
     protected boolean onFire;
     
@@ -52,93 +34,13 @@ public class SimulatedSmokeDetector extends AbstractDevice implements SmokeDetec
 		super();
 
 		onFire = false;
-		super.setPropertyValue(FIRE_DETECTED_PROPERTY_NAME, onFire);
     }
 
-	private boolean fireStatusChanged(boolean newState) {
-		onFire = newState;
-		super.setPropertyValue(FIRE_DETECTED_PROPERTY_NAME, onFire);
+	@SuppressWarnings("unused")
+	private boolean switchStatusChanged(NotificationMsg switchChanged) {
+		onFire = ((SwitchNotificationMsg)switchChanged).isOn();
 		return onFire;
 	}
 	
-    @Override
-    public String getSerialNumber() {
-        return m_serialNumber;
-    }
-    
-    @Override
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    @Override
-    public String getState() {
-        return state;
-    }
-
-    @Override
-    public String getFault() {
-        return fault;
-    }
-
-    @Override
-    public void setFault(String fault) {
-        this.fault = fault;
-    }
-
-    @Override
-	public void enterInZones(List<Zone> zones) {
-    	
-    	/*
-    	 * NOTE filed "location" is an APAM injected field that is recalculated
-    	 * on each access, use a copy to avoid side-effects on multiple evaluations.
-    	 */
-    	
-    	String currentLocation = location;
-    	if (currentLocation == SimulatedDevice.LOCATION_UNKNOWN && zones.isEmpty())
-    		return;
-    	
-    	if (currentLocation != SimulatedDevice.LOCATION_UNKNOWN && zones.contains(currentLocation))
-    		return;
-    	
-    	location = zones.isEmpty() ? SimulatedDevice.LOCATION_UNKNOWN : zones.get(0).getId();
-
-	}
-
-	@Override
-	public void personAdded(Person person) {
-		if (person.getName().equals("smoke"))
-			fireStatusChanged(true);
-	}
-
-	@Override
-	public void personRemoved(Person person) {
-		if (person.getName().equals("smoke"))
-			fireStatusChanged(false);
-	}
-
-	@Override
-	public void personMoved(Person person, Position position) {
-	}
-
-	@Override
-	public void personDeviceAttached(Person person, LocatedDevice device) {
-	}
-
-	@Override
-	public void personDeviceDetached(Person person, LocatedDevice device) {
-	}
-
-	@SuppressWarnings("unused")
-	private void start() {
-		manager.addListener(this);
-	}
-	
-	@SuppressWarnings("unused")
-	private void stop() {
-		manager.removeListener(this);
-	}
-	
-
 
 }

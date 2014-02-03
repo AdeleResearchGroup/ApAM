@@ -1,45 +1,58 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-    <apam-instance name="instance-s1-tct026"
-        implementation="implem-s1-tct026">
-        
-<!--  These must not work (cannot redefine attribute) -->     
-<!--         <property name="def1-specs-s1" value="final value" />    -->
-<!--         <property name="def2-specs-s1" value="final-value" />         -->
-<!--         <property name="def5-specs-s1" value="final-value" /> -->
-        
-<!--  These must not work (allready defined in the group) -->    
-<!--         <definition name="def1-specs-s1" type="string" value="final value" /> -->
-<!--         <definition name="def2-specs-s1" type="string" value="final-value"/> -->
-<!--         <definition name="def5-specs-s1" type="string" value="final-value" /> -->
-        
-        <property name="def3-specs-s1" value="final-value"/>
-        <property name="def6-specs-s1" value="final-value"/>
-        
-        <definition name="def0-instance-s1" type="string"/>
-        <property name="def0-instance-s1"   value="final-value" />
+	<apam-instance name="instance-s1-tct026" implementation="implem-s1-tct026">
 
-        <definition name="def1-instance-s1" type="string" default="default-value" />
-        <property name="def1-instance-s1" value="final-value" />
-        
-        <!--  Testing float properties -->
-        <property name="prop-def3" value="34.56"/>
+		<!-- These must not work (cannot redefine attribute) -->
+		<!-- <property name="def1-specs-s1" value="final value" /> -->
+		<!-- <property name="def2-specs-s1" value="final-value" /> -->
+		<!-- <property name="def5-specs-s1" value="final-value" /> -->
 
-        <property name="prop-impl1" value="34.56" />
-        
-        <property name="prop-impl2" value="34.56" />
-        
-        <definition name="prop-inst0" type="float" />
-        <property name="prop-inst0" value="34.56" />
+		<!-- These must not work (allready defined in the group) -->
+		<!-- <definition name="def1-specs-s1" type="string" value="final value" 
+			/> -->
+		<!-- <definition name="def2-specs-s1" type="string" value="final-value"/> -->
+		<!-- <definition name="def5-specs-s1" type="string" value="final-value" 
+			/> -->
 
-        <definition name="prop-inst1" type="float" default="34.56" />
-        
-        <definition name="prop-inst2" type="float" />        
-        
+		<property name="def3-specs-s1" value="final-value" />
+		<property name="def6-specs-s1" value="final-value" />
 
-    </apam-instance>
+		<definition name="def0-instance-s1" type="string" />
+		<property name="def0-instance-s1" value="final-value" />
+
+		<definition name="def1-instance-s1" type="string" default="default-value" />
+		<property name="def1-instance-s1" value="final-value" />
+
+		<!-- Testing float properties -->
+		<property name="prop-def3" value="34.56" />
+
+		<property name="prop-impl1" value="34.56" />
+
+		<property name="prop-impl2" value="34.56" />
+
+		<definition name="prop-inst0" type="float" />
+		<property name="prop-inst0" value="34.56" />
+
+		<definition name="prop-inst1" type="float" default="34.56" />
+
+		<definition name="prop-inst2" type="float" />
+		
+		<property name="prop-valued" value="0.5" />
+		
+	</apam-instance>
+
+	<apam-instance name="instance-s1_tct033" implementation="implem-s1-tct026">
+	    
+	    <property name="prop-valued" value="0.8" />
+
+	    <definition name="navig" type="float"/>
+	    <property name="navig" value="$instance-s1-tct026$prop-inst0"/>
+	    
+        
+	    
+	</apam-instance>
 
 </apam>
