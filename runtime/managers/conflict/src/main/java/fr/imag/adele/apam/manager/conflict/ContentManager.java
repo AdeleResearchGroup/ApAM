@@ -31,6 +31,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
@@ -79,7 +80,7 @@ public class ContentManager {
 	 * verifies if the requested resolution matches the specified grant
 	 */
 	private static boolean match(GrantDeclaration grant, Component source, RelationDefinition relation) {
-		return 	relation.getName().equals(grant.getRelation().getIdentifier())&& 
+		return 	relation.getName().equals(grant.getRelation().getIdentifier()) && 
 				match(grant, source);
 	}
 
@@ -97,6 +98,7 @@ public class ContentManager {
 	private static boolean match(GrantDeclaration grant, PendingRequest request) {
 		return match(grant, request.getSource(), request.getRelation());
 	}
+
 
 	/**
 	 * A back reference to the conflict manager
@@ -628,10 +630,14 @@ public class ContentManager {
 	}
 
 	/**
-	 * Verify if a resolution request has access granted, and preempt current
-	 * users if needed
+	 * Verify if a resolution request has access granted, and update the resolution constraints
+	 * accordingly
 	 */
-	public void verifyGrant(PendingRequest request) {
+	public void addGrantConstraints(Component client, RelToResolve relation) {
+
+		PendingRequest request = PendingRequest.isRetry() ? 
+				PendingRequest.current() : 
+				new PendingRequest(CST.apamResolver, client,relation.getRelationDefinition());
 
 		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
 
@@ -639,12 +645,12 @@ public class ContentManager {
 			boolean granted = grant == null || match(grant, request);
 
 			/*
-			 * preempt all the granted instances from their current clients,
-			 * when resolution proceeds it should find the instance available
+			 * Add a constraint to avoid that a request be resolved against an owned instance that
+			 * is not granted to the source of the request
 			 */
 			for (Instance ownedInstance : getOwned(ownedDeclaration)) {
-				if (granted && request.isSatisfiedBy(ownedInstance)) {
-					preempt(ownedDeclaration, ownedInstance);
+				if (!granted && request.isSatisfiedBy(ownedInstance)) {
+					relation.getMngInstanceConstraints().add("(! ("+CST.INSTNAME+" = "+ownedInstance.getName()+"))");
 				}
 			}
 		}

@@ -52,7 +52,6 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.FailedResolutionManager;
-import fr.imag.adele.apam.impl.PendingRequest;
 
 /**
  * This class is the entry point of the dynamic manager implementation.
@@ -234,26 +233,22 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 		}
 
 		/**
-		 * Iterate over all owned instances that could satisfy this request, and
-		 * verify if it is granted access.
+		 * Iterate over all owned instances that could satisfy this request, and verify if access is granted.
+		 * In case access is not allowed, add the corresponding constraints to the relation
 		 * 
-		 * WARNING Notice that this is a global validation, irrespective of
-		 * composites. We verify all visible instances that could satisfy the
-		 * request.
+		 * WARNING Notice that this is a global validation, irrespective of composites. We verify all visible
+		 * instances that could satisfy the request.
 		 */
 
-		PendingRequest request = PendingRequest.isRetry() ? 
-									PendingRequest.current() : 
-									new PendingRequest(CST.apamResolver, client,relation.getRelationDefinition());
-
 		for (ContentManager container : getManagers()) {
-			container.verifyGrant(request);
+			container.addGrantConstraints(client,relation);
 		}
+		
+		
 	}
 
 	/**
-	 * Dynaman does not have its own model, all the information is in the
-	 * component declaration.
+	 * Conflict Manager does not have its own model, all the information is in the component declaration.
 	 * 
 	 */
 	@Override
