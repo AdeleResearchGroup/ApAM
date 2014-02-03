@@ -253,7 +253,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		 *  Compute again the properties and relation definition, 
 		 *  and removes the properties and links now invalid
 		 */
-		((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
+//		((ComponentImpl)this).finishInitialize(getAllPropertiesString()) ;
 
 	}
 

@@ -935,8 +935,9 @@ implements Component, Comparable<Component> {
 			 *  Systematic in case of changeOwner
 			 */
 			else {
-				for (Map.Entry<String, String> entry : props.entrySet()) {
-					if (group.getProperty(entry.getKey())!= null && !!!group.getProperty(entry.getKey()).equals(entry.getValue()))
+				for (Map.Entry<String, String> entry : initialProperties.entrySet()) {
+					//The group has that attribute with the same value => ignore that attr, it will added later, and avoid error messages.
+					if (!(group.getProperty(entry.getKey())!= null && group.getProperty(entry.getKey()).equals(entry.getValue())))
 						props.put(entry.getKey(), entry.getValue());
 				}
 			}

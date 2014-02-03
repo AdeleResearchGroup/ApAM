@@ -23,6 +23,7 @@ import fr.imag.adele.apam.apammavenplugin.ApamCapability;
 import fr.imag.adele.apam.apammavenplugin.CheckObr;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.util.Attribute;
 
@@ -134,10 +135,17 @@ public final class AttributeCheckHelpers {
 	 * @param name
 	 * @param group
 	 */
-	public static boolean checkGroupProperty(ComponentDeclaration component, String name, ApamCapability group) {
-		// redefinition check
+	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group) {
 		
+		String name = definition.getName() ;
+		
+		/*
+		 * Final attributes cannot be defined or redefined
+		 */
 		if (Attribute.isFinalAttribute(name)) {
+			// except if it is an external field attribute definition
+			if (definition.getField() != null && definition.getInjected() == InjectedPropertyPolicy.EXTERNAL) 
+				return true ;
 			CheckObr.error("Cannot redefine final attribute \"" + name + "\"");
 			return false;
 		}

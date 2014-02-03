@@ -243,13 +243,16 @@ public final class CheckObr {
 				inheritedvalue, parent);
 	}
 
-	public static boolean checkProperty(ComponentDeclaration component,
-			String name, String type, String defaultValue) {
+	public static boolean checkProperty(ComponentDeclaration component, PropertyDefinition definition) {
+
+		String type = definition.getType();
+		String name = definition.getName();
+		String defaultValue = definition.getDefaultValue();
 
 		ApamCapability group = ApamCapability
 				.get(component.getGroupReference());
 
-		if (!AttributeCheckHelpers.checkGroupProperty(component, name, group)) {
+		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group)) {
 			return false;
 		}
 

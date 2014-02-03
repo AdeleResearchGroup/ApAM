@@ -268,13 +268,9 @@ public class ApamRepoBuilder {
 		List<PropertyDefinition> definitions = component
 				.getPropertyDefinitions();
 		for (PropertyDefinition definition : definitions) {
-			String type = definition.getType();
-			String attrDef = definition.getName();
-			String defaultValue = definition.getDefaultValue();
-
-			if (CheckObr.checkProperty(component, attrDef, type, defaultValue)) {
+			if (CheckObr.checkProperty(component, definition)) {
 				generateTypedProperty(obrContent, component,
-						CST.DEFINITION_PREFIX + attrDef, type, defaultValue);
+						CST.DEFINITION_PREFIX + definition.getName(), definition.getType(), definition.getDefaultValue());
 			}
 		}
 	}

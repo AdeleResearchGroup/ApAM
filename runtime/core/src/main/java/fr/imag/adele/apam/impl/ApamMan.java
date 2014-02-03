@@ -101,21 +101,6 @@ public class ApamMan implements RelationManager {
 		Set<Implementation> impls = null;
 		String name = relToResolve.getTarget().getName();
 
-//		//In case no solution is found, before to return null ...
-//		//If some bundle are starting, they may contain the solution (especially during the starting phase)
-//		//Just way a short while to let these bundles complete their starting phase.
-//		try {
-//			while ( isStartingBundles()) {
-//				//No bundle is currently starting : no possible solution
-//				System.err.println("if ( isStartingBundles()");
-//				
-//				Thread.sleep(300) ;
-//				System.err.println("try again") ;
-//			//return resolveRelation (source, relToResolve) ;
-//			}
-//		} catch (InterruptedException e) { }
-//		System.err.println("everything is started !") ;
-
 		/*
 		 * First analyze the component references
 		 */
@@ -187,7 +172,9 @@ public class ApamMan implements RelationManager {
 
 		// TargetKind is implem or instance, but no implem found.
 		if (impls == null || impls.isEmpty()) {
-			System.err.println("if (impls == null || impls.isEmpty()");
+			//System.err.println("if (impls == null || impls.isEmpty()");
+			//TODO appeler pour savoir s'il y a des composants en cours d'analyse 
+			//if ()
 			return null;
 		}
 
