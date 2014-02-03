@@ -91,7 +91,7 @@
 		<definition name="state" type="normal,fire,locked" field="stateProperty" injected="internal" />
 
 		<callback onInit="start"/>
-		<relation field="light" specification="CoreColorLightSpec" creation="eager"/>
+		<relation field="light" specification="CoreColorLightSpec" creation="eager" resolve="exist"/>
 
 	</implementation>
 
