@@ -464,35 +464,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	 */
 
 	private void resolveMainImplem() throws InvalidConfiguration {
-		if (getCompoDeclaration().getMainComponent() == null) {
-			if (!getProvidedResources().isEmpty()) {
-				unregister();
-				throw new InvalidConfiguration("invalid composite type " + getName() + ". No Main implementation but provides resources " + getProvidedResources());
-			}
-			return ;
-		}
-
-		logger.debug("looking for main implem " + getCompoDeclaration().getMainComponent().getName()) ;
-		
-		//try 5 time in case the main implem is in the same bundle and not yet created into Apam
-		for (int i = 0; i< 5; i++) {
-			synchronized (this) {
-				try {
-					if (i_resolveMainImplem()) return ;
-					wait(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			logger.debug("main implem " + getCompoDeclaration().getMainComponent().getName() + " not yet available");
-		}
-		// failed to find the main implem
-		unregister();
-		//logger.error ("Cannot find main implementation " +  getCompoDeclaration().getMainComponent().getName() + " for composite type " + getName()) ;
-		throw new InvalidConfiguration("Cannot find main implementation " +  getCompoDeclaration().getMainComponent().getName() + " for composite type " + getName());
-	}
-
-	private boolean i_resolveMainImplem() throws InvalidConfiguration {
 		/*
 		 * Abstract Composite
 		 */
@@ -501,24 +472,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 				unregister();
 				throw new InvalidConfiguration("invalid composite type " + getName() + ". No Main implementation but provides resources " + getProvidedResources());
 			}
-			return true ;
+			return ;
 		}
 
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
-		/*
-		 * This is a false composite / instance, not registered anywhere. just
-		 * to provide an instance to the find and resolve.
-		 */
-		//Composite dummyComposite = new CompositeImpl(this, "dummyComposite");
-		//CompositeTypeImpl dummyComposite = this ; //TODO to check if it works ...
-		//Back chain to get the default project settings
-
-
-		mainImpl = CST.apamResolver.findImplByName(null, mainComponent);
+		
+		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
 		if (mainImpl != null) {
 			logger.debug("The main component of " + this.getName() + " is an Implementation : " + mainImpl.getName());
 		} else {
-			Specification spec = CST.apamResolver.findSpecByName(null, mainComponent);
+			Specification spec = CST.apamResolver.findSpecByName(this, mainComponent);
 			if (spec != null) {
 				logger.debug("The main component of " + this.getName() + " is a Specification : " + spec.getName());
 				/*
@@ -538,11 +501,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 */
 
 		if (mainImpl == null) {
-			return false ;
+			unregister();
+			throw new InvalidConfiguration("Cannot find main implementation " + mainComponent + " for composite type " + getName());
 		}
-		//			unregister();
-		//			throw new InvalidConfiguration("Cannot find main implementation " + mainComponent + " for composite type " + getName());
-		//		}
 
 		// assert mainImpl != null;
 
@@ -563,11 +524,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 */
 		if (!providesResources) {
 			unregister();
-			throw new InvalidConfiguration("invalid main implementation " + mainImpl.getName() + " for composite type " + getName() + "Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources() + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
+			throw new InvalidConfiguration("invalid main implementation " + mainImpl.getName() + " for composite type " + getName() 
+					+ "\n     Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources() + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
 		}
-		return true ;
-
-		// TODO Other control, other than provided resources ?
+		return ;
 	}
 
 	@Override
