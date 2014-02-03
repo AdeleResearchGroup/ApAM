@@ -76,13 +76,14 @@ public class Apform2Apam {
 	/**
 	 * The list of declarations currently being reified
 	 */
-	private static Set<ApformComponent> reifying = new HashSet<ApformComponent>();
+	private static Set<String> reifying = new HashSet<String>();
 	
 	/**
 	 * Test whether a component is currently being reified
 	 */
 	public static boolean isReifying(ComponentReference<?> component) {
-		
+
+
 		/*
 		 * Wait for platform to finish deploying declarations 
 		 */
@@ -94,18 +95,12 @@ public class Apform2Apam {
 		 * processed
 		 */
 
-		Set<ApformComponent> inProcessComponents = null;
 		synchronized (reifying) {
-			inProcessComponents = new HashSet<ApformComponent>(reifying);
+			return reifying.contains(component.getName());
 		}
 		
-		for (ApformComponent inProcess : inProcessComponents) {
-			if (inProcess.getDeclaration().getReference().equals(component))
-				
-				return true;
-		}
-		return false;
 	}
+	
 	/**
 	 * A request from apform to add a component to APAM, this is executed
 	 * asynchronously and may block waiting for another components.
@@ -123,7 +118,7 @@ public class Apform2Apam {
 			this.component = component;
 			
 			synchronized (Apform2Apam.reifying) {
-				reifying.add(component);
+				reifying.add(component.getDeclaration().getReference().getName());
 			}
 		}
 
@@ -194,7 +189,7 @@ public class Apform2Apam {
 			} finally {
 				
 				synchronized (Apform2Apam.reifying) {
-					reifying.remove(component);
+					reifying.remove(component.getDeclaration().getReference().getName());
 				}
 
 				finished();
@@ -497,7 +492,6 @@ public class Apform2Apam {
 	 * 
 	 */
 	public static void newImplementation(ApformImplementation client) {
-		//System.err.println(" Thread "+Thread.currentThread()+" new implem "+client.getDeclaration().getName());
 		Apform2Apam.executor.execute(new ImplementationDeploymentProcessing(client));
 	}
 

@@ -32,6 +32,7 @@ import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -100,6 +101,14 @@ public class ApamMan implements RelationManager {
 
 		Set<Implementation> impls = null;
 		String name = relToResolve.getTarget().getName();
+
+		/*
+		 * For components look up by name, wait until the declaration has been processed
+		 */
+		if (! relToResolve.isRelation()) {
+			if (Apform2Apam.isReifying(relToResolve.getTarget().as(ComponentReference.class)) )
+				Apform2Apam.waitForComponent(name);
+		}
 
 		/*
 		 * First analyze the component references
@@ -244,6 +253,8 @@ public class ApamMan implements RelationManager {
 			//try again
 			return resolveRelation (source, relToResolve) ;
 		} catch (InterruptedException e) { }
+		
+		
 		//System.err.println("finaly not found") ;
 		return null;
 	}
@@ -252,7 +263,7 @@ public class ApamMan implements RelationManager {
 	private boolean isStartingBundles () {
 		for (Bundle bundle : context.getBundles()) {
 			if (bundle.getState() == Bundle.STARTING) {
-				//logger.debug("is starting : " + bundle.getSymbolicName());
+				System.err.println("is starting : " + bundle.getSymbolicName());
 				return true ;
 			}
 		}
