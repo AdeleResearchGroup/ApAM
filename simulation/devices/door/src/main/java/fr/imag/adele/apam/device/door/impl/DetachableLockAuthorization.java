@@ -1,9 +1,7 @@
 package fr.imag.adele.apam.device.door.impl;
 
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.ipojo.annotations.Component;
@@ -60,10 +58,14 @@ public class DetachableLockAuthorization implements LockerAuthorizationCallback 
 	 * door in the specified global state
 	 */
 	public void disableAuthorization(byte doorId, boolean locked) {
-		if (locked)
+		if (locked) {
 			lockedDoors.add(doorId);
-		else
+			unlockedDoors.remove(doorId);
+		}
+		else {
 			unlockedDoors.add(doorId);
+			lockedDoors.remove(doorId);
+		}
 	}
 	
 	@Override

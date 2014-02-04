@@ -36,7 +36,7 @@ public class SecurityStateManager implements PropertyManager {
 				switch (event) {
 					case START_LOCK : return LOCKED;
 					case START_FIRE : return FIRE;
-					default 		: throw new IllegalArgumentException("Illegal transition");
+					default 		: return NORMAL;
 				}
 			}
 		},
@@ -107,7 +107,7 @@ public class SecurityStateManager implements PropertyManager {
 		if (light != null) {
 			switch (currentState) {
 			case NORMAL:
-				light.setYellow();
+				light.setBlue();
 				break;
 			case LOCKED:
 				light.setGreen();

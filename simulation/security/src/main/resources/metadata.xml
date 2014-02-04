@@ -15,7 +15,7 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 	<!--
-		This is the domain scope for applications that use security related devices in a controled way
+		This is the domain scope for applications that use security related devices in a controlled way
 	-->
 	<composite name="SecurityDomain" singleton="true">
 		<contentMngt>
@@ -57,7 +57,7 @@
 	
 			<state implementation="EmergencyDetection" property="emergency"/>
 			
-			<import instance="false" />
+			<import instance="(!(spec-name=Door))" />
 			<export instance="false"/>
 			
 		</contentMngt>
@@ -102,7 +102,7 @@
 	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
 		<callback onInit="start"/>
 		<definition name="emergency" type="emergency,normal" field="stateProperty" injected="internal" />
-		<relation name="emergencyEvents" creation="eager" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
+		<relation name="emergencyEvents" creation="eager" resolve="exist" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
 	</implementation>
 	
 </apam>
