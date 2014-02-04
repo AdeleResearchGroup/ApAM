@@ -130,6 +130,11 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		if (source instanceof Instance) {
 			compoType = ((Instance) source).getComposite().getCompType();
 		}
+		
+		if (source instanceof CompositeType) {
+			compoType = (CompositeType) source;
+		}
+		
 		// Find the composite OBRManager
 		OBRManager obrManager = searchOBRManager(compoType);
 		if (obrManager == null) {
