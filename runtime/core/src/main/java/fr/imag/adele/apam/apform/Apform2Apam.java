@@ -60,8 +60,18 @@ public class Apform2Apam {
 	/**
 	 * Get access to information regarding the underlying platform
 	 */
-	private static Platform getPlatform() {
-		return platform;
+	private static Platform getPlatform()  {
+		
+		synchronized (Apform2Apam.class) {
+			try {
+				while (Apform2Apam.platform == null)
+					Apform2Apam.class.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return Apform2Apam.platform;
 	}
 	
 	/**
@@ -69,7 +79,10 @@ public class Apform2Apam {
 	 * status 
 	 */
 	public static void setPlatform(Platform platform) {
-		Apform2Apam.platform = platform;
+		synchronized (Apform2Apam.class) {
+			Apform2Apam.platform = platform;
+			Apform2Apam.class.notifyAll();
+		}
 	}
 
 
