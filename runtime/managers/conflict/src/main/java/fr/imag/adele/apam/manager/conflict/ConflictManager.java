@@ -431,9 +431,9 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 		}
 
 		/*
-		 * Accord ownership to new owner
+		 * Accord ownership to new owner (if it has changed)
 		 */
-		if (newOwner != null) {
+		if (newOwner != null && (owner == null || !owner.equals(newOwner))) {
 			newOwner.accordOwnership(instance);
 		}
 	}

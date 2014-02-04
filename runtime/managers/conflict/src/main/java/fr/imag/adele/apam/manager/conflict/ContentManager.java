@@ -354,7 +354,7 @@ public class ContentManager {
 
 		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
 		for (Link incoming : ownedInstance.getInvLinks()) {
-			if (grant == null || !match(grant, incoming)) {
+			if (grant != null && !match(grant, incoming)) {
 				incoming.remove();
 			}
 		}
@@ -368,7 +368,7 @@ public class ContentManager {
 			/*
 			 * If there is a new active grant or no grant, wake up matching request
 			 */
-			if (grant == null || match(grant, request)) {
+			if (grant != null && match(grant, request)) {
 				if (request.isSatisfiedBy(ownedInstance))
 					request.resolve();
 			}
