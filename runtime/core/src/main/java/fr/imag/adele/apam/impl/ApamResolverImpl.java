@@ -402,10 +402,13 @@ public class ApamResolverImpl implements ApamResolver {
 		// relation
 		// Do no check composite
 		Component group = composite;
+		
+		RelToResolve relToResolveIntrinsic = new RelToResolveImpl(client,relDef);
+		
 		while (group != null) {
 			for (RelationDefinition compoDep : group.getLocalRelations()) {
 				if (relDef.matchRelation(client, compoDep)) {
-					resolved = resolvePromotion(compoDep, resolved, relToResolve, composite, source);
+					resolved = resolvePromotion(compoDep, resolved, relToResolveIntrinsic, composite, source);
 				}
 			}
 			group = group.getGroup();
