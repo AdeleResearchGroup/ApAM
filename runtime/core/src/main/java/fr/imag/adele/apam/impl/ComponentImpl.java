@@ -905,12 +905,15 @@ implements Component, Comparable<Component> {
 		/*
 		 * If the component has links, remove those that are invalid (for changeOwner)
 		 */
-		Set <Link> localLinks = getLocalLinks() ;
-		if (localLinks != null) {
-			for (Link localLink : localLinks) {
-				if (!localLink.isValid())
-					localLink.remove();
-			}
+
+		for (Link localLink : getLocalLinks()) {
+			if (!localLink.isValid())
+				localLink.remove();
+		}
+
+		for (Link incoming : getInvLinks()) {
+			if (! incoming.isValid())
+				incoming.remove();
 		}
 
 	}
