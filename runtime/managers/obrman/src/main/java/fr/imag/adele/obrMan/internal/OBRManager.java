@@ -180,10 +180,10 @@ public class OBRManager {
 		// and remove when the deployment is done.
 
 		boolean deployed = false;
-		// the events sent by iPOJO for the previous deployed bundle may
-		// interfere and
-		// change the state of the local repository, which produces the
-		// IllegalStateException.
+		/*
+		 *  the events sent by iPOJO for the previous deployed bundle may interfere and
+		 * change the state of the local repository, which produces the IllegalStateException.
+		 */
 		while (!deployed) {
 			try {
 
@@ -196,6 +196,10 @@ public class OBRManager {
 				deployed = true;
 			} catch (IllegalStateException e) {
 				logger.debug("OBR changed state. Resolving again " + selected.resource.getSymbolicName());
+			}
+			catch (Exception e) {
+				logger.error ("Deployment of " + selected.selectedComponentName + " failed. ") ;
+				return false ;
 			}
 		}
 

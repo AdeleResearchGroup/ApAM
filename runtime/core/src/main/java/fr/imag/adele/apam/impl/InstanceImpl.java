@@ -231,25 +231,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		((CompositeImpl) owner).addContainInst(this);
 
 		/*
-		 * Force recalculation of dependencies that may have been invalidated by
-		 * the ownership change
-		 */
-//		for (Link incoming : this.getInvLinks()) {
-//			if (!incoming.isPromotion() && !incoming.getSource().canSee(this)) {
-//				incoming.remove();
-//			}
-//		}
-//
-//		/*
-//		 * Remove outgoing wires (definitions or visibilities may have changed)
-//		 */
-//		for (Link outgoing : this.getLocalLinks()) {
-//			if (!this.canSee(outgoing.getDestination())) {
-//				outgoing.remove();
-//			}
-//		}
-
-		/*
 		 *  Compute again the properties and relation definition, 
 		 *  and removes the properties and links now invalid
 		 */

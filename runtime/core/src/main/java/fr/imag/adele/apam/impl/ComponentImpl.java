@@ -224,7 +224,7 @@ implements Component, Comparable<Component> {
 	 * @param initialProperties
 	 */
 	public void finishInitialize(Map<String, String> initialProperties) {
-		initializeDependencies();
+		initializeRelations();
 		initializeProperties(initialProperties);
 		initializeResources();
 	}
@@ -834,7 +834,7 @@ implements Component, Comparable<Component> {
 	 * Remove those links that are not valid with the computed relation definition (for changeOwner)
 	 * 
 	 */
-	private void initializeDependencies() {
+	private void initializeRelations() {
 
 		/*
 		 * First we need to compute the list of relations that must be locally
@@ -904,15 +904,15 @@ implements Component, Comparable<Component> {
 		
 		/*
 		 * If the component has links, remove those that are invalid (for changeOwner)
+		 * Also remove the link if it is a promotion, since we are no longer in the same composite
 		 */
-
 		for (Link localLink : getLocalLinks()) {
-			if (!localLink.isValid())
+			if (localLink.isPromotion() || !localLink.isValid())
 				localLink.remove();
 		}
 
 		for (Link incoming : getInvLinks()) {
-			if (! incoming.isValid())
+			if (incoming.isPromotion() || !incoming.isValid())
 				incoming.remove();
 		}
 

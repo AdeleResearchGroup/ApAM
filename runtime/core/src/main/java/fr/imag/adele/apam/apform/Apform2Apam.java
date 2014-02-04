@@ -94,9 +94,11 @@ public class Apform2Apam {
 	/**
 	 * Test whether a component is currently being reified
 	 */
-	public static boolean isReifying(ComponentReference<?> component) {
+	public static boolean isReifying(String component) {
 
-
+		if (component == null)
+			return false;
+		
 		/*
 		 * Wait for platform to finish deploying declarations 
 		 */
@@ -109,7 +111,7 @@ public class Apform2Apam {
 		 */
 
 		synchronized (reifying) {
-			return reifying.contains(component.getName());
+			return reifying.contains(component);
 		}
 		
 	}
