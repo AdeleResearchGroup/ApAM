@@ -316,7 +316,7 @@ public class OBRMANTest extends ExtensionAbstract {
 		InstanceCreator creator = new InstanceCreator("compositeWithMainImplem_tct034");
 		creator.start();
 		try {
-			Thread.sleep(50000);
+			creator.join(1000);
 		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
