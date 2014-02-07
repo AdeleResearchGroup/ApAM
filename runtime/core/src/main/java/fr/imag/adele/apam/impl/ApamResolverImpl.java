@@ -52,6 +52,36 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
 
 public class ApamResolverImpl implements ApamResolver {
 
+
+	private APAMImpl apam;
+
+	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
+
+	/**
+	 * The current state of the resolver. The resolver can be temporarily
+	 * disabled, for instance for waiting for the installation of required
+	 * managers;
+	 * 
+	 */
+	private boolean enabled = false;
+
+	/**
+	 * A description of the condition that must be met to enable the resolver
+	 * again.
+	 */
+	private String condition = "resolver startup";
+
+	/**
+	 * If the resolver is disabled, the time at which it will be automatically
+	 * enabled, even if the condition is not met. This is not an delay, but the
+	 * actual future time.
+	 */
+	private long maxDisableTime = 0L;
+
+	public ApamResolverImpl(APAMImpl theApam) {
+		this.apam = theApam;
+	}
+	
 	/**
 	 * Impl is either unused or deployed (and therefore also unused). It becomes
 	 * embedded in compoType. If unused, remove from unused list.
@@ -97,34 +127,6 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 	}
 
-	private APAMImpl apam;
-
-	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
-
-	/**
-	 * The current state of the resolver. The resolver can be temporarily
-	 * disabled, for instance for waiting for the installation of required
-	 * managers;
-	 * 
-	 */
-	private boolean enabled = false;
-
-	/**
-	 * A description of the condition that must be met to enable the resolver
-	 * again.
-	 */
-	private String condition = "resolver startup";
-
-	/**
-	 * If the resolver is disabled, the time at which it will be automatically
-	 * enabled, even if the condition is not met. This is not an delay, but the
-	 * actual future time.
-	 */
-	private long maxDisableTime = 0L;
-
-	public ApamResolverImpl(APAMImpl theApam) {
-		this.apam = theApam;
-	}
 
 	/**
 	 * Verifies if the resolver is enabled. If it is disabled blocks the calling

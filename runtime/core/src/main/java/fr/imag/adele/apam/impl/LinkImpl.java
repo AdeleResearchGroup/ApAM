@@ -119,26 +119,21 @@ public class LinkImpl implements Link {
 	 */
 	public boolean isValid () {
 		if (!this.isPromotion && ! source.canSee(destination)) {
-			//logger.error("CreateLink: Source  " + this + " does not see its target " + to);
 			return false;
 		}
+		//TODO check if the embedding composite can see the target. 
+		//Difficult since we do not know which composite relation is used
+		
 		RelToResolve rel = getRelToResolve() ;
 		if (source.getKind() != rel.getSourceKind()) {
-//			logger.error("CreateLink: Source kind " + getKind()
-//					+ " is not compatible with relation sourceType "
-//					+ dep.getSourceKind());
 			return false;
 		}
 		
 		if (destination.getKind() != rel.getTargetKind()) {
-//			logger.error("CreateLink: Target kind " + to.getKind()
-//					+ " is not compatible with relation targetType "
-//					+ dep.getTargetKind());
 			return false;
 		}
 		
 		if (hasConstraints && !rel.matchRelationConstraints(destination)) {
-//			logger.error("CreateLink: Target does not satisfies the constraints" );
 			return false ;
 		}
 		return true ;

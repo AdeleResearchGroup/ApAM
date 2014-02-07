@@ -100,14 +100,6 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 	}
 
-	private boolean deploy(Selected selected) {
-		boolean deployed = selected.obrManager.deployInstall(selected);
-		if (!deployed) {
-			System.err.print("could not install resource ");
-			ObrUtil.printRes(selected.resource);
-		}
-		return deployed;
-	}
 
 	@Override
 	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
@@ -142,9 +134,6 @@ public class OBRMan implements RelationManager, OBRManCommand {
 			return null;
 		}
 
-		// Relation rel = new RelationImpl(source, new
-		// ComponentReference(componentName), kind);
-		// ((RelationImpl) rel).computeFilters(source);
 		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + rel.getTarget().getName() + ")", rel);
 		fr.imag.adele.apam.Component c = installInstantiate(selected);
 		if (c == null) {
@@ -180,17 +169,6 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		return CST.OBRMAN;
 	}
 
-	// @Override
-	// public Instance resolveImpl(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Set<Instance> resolveImpls(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
 
 	public OBRManager getOBRManager(String compositeTypeName) {
 		return obrManagers.get(compositeTypeName);
@@ -254,8 +232,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		 * component
 		 */
 		if (theBundle == null) {
-			if (!deploy(selected)) {
-				// deployment failed
+			if (! selected.obrManager.deployInstall(selected)) {
 				return null;
 			}
 			return waitAndReturnComponent(selected);

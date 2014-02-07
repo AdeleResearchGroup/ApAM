@@ -267,8 +267,7 @@ public class ConstraintTest extends ExtensionAbstract {
 	    }
 	};
 
-	Implementation s1Impl = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.impl.S1Impl");
+	Implementation s1Impl = waitForImplByName(null, "fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 	Instance s1Inst = s1Impl.createInstance(null, null);
 	S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
@@ -276,8 +275,7 @@ public class ConstraintTest extends ExtensionAbstract {
 	// auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
 	auxListInstances("-------Available instances before using the list-------");
 
-	System.out.println("Size of the injected list:"
-		+ s1.getEletronicInstancesConstraintsInstance().size());
+	System.out.println("Size of the injected list:"	+ s1.getEletronicInstancesConstraintsInstance().size());
 
 	for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 	    Instance p = CST.componentBroker.getInstService(e);

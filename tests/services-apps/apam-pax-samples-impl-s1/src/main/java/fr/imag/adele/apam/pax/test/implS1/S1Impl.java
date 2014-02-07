@@ -135,8 +135,7 @@ public class S1Impl implements S1 {
 	this.devicePreference110v = devicePreference110v;
     }
 
-    public void setEletronicInstancesConstraintsInstance(
-	    Set<Eletronic> eletronicInstancesConstraintsInstance) {
+    public void setEletronicInstancesConstraintsInstance(Set<Eletronic> eletronicInstancesConstraintsInstance) {
 	this.eletronicInstancesConstraintsInstance = eletronicInstancesConstraintsInstance;
     }
 
