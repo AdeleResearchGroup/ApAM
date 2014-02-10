@@ -368,9 +368,11 @@ public abstract class ExtensionAbstract extends TestUtils {
 						.artifactId("org.osgi.compendium").version("4.2.0"),
 				mavenBundle().groupId("org.apache.felix")
 						.artifactId("org.apache.felix.bundlerepository")
-						.version("1.6.6"), systemProperty(
-						"ipojo.processing.synchronous").value("false"),
-				frameworkProperty("ipojo.processing.synchronous").value("false"));
+						.version("1.6.6"), 
+				frameworkProperty("ipojo.processing.synchronous").value("false"),
+				frameworkProperty("org.apache.felix.ipojo.extender.ThreadPoolSize").value("10"),
+				frameworkProperty("ipojo.internal.dispatcher").value("true")
+				);
 
 		return osgiConfig;
 
