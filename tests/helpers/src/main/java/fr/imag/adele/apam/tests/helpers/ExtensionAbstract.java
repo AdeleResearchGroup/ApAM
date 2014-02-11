@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ComponentBroker;
 
@@ -113,17 +114,6 @@ public abstract class ExtensionAbstract extends TestUtils {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		// config.add(vmOption("-ea"));
-
-		File ref_conf = new File("conf/root.OBRMAN.cfgo");
-		File use_conf = new File("conf/root.OBRMAN.cfg");
-
-		if (startObrMan) {
-			if (!use_conf.exists()) {
-				ref_conf.renameTo(use_conf);
-			}
-		} else if (use_conf.exists()) {
-			use_conf.renameTo(ref_conf);
-		}
 
 		return config;
 	}

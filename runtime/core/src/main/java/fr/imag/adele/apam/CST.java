@@ -14,6 +14,10 @@
  */
 package fr.imag.adele.apam;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
@@ -113,6 +117,10 @@ public class CST {
 	// the Apam entry point.
 	public static Apam apam = null;
 
+	
+	// The root composite configuration
+	public static final Map<String,URL> rootConfiguration = new HashMap<String,URL>();
+	
 	public static boolean isFinalRelation(String attr) {
 		for (String pred : CST.finalRelations) {
 			if (pred.equals(attr)) {
@@ -122,10 +130,13 @@ public class CST {
 		return false;
 	}
 
-	public CST(APAMImpl theApam) {
-		componentBroker = new ComponentBrokerImpl();
-		apam = theApam;
-		apamResolver = new ApamResolverImpl(theApam);
+	public CST(APAMImpl theApam, Map<String,URL> configuration) {
+		CST.apam 			= theApam;
+		CST.componentBroker = new ComponentBrokerImpl();
+		CST.apamResolver 	= new ApamResolverImpl(theApam);
+		
+		CST.rootConfiguration.putAll(configuration);
+
 	}
 
 }

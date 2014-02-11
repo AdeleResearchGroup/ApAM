@@ -162,6 +162,8 @@ public class ApamResolverImpl implements ApamResolver {
 	 * be automatically enabled.
 	 */
 	public synchronized void disable(String condition, long timeout) {
+		
+		System.err.println("Resolver disabled waiting for "+condition);
 		this.enabled = false;
 		this.condition = condition;
 		this.maxDisableTime = System.currentTimeMillis() + timeout;
@@ -172,6 +174,9 @@ public class ApamResolverImpl implements ApamResolver {
 	 * Enables the resolver after the condition is met
 	 */
 	public synchronized void enable() {
+
+		System.err.println("Resolver enabled");
+
 		this.enabled = true;
 		this.condition = null;
 		this.maxDisableTime = 0L;

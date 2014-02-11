@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.frameworkProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -28,10 +29,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.options.FrameworkPropertyOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.Bundle;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -58,6 +61,9 @@ public class OBRMANTest extends ExtensionAbstract {
 	@Override
 	public List<Option> config() {
 		List<Option> obrmanconfig = super.config(null, true);
+		
+		obrmanconfig.add(frameworkProperty(Apam.EXPECTED_MANAGERS).value("OBRMAN:file:./conf/test.obrman.config"));
+		
 		return obrmanconfig;
 	}
 

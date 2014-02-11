@@ -22,6 +22,16 @@ import java.util.Set;
 public interface Apam {
 
 	/**
+	 * The property used to specify the managers that must be configured in the system.
+	 * 
+	 * The value of the property is a comma separated list of managers. For each manager,
+	 * a model can be specified as an URL specified after the manager name separated by a
+	 * semicolon.
+	 * 
+	 */
+	public static final String EXPECTED_MANAGERS = "fr.imag.adele.apam.managers.expected";
+
+	/**
 	 * Creates a root composite type i.e. an application. A single composite
 	 * with this name can exist in APAM. Returns null if name conflicts.
 	 * 
