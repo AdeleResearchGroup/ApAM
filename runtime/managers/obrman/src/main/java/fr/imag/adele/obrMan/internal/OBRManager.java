@@ -158,8 +158,6 @@ public class OBRManager {
 
 	private final Repository systembundle;
 
-	private File settings;
-
 	public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, Properties obrModel1) {
 		this.compositeTypeName = compositeTypeName;
 		runningbundles = repoAdmin.getLocalRepository();
@@ -213,26 +211,45 @@ public class OBRManager {
 	protected URL findLocalMavenRepository() {
 
 		// try to find the maven settings.xml file
-		settings = ObrUtil.searchSettingsFromM2Home();
-		if (settings == null) {
-			settings = ObrUtil.searchSettingsFromUserHome();
-		}
-		logger.debug("Maven settings location: " + settings);
+		File globalSettings = ObrUtil.searchSettingsFromM2Home();
+		File userSettings	= ObrUtil.searchSettingsFromUserHome(); 
+		
+		/*
+		 *  Extract localRepository from settings.xml
+		 *  
+		 *  If a global and a user settings are both specified, the
+		 *  user preferences override the global
+		 */
+		URL userDefinedRepository 	= null;
+		URL globalDefinedRepository = null;
+		URL defaultRepository 		= null;
 
-		// Extract localRepository from settings.xml
-		URL defaultLocalRepo = null;
-		if (settings != null) {
-			defaultLocalRepo = ObrUtil.searchMavenRepoFromSettings(settings);
+		if (userSettings != null) {
+			userDefinedRepository = ObrUtil.searchMavenRepoFromSettings(userSettings);
 		}
 
-		if (defaultLocalRepo == null) {
-			// Special case for Linux Server :
-			defaultLocalRepo = ObrUtil.searchRepositoryFromDefaultLinux();
+		if (globalSettings != null) {
+			globalDefinedRepository = ObrUtil.searchMavenRepoFromSettings(globalSettings);
 		}
-		if (defaultLocalRepo != null) {
-			return defaultLocalRepo;
+
+		defaultRepository = ObrUtil.searchRepositoryFromDefaultLinux();
+		
+		if (userDefinedRepository != null) {
+			return userDefinedRepository;
 		}
-		return null;
+
+		if (globalDefinedRepository != null) {
+			return globalDefinedRepository;
+		}
+
+		if (defaultRepository != null) {
+			return defaultRepository;
+		}
+
+		throw new IllegalArgumentException(new NullPointerException(
+						"Could not find local repository location in : "+userSettings+" "+globalSettings+" "+defaultRepository)
+		);
+
 	}
 
 	public String getAttributeInCapability(Capability aCap, String attr) {
@@ -348,13 +365,8 @@ public class OBRManager {
 				Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
 
 				if (localMavenOBRRepo) {
-					URL localMavenObrUrl = findLocalMavenRepository();
-
-					if (localMavenObrUrl == null) {
-						logger.error("localRepository not found in : " + settings);
-					}
 					try {
-						declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
+						declaredRepositories.add(repoAdmin.addRepository(findLocalMavenRepository()));
 					} catch (Exception e) {
 						logger.error("Error when adding default local repository to repoAdmin", e.getCause());
 					}
