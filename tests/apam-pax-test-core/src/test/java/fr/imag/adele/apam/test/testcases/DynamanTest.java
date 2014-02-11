@@ -20,6 +20,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -30,11 +31,14 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -43,229 +47,210 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @ExamReactorStrategy(PerMethod.class)
 public class DynamanTest extends ExtensionAbstract {
 
-    @Test
-    @Ignore
-    public void CompositeContentMngtDependencyHide_tc065() {
+	@Test
+	@Ignore
+	public void CompositeContentMngtDependencyHide_tc065() {
 
-	CompositeType ctaroot = (CompositeType) waitForImplByName(null,
-		"composite-a-hide");
+		CompositeType ctaroot = (CompositeType) waitForImplByName(null,
+				"composite-a-hide");
 
-	Composite composite_root = (Composite) ctaroot.createInstance(null,
-		null);// composite_root
+		Composite composite_root = (Composite) ctaroot.createInstance(null,
+				null);// composite_root
 
-	CompositeType cta = (CompositeType) waitForImplByName(null,
-		"composite-a-hide");
+		CompositeType cta = (CompositeType) waitForImplByName(null,
+				"composite-a-hide");
 
-	Composite composite_a = (Composite) cta.createInstance(composite_root,
-		null);// inner composite with hide='true'
+		Composite composite_a = (Composite) cta.createInstance(composite_root,
+				null);// inner composite with hide='true'
 
-	Instance instanceApp1 = composite_a.getMainInst();
+		Instance instanceApp1 = composite_a.getMainInst();
 
-	S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-	// force injection
-	ga1.getElement();
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+		// force injection
+		ga1.getElement();
 
-	auxListInstances("\t");
+		auxListInstances("\t");
 
-	List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl");
+		List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl");
 
-	String messageTemplate = "Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
+		String messageTemplate = "Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
 
-	String message = String.format(messageTemplate,
-		instancesOfImplementation.size());
+		String message = String.format(messageTemplate,
+				instancesOfImplementation.size());
 
-	Assert.assertTrue(message, instancesOfImplementation.size() == 1);
+		Assert.assertTrue(message, instancesOfImplementation.size() == 1);
 
-    }
+	}
 
+	@Test
+	public void CompositeContentMngtStartTriggerByImplementation_tc043() {
+		auxListInstances("INSTANCE-t1-");
 
-    @Test
-    public void CompositeContentMngtStartTriggerByImplementation_tc043() {
-	auxListInstances("INSTANCE-t1-");
+		String checkingFor = "implementation";
 
-	String checkingFor = "implementation";
+		CompositeType composite = (CompositeType) waitForImplByName(null,
+				"composite-a-start-by-" + checkingFor);
+		Composite compositeInstance = (Composite) composite.createInstance(
+				null, null);
 
-	CompositeType composite = (CompositeType) waitForImplByName(null,
-		"composite-a-start-by-" + checkingFor);
-	Composite compositeInstance = (Composite) composite.createInstance(
-		null, null);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		Implementation trigger = waitForImplByName(null,
+				"group-a-start-trigger");
 
-	Implementation trigger = waitForImplByName(null,
-		"group-a-start-trigger");
+		Instance triggerInstance = trigger.createInstance(compositeInstance,
+				null);
 
-	Instance triggerInstance = trigger.createInstance(compositeInstance,
-		null);
+		Implementation triggered = waitForImplByName(null,
+				"group-b-started-by-trigger");
 
-	Implementation triggered = waitForImplByName(null,
-		"group-b-started-by-trigger");
+		Assert.assertTrue(triggerInstance != null);
 
-	Assert.assertTrue(triggerInstance != null);
+		List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
+				.getImplDeclaration()).getClassName());
 
-	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
-		.getImplDeclaration()).getClassName());
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		auxListInstances("INSTANCE-t2-");
 
-	auxListInstances("INSTANCE-t2-");
+		String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message = String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message, instancesOfB.size() == 1);
 
-	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-	String message = String.format(messageTemplate, checkingFor);
-	Assert.assertTrue(message, instancesOfB.size() == 1);
+	}
 
-    }
+	@Test
+	public void CompositeContentMngtStartTriggerBySpecification_tc042() {
+		auxListInstances("INSTANCE-t1-");
 
-    @Test
-    public void CompositeContentMngtStartTriggerBySpecification_tc042() {
-	auxListInstances("INSTANCE-t1-");
+		String checkingFor = "specification";
 
-	String checkingFor = "specification";
+		CompositeType composite = (CompositeType) waitForImplByName(null,
+				"composite-a-start-by-" + checkingFor);
+		Composite compositeInstance = (Composite) composite.createInstance(
+				null, null);
 
-	CompositeType composite = (CompositeType) waitForImplByName(null,
-		"composite-a-start-by-" + checkingFor);
-	Composite compositeInstance = (Composite) composite.createInstance(
-		null, null);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		Implementation trigger = waitForImplByName(null,
+				"group-a-start-trigger");
 
-	Implementation trigger = waitForImplByName(null,
-		"group-a-start-trigger");
+		Implementation triggered = waitForImplByName(null,
+				"group-b-started-by-trigger");
 
-	Implementation triggered = waitForImplByName(null,
-		"group-b-started-by-trigger");
+		Instance triggerInstance = trigger.createInstance(compositeInstance,
+				null);
 
-	Instance triggerInstance = trigger.createInstance(compositeInstance,
-		null);
+		Assert.assertTrue(triggerInstance != null);
 
-	Assert.assertTrue(triggerInstance != null);
+		List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
+				.getImplDeclaration()).getClassName());
 
-	List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
-		.getImplDeclaration()).getClassName());
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		auxListInstances("INSTANCE-t2-");
 
-	auxListInstances("INSTANCE-t2-");
+		String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message = String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message, instancesOfB.size() == 1);
 
-	String messageTemplate = "Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-	String message = String.format(messageTemplate, checkingFor);
-	Assert.assertTrue(message, instancesOfB.size() == 1);
+	}
 
-    }
+	@Test
+	public void CompositeWithEagerDependency_tc041() {
+		CompositeType ct1 = (CompositeType) waitForImplByName(null,"S2Impl-composite-eager");
 
+		String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
 
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to retrieve the composite"),
+				ct1 != null);
 
-    @Test
-    public void CompositeWithEagerDependency_tc041() {
-	CompositeType ct1 = (CompositeType) waitForImplByName(null,
-		"S2Impl-composite-eager");
+		auxListInstances("instances existing before the test-");
 
-	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
+		Composite instanceComposite = (Composite) ct1.createInstance(null,new HashMap<String, String>());
 
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to retrieve the composite"),
-		ct1 != null);
+		InstanceImpl mainInstance = (InstanceImpl) instanceComposite
+				.getMainInst();
 
-	auxListInstances("instances existing before the test-");
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to instantiate the composite"),
+				instanceComposite != null && mainInstance != null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	Composite instanceComposite = (Composite) ct1.createInstance(null,
-		new HashMap<String, String>());
 
-	Implementation implS2 = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.implS2.S2Impl");
+		auxListInstances("instances existing after the test-");
 
-	Instance instance = implS2.createInstance(instanceComposite, null);
+		Set<Link> resolutionResult = mainInstance.getExistingLinks("deadMansSwitch");
+		
+		Assert.assertTrue( String.format(message,
+				"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
+				resolutionResult.size() == 1);
 
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to instantiate the composite"),
-		instance != null);
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		Component destination = resolutionResult.iterator().next().getDestination();
+		Assert.assertTrue( String.format(message,
+				"Although, the resolution of dependence required(specification 'electronic-device') doesn't satisfy the target kind"),
+				destination instanceof Instance);
 
-	List<Instance> pool = auxLookForInstanceOf(
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
-		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
+		Instance target = (Instance) destination;
+		
+		Assert.assertTrue( String.format(message,
+				"Although, the resolution of dependence required(specification 'electronic-device') doesn't satisfy the constraints"),
+				target.getImpl().getName().equals("deadMansSwitch"));
+		
+	}
 
-	auxListInstances("instances existing after the test-");
-	System.out.println("pool.size() : " + pool.size());
+	@Test
+	public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
 
-	Assert.assertTrue(
-		String.format(
-			message,
-			"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
-		pool.size() == 1);
+		CompositeType ct1 = (CompositeType) waitForImplByName(null,
+				"S2Impl-composite-eager-forceEager");
 
-    }
+		String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
 
-    @Test
-    public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
-	CompositeType ct1 = (CompositeType) waitForImplByName(null,
-		"S2Impl-composite-eager-forceEager");
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to retrieve the composite"),
+				ct1 != null);
 
-	String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
+		auxListInstances("instances existing before the test-");
 
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to retrieve the composite"),
-		ct1 != null);
+		Composite instanceComposite = (Composite) ct1.createInstance(null,
+				new HashMap<String, String>());
 
-	auxListInstances("instances existing before the test-");
+		InstanceImpl mainInstance = (InstanceImpl) instanceComposite
+				.getMainInst();
 
-	Composite instanceComposite = (Composite) ct1.createInstance(null,
-		new HashMap<String, String>());
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to instantiate the composite"),
+				instanceComposite != null && mainInstance != null);
 
-	Implementation implS2 = waitForImplByName(null,
-		"fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager");
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-	Instance instance = implS2.createInstance(instanceComposite, null);
+		auxListInstances("instances existing after the test-");
 
-	Assert.assertTrue(String.format(message,
-		"Although, the test failed to instantiate the composite"),
-		instance != null);
+		Assert.assertTrue( String.format(message,
+				"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
+				mainInstance.getExistingLinks("deadMansSwitch").size() == 1);
+	}
 
-	// Force injection (for debuggin purposes)
-	// S2Impl im=(S2Impl)instance.getServiceObject();
-	// im.getDeadMansSwitch();
+	@Override
+	public List<Option> config() {
+		Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3",
+				"fr.imag.adele.apam.tests.services");
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2",
+				"fr.imag.adele.apam.tests.services");
+		mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
+				"fr.imag.adele.apam.tests.services");
+		mapOfRequiredArtifacts.put("apam-pax-samples-iface",
+				"fr.imag.adele.apam.tests.services");
 
-	apam.waitForIt(Constants.CONST_WAIT_TIME);
+		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 
-	List<Instance> pool = auxLookForInstanceOf(
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
-		"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch",
-		"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch");
-
-	auxListInstances("instances existing after the test-");
-
-	Assert.assertTrue(
-		String.format(
-			message,
-			"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
-		pool.size() == 1);
-    }
-
-    @Override
-    public List<Option> config() {
-	Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s3",
-		"fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s2",
-		"fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-impl-s1",
-		"fr.imag.adele.apam.tests.services");
-	mapOfRequiredArtifacts.put("apam-pax-samples-iface",
-		"fr.imag.adele.apam.tests.services");
-
-	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
-
-	addon.add(systemPackage("javax.xml.parsers"));
-	addon.add(0, packApamConflictManager());
-	return addon;
-    }
+		addon.add(systemPackage("javax.xml.parsers"));
+		addon.add(0, packApamConflictManager());
+		return addon;
+	}
 
 }
