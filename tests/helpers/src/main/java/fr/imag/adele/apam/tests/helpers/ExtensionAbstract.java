@@ -91,7 +91,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 	}
 
 	public List<Option> config(Map<String, String> testApps, boolean startObrMan) {
-
+		
 		List<Option> config = new ArrayList<Option>();
 		config.add(packInitialConfig());
 		config.add(packOSGi());
@@ -337,7 +337,10 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 		boolean includeLog = log.exists() && log.isFile();
 
-		CompositeOption initial = new DefaultCompositeOption(frameworkProperty(
+		CompositeOption initial = new DefaultCompositeOption(
+				vmOption("-XX:+UnlockDiagnosticVMOptions"),
+				vmOption("-XX:+UnsyncloadClass"),
+				frameworkProperty(
 				"org.osgi.service.http.port").value("8280"), cleanCaches(),
 				systemProperty("logback.configurationFile").value(logpath),
 				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
@@ -368,9 +371,9 @@ public abstract class ExtensionAbstract extends TestUtils {
 						.artifactId("org.osgi.compendium").version("4.2.0"),
 				mavenBundle().groupId("org.apache.felix")
 						.artifactId("org.apache.felix.bundlerepository")
-						.version("1.6.6"), systemProperty(
-						"ipojo.processing.synchronous").value("false"),
-				frameworkProperty("ipojo.processing.synchronous").value("false"));
+						.version("1.6.6"),
+				frameworkProperty("ipojo.processing.synchronous").value("false"),
+				frameworkProperty("org.apache.felix.ipojo.extender.ThreadPoolSize").value("5"));
 
 		return osgiConfig;
 
