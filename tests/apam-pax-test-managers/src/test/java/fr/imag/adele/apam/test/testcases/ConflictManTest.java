@@ -614,8 +614,10 @@ public class ConflictManTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.tests.services");
 		mapOfRequiredArtifacts.put("apam-pax-samples-iface",
 				"fr.imag.adele.apam.tests.services");
-
-		List<Option> addon = super.config(mapOfRequiredArtifacts, true);
+		mapOfRequiredArtifacts.put("apam-pax-dynaman-grant",
+				"fr.imag.adele.apam.tests.app");
+		
+		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 
 		addon.add(systemPackage("javax.xml.parsers"));
 		addon.add(0, packApamConflictManager());
