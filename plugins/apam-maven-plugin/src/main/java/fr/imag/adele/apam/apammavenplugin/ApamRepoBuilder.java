@@ -41,6 +41,7 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
+import fr.imag.adele.apam.util.ApamMavenProperties;
 
 public class ApamRepoBuilder {
 
@@ -192,6 +193,28 @@ public class ApamRepoBuilder {
 		// Require, fields and constraints
 		printRequire(obrContent, component);
 
+		obrContent.append(BEGIN_P + "maven.groupId" + "' t='" + "string"
+				+ ATT_V + OBRGeneratorMojo.currentProjectGroupId + END_P);
+		obrContent.append(BEGIN_P + "maven.artifactId" + "' t='" + "string"
+				+ ATT_V + OBRGeneratorMojo.currentProjectArtifactId + END_P);
+		obrContent.append(BEGIN_P + "maven.version" + "' t='" + "string"
+				+ ATT_V + OBRGeneratorMojo.currentProjectVersion + END_P);
+		
+		obrContent.append(BEGIN_P + "apam.version" + "' t='" + "version"
+				+ ATT_V + ApamMavenProperties.mavenVersion.replace('-', '.')
+				+ END_P);
+		// TODO : Check to set these properties not as final
+		// generateTypedProperty(obrContent, component, "maven.artifactId",
+		// "string",
+		// OBRGeneratorMojo.currentProjectArtifactId);
+		// generateTypedProperty(obrContent, component, "maven.version",
+		// "string",
+		// OBRGeneratorMojo.currentProjectVersion);
+		//
+
+		// generateTypedProperty(obrContent, component, "apam.version",
+		// "version",
+		// ApamMavenProperties.mavenVersion.replace('-', '.'));
 		generateTypedProperty(obrContent, component, "version", "version",
 				OBRGeneratorMojo.thisBundleVersion);
 		ApamCapability.get(component.getReference()).freeze();
@@ -251,8 +274,8 @@ public class ApamRepoBuilder {
 				CheckObr.checkImplProvide(component, spec.getName(),
 						interfaces, messages, undefinedInterfaces,
 						undefinedMessages);
-			} 
-			
+			}
+
 		}
 	}
 
@@ -270,7 +293,8 @@ public class ApamRepoBuilder {
 		for (PropertyDefinition definition : definitions) {
 			if (CheckObr.checkProperty(component, definition)) {
 				generateTypedProperty(obrContent, component,
-						CST.DEFINITION_PREFIX + definition.getName(), definition.getType(), definition.getDefaultValue());
+						CST.DEFINITION_PREFIX + definition.getName(),
+						definition.getType(), definition.getDefaultValue());
 			}
 		}
 	}
@@ -325,7 +349,7 @@ public class ApamRepoBuilder {
 		for (ImplementationReference<?> res : bundleRequiresImplementations) {
 			generateRequire(obrContent, res.getName(),
 					getVersionExpression(res.getName()));
-		}		
+		}
 	}
 
 	private void generateProperty(StringBuffer obrContent,

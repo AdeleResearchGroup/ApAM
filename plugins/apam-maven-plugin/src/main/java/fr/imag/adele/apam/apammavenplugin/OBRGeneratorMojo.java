@@ -129,7 +129,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 		classpathDescriptor = new ClasspathDescriptor();
 		try {
 
-			getLog().info("Start bundle header manipulation");
+			getLog().info(" TOTO Start bundle header manipulation");
 
 			// The jar to compile
 			List<ComponentDeclaration> components = getComponentFromJar(artifact

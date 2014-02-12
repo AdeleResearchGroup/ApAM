@@ -9,7 +9,9 @@
     and limitations under the License. -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+    xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
     
     <implementation name="HISTMAN" classname="fr.imag.adele.histMan.HistMan">
         <ipojo:provides specifications="fr.imag.adele.apam.DynamicManager" />
@@ -18,9 +20,9 @@
         
         </implementation>
 
-
     <apam-instance name="HISTMAN-Instance" implementation="HISTMAN">
         
     </apam-instance>
+
 
 </apam>
