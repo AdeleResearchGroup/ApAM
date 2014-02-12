@@ -14,8 +14,6 @@
  */
 package fr.imag.adele.apam.impl;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -128,41 +126,22 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	 * This is an special constructor only used for the root type of the system
 	 */
 	private CompositeTypeImpl() throws InvalidConfiguration {
+		
 		super(CST.ROOT_COMPOSITE_TYPE);
 
 		/*
 		 * Look for platform models in directory "load"
 		 */
 		this.models = new HashSet<ManagerModel>();
-		File modelDirectory = new File("conf");
-
-		if (!modelDirectory.exists()) {
-			return;
+		
+		/*
+		 * Look for specified root configuration for managers
+		 */
+		
+		for (Map.Entry<String,URL> managerConfiguration : CST.rootConfiguration.entrySet()) {
+			models.add(new ManagerModel(managerConfiguration.getKey(),managerConfiguration.getValue()));
 		}
 
-		if (!modelDirectory.isDirectory()) {
-			return;
-		}
-
-		for (File modelFile : modelDirectory.listFiles()) {
-			try {
-				String modelFileName = modelFile.getName();
-
-				if (!modelFileName.endsWith(".cfg")) {
-					continue;
-				}
-
-				if (!modelFileName.startsWith(CST.ROOT_COMPOSITE_TYPE)) {
-					continue;
-				}
-
-				String managerName = modelFileName.substring(CST.ROOT_COMPOSITE_TYPE.length() + 1, modelFileName.lastIndexOf(".cfg"));
-				URL modelURL = modelFile.toURI().toURL();
-				models.add(new ManagerModel(managerName, modelURL));
-
-			} catch (MalformedURLException e) {
-			}
-		}
 	}
 
 	/**

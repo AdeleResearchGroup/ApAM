@@ -14,9 +14,12 @@
  */
 package fr.imag.adele.apam.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -159,7 +162,9 @@ public class APAMImpl implements Apam {
 		}
 		failureMan = new FailedResolutionManager();
 		System.err.println("deadlock ?");
-		new CST(this);
+		
+		Map<String,URL> rootConfiguration = parseRootConfiguration(context.getProperty(Apam.EXPECTED_MANAGERS));
+		new CST(this, rootConfiguration);
 
 		for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
 			expectedManagers.add(rootModel.getManagerName());
@@ -189,6 +194,85 @@ public class APAMImpl implements Apam {
 		}
 	}
 
+	/**
+	 * Parse the system root configuration 
+	 */
+	private static final Map<String,URL> parseRootConfiguration(String configuration) {
+		
+		Map<String,URL> rootConfiguration = new HashMap<String, URL>();
+		
+		/*
+		 * Empty configuration
+		 */
+		if (configuration == null)
+			return rootConfiguration;
+		
+		/*
+		 * Parse expected manager configuration
+		 */
+		String managerConfigurations[] = Util.stringArrayTrim(Util.split(configuration));
+		
+		for (String managerConfiguration : managerConfigurations) {
+			String managerName	= managerConfiguration.trim();
+			String managerModel = null;
+			
+			/*
+			 * check if a model was specified
+			 */
+			int indexModel = managerConfiguration.indexOf(':');
+			if (indexModel >= 1) {
+				managerName 	= managerConfiguration.substring(0, indexModel).trim();
+				managerModel 	= managerConfiguration.substring(indexModel+1).trim();
+			}
+
+
+			URL managerModelLocation = null;
+			
+			try {
+				
+				/*
+				 * try to load the specified URL for the manager
+				 */
+				if (managerModel != null) {
+					managerModelLocation = new URL(managerModel);
+				}
+				
+				/*
+				 * If no explicitly specified, try the default file Location
+				 */
+				if (managerModelLocation == null) {
+					
+					File modelDirectory = new File("conf");
+					File modelFile		= new File(modelDirectory,CST.ROOT_COMPOSITE_TYPE+"."+managerName+".cfg");
+					
+					if (modelFile.exists() && ! modelFile.isDirectory()) {
+						managerModelLocation = modelFile.toURI().toURL();
+					}
+
+
+				}
+
+			} catch (MalformedURLException e) {
+			}
+			
+			/*
+			 * ignore invalid definitions
+			 */
+			if (managerName.isEmpty() || managerModelLocation == null) {
+				continue;
+			}
+
+			/*
+			 * register configuration
+			 */
+			rootConfiguration.put(managerName, managerModelLocation);
+			
+		}
+		
+		return rootConfiguration;
+	}
+	
+	
 	/**
 	 * Creates a composite type from the specified parameters
 	 */
