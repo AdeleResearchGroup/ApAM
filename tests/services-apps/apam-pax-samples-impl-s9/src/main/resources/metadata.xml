@@ -8,10 +8,24 @@
 	KIND, either express or implied. See the License for the specific language 
 	governing permissions and limitations under the License. -->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+    <composite name="CompositeSequenceStartwithOK_tct037"
+        singleton="true">
+        <contentMngt>
+            <start implementation="ImplemOK" name="thisOneOK"/>
+            <start implementation="ImplemFailing" name="thisOneFails"/>
+        </contentMngt>
+    </composite>    
+    
+	<composite name="CompositeSequenceStartwithFail_tct038"
+		singleton="true">
+		<contentMngt>
+			<start implementation="ImplemFailing" name="thisOneFails"/>
+			<start implementation="ImplemOK" name="thisOneOK"/>
+		</contentMngt>
+	</composite>
 	
-	<implementation name="MainImplem_tct034"
-	    classname="fr.imag.adele.apam.pax.test.implS8.MainImplem_tct034">
-	</implementation>
+	
 
 </apam>

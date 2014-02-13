@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-tests</artifactId>
 		<version>0.0.6-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>fr.imag.adele.apam.tests.app</groupId>
@@ -14,6 +15,9 @@
 	<name>APAM-Test-App</name>
 
 	<modules>
+		<module>apam-pax-dummy-dependency</module>
+		<module>apam-pax-dummy-osgi-dependency</module>
+
 		<module>apam-pax-samples-iface</module>
 		<module>apam-pax-samples-impl-s1</module>
 		<module>apam-pax-samples-impl-s2</module>
@@ -23,9 +27,13 @@
 		<module>apam-pax-samples-impl-s7</module>
 		<module>apam-pax-samples-spec-s7ext</module>
 		<module>apam-pax-samples-impl-s7ext</module>
-        <module>apam-pax-samples-impl-s8-dep</module>     		
-        <module>apam-pax-samples-impl-s8</module>
-   		
+		<module>apam-pax-samples-impl-s8-dep</module>
+		<module>apam-pax-samples-impl-s8</module>
+		<module>apam-pax-samples-impl-s9-depok</module>
+		<module>apam-pax-samples-impl-s9-depfail</module>
+		<module>apam-pax-samples-impl-s9</module>
+
+
 		<module>apam-pax-distriman-iface</module>
 		<module>apam-pax-distriman-P1</module>
 		<module>apam-pax-distriman-P2</module>
