@@ -42,7 +42,8 @@
 		<module>apam-pax-dynaman-grant</module>
 		<module>apam-pax-eldritch</module>
 		<module>apam-pax-samples</module>
-
+        <module>apam-pax-testversions</module>
+		
 	</modules>
 
 </project>
