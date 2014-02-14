@@ -9,7 +9,7 @@
   <packaging>pom</packaging>
   <modules>
   	<module>shell</module>
-  	<module>dependencies-distriman</module>
+	<!--  	<module>dependencies-distriman</module> -->
   	<module>apam-gogo-shell</module>
       	<!--<module>jmx</module>-->
   </modules>
