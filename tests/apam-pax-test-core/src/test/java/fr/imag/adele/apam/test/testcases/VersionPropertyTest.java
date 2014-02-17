@@ -68,9 +68,22 @@ public class VersionPropertyTest extends ExtensionAbstract {
 		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 		return addon;
 	}
-
+	
 	@Test
-	public void getPropertyVersion_tct039()
+	public void getNewPredefinedProperties_tct039()
+			throws InvalidSyntaxException {
+
+		Implementation server1 = waitForImplByName(null, "implem-server");
+		System.err.println("properties, "+server1.getImplDeclaration().getProperties());
+		Assert.assertNotNull("server v1 must exists", server1);
+		Assert.assertNotNull("Property maven.groupId must exist ",server1.getPropertyObject("maven.groupId"));
+		Assert.assertNotNull("Property maven.artifactId must exist ",server1.getPropertyObject("maven.artifactId"));
+		Assert.assertNotNull("Property maven.version must exist ",server1.getPropertyObject("maven.version"));
+		Assert.assertNotNull("Property apam.version must exist ",server1.getPropertyObject("apam.version"));
+	}
+	
+	@Test
+	public void getPropertyVersion_tct040()
 			throws InvalidSyntaxException {
 
 		Implementation server1 = waitForImplByName(null, "implem-server");
