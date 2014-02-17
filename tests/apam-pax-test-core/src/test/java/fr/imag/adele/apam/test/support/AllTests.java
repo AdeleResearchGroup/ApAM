@@ -27,12 +27,13 @@ import fr.imag.adele.apam.test.testcases.MessageTest;
 import fr.imag.adele.apam.test.testcases.MetaSubstitutionTest;
 import fr.imag.adele.apam.test.testcases.PropertyTest;
 import fr.imag.adele.apam.test.testcases.RelationTest;
+import fr.imag.adele.apam.test.testcases.VersionPropertyTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ CompositeTest.class, ConstraintTest.class,
 	InjectionInstantiationTest.class, PropertyTest.class,
 	DynamanTest.class, MessageTest.class, FailureTest.class,
-	MetaSubstitutionTest.class, RelationTest.class })
+	MetaSubstitutionTest.class, RelationTest.class, VersionPropertyTest.class })
 public class AllTests {
 
 }
