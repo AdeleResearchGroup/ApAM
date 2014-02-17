@@ -396,8 +396,8 @@ public class RelToResolveImpl implements RelToResolve {
 	 * return the component corresponding to the sourceKind.
 	 */
 	@Override
-	public Component getRelSource(Component base) {
-		Component source = base;
+	public Component getRelSource() {
+		Component source = linkSource;
 		while (source != null) {
 			if (source.getKind() == getSourceKind()) {
 				return source;

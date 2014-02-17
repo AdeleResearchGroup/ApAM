@@ -31,10 +31,10 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.RelationDefinition;
-import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -318,9 +318,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	}
 
 	@Override
-	public ManagerModel getModel(String managerName) {
+	public ManagerModel getModel(ContextualManager manager) {
 		for (ManagerModel model : models) {
-			if (model.getManagerName().equals(managerName)) {
+			if (model.getManagerName().equals(manager.getName())) {
 				return model;
 			}
 		}
@@ -367,11 +367,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * registered, so they must be cautious when manipulating the state and
 		 * navigating the hierarchy.
 		 */
-		for (ManagerModel managerModel : models) {
-			RelationManager manager = ApamManagers.getManager(managerModel.getManagerName());
-			if (manager != null) {
-				manager.newComposite(managerModel, this);
-			}
+		for (ContextualManager manager : ApamManagers.getContextualManagers()) {
+				manager.initializeContext(this);
 		}
 
 		/*

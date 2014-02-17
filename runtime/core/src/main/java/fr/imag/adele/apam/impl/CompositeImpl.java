@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -238,8 +239,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	}
 
 	@Override
-	public ManagerModel getModel(String name) {
-		return getCompType().getModel(name);
+	public ManagerModel getModel(ContextualManager manager) {
+		return getCompType().getModel(manager);
 	}
 
 	@Override

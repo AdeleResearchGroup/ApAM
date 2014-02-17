@@ -21,13 +21,14 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
-public class HistMan implements PropertyManager, DynamicManager {
+public class HistMan implements ContextualManager, PropertyManager, DynamicManager {
 
 	public static class HistManData {
 		public String histURL;
@@ -114,6 +115,71 @@ public class HistMan implements PropertyManager, DynamicManager {
 	public HistMan(BundleContext context) {
 		histDbURLs = new HashMap<String, String>();
 	}
+
+	@Override
+	public void initializeContext(CompositeType context) {
+		
+		ManagerModel model = context.getModel(this);
+		
+		logger.debug("HISTMAN, newComposite(ManagerModel model = "
+					+(model==null?"null":model.getManagerName())
+					+ "CompositeType compositeType = "
+					+(context==null?"null":context.getName()));
+
+		if (model == null) { // model is root
+			model = CompositeTypeImpl.getRootCompositeType().getModel(this);
+		}
+
+		
+		HistManData data =new HistManData(loadProperties(model));
+
+		try {
+
+			Builder options = new MongoClientOptions.Builder();
+
+			options.connectTimeout(data.histDBTimeout);
+
+			if(mongoClient==null) {
+				mongoClient = new MongoClient(data.histURL, options.build());
+			}
+
+			logger.info("trying to connect with database {} in host {}",
+					data.histDBName, data.histURL);
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			db = mongoClient.getDB(data.histDBName);
+
+		} catch (Exception e) {
+			logger.error("{} is inactive, it was unable to find the DB in {}",
+					this.getName(), data.histURL);
+		}
+
+		histDbURLs.put(context.getName(), data.histURL);
+
+		try {
+
+			// force connection to be established
+			mongoClient.getDatabaseNames();
+
+			/*
+			 * if attribute dropComection is true, drop all collections
+			 */
+			if (data.dropCollections.equals("true")) {
+				db.getCollection(Entities).drop();
+				db.getCollection(ChangedAttributes).drop();
+				db.getCollection(Links).drop();
+			}
+
+		} catch (MongoException e) {
+			logger.error("no Mongo Database at URL {} name {}", model.getURL(),
+					data.histDBName);
+			stop();
+		}
+
+	}
+
 
 	@Override
 	public void addedComponent(Component comp) {
@@ -247,32 +313,10 @@ public class HistMan implements PropertyManager, DynamicManager {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-
-		if (obj instanceof HistMan) {
-
-			return this.getName().equals(((HistMan) obj).getName());
-
-		}
-
-		return false;
-
-	}
-
-	@Override
 	public String getName() {
 		return CST.HISTMAN;
 	}
 
-	@Override
-	public int getPriority() {
-		return 10;
-	}
-
-	@Override
-	public int hashCode() {
-		return (this.getName() == null ? 0 : this.getName().hashCode());
-	}
 
 	private Properties addDefaultProperties(String modelName, Properties prop_model) {
 		if (prop_model == null) {
@@ -326,68 +370,6 @@ public class HistMan implements PropertyManager, DynamicManager {
 				return addDefaultProperties(model.getManagerName(), null);
 			}
 		}
-	}
-
-	@Override
-	public void newComposite(ManagerModel model, CompositeType compositeType) {
-		logger.debug("HISTMAN, newComposite(ManagerModel model = "
-					+(model==null?"null":model.getManagerName())
-					+ "CompositeType compositeType = "
-					+(compositeType==null?"null":compositeType.getName()));
-
-		if (model == null) { // model is root
-			model = CompositeTypeImpl.getRootCompositeType().getModel(
-					this.getName());
-		}
-
-		
-		HistManData data =new HistManData(loadProperties(model));
-
-		try {
-
-			Builder options = new MongoClientOptions.Builder();
-
-			options.connectTimeout(data.histDBTimeout);
-
-			if(mongoClient==null) {
-				mongoClient = new MongoClient(data.histURL, options.build());
-			}
-
-			logger.info("trying to connect with database {} in host {}",
-					data.histDBName, data.histURL);
-
-			// force connection to be established
-			mongoClient.getDatabaseNames();
-
-			db = mongoClient.getDB(data.histDBName);
-
-		} catch (Exception e) {
-			logger.error("{} is inactive, it was unable to find the DB in {}",
-					this.getName(), data.histURL);
-		}
-
-		histDbURLs.put(compositeType.getName(), data.histURL);
-
-		try {
-
-			// force connection to be established
-			mongoClient.getDatabaseNames();
-
-			/*
-			 * if attribute dropComection is true, drop all collections
-			 */
-			if (data.dropCollections.equals("true")) {
-				db.getCollection(Entities).drop();
-				db.getCollection(ChangedAttributes).drop();
-				db.getCollection(Links).drop();
-			}
-
-		} catch (MongoException e) {
-			logger.error("no Mongo Database at URL {} name {}", model.getURL(),
-					data.histDBName);
-			stop();
-		}
-
 	}
 
 	@Override

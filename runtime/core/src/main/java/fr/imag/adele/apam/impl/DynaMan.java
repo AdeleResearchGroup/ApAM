@@ -25,11 +25,9 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.declarations.CreationPolicy;
@@ -209,19 +207,6 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	@Override
 	public String getName() {
 		return CST.DYNAMAN;
-	}
-
-	@Override
-	public int getPriority() {
-		return 0;
-	}
-
-	/**
-	 * Dynaman does not have its own model, all the information is in the
-	 * component declaration.
-	 */
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
 	}
 
 	public void ownershipChanged(Instance instance) {

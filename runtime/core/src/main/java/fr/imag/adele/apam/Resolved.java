@@ -17,7 +17,7 @@ package fr.imag.adele.apam;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
+/**
  * This object is used to return the result of a resolution, provided a relation.
  * 
  * If the relation is a singleton, the result (if found) must be in singletonResolved, 

@@ -38,6 +38,8 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
+import fr.imag.adele.apam.DeploymentManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -55,7 +57,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
-public class OBRMan implements RelationManager, OBRManCommand {
+public class OBRMan implements ContextualManager, DeploymentManager, RelationManager, OBRManCommand {
 
 	// Link compositeType with it instance of obrManager
 	private final Map<String, OBRManager> obrManagers;
@@ -102,8 +104,12 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 
 	@Override
-	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
-		if (bundleSymbolicName == null || componentName == null) {
+	public DeploymentManager.Unit getDeploymentUnit(CompositeType compoType, Implementation component) {
+		
+		Bundle bundle 			= component.getApformComponent().getBundle();
+		String componentName 	= component.getName();
+
+		if (bundle.getSymbolicName() == null || componentName == null) {
 			return null;
 		}
 
@@ -113,9 +119,48 @@ public class OBRMan implements RelationManager, OBRManCommand {
 			return null;
 		}
 
-		return obrManager.lookForBundle(bundleSymbolicName, componentName);
+		Selected componentCapability = obrManager.lookForBundle(bundle.getSymbolicName(), componentName);
+		return componentCapability != null ? new DeployedComponent(compoType, component,componentCapability,logger) : null;
 	}
 
+	/**
+	 * This represents a component that has been deployed in the system by obrman, and that can be
+	 * updated from the repository
+	 */
+	private static class DeployedComponent implements DeploymentManager.Unit {
+
+		private final Logger 		logger;
+		
+		private final CompositeType	context;
+		private final Bundle 		componentBundle;
+		private final Selected		componentCapability;
+		
+		
+		public DeployedComponent(CompositeType context, Implementation component, Selected capability, Logger logger) {
+			
+			this.context				= context;
+			this.componentBundle		= component.getApformComponent().getBundle();
+			this.componentCapability	= capability;
+			
+			this.logger					= logger;
+		}
+		
+		
+		@Override
+		public Set<String> getComponents() {
+			return componentCapability.getComponents();
+		}
+
+		@Override
+		public void update() throws Exception {
+
+			logger.info("Updating component " + componentCapability.getComponentName() + " in composite " + context + ".\n     From bundle: " + componentCapability.getBundelURL());
+			componentBundle.update(componentCapability.getBundelURL().openStream());
+			
+		}
+		
+	}
+	
 	private Component findByName(Component source, RelToResolve rel) {
 
 		CompositeType compoType = null;
@@ -174,15 +219,10 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		return obrManagers.get(compositeTypeName);
 	}
 
-	@Override
-	public int getPriority() {
-		return 3;
-	}
 
-	// at the end
 	@Override
-	public void getSelectionPath(Component client, RelToResolve dep, List<RelationManager> involved) {
-		involved.add(involved.size(), this);
+	public boolean beginResolving(RelToResolve dep) {
+		return true;
 	}
 
 	/**
@@ -273,7 +313,10 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 	@Override
-	public void newComposite(ManagerModel model, CompositeType compositeType) {
+	public void initializeContext(CompositeType compositeType) {
+		
+		ManagerModel model = compositeType.getModel(this);
+		
 		OBRManager obrManager;
 		if (model == null) { // if no model for the compositeType, set the root
 			// composite model
@@ -291,11 +334,6 @@ public class OBRMan implements RelationManager, OBRManCommand {
 			}
 		}
 		obrManagers.put(compositeType.getName(), obrManager);
-	}
-
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-		// Do not care
 	}
 
 	// interface manager
@@ -329,8 +367,10 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	}
 
 	@Override
-	public Resolved<?> resolveRelation(Component client, RelToResolve dep) {
-		Component ret = null;
+	public Resolved<?> resolve(RelToResolve dep) {
+		
+		Component client	= dep.getLinkSource(); 
+		Component ret 		= null;
 
 		// It is either a resolution (spec -> instance) or a resource reference
 		// (interface or message)
@@ -438,7 +478,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	public void start() {
 		// to load the initial OBR before to register
 		// newComposite(null, CompositeTypeImpl.getRootCompositeType()) ;
-		ApamManagers.addRelationManager(this, 3);
+		ApamManagers.addRelationManager(this,Priority.HIGH);
 		// logger.info("[OBRMAN] started");
 	}
 

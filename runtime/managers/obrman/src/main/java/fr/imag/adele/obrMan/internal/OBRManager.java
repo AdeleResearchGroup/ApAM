@@ -39,13 +39,12 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.RelToResolve;
-import fr.imag.adele.apam.RelationManager.ComponentBundle;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
 
-	public class Selected implements ComponentBundle {
+	public class Selected  {
 		Resource resource;
 		Capability capability;
 		public OBRManager obrManager;
@@ -70,7 +69,16 @@ public class OBRManager {
 			// (capability, CST.COMPONENT_TYPE) ;
 		}
 
-		@Override
+		public Set<String> getComponents() {
+			Set<String> components = new HashSet<String>();
+			for (Capability aCap : resource.getCapabilities()) {
+				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)) {
+					components.add(getAttributeInCapability(aCap, CST.NAME));
+				}
+			}
+			return components;
+		}
+
 		public URL getBundelURL() {
 			URL url = null;
 			try {
@@ -90,16 +98,6 @@ public class OBRManager {
 			return this.selectedComponentName;
 		}
 
-		@Override
-		public Set<String> getComponents() {
-			Set<String> components = new HashSet<String>();
-			for (Capability aCap : resource.getCapabilities()) {
-				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)) {
-					components.add(getAttributeInCapability(aCap, CST.NAME));
-				}
-			}
-			return components;
-		}
 
 		public Set<String> getInstancesOfSelectedImpl() {
 			Set<String> components = new HashSet<String>();
@@ -138,6 +136,7 @@ public class OBRManager {
 		public Resource getResource() {
 			return resource;
 		}
+
 	}
 
 	private Resolver resolver;

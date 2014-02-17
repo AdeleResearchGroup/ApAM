@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.distriman.Distriman;
 import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
@@ -59,7 +60,7 @@ public class LocalMachine {
 
 	private MyServlet() {
 	    // Get ApamMan in order to resolve the dependancy
-	    apamMan = ApamManagers.getManager(CST.APAMMAN);
+	    apamMan = ((APAMImpl)CST.apam).getApamMan();
 	}
 
 	@Override

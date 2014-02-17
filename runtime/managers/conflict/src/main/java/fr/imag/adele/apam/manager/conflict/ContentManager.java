@@ -32,7 +32,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelToResolve;
-import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
@@ -42,6 +41,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.FailedResolutionManager;
 import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.impl.PendingRequest;
 
@@ -76,12 +76,13 @@ public class ContentManager {
 		return false;
 	}
 
+	
 	/**
 	 * verifies if the requested resolution matches the specified grant
 	 */
-	private static boolean match(GrantDeclaration grant, Component source, RelationDefinition relation) {
-		return 	relation.getName().equals(grant.getRelation().getIdentifier()) && 
-				match(grant, source);
+	private static boolean match(GrantDeclaration grant, PendingRequest request) {
+		return 	request.getRelation().getName().equals(grant.getRelation().getIdentifier()) && 
+				match(grant, request.getSource());
 	}
 
 	/**
@@ -92,12 +93,6 @@ public class ContentManager {
 				match(grant, link.getSource());
 	}
 
-	/**
-	 * verifies if the requested resolution matches the specified grant
-	 */
-	private static boolean match(GrantDeclaration grant, PendingRequest request) {
-		return match(grant, request.getSource(), request.getRelation());
-	}
 
 
 	/**
@@ -362,21 +357,27 @@ public class ContentManager {
 		/*
 		 * Wake pending request that could be satisfied by the new grant
 		 */
-		for (PendingRequest request : manager.getFailureManager().getWaitingRequests()) {
-
-			
-			/*
-			 * If there is a new active grant or no grant, wake up matching request
-			 */
-			if (grant != null && match(grant, request)) {
-				if (request.isSatisfiedBy(ownedInstance))
-					request.resolve();
-			}
-
-		}
+		manager.getFailureManager().resolveWaitingRequests(new GrantScope(grant), ownedInstance);
 
 	}
 
+	/**
+	 * A condition to wakeup only the subset of waiting request concerned by a grant change
+	 */
+	private static class GrantScope implements FailedResolutionManager.Scope {
+
+		private final GrantDeclaration	grant;
+		
+		public GrantScope(GrantDeclaration grant) {
+			this.grant = grant;
+		}
+		
+		@Override
+		public boolean concerns(PendingRequest request) {
+			return grant != null && ContentManager.match(grant, request);
+		}
+		
+	}
 	/**
 	 * Verifies all the effects of a property change in the contained instances
 	 * 
@@ -633,11 +634,11 @@ public class ContentManager {
 	 * Verify if a resolution request has access granted, and update the resolution constraints
 	 * accordingly
 	 */
-	public void addGrantConstraints(Component client, RelToResolve relation) {
+	public void addGrantConstraints(RelToResolve relation) {
 
 		PendingRequest request = PendingRequest.isRetry() ? 
 				PendingRequest.current() : 
-				new PendingRequest(CST.apamResolver, client,relation.getRelationDefinition());
+				new PendingRequest(CST.apamResolver,relation.getLinkSource(),relation.getRelationDefinition());
 
 		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
 
