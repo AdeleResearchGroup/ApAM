@@ -115,6 +115,37 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 	public Apam getApam() {
 		return apam;
 	}
+	
+	
+	/**
+	 * Loads the repositories associated with the given context
+	 */
+	public List<Repository> loadRepositories(OBRManager manager) {
+		List<Repository> result = new ArrayList<Repository>();
+		
+		for (URL repositoryLocation : manager.getModel().getRepositoryLocations()) {
+			try {
+				result.add(repoAdmin.getHelper().repository(repositoryLocation));
+			} catch (Exception e) {
+				logger.error("Composite "+manager.getContext().getName(),"Error when loading repository  :" + repositoryLocation, e);
+			}
+		}
+		
+		return result;
+	}
+
+	/**
+	 * Get a resolver that allows to install bundles from resources in the given context
+	 */
+	public Resolver getResolver(OBRManager manager) {
+		
+		List<Repository> repositories = loadRepositories(manager);
+		repositories.add(0,repoAdmin.getSystemRepository());
+		repositories.add(0,repoAdmin.getLocalRepository());
+		
+		return repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
+	}
+
 	/**
 	 * Updates the list of managers associated with a new context
 	 */
@@ -342,34 +373,6 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		
 	}
 	
-	/**
-	 * Loads the repositories associated with the given context
-	 */
-	public List<Repository> loadRepositories(OBRManager manager) {
-		List<Repository> result = new ArrayList<Repository>();
-		
-		for (URL repositoryLocation : manager.getModel().getRepositoryLocations()) {
-			try {
-				result.add(repoAdmin.getHelper().repository(repositoryLocation));
-			} catch (Exception e) {
-				logger.error("Composite "+manager.getContext().getName(),"Error when loading repository  :" + repositoryLocation, e);
-			}
-		}
-		
-		return result;
-	}
-
-	/**
-	 * Get a resolver that allows to install bundles from resources in the given context
-	 */
-	public Resolver getResolver(OBRManager manager) {
-		
-		List<Repository> repositories = loadRepositories(manager);
-		repositories.add(0,repoAdmin.getSystemRepository());
-		repositories.add(0,repoAdmin.getLocalRepository());
-		
-		return repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
-	}
 
 	/**
 	 * Deploy and return the component, if possible. Null if failed. if : the
