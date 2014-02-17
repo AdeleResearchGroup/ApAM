@@ -617,7 +617,7 @@ public class ConflictManTest extends ExtensionAbstract {
 		mapOfRequiredArtifacts.put("apam-pax-dynaman-grant",
 				"fr.imag.adele.apam.tests.app");
 		
-		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
+		List<Option> addon = super.config(mapOfRequiredArtifacts, true);
 
 		addon.add(systemPackage("javax.xml.parsers"));
 		addon.add(0, packApamConflictManager());

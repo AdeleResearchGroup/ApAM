@@ -315,7 +315,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Distriman -->
+        <!-- Distriman
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>DISTRIMAN</artifactId>
@@ -335,6 +335,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -368,12 +370,12 @@
         <!-- <dependency> <groupId>org.ow2.chameleon.commons.cxf</groupId> 
             <artifactId>cxf-bundle-minimal</artifactId> <version>2.5.2-0002</version> 
             </dependency> -->
-
+<!--
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-bundle-minimal</artifactId>
-            <version>2.5.2</version>
-        </dependency>
+            <version>[2.5.2,)</version>
+        </dependency> -->
 
         <dependency>
             <groupId>com.google.guava</groupId>

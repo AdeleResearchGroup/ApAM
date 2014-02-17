@@ -175,8 +175,8 @@
 </node>
 </node>
 <node CREATED="1376402674636" ID="ID_667210227" MODIFIED="1376402682145" TEXT="external">
-<node CREATED="1376402682145" ID="ID_520303563" MODIFIED="1376402689064" TEXT="tct023">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1376402682145" ID="ID_520303563" MODIFIED="1392307595837" TEXT="tct023">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1376402698138" ID="ID_282365848" MODIFIED="1376402705028" TEXT="internal">
@@ -185,8 +185,8 @@
 </node>
 </node>
 <node CREATED="1376404435679" ID="ID_1375990728" MODIFIED="1376404455147" TEXT="behavior when values defined in constructor">
-<node CREATED="1376404455147" ID="ID_1200361768" MODIFIED="1376404462046" TEXT="tct_025">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1376404455147" ID="ID_1200361768" MODIFIED="1392307601423" TEXT="tct_025">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -194,14 +194,14 @@
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1378998304466" ID="ID_715000360" MODIFIED="1378998362449" TEXT="definition of properties at spec level - tct026 (in progress)">
-<icon BUILTIN="help"/>
+<node CREATED="1378998304466" ID="ID_715000360" MODIFIED="1392307577227" TEXT="definition of properties at spec level - tct026 (in progress)">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1378998304466" ID="ID_1120594267" MODIFIED="1378998409653" TEXT="definition of properties at implem level - tct027 (in progress // bugs in the core)">
-<icon BUILTIN="help"/>
+<node CREATED="1378998304466" ID="ID_1120594267" MODIFIED="1392307582390" TEXT="definition of properties at implem level - tct027 (in progress // bugs in the core)">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1378998304466" ID="ID_1555166557" MODIFIED="1378998417087" TEXT="definition of properties at instance level - tct028 (in progress // bugs in the core)">
-<icon BUILTIN="help"/>
+<node CREATED="1378998304466" ID="ID_1555166557" MODIFIED="1392307589129" TEXT="definition of properties at instance level - tct028 (in progress // bugs in the core)">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1391004798382" ID="ID_502470009" MODIFIED="1391004804191" TEXT="testSettingAPropertySettedInGroup_tct036">
 <icon BUILTIN="button_ok"/>
@@ -221,8 +221,8 @@
 <node CREATED="1390917276065" ID="ID_7985505" MODIFIED="1391013417488" TEXT="testPropertyInheritanceFloat_tct032">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1390917292522" ID="ID_1441023794" MODIFIED="1390917296642" TEXT="testPropertyCompareFloat_tct033">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1390917292522" ID="ID_1441023794" MODIFIED="1392307606979" TEXT="testPropertyCompareFloat_tct033">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -438,8 +438,17 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1390999290420" ID="ID_17867007" MODIFIED="1390999330666" TEXT="compositeWithMainImplemUsingOBR_tct035">
+<node CREATED="1390999290420" ID="ID_17867007" MODIFIED="1392220469286" TEXT="compositeWithMainImplemUsingOBR_tct035">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1392220496745" ID="ID_345204637" MODIFIED="1392220532568" TEXT="Should not fail to start other implemen in a composite if one fails tct037">
 <icon BUILTIN="button_cancel"/>
+<node CREATED="1392307339313" ID="ID_1263623328" MODIFIED="1392307346804" TEXT="tct037">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1392307350695" ID="ID_1917365969" MODIFIED="1392307358409" TEXT="tct038">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>
@@ -677,19 +686,19 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1375976342464" TEXT="force release when state does not match">
-<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1375976357365" TEXT="tct015">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1375976322825" ID="ID_1074514911" MODIFIED="1392307625872" TEXT="force release when state does not match">
+<node CREATED="1375976342465" ID="ID_1304509575" MODIFIED="1392307630024" TEXT="tct015">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375976383370" ID="ID_1796401749" MODIFIED="1375976396456" TEXT="grant to external implementation">
-<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1375976404581" TEXT="tct016">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1375976396457" ID="ID_1642370360" MODIFIED="1392307635027" TEXT="tct016">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1375976429563" ID="ID_277859218" MODIFIED="1375976442834" TEXT="grant when using resolve=exist">
-<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1375976449612" TEXT="tct017">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1375976442836" ID="ID_1393971376" MODIFIED="1392307647585" TEXT="tct017">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>

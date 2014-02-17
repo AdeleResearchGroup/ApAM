@@ -18,13 +18,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import fr.imag.adele.apam.test.testcases.DistriManTest;
+//import fr.imag.adele.apam.test.testcases.DistriManTest;
 import fr.imag.adele.apam.test.testcases.ConflictManTest;
 import fr.imag.adele.apam.test.testcases.OBRMANTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
-	ConflictManTest.class, OBRMANTest.class, DistriManTest.class })
+	ConflictManTest.class, OBRMANTest.class/*, DistriManTest.class*/ })
 public class AllTests {
 
 }
