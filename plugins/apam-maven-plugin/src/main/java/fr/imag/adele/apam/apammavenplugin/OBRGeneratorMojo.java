@@ -19,14 +19,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
+import org.apache.felix.ipojo.manipulator.store.JarFileResourceStore;
+import org.apache.felix.ipojo.manipulator.store.ManifestBuilder;
+import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.parser.ParseException;
@@ -38,7 +46,15 @@ import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import fr.imag.adele.apam.apammavenplugin.helpers.EnrichElementsHelper;
+import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.util.ApamMavenProperties;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreParser;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
@@ -120,20 +136,25 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	@Override
 	public void execute() throws MojoExecutionException {
 
-		super.execute();
 		currentProjectArtifactId = project.getArtifact().getArtifactId();
 		currentProjectGroupId = project.getArtifact().getGroupId();
 		currentProjectVersion = project.getArtifact().getVersion();
 
 		thisBundleVersion = currentProjectVersion.replace('-', '.');
 		classpathDescriptor = new ClasspathDescriptor();
+
 		try {
 
-			getLog().info(" TOTO Start bundle header manipulation");
+			super.execute();
+
+			JarHelper myHelper = new JarHelper(artifact.getFile(), this);
+
+			getLog().info(" ApAM bundle header manipulation");
 
 			// The jar to compile
-			List<ComponentDeclaration> components = getComponentFromJar(artifact
-					.getFile());
+			List<ComponentDeclaration> components = myHelper
+					.getApAMComponents();
+			myHelper.getRootiPojoElement();
 
 			if (components.isEmpty()) {
 				throw new InvalidApamMetadataException();
@@ -151,21 +172,27 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			versionRange.clear();
 
 			/*
-			 * loop dependencies
+			 * loop dependencies (from maven project, these are not all ApAM
+			 * components)
 			 */
 
 			for (Object artifact : project.getArtifacts()) {
 				if (artifact instanceof Artifact) {
 
 					Artifact relation = (Artifact) artifact;
+					System.err.println("relation artefact : "
+							+ relation.getArtifactId());
 
 					VersionRange range = relation.getVersionRange();
 
 					OBRGeneratorMojo.versionRange.put(relation.getArtifactId(),
 							range);
 
-					List<ComponentDeclaration> subcomponents = getComponentFromJar(((Artifact) artifact)
-							.getFile());
+					// JarHelper helper = new JarHelper(this);
+
+					List<ComponentDeclaration> subcomponents = new JarHelper(
+							((Artifact) artifact).getFile(), this)
+							.getApAMComponents();
 
 					if (subcomponents != null)
 						dependencies.addAll(subcomponents);
@@ -181,8 +208,9 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 						"Metadata Apam compilation failed.");
 			}
 			if (parsingFailed) {
-				throw new MojoExecutionException("Invalid xml Apam Metadata syntax");
-//				error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
+				throw new MojoExecutionException(
+						"Invalid xml Apam Metadata syntax");
+				// error(Severity.ERROR, "Invalid xml Apam Metadata syntax");
 			}
 
 			OutputStream obr;
@@ -212,7 +240,13 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			obr = new FileOutputStream(obrFile);
 			obr.write(obrContent.toString().getBytes());
 			obr.flush();
+
+			// Map<String, Element> map =
+			// ObrAdditionalProperties.parseFile(obrFile,getLog());
+			// System.err.println("Obr file : " + obrFile.getAbsolutePath());
 			obr.close();
+			
+			updateJarFile(myHelper);
 
 		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
@@ -223,63 +257,91 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
 
-	private List<ComponentDeclaration> getComponentFromJar(File jar)
-			throws InvalidApamMetadataException {
-
-		try {
-			JarFile jarFile = new JarFile(jar);
-			Manifest manifest = jarFile.getManifest();
-
-			if (manifest == null) {
-				jarFile.close();
-				return null;
-			}
-
-			// manifest.getAttributes("").
-			Attributes iPOJOmetadata = manifest.getMainAttributes();
-			String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
-
-			iPOJOmetadata = null;
-			manifest = null;
-			jarFile.close();
-			if (ipojoMetadata == null) {
-				String message = " No Apam metadata for " + jar;
-				getLog().error(message);
-				return Collections.emptyList();
-
-			}
-
-			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
-			Element root = ManifestMetadataParser
-					.parseHeaderMetadata(ipojoMetadata);
-
-			CoreParser parser = new CoreMetadataParser(root);
-			List<ComponentDeclaration> ret = parser.getDeclarations(this);
-
-			String contains = "    contains components: ";
-			for (ComponentDeclaration comp : ret) {
-				contains += comp.getName() + " ";
-			}
-			getLog().info(contains);
-			return ret;
-
-		} catch (ParseException e) {
-			String message = "Parsing manifest metadata for " + jar
-					+ " - FAILED ";
-			getLog().error(message);
-			error(Severity.ERROR, message);
-		} catch (IOException e) {
-			getLog().error(e.getMessage());
-			error(Severity.ERROR, e.getMessage());
-		}
-
-		return Collections.emptyList();
-	}
-
 	@Override
 	public void error(Severity severity, String message) {
 		logger.error("error parsing component declaration : " + message);
 		parsingFailed = true;
+	}
+
+	public void updateJarFile(JarHelper myHelper) throws MojoExecutionException {
+		try {
+			File newOutput = new File(baseDirectory.getAbsolutePath()
+					+ File.separator + "target" + File.separator + "_temp.jar");
+			if (newOutput.exists()) {
+				newOutput.delete();
+			}
+
+			JarFileResourceStore store = new JarFileResourceStore(
+					myHelper.getJarFile(), newOutput);
+			store.setManifest(myHelper.getManifest());
+
+			DefaultManifestBuilder builder = new DefaultManifestBuilder();
+			builder.setMetadataRenderer(new MetadataRenderer());
+
+			Element metadata = myHelper.getRootiPojoElement();
+			Set<PropertyDefinition> addedDefinitions = new HashSet<PropertyDefinition>();
+			Map<String, String> addedProperties = new HashMap<String, String>();
+
+			additionalProperties(addedDefinitions,addedProperties);
+			
+
+			EnrichElementsHelper.addPropertiesToChildrenApAMComponents(
+					metadata, addedDefinitions, addedProperties);
+
+			@SuppressWarnings("unchecked")
+			Collection<Element> myCollec = Arrays
+					.asList(metadata.getElements());
+
+			builder.addMetada(myCollec);
+			store.setManifestBuilder(builder);
+			store.close();
+
+			artifact.getFile().delete();
+
+			newOutput.renameTo(artifact.getFile());
+		} catch (Exception e) {
+			getLog().error(e.getMessage(), e);
+			error(Severity.ERROR, e.getMessage());
+			throw new MojoExecutionException(e.getMessage());
+		}
+
+	}
+	
+	private void additionalProperties(Set<PropertyDefinition> addedDefinitions,
+			Map<String, String> addedProperties) {
+		
+		//TODO Ugly hardcoded way to add built properties, check another way
+		
+		addedDefinitions.add(new PropertyDefinition(
+				new SpecificationDeclaration("Dummy"), "apam.version",
+				"version", null, null, null, null));
+		addedProperties.put("apam.version",
+				ApamMavenProperties.mavenVersion.replace('-', '.'));
+
+		addedDefinitions.add(new PropertyDefinition(
+				new SpecificationDeclaration("Dummy"), "maven.groupId",
+				"string", null, null, null, null));
+		addedProperties.put("maven.groupId",
+				OBRGeneratorMojo.currentProjectGroupId);
+		
+		addedDefinitions.add(new PropertyDefinition(
+				new SpecificationDeclaration("Dummy"), "maven.artifactId",
+				"string", null, null, null, null));
+		addedProperties.put("maven.artifactId",
+				OBRGeneratorMojo.currentProjectArtifactId);
+		
+		addedDefinitions.add(new PropertyDefinition(
+				new SpecificationDeclaration("Dummy"), "maven.version",
+				"string", null, null, null, null));
+		addedProperties.put("maven.version",
+				OBRGeneratorMojo.currentProjectVersion);
+		
+		addedDefinitions.add(new PropertyDefinition(
+				new SpecificationDeclaration("Dummy"), "version",
+				"version", null, null, null, null));
+		addedProperties.put("version",
+				OBRGeneratorMojo.thisBundleVersion);			
+		
 	}
 
 }

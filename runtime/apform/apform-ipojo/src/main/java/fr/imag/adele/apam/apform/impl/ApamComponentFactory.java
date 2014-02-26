@@ -207,7 +207,6 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
 
 			CoreParser parser = new CoreMetadataParser(root, this);
 			List<ComponentDeclaration> declarations = parser.getDeclarations(this);
-
 			this.declaration = declarations.get(0);
 
 		} catch (Exception e) {
