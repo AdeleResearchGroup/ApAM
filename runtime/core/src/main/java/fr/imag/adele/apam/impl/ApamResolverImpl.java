@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -546,9 +548,11 @@ public class ApamResolverImpl implements ApamResolver {
 		 */
 		Component source = relToResolve.getLinkSource();
 		// RelToResolve relToResolve = new RelToResolveImpl (source, relation);
-		List<RelationManager> externalPath = new ArrayList<RelationManager>();
+		SortedSet<RelationManager> externalManagers = new TreeSet<RelationManager>(ApamManagers.getRelationManagers().comparator());
+		
 		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
-			relationManager.getSelectionPath(source, relToResolve, externalPath);
+			if (relationManager.beginResolving(relToResolve))
+				externalManagers.add(relationManager);
 		}
 		// Compute filters once for all, and make it final
 		((RelToResolveImpl) relToResolve).computeFilters();
@@ -574,7 +578,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		boolean resolveExternal = (relToResolve.getResolve() == ResolvePolicy.EXTERNAL);
 		if (resolveExternal) {
-			selectionPath.addAll(externalPath);
+			selectionPath.addAll(externalManagers);
 		}
 
 		if (!relToResolve.isRelation()) { // It is a find
@@ -601,7 +605,7 @@ public class ApamResolverImpl implements ApamResolver {
 			// logger.debug(manager.getName() + "  ");
 			mess += manager.getName() + "  ";
 			// Does the real job
-			res = manager.resolveRelation(source, relToResolve);
+			res = manager.resolve(relToResolve);
 			if (res == null || res.isEmpty()) {
 				// This manager did not found a solution, try the next manager
 				continue;
@@ -789,30 +793,30 @@ public class ApamResolverImpl implements ApamResolver {
 			//		} else {
 		}
 
-		return resolveLinkEmpty(rel, resolved, relToResolve, source);
+		return handleFailure(relToResolve,resolved);
 	}
 
-	private Resolved<?> resolveLinkEmpty(RelationDefinition rel, Resolved<?> resolved, RelToResolve relToResolve, Component source) {
+	private Resolved<?> handleFailure(RelToResolve relToResolve, Resolved<?> result) {
 		/*
 		 * If managers could not resolve and relation cannot be promoted, give a
 		 * chance to failure manager
 		 */
-		if (resolved == null || resolved.isEmpty()) {
-			resolved = apam.getFailedResolutionManager().resolveRelation(source, relToResolve);
+		if (result == null || result.isEmpty()) {
+			result = apam.getFailedResolutionManager().resolve(relToResolve);
 		}
 
 		/*
 		 * If failure manager could not recover, just give up
 		 */
-		if (resolved == null || resolved.isEmpty()) {
-			if (rel.getName().isEmpty())
-				logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source );
+		if (result == null || result.isEmpty()) {
+			if (relToResolve.getRelationDefinition().getName().isEmpty())
+				logger.error("Failed to resolve " + relToResolve.getRelationDefinition().getTarget().getName() + " from " + relToResolve.getLinkSource() );
 			else
-				logger.error("Failed to resolve " + rel.getTarget().getName() + " from " + source + "(relation " + rel.getName() + ")");
+				logger.error("Failed to resolve " + relToResolve.getRelationDefinition().getTarget().getName() + " from " + relToResolve.getLinkSource() + "(relation " + relToResolve.getRelationDefinition().getName() + ")");
 			return null;
 		}
 
-		return resolved;
+		return result;
 	}
 
 	/**

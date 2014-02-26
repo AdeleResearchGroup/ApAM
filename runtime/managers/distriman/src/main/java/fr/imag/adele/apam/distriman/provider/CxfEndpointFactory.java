@@ -215,8 +215,7 @@ public class CxfEndpointFactory {
 		dependency);
 	// rel.computeFilters(client.getApamComponent());
 
-	Resolved resolved = apamMan.resolveRelation(client.getApamComponent(),
-		rel);
+	Resolved<?> resolved = apamMan.resolve(rel);
 
 	// resolveDependency( client.getServiceObject(),remote, true);
 
@@ -234,7 +233,7 @@ public class CxfEndpointFactory {
 	// Check if we already have an endpoint for the instances
 	synchronized (endpoints) {
 
-	    Sets.SetView<Component> alreadyExported = Sets.intersection(
+	    Sets.SetView<? extends Component> alreadyExported = Sets.intersection(
 		    Collections.singleton(resolved.singletonResolved),
 		    endpoints.keySet());
 

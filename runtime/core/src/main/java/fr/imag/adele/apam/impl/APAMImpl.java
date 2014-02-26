@@ -38,6 +38,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.RelationManager;
+import fr.imag.adele.apam.RelationManager.Priority;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -180,9 +181,9 @@ public class APAMImpl implements Apam {
 
 		DynaMan dynaMan = new DynaMan();
 
-		ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not
+		ApamManagers.addRelationManager(apamMan,Priority.HIGHEST); // -1 to be sure it is not
 		// in the main loop
-		ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is
+		ApamManagers.addRelationManager(updateMan,Priority.HIGHEST); // -2 to be sure it is
 		// not in the main loop
 		ApamManagers.addDynamicManager(updateMan);
 

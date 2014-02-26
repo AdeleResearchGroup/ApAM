@@ -15,22 +15,17 @@
 
 package fr.imag.adele.obrMan.internal;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.Repository;
-import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Version;
@@ -38,133 +33,76 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.RelToResolve;
-import fr.imag.adele.apam.RelationManager.ComponentBundle;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.util.ApamFilter;
 
+/**
+ * This manager handles OBR request for a specific composite.
+ * 
+ * Resolution in this context is based on repositories specified in the OBR manager
+ * model associated with the context in APAM
+ * 
+ * 
+ * @author vega
+ *
+ */
 public class OBRManager {
 
-	public class Selected implements ComponentBundle {
-		Resource resource;
-		Capability capability;
-		public OBRManager obrManager;
-		private final String selectedComponentName;
-
-		// private final String selectedComponentType;
-
-		public Selected(Resource res, Capability cap, OBRManager managerPrivate) {
-			this.obrManager = managerPrivate;
-			this.resource = res;
-			this.capability = cap;
-			if (res == null || cap == null || managerPrivate == null) {
-				new Exception("Invalid constructor for Selected").printStackTrace();
-			}
-
-			this.selectedComponentName = getAttributeInCapability(capability, CST.NAME);
-			if (selectedComponentName == null) {
-				new Exception("name is null in capability " + capability).printStackTrace();
-			}
-
-			// this.selectedComponentType = getAttributeInCapability
-			// (capability, CST.COMPONENT_TYPE) ;
-		}
-
-		@Override
-		public URL getBundelURL() {
-			URL url = null;
-			try {
-				url = new URL(resource.getURI());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-			return url;
-		}
-
-		// @Override
-		public Capability getCapability() {
-			return capability;
-		}
-
-		public String getComponentName() {
-			return this.selectedComponentName;
-		}
-
-		@Override
-		public Set<String> getComponents() {
-			Set<String> components = new HashSet<String>();
-			for (Capability aCap : resource.getCapabilities()) {
-				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)) {
-					components.add(getAttributeInCapability(aCap, CST.NAME));
-				}
-			}
-			return components;
-		}
-
-		public Set<String> getInstancesOfSelectedImpl() {
-			Set<String> components = new HashSet<String>();
-			for (Capability aCap : resource.getCapabilities()) {
-				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT) && CST.INSTANCE.equals(aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE))) {
-					if (selectedComponentName.equals(aCap.getPropertiesAsMap().get(CST.IMPLNAME))) {
-						components.add(getAttributeInCapability(aCap, CST.NAME));
-					}
-				}
-			}
-			return components;
-		}
-
-		// // Generalize not used for now
-		// private Set<String> getComponentsByType(String componentName,String
-		// type) {
-		//
-		// Set<String> components = new HashSet<String> () ;
-		// if (type== null) return components;
-		// for (Capability aCap : resource.getCapabilities()) {
-		// if (aCap.getName().equals(CST.CAPABILITY_COMPONENT) &&
-		// aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE).equals(type) ) {
-		// if (
-		// aCap.getPropertiesAsMap().get(CST.IMPLNAME).equals(componentName))
-		// components.add(getAttributeInCapability(aCap, CST.NAME)) ;
-		// }
-		// }
-		// return components ;
-		// }
-
-		// private Set<String> getImplementationsOfSelectedCap(){
-		// return getComponentsByType(getComponentName(),CST.IMPLEMENTATION);
-		// }
-
-		// @Override
-		public Resource getResource() {
-			return resource;
-		}
-	}
-
-	private Resolver resolver;
-
-	private final Properties obrModel;
-
-	private List<Repository> repositories = new ArrayList<Repository>();
-
-	private final List<Resource> allResources = new ArrayList<Resource>();
-
-	private final String compositeTypeName;
-
-	private final OBRMan obrMan;
 
 	private final Logger logger = LoggerFactory.getLogger(OBRManager.class);
 
-	private final Repository runningbundles;
+	/**
+	 * The context this manager handles
+	 */
+	private final CompositeType context;
 
-	private final Repository systembundle;
+	/**
+	 * The global obr manager
+	 */
+	private final OBRMan obrMan;
 
-	public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, Properties obrModel1) {
-		this.compositeTypeName = compositeTypeName;
-		runningbundles = repoAdmin.getLocalRepository();
-		systembundle = repoAdmin.getSystemRepository();
-		obrMan = obrman;
-		this.obrModel = obrModel1;
-		updateListOfResources(repoAdmin);
+	/**
+	 * The model associated with this composite
+	 */
+	private final Model model;
+
+	/**
+	 * The list of loaded repositories
+	 */
+	private List<Repository> repositories = new ArrayList<Repository>();
+
+	/**
+	 * The list of resources, from all repositories
+	 */
+	private final List<Resource> allResources = new ArrayList<Resource>();
+
+
+
+	public OBRManager(OBRMan obrman, CompositeType context, Model model) {
+		this.obrMan 	= obrman;
+		this.context	= context;
+		this.model		= model;
+		refresh();
+	}
+	
+	public Model getModel() {
+		return model;
+	}
+
+	public CompositeType getContext() {
+		return context;
+	}
+
+	public void refresh() {
+		repositories = obrMan.loadRepositories(this);
+		
+		allResources.clear();
+		for (Repository repository : repositories) {
+			allResources.addAll(Arrays.asList(repository.getResources()));
+		}
+
 	}
 
 	/**
@@ -178,6 +116,9 @@ public class OBRManager {
 		// and remove when the deployment is done.
 
 		boolean deployed = false;
+		
+		Resolver resolver = obrMan.getResolver(this);
+		
 		/*
 		 *  the events sent by iPOJO for the previous deployed bundle may interfere and
 		 * change the state of the local repository, which produces the IllegalStateException.
@@ -208,53 +149,7 @@ public class OBRManager {
 		return false;
 	}
 
-	protected URL findLocalMavenRepository() {
 
-		// try to find the maven settings.xml file
-		File globalSettings = ObrUtil.searchSettingsFromM2Home();
-		File userSettings	= ObrUtil.searchSettingsFromUserHome(); 
-		
-		/*
-		 *  Extract localRepository from settings.xml
-		 *  
-		 *  If a global and a user settings are both specified, the
-		 *  user preferences override the global
-		 */
-		URL userDefinedRepository 	= null;
-		URL globalDefinedRepository = null;
-		URL defaultRepository 		= null;
-
-		if (userSettings != null) {
-			userDefinedRepository = ObrUtil.searchMavenRepoFromSettings(userSettings);
-		}
-
-		if (globalSettings != null) {
-			globalDefinedRepository = ObrUtil.searchMavenRepoFromSettings(globalSettings);
-		}
-
-		defaultRepository = ObrUtil.searchRepositoryFromDefaultLinux();
-		
-		if (userDefinedRepository != null) {
-			return userDefinedRepository;
-		}
-
-		if (globalDefinedRepository != null) {
-			return globalDefinedRepository;
-		}
-
-		if (defaultRepository != null) {
-			return defaultRepository;
-		}
-
-		throw new IllegalArgumentException(new NullPointerException(
-						"Could not find local repository location in : "+userSettings+" "+globalSettings+" "+defaultRepository)
-		);
-
-	}
-
-	public String getAttributeInCapability(Capability aCap, String attr) {
-		return (String) (aCap.getPropertiesAsMap().get(attr));
-	}
 
 	// serious stuff now !
 	public String getAttributeInResource(Resource res, String capability, String attr) {
@@ -328,86 +223,6 @@ public class OBRManager {
 		return (best == null) ? null : best;
 	}
 
-	public String getCompositeTypeName() {
-		return compositeTypeName;
-	}
-
-	public List<Repository> getRepositories() {
-		List<Repository> tempList = new ArrayList<Repository>();
-		tempList.addAll(repositories);
-		tempList.remove(runningbundles);
-		tempList.remove(systembundle);
-		return tempList;
-	}
-
-	protected Collection<Repository> getRepositoriesFromArray(RepositoryAdmin repoAdmin, String[] repos) {
-		List<Repository> repoList = new ArrayList<Repository>();
-		for (String repoUrlStr : repos) {
-			try {
-				URL url = new URL(repoUrlStr);
-
-				repoList.add(repoAdmin.addRepository(url));
-			} catch (Exception e) {
-				logger.error("Invalid OBR repository address :" + repoUrlStr, e.getCause());
-			}
-		}
-		return repoList;
-	}
-
-	protected List<Repository> getRepositoriesFromModel(Properties obrModel, RepositoryAdmin repoAdmin) {
-		List<Repository> declaredRepositories = new ArrayList<Repository>();
-		Enumeration<?> keys = obrModel.keys();
-		while (keys.hasMoreElements()) {
-
-			String key = (String) keys.nextElement();
-			if (ObrUtil.LOCAL_MAVEN_REPOSITORY.equals(key)) {
-				// Add the obr repository located in the local maven repository
-				Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
-
-				if (localMavenOBRRepo) {
-					try {
-						declaredRepositories.add(repoAdmin.addRepository(findLocalMavenRepository()));
-					} catch (Exception e) {
-						logger.error("Error when adding default local repository to repoAdmin", e.getCause());
-					}
-				}
-			} else if (ObrUtil.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
-				// Add obr repositories declared in the osgi configuration file
-				Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
-
-				if (osgiRepo) {
-					String repos = obrMan.getDeclaredOSGiOBR();
-					if (repos != null) {
-						declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, repos.split("\\s+")));
-					}
-				}
-			} else if (ObrUtil.REPOSITORIES.equals(key)) {
-				// Add obr repositories declared in the composite
-
-				declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, obrModel.getProperty(key).split("\\s+")));
-
-			} else if (ObrUtil.COMPOSITES.equals(key)) {
-				// look for obr repositories in other composites
-				String[] otherCompositesRepositories = obrModel.getProperty(key).split("\\s+");
-
-				for (String compoTypeName : otherCompositesRepositories) {
-					OBRManager manager = obrMan.getOBRManager(compoTypeName);
-					if (manager != null) {
-						declaredRepositories.addAll(manager.getRepositories());
-					} else {
-						// If the compositeType is not present, do nothing
-						logger.error("The composite " + compositeTypeName + " reference a missing compiste " + compoTypeName);
-					}
-				}
-			}
-		}
-
-		return declaredRepositories;
-	}
-
-	public Repository getRunningResources() {
-		return runningbundles;
-	}
 
 	private void logFilterConstraintPreferences(String filterStr, RelToResolve dep) {
 		StringBuffer debugMessage = new StringBuffer();
@@ -418,38 +233,102 @@ public class OBRManager {
 		}
 	}
 
-	// Set<ApamFilter> constraints ;
-	// List<ApamFilter> preferences ;
-	// switch (dep.getTargetKind()) {
-	// case IMPLEMENTATION :
-	// constraints = dep.getAllImplementationConstraintFilters ();
-	// preferences = dep.getImplementationPreferenceFilters () ;
-	// break ;
-	// case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
-	// constraints = dep.getAllInstanceConstraintFilters () ;
-	// preferences = dep.getInstancePreferenceFilters () ;
-	// break ;
-	// default :
-	// constraints = null ;
-	// preferences = null ;
-	// }
-	//
-	// if ((constraints != null) && !constraints.isEmpty()) {
-	// debugMessage.append("\n     Constraints : ");
-	// for (ApamFilter constraint : constraints) {
-	// debugMessage.append(constraint + ", ");
-	// }
-	// }
-	//
-	// if ((preferences != null) && !preferences.isEmpty()) {
-	// debugMessage.append("\n    Preferences : ");
-	// for (ApamFilter preference : preferences) {
-	// debugMessage.append(preference + ", ");
-	// }
-	// }
-	//
-	// logger.debug(debugMessage.toString());
-	// }
+
+	public class Selected  {
+		Resource resource;
+		Capability capability;
+		public OBRManager obrManager;
+		private final String selectedComponentName;
+
+		// private final String selectedComponentType;
+
+		public Selected(Resource res, Capability cap, OBRManager managerPrivate) {
+			this.obrManager = managerPrivate;
+			this.resource = res;
+			this.capability = cap;
+			if (res == null || cap == null || managerPrivate == null) {
+				new Exception("Invalid constructor for Selected").printStackTrace();
+			}
+
+			this.selectedComponentName = getAttributeInCapability(capability, CST.NAME);
+			if (selectedComponentName == null) {
+				new Exception("name is null in capability " + capability).printStackTrace();
+			}
+
+			// this.selectedComponentType = getAttributeInCapability
+			// (capability, CST.COMPONENT_TYPE) ;
+		}
+
+		public Set<String> getComponents() {
+			Set<String> components = new HashSet<String>();
+			for (Capability aCap : resource.getCapabilities()) {
+				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)) {
+					components.add(getAttributeInCapability(aCap, CST.NAME));
+				}
+			}
+			return components;
+		}
+
+		public URL getBundelURL() {
+			URL url = null;
+			try {
+				url = new URL(resource.getURI());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			return url;
+		}
+
+		// @Override
+		public Capability getCapability() {
+			return capability;
+		}
+
+		public String getComponentName() {
+			return this.selectedComponentName;
+		}
+
+
+		public Set<String> getInstancesOfSelectedImpl() {
+			Set<String> components = new HashSet<String>();
+			for (Capability aCap : resource.getCapabilities()) {
+				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT) && CST.INSTANCE.equals(aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE))) {
+					if (selectedComponentName.equals(aCap.getPropertiesAsMap().get(CST.IMPLNAME))) {
+						components.add(getAttributeInCapability(aCap, CST.NAME));
+					}
+				}
+			}
+			return components;
+		}
+
+		// // Generalize not used for now
+		// private Set<String> getComponentsByType(String componentName,String
+		// type) {
+		//
+		// Set<String> components = new HashSet<String> () ;
+		// if (type== null) return components;
+		// for (Capability aCap : resource.getCapabilities()) {
+		// if (aCap.getName().equals(CST.CAPABILITY_COMPONENT) &&
+		// aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE).equals(type) ) {
+		// if (
+		// aCap.getPropertiesAsMap().get(CST.IMPLNAME).equals(componentName))
+		// components.add(getAttributeInCapability(aCap, CST.NAME)) ;
+		// }
+		// }
+		// return components ;
+		// }
+
+		// private Set<String> getImplementationsOfSelectedCap(){
+		// return getComponentsByType(getComponentName(),CST.IMPLEMENTATION);
+		// }
+
+		// @Override
+		public Resource getResource() {
+			return resource;
+		}
+
+	}
+
 
 	/**
 	 * 
@@ -465,7 +344,7 @@ public class OBRManager {
 	 * @return the pair capability,
 	 */
 
-	/* private */public Selected lookFor(String capability, String filterStr, RelToResolve dep) {
+	public Selected lookFor(String capability, String filterStr, RelToResolve dep) {
 
 		// Take care of preferences !
 		if (filterStr == null) {
@@ -486,7 +365,7 @@ public class OBRManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<Selected> lookForAll(String capability, String filterStr, RelToResolve dep) { // Set<ApamFilter> constraints) {
+	private Set<Selected> lookForAll(String capability, String filterStr, RelToResolve dep) { // Set<ApamFilter> constraints) {
 		if (filterStr == null) {
 			new Exception("no filter in lookfor all").printStackTrace();
 		}
@@ -523,7 +402,7 @@ public class OBRManager {
 								// ComponentKind.SPECIFICATION)) {
 								if (!!!(candidateKind.equals(ComponentKind.SPECIFICATION) && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
 									allRes.add(new Selected(res, aCap, this));
-									logger.debug("Found " + candidateKind + " " + getAttributeInCapability(aCap, CST.NAME) + " in bundle " + res.getSymbolicName() + " From " + compositeTypeName + " repositories : " + repositoriesToString());
+									logger.debug("Found " + candidateKind + " " + getAttributeInCapability(aCap, CST.NAME) + " in bundle " + res.getSymbolicName() + " From " + context.getName() + " repositories : " + model.getRepositories());
 								}
 							}
 						}
@@ -563,77 +442,14 @@ public class OBRManager {
 		return null;
 	}
 
-	public Selected lookForPref(String capability, RelToResolve dep, Set<Selected> candidates) {
-		Selected winner = lookForPrefInt(capability, dep, candidates);
-		if (winner == null) {
-			return null;
-		}
-		logger.debug("   Best bundle : " + winner.resource.getSymbolicName() + " Component:  " + getAttributeInCapability(winner.capability, CST.IMPLNAME) + " from " + compositeTypeName + "  repositories : " + repositoriesToString());
-		return winner;
-	}
-
-	/**
-	 * Returns the candidate that best matches the preferences. Take the
-	 * preferences in orden: m candidates find the n candidates that match the
-	 * constraint. if n= 0 ignore the constraint if n=1 return it. iterate with
-	 * the n candidates. At the end, if n > 1 return one arbitrarily.
-	 * 
+	/*
+	 * Utility methods to manipulate resources and capabilities
 	 */
-	public Selected lookForPrefInt(String capability, RelToResolve dep, Set<Selected> candidates) {
-		if (candidates == null || candidates.isEmpty()) {
-			return null;
-			// Trace preference filter
-			// logFilterConstraintPreferences(null, dep, false);
-		}
-
-		List<ApamFilter> preferences;
-		switch (dep.getTargetKind()) {
-		case IMPLEMENTATION:
-			preferences = dep.getImplementationPreferenceFilters();
-			break;
-		case INSTANCE:
-			preferences = dep.getInstancePreferenceFilters();
-			break;
-		default:
-			preferences = null;
-			// TODO Should add specification constraints
-			// case SPECIFICATION : preferences = null ;
-		}
-
-		if ((preferences == null) || preferences.isEmpty()) {
-			return (Selected) candidates.toArray()[0];
-		}
-
-		Set<Selected> valids = new HashSet<Selected>();
-
-		for (ApamFilter f : preferences) {
-			// filter = ApamFilter.newInstance(f);
-			for (Selected compo : candidates) {
-				if (f.matchCase(compo.capability.getPropertiesAsMap())) {
-					valids.add(compo);
-				}
-			}
-			if (valids.size() == 1) {
-				return (Selected) valids.toArray()[0];
-			}
-			if (!valids.isEmpty()) {
-				candidates = valids;
-				valids = new HashSet<Selected>();
-			}
-		}
-		return (Selected) candidates.toArray()[0];
+	private static String getAttributeInCapability(Capability aCap, String attr) {
+		return (String) (aCap.getPropertiesAsMap().get(attr));
 	}
 
-	//
-	protected List<String> repositoriesToString() {
-		List<String> repoString = new ArrayList<String>();
-		for (Repository repo : getRepositories()) {
-			repoString.add(repo.getURI());
-		}
-		return repoString;
-	}
-
-	private ComponentKind toKind(Capability aCap) {
+	private static ComponentKind toKind(Capability aCap) {
 		String candidateKindS = getAttributeInCapability(aCap, CST.COMPONENT_TYPE);
 		if (CST.SPECIFICATION.equals(candidateKindS)) {
 			return ComponentKind.SPECIFICATION;
@@ -647,21 +463,4 @@ public class OBRManager {
 		return ComponentKind.COMPONENT;
 	}
 
-	protected void updateListOfResources(RepositoryAdmin repoAdmin) {
-		// First Read model if it exist
-		if (obrModel != null) {
-			repositories = getRepositoriesFromModel(obrModel, repoAdmin);
-		}
-		allResources.clear();
-		// Get resources from repositories and remove them from repoAdmin.
-		for (Repository repository : repositories) {
-			allResources.addAll(Arrays.asList(repository.getResources()));
-			repoAdmin.removeRepository(repository.getURI());
-		}
-
-		// Add the system as repository
-		repositories.add(0, runningbundles);
-		repositories.add(0, systembundle);
-		resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
-	}
 }

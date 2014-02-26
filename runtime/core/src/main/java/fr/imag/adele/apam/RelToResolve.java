@@ -74,7 +74,7 @@ public interface RelToResolve {
 
 	// return the ancestor or base (including base) corresponding to the
 	// sourceKind
-	public Component getRelSource(Component base);
+	public Component getRelSource();
 
 	// //Get the source (ancestor) for ctxt relation
 	// public String getSource () ;

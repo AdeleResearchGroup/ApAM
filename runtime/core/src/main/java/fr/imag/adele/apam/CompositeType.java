@@ -96,10 +96,8 @@ public interface CompositeType extends Implementation {
 
 	/**
 	 * 
-	 * @param name
-	 * @return the model of that name
 	 */
-	public ManagerModel getModel(String name);
+	public ManagerModel getModel(ContextualManager manager);
 
 	/**
 	 * returns all the models

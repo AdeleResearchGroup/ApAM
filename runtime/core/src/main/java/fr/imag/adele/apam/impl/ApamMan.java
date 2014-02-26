@@ -16,7 +16,6 @@ package fr.imag.adele.apam.impl;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
@@ -26,10 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
@@ -39,7 +36,6 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceReference;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
@@ -58,32 +54,23 @@ public class ApamMan implements RelationManager {
 	}
 
 	@Override
-	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
-		return null;
-	}
-
-	@Override
 	public String getName() {
 		return CST.APAMMAN;
 	}
 
+
+	/**
+	 * This is an INTERNAL manager that will be invoked by the core. 
+	 * 
+	 * So in this method we signal that we are not part of the external handlers to
+	 * invoke for this resolution request.
+	 * 
+	 */
 	@Override
-	public int getPriority() {
-		return -1;
+	public boolean beginResolving(RelToResolve dep) {
+		return false;
 	}
 
-	@Override
-	public void getSelectionPath(Component client, RelToResolve dep, List<RelationManager> selPath) {
-	}
-
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-	}
-
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-		// do not care
-	}
 
 	/**
 	 * dep target can be a specification, an implementation or a resource:
@@ -101,8 +88,10 @@ public class ApamMan implements RelationManager {
 	 * 
 	 */
 	@Override
-	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve) {
+	public Resolved<?> resolve(RelToResolve relToResolve) {
 
+		Component source = relToResolve.getLinkSource();
+		
 		Set<Implementation> impls = null;
 		String name = relToResolve.getTarget().getName();
 
@@ -241,7 +230,7 @@ public class ApamMan implements RelationManager {
 		 * Just way for these bundles to complete their starting phase.
 		 */
 		if (newBundleArrived()) {
-			resolveRelation (source, relToResolve) ;
+			return resolve(relToResolve) ;
 		}
 		return null ;
 	}

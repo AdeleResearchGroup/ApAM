@@ -16,25 +16,20 @@ package fr.imag.adele.apam.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
-import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 
 /**
  * This class handles failure when a dependency is missing and the resolution
@@ -45,6 +40,247 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
  */
 
 public class FailedResolutionManager implements RelationManager, DynamicManager, PropertyManager {
+
+
+	/**
+	 * The list of waiting resolutions
+	 */
+	private final List<PendingRequest> waitingResolutions;
+
+	/**
+	 * A reference to the APAM machine
+	 */
+	private Apam apam;
+
+	public FailedResolutionManager() {
+		waitingResolutions = new ArrayList<PendingRequest>();
+	}
+
+	@Override
+	public String getName() {
+		return "FailedResolutionManager";
+	}
+
+	public Apam getApam() {
+		return apam;
+	}
+
+	/**
+	 * A filter for pending request, that can be used to request a resolution for a subset
+	 * of the waiting request satisfying a condition.
+	 * 
+	 * This may be useful to avoid retrying all the request when a condition is met, but only
+	 * the requests that are impacted by the event.
+	 */
+	public static interface Scope {
+		
+		public boolean concerns(PendingRequest request);
+	}
+	
+	/**
+	 * Try to resolve all the requests that are potentially satisfied by a given
+	 * component. This may happen when a new component is created, or some property
+	 * has changed that may satisfy a pending request.
+	 * 
+	 * Only consider request sat
+	 */
+	public void resolveWaitingRequests(Scope scope, Component candidate) {
+		for (PendingRequest request : getWaitingRequests()) {
+			if (scope.concerns(request) && request.isSatisfiedBy(candidate)) {
+				request.resolve();
+			}
+		}
+	}
+
+	private static final Scope GLOBAL = new Scope() {
+		public boolean concerns(PendingRequest request) {
+			return true;
+		}
+	};
+
+	public final void resolveWaitingRequests(Component candidate) {
+		resolveWaitingRequests(GLOBAL, candidate);
+	}
+
+	/**
+	 * This is an INTERNAL manager that will be invoked by the core. 
+	 * 
+	 * So in this method we signal that we are not part of the external handlers to
+	 * invoke for this resolution request.
+	 * 
+	 */
+	@Override
+	public boolean beginResolving(RelToResolve relToResolve) {
+		return false;
+	}
+
+	/**
+	 * If this manager is invoked it means that the specified relationship could
+	 * not be resolved, so we have to apply the specified dynamic policy.
+	 */
+	@Override
+	public Resolved<?> resolve(RelToResolve relToResolve) {
+
+		/*
+		 * If no policy is specified for the relationship just ignore it.
+		 */
+		if (relToResolve.getMissingPolicy() == null) {
+			return null;
+		}
+
+		/*
+		 * In case of retry of a waiting or eager request we simply return to
+		 * avoid blocking or killing the unrelated thread that triggered the
+		 * recalculation
+		 */
+		if (PendingRequest.isRetry()) {
+			return null;
+		}
+
+		/*
+		 * Apply failure policies
+		 */
+		switch (relToResolve.getMissingPolicy()) {
+		case OPTIONAL: {
+			return null;
+		}
+
+		case EXCEPTION: {
+			throwMissingException(relToResolve.getLinkSource(), relToResolve);
+		}
+
+		case WAIT: {
+
+			/*
+			 * schedule request
+			 */
+			PendingRequest request = new PendingRequest(CST.apamResolver, relToResolve.getLinkSource(), relToResolve.getRelationDefinition());
+
+			addWaitingRequests(request);
+			request.block();
+			removeWaitingRequests(request);
+
+			return request.getResolution();
+		}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method is automatically invoked when the manager is validated, so we
+	 * can safely assume that APAM is available
+	 */
+	public synchronized void start(Apam apam) {
+
+		this.apam = apam;
+
+		ApamManagers.addDynamicManager(this);
+		ApamManagers.addPropertyManager(this);
+	}
+
+	/**
+	 * This method is automatically invoked when the manager is invalidated, so
+	 * APAM is no longer available
+	 */
+	public synchronized void stop() {
+		this.apam = null;
+
+		ApamManagers.removeDynamicManager(this);
+		ApamManagers.removePropertyManager(this);
+
+		/*
+		 * Try to dispose all waiting requests
+		 */
+		for (PendingRequest request : getWaitingRequests()) {
+			request.dispose();
+		}
+	}
+
+	@Override
+	public void addedComponent(Component component) {
+		resolveWaitingRequests(component);
+	}
+
+	@Override
+	public void removedComponent(Component component) {
+		for (PendingRequest request : getWaitingRequests()) {
+			if (request.getSource().equals(component)) {
+				request.dispose();
+			}
+		}
+
+	}
+
+	private void propertyChanged(Component component, String property) {
+		resolveWaitingRequests(component);
+	}
+
+	@Override
+	public void attributeRemoved(Component component, String attr, String oldValue) {
+		propertyChanged(component, attr);
+	}
+
+	@Override
+	public void addedLink(Link link) {
+	}
+
+	@Override
+	public void attributeAdded(Component component, String attr, String newValue) {
+		propertyChanged(component, attr);
+	}
+
+	@Override
+	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
+		propertyChanged(component, attr);
+	}
+
+
+	@Override
+	public void removedLink(Link link) {
+
+		/*
+		 * If the target of the wire is a non sharable instance, the released
+		 * instance can potentially be used by a pending requests.
+		 */
+		if (link.getDestination() instanceof Instance) {
+			Instance candidate = (Instance) link.getDestination();
+
+			if ((!candidate.isShared()) && candidate.isSharable()) {
+				resolveWaitingRequests(candidate);
+			}
+		}
+	}
+
+
+	/**
+	 * Add a new pending request in the waiting list
+	 */
+	private void addWaitingRequests(PendingRequest request) {
+		synchronized (waitingResolutions) {
+			waitingResolutions.add(request);
+		}
+	}
+
+	/**
+	 * Remove a pending request from the waiting list
+	 */
+	private void removeWaitingRequests(PendingRequest request) {
+
+		synchronized (waitingResolutions) {
+			waitingResolutions.remove(request);
+		}
+	}
+
+	/**
+	 * Get a thread-safe (stack confined) copy of the waiting requests
+	 */
+	private List<PendingRequest> getWaitingRequests() {
+		synchronized (waitingResolutions) {
+			return new ArrayList<PendingRequest>(waitingResolutions);
+		}
+	}
+
 
 	/**
 	 * Hack to throw a checked exception from inside the framework without
@@ -134,249 +370,6 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 			throw new ResolutionException(e);
 		}
 
-	}
-
-	/**
-	 * The list of waiting resolutions
-	 */
-	private final List<PendingRequest> waitingResolutions;
-
-	/**
-	 * A reference to the APAM machine
-	 */
-	private Apam apam;
-
-	public FailedResolutionManager() {
-		waitingResolutions = new ArrayList<PendingRequest>();
-	}
-
-	@Override
-	public void addedComponent(Component component) {
-		resolveWaitingRequests(component);
-	}
-
-	@Override
-	public void addedLink(Link link) {
-	}
-
-	/**
-	 * Add a new pending request in the waiting list
-	 */
-	public void addWaitingRequests(PendingRequest request) {
-		synchronized (waitingResolutions) {
-			waitingResolutions.add(request);
-		}
-	}
-
-	@Override
-	public void attributeAdded(Component component, String attr, String newValue) {
-		propertyChanged(component, attr);
-	}
-
-	@Override
-	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
-		propertyChanged(component, attr);
-	}
-
-	@Override
-	public void attributeRemoved(Component component, String attr, String oldValue) {
-		propertyChanged(component, attr);
-	}
-
-	@Override
-	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
-		return null;
-	}
-
-	public Apam getApam() {
-		return apam;
-	}
-
-	/**
-	 * Dynamic manager identifier
-	 */
-	@Override
-	public String getName() {
-		return "FailedResolutionManager";
-	}
-
-	/**
-	 * Apam ensures statically that this manager has the minimum priority, so
-	 * that it is called only in case of binding resolution failure. This priority
-	 * is not used
-	 * 
-	 */
-	@Override
-	public int getPriority() {
-		return -1;
-	}
-
-	/**
-	 * Apam ensures statically that this manager has the minimum priority, so
-	 * that it is called only in case of binding resolution failure. The failure
-	 * manager is invoked even if it is not added explicitely to the selection
-	 * path
-	 * 
-	 */
-	@Override
-	public void getSelectionPath(Component client, RelToResolve relToResolve, List<RelationManager> selPath) {
-	}
-
-	/**
-	 * Get a thread-safe (stack confined) copy of the waiting requests
-	 */
-	public List<PendingRequest> getWaitingRequests() {
-		synchronized (waitingResolutions) {
-			return new ArrayList<PendingRequest>(waitingResolutions);
-		}
-	}
-
-	/**
-	 * Failure Manager does not have its own model, all the information is in
-	 * the component declaration.
-	 * 
-	 */
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-	}
-
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-	}
-
-	private void propertyChanged(Component component, String property) {
-		resolveWaitingRequests(component);
-	}
-
-	@Override
-	public void removedComponent(Component component) {
-		for (PendingRequest request : getWaitingRequests()) {
-			if (request.getSource().equals(component)) {
-				request.dispose();
-			}
-		}
-
-	}
-
-	@Override
-	public void removedLink(Link link) {
-
-		/*
-		 * If the target of the wire is a non sharable instance, the released
-		 * instance can potentially be used by a pending requests.
-		 */
-		if (link.getDestination() instanceof Instance) {
-			Instance candidate = (Instance) link.getDestination();
-
-			if ((!candidate.isShared()) && candidate.isSharable()) {
-				resolveWaitingRequests(candidate);
-			}
-		}
-	}
-
-	/**
-	 * Remove a pending request from the waiting list
-	 */
-	public void removeWaitingRequests(PendingRequest request) {
-
-		synchronized (waitingResolutions) {
-			waitingResolutions.remove(request);
-		}
-	}
-
-	/**
-	 * If this manager is invoked it means that the specified relationship could
-	 * not be resolved, so we have to apply the specified dynamic policy.
-	 */
-	@Override
-	public Resolved<?> resolveRelation(Component client, RelToResolve relToResolve) {
-
-		/*
-		 * If no policy is specified for the relationship just ignore it.
-		 */
-		if (relToResolve.getMissingPolicy() == null) {
-			return null;
-		}
-
-		/*
-		 * In case of retry of a waiting or eager request we simply return to
-		 * avoid blocking or killing the unrelated thread that triggered the
-		 * recalculation
-		 */
-		if (PendingRequest.isRetry()) {
-			return null;
-		}
-
-		/*
-		 * Apply failure policies
-		 */
-		switch (relToResolve.getMissingPolicy()) {
-		case OPTIONAL: {
-			return null;
-		}
-
-		case EXCEPTION: {
-			throwMissingException(client, relToResolve);
-		}
-
-		case WAIT: {
-
-			/*
-			 * schedule request
-			 */
-			PendingRequest request = new PendingRequest(CST.apamResolver, client, relToResolve.getRelationDefinition());
-
-			addWaitingRequests(request);
-			request.block();
-			removeWaitingRequests(request);
-
-			return request.getResolution();
-		}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Try to resolve all the requests that are potentially satisfied by a given
-	 * component
-	 */
-	private void resolveWaitingRequests(Component candidate) {
-		for (PendingRequest request : getWaitingRequests()) {
-			if (request.isSatisfiedBy(candidate)) {
-				request.resolve();
-			}
-		}
-	}
-
-	/**
-	 * This method is automatically invoked when the manager is validated, so we
-	 * can safely assume that APAM is available
-	 */
-	public synchronized void start(Apam apam) {
-
-		this.apam = apam;
-
-		ApamManagers.addDynamicManager(this);
-		ApamManagers.addPropertyManager(this);
-	}
-
-	/**
-	 * This method is automatically invoked when the manager is invalidated, so
-	 * APAM is no longer available
-	 */
-	public synchronized void stop() {
-		this.apam = null;
-
-		ApamManagers.removeDynamicManager(this);
-		ApamManagers.removePropertyManager(this);
-
-		/*
-		 * Try to dispose all waiting requests
-		 */
-		for (PendingRequest request : getWaitingRequests()) {
-			request.dispose();
-		}
 	}
 
 }

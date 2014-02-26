@@ -36,20 +36,18 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
 import fr.imag.adele.apam.DynamicManager;
-import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.APAMImpl;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.FailedResolutionManager;
 
@@ -63,7 +61,7 @@ import fr.imag.adele.apam.impl.FailedResolutionManager;
 @Instantiate(name = "ConflictManager-Instance")
 @org.apache.felix.ipojo.annotations.Component(name = "ConflictManager", immediate = true)
 @Provides
-public class ConflictManager implements RelationManager, DynamicManager, PropertyManager {
+public class ConflictManager implements ContextualManager, RelationManager, DynamicManager, PropertyManager {
 
 	private final static Logger logger = LoggerFactory.getLogger(ConflictManager.class);
 
@@ -84,6 +82,57 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	private ContentManager rootManager;
 
 	public ConflictManager(BundleContext context) {
+	}
+
+	@Override
+	public String getName() {
+		return "ConflictManager";
+	}
+
+	/**
+	 * Conflict Manager is a contextual manager, but it does not have its own declared model,
+	 * all the information is in the component declaration.
+	 * 
+	 */
+	@Override
+	public void initializeContext(CompositeType composite) {
+	}
+
+	/**
+	 * For owned instances that could match a resolution request, we must be
+	 * sure that the grants are respected.
+	 */
+	@Override
+	public boolean beginResolving(RelToResolve relation) {
+
+		if (!relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
+			return false;
+		}
+
+		/**
+		 * Iterate over all owned instances that could satisfy this request, and verify if access is granted.
+		 * In case access is not allowed, add the corresponding constraints to the relation
+		 * 
+		 * WARNING Notice that this is a global validation, irrespective of composites. We verify all visible
+		 * instances that could satisfy the request.
+		 */
+
+		for (ContentManager container : getManagers()) {
+			container.addGrantConstraints(relation);
+		}
+		
+		
+		return false;
+	}
+
+	/**
+	 * This manager only handles conflicts, it doesn't resolve relations. It
+	 * only participates in resolution to add constraints to enforce conflict
+	 * management rules.
+	 */
+	@Override
+	public Resolved<?> resolve(RelToResolve relation) {
+		throw new UnsupportedOperationException("Conflict Manager doesn't resolve relations");
 	}
 
 	@Override
@@ -178,11 +227,6 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 		propertyChanged(component, attr);
 	}
 
-	@Override
-	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
-		return null;
-	}
-
 	/**
 	 * Give access to the APAM reference
 	 */
@@ -211,53 +255,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 		return new ArrayList<ContentManager>(contentManagers.values());
 	}
 
-	@Override
-	public String getName() {
-		return "ConflictManager";
-	}
 
-	@Override
-	public int getPriority() {
-		return 5;
-	}
-
-	/**
-	 * For owned instances that could match a resolution request, we must be
-	 * sure that the grants are respected.
-	 */
-	@Override
-	public void getSelectionPath(Component client, RelToResolve relation, List<RelationManager> selPath) {
-
-		if (!relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
-			return;
-		}
-
-		/**
-		 * Iterate over all owned instances that could satisfy this request, and verify if access is granted.
-		 * In case access is not allowed, add the corresponding constraints to the relation
-		 * 
-		 * WARNING Notice that this is a global validation, irrespective of composites. We verify all visible
-		 * instances that could satisfy the request.
-		 */
-
-		for (ContentManager container : getManagers()) {
-			container.addGrantConstraints(client,relation);
-		}
-		
-		
-	}
-
-	/**
-	 * Conflict Manager does not have its own model, all the information is in the component declaration.
-	 * 
-	 */
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-	}
-
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-	}
 
 	private void propertyChanged(Component component, String property) {
 
@@ -308,15 +306,6 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 	public void removedLink(Link link) {
 	}
 
-	/**
-	 * This manager only handles conflicts, it doesn't resolve relations. It
-	 * only participates in resolution to add constraints to enforce conflict
-	 * management rules.
-	 */
-	@Override
-	public Resolved<?> resolveRelation(Component client, RelToResolve relation) {
-		return null;
-	}
 
 	/**
 	 * This method is automatically invoked when the manager is validated, so we
@@ -346,7 +335,7 @@ public class ConflictManager implements RelationManager, DynamicManager, Propert
 		/*
 		 * Register with APAM
 		 */
-		ApamManagers.addRelationManager(this, getPriority());
+		ApamManagers.addRelationManager(this, Priority.HIGHEST);
 		ApamManagers.addDynamicManager(this);
 		ApamManagers.addPropertyManager(this);
 

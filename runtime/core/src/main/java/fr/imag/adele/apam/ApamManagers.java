@@ -14,13 +14,12 @@
  */
 package fr.imag.adele.apam;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.slf4j.Logger;
@@ -34,44 +33,122 @@ public class ApamManagers {
 	private static Logger logger = LoggerFactory.getLogger(ApamManagers.class);
 
 	/*
-	 * The list of all managers
+	 * A thread-safe set of managers, optionally ordered by a given order.
+	 *  
 	 */
-	private static Set<Manager> managers = new ConcurrentSkipListSet<Manager>(new Comparator<Manager>() {
+	private static class ManagerSet<M extends Manager> extends ConcurrentSkipListSet<M> {
+		
+		private static final long serialVersionUID = 2842254142921026458L;
+
+		public ManagerSet(Comparator<? super M> order) {
+			super(order);
+		}
+		
+		public ManagerSet() {
+			this(NAME_ORDER);
+		}
+	} 
+	
+	/**
+	 * The default order for manager sets,is based on the lexicographic order of the name
+	 */
+	private final static Comparator<Manager> NAME_ORDER = new Comparator<Manager>() {
 
 		@Override
 		public int compare(Manager manager1, Manager manager2) {
 			return manager1.getName().compareTo(manager2.getName());
 		}
-	});
+	};
 
+	/**
+	 * The set of registered managers, classified by the kind of manager
+	 */
+	private static Set<Manager> managers 						= new ManagerSet<Manager>();
+	
+	private static Set<ContextualManager> contextualManagers	= new ManagerSet<ContextualManager>();
+	private static Set<DeploymentManager> deploymentManagers	= new ManagerSet<DeploymentManager>();
+	private static Set<DynamicManager> dynamicManagers 			= new ManagerSet<DynamicManager>();
+	private static Set<PropertyManager> propertyManagers 		= new ManagerSet<PropertyManager>();
+
+	/**
+	 * This class represents an order for managers based on priorities, as defined for relation managers.
+	 * 
+	 * 	- If no priority is specified for a manager, it is considered low priority.
+	 *  - If two managers have the same priority, the default name based order is used to break tie 
+	 */
+	private static class PriorityOrder implements Comparator<RelationManager> {
+
+		private final Map<RelationManager,RelationManager.Priority> priorities;
+		
+		public PriorityOrder() {
+			priorities = new HashMap<RelationManager, RelationManager.Priority>();
+		}
+		
+		public synchronized void setPriority(RelationManager manager, RelationManager.Priority priority) {
+			priorities.put(manager, priority);
+		}
+		
+		private synchronized RelationManager.Priority getPriority(RelationManager manager) {
+			RelationManager.Priority priority = priorities.get(manager);
+			return priority != null ? priority : RelationManager.Priority.LOW; 
+		}
+		
+		@Override
+		public int compare(RelationManager manager1, RelationManager manager2) {
+			
+			RelationManager.Priority priority1 = getPriority(manager1);
+			RelationManager.Priority priority2 = getPriority(manager2);
+			
+			return priority1 != priority2 ? priority1.compareTo(priority2) : NAME_ORDER.compare(manager1, manager2);
+		}
+		
+	}
+	
 	/**
 	 * The list of relation managers, with their priorities
 	 */
-	private static Map<RelationManager, Integer> relationManagersPrio = new HashMap<RelationManager, Integer>();
-	private static List<RelationManager> relationManagers = new ArrayList<RelationManager>();
+	private static PriorityOrder priorities 					= new PriorityOrder();
+	private static SortedSet<RelationManager> relationManagers 	= new ManagerSet<RelationManager>(priorities);
 
-	/**
-	 * The list of dynamic manager listeners
-	 * 
-	 */
-	private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>(new Comparator<DynamicManager>() {
 
-		@Override
-		public int compare(DynamicManager manager1, DynamicManager manager2) {
-			return manager1.getName().compareTo(manager2.getName());
+	private static void register(Manager manager) {
+		
+		if (managers.contains(manager)) {
+			return;
 		}
-	});
+		
+		managers.add(manager);
 
-	/**
-	 * The list of component property listeners
-	 */
-	private static Set<PropertyManager> propertyManagers = new ConcurrentSkipListSet<PropertyManager>(new Comparator<PropertyManager>() {
+		((APAMImpl) CST.apam).managerRegistered(manager);
+		logger.info("[" + manager.getName() + "] registered and initialized");
 
-		@Override
-		public int compare(PropertyManager manager1, PropertyManager manager2) {
-			return manager1.getName().compareTo(manager2.getName());
+		if (manager instanceof ContextualManager) {
+			ContextualManager contextualManager = ContextualManager.class.cast(manager);
+			contextualManager.initializeContext(CompositeTypeImpl.getRootCompositeType());
 		}
-	});
+		
+		if (manager instanceof DeploymentManager)
+			deploymentManagers.add((DeploymentManager)manager);
+		if (manager instanceof ContextualManager)
+			contextualManagers.add((ContextualManager)manager);
+	}
+
+	private static void unregister(Manager manager) {
+
+		boolean managerRemoved = managers.remove(manager);
+
+		if (managerRemoved && manager.getName() != null) {
+			logger.info("[" + manager.getName() + " unregistered]");
+		} else {
+			logger.error("[" + manager.getName() + " could NOT be unregistered]");
+		}
+		
+		if (manager instanceof DeploymentManager)
+			deploymentManagers.remove(manager);
+		if (manager instanceof ContextualManager)
+			contextualManagers.remove((ContextualManager)manager);
+
+	}
 
 	/**
 	 * Adds a new manager to listen for dynamic events
@@ -79,9 +156,7 @@ public class ApamManagers {
 	 */
 	public static void addDynamicManager(DynamicManager manager) {
 		register(manager);
-		if (manager != null) {
-			ApamManagers.dynamicManagers.add(manager);
-		}
+		ApamManagers.dynamicManagers.add(manager);
 	}
 
 	/**
@@ -92,9 +167,7 @@ public class ApamManagers {
 	 */
 	public static void addPropertyManager(PropertyManager manager) {
 		register(manager);
-		if (manager != null) {
-			ApamManagers.propertyManagers.add(manager);
-		}
+		ApamManagers.propertyManagers.add(manager);
 	}
 
 	/**
@@ -105,31 +178,11 @@ public class ApamManagers {
 	 *            : the relative priority. the lower the interger, the higher
 	 *            the priority. 0 is reserved for apamman.
 	 */
-	public static void addRelationManager(RelationManager manager, int priority) {
-
+	public static void addRelationManager(RelationManager manager, RelationManager.Priority priority) {
 		register(manager);
-		if (manager == null) {
-			return;
-		}
-
-		if ((priority < 0) && !(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN))) {
-			logger.error("invalid priority: " + priority + ">= 0 assumed");
-			priority = 0;
-		}
-
-		boolean inserted = false;
-		for (int i = 0; i < relationManagers.size(); i++) {
-			if (priority <= relationManagers.get(i).getPriority()) {
-				relationManagers.add(i, manager);
-				inserted = true;
-				break;
-			}
-		}
-		if (!inserted) { // put it at the end
-			relationManagers.add(manager);
-		}
-
-		ApamManagers.relationManagersPrio.put(manager, Integer.valueOf(priority));
+		
+		priorities.setPriority(manager, priority);
+		relationManagers.add(manager);
 	}
 
 	/**
@@ -140,34 +193,20 @@ public class ApamManagers {
 		return Collections.unmodifiableSet(dynamicManagers);
 	}
 
-	public static RelationManager getManager(String managerName) {
-		if (managerName == null) {
-			logger.error("ERROR : Missing parameter manager in getManager");
-			return null;
-		}
-		for (RelationManager man : relationManagers) {
-			if (man.getName().equals(managerName)) {
-				return man;
-			}
-		}
-		return null;
+	/**
+	 * 
+	 * @return the list of known managers
+	 */
+	public static Set<DeploymentManager> getDeploymentManagers() {
+		return Collections.unmodifiableSet(deploymentManagers);
 	}
 
 	/**
 	 * 
 	 * @return the list of known managers
 	 */
-	public static Set<Manager> getManagers() {
-		return Collections.unmodifiableSet(managers);
-	}
-
-	/**
-	 * 
-	 * @param manager
-	 * @return the priortity of that manager. -1 is unknown.
-	 */
-	public static int getPriority(RelationManager manager) {
-		return ApamManagers.relationManagersPrio.get(manager);
+	public static Set<ContextualManager> getContextualManagers() {
+		return Collections.unmodifiableSet(contextualManagers);
 	}
 
 	/**
@@ -182,9 +221,10 @@ public class ApamManagers {
 	 * 
 	 * @return the list of known managers
 	 */
-	public static List<RelationManager> getRelationManagers() {
-		return Collections.unmodifiableList(relationManagers);
+	public static SortedSet<RelationManager> getRelationManagers() {
+		return Collections.unmodifiableSortedSet(relationManagers);
 	}
+
 
 	/*
 	 * Notification events for dynamic events
@@ -222,34 +262,12 @@ public class ApamManagers {
 		}
 	}
 
-	private static void register(Manager manager) {
-		if (manager == null) {
-			logger.error("ERROR : Missing parameter manager in  register Manager");
-			return;
-		}
-		if (managers.contains(manager)) {
-			return;
-		}
-		managers.add(manager);
-
-		// Managers without name are simple listeners.
-		if (manager.getName() != null) {
-
-			((APAMImpl) CST.apam).managerRegistered(manager);
-			logger.info("[" + manager.getName() + "] registered and initialized");
-			ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
-			// the root model maybe null
-			manager.newComposite(rootModel, CompositeTypeImpl.getRootCompositeType());
-		}
-	}
 
 	public static void removeDynamicManager(DynamicManager manager) {
 		unregister(manager);
-		if (manager != null) {
-			boolean managerRemoved = ApamManagers.dynamicManagers.remove(manager);
-			if (!managerRemoved) {
-				logger.error("impossible to remove dynamic manager {}", manager.getName());
-			}
+		boolean managerRemoved = ApamManagers.dynamicManagers.remove(manager);
+		if (!managerRemoved) {
+			logger.error("impossible to remove dynamic manager {}", manager.getName());
 		}
 	}
 
@@ -261,11 +279,9 @@ public class ApamManagers {
 	 */
 	public static void removePropertyManager(PropertyManager manager) {
 		unregister(manager);
-		if (manager != null) {
-			boolean managerRemoved = ApamManagers.propertyManagers.remove(manager);
-			if (!managerRemoved) {
-				logger.error("impossible to remove property manager {}", manager.getName());
-			}
+		boolean managerRemoved = ApamManagers.propertyManagers.remove(manager);
+		if (!managerRemoved) {
+			logger.error("impossible to remove property manager {}", manager.getName());
 		}
 	}
 
@@ -276,30 +292,11 @@ public class ApamManagers {
 	 */
 	public static void removeRelationManager(RelationManager manager) {
 		unregister(manager);
-		boolean removedManagerPrio = ApamManagers.relationManagersPrio.remove(manager) != null ? true : false;
 		boolean removedManager = ApamManagers.relationManagers.remove(manager);
-
-		if (!removedManagerPrio) {
-			logger.error("impossible to remove manager {} from prior list", manager.getName());
-		}
 		if (!removedManager) {
 			logger.error("impossible to remove manager {} from main list", manager.getName());
 		}
 
 	}
 
-	private static void unregister(Manager manager) {
-		if (manager == null) {
-			logger.error("ERROR : Missing parameter manager in  unregister Manager");
-			return;
-		}
-
-		boolean managerRemoved = managers.remove(manager);
-		if (managerRemoved && manager.getName() != null) {
-			logger.info("[" + manager.getName() + " unregistered]");
-		} else {
-			logger.error("[" + manager.getName() + " could NOT be unregistered]");
-		}
-
-	}
 }

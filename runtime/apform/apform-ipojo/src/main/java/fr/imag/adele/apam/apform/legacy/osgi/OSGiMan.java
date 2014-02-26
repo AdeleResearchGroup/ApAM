@@ -15,7 +15,6 @@
 package fr.imag.adele.apam.apform.legacy.osgi;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.ipojo.Factory;
@@ -34,6 +33,7 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ContextualManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -44,12 +44,11 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 
 @Instantiate(name = "OSGiMan-Instance")
 @org.apache.felix.ipojo.annotations.Component(name = "OSGiMan" , immediate=true)
 @Provides
-public class OSGiMan implements RelationManager {
+public class OSGiMan implements ContextualManager, RelationManager {
 
 	// private final static Logger logger =
 	// LoggerFactory.getLogger(OSGiMan.class);
@@ -80,14 +79,10 @@ public class OSGiMan implements RelationManager {
 		return "OSGiMan";
 	}
 
-	@Override
-	public int getPriority() {
-		return 2;
-	}
 
 	@Validate
 	private synchronized void start() {
-		ApamManagers.addRelationManager(this,getPriority());
+		ApamManagers.addRelationManager(this,Priority.HIGH);
 	}
 	
 	@Invalidate
@@ -97,17 +92,17 @@ public class OSGiMan implements RelationManager {
 	
     
 	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-		this.model = model;
+	public void initializeContext(CompositeType context) {
+		this.model = context.getModel(this);
 	}
 
 	@Override
-	public void getSelectionPath(Component client, RelToResolve relToResolve, List<RelationManager> selPath) {
-        selPath.add(selPath.size(), this);
+	public boolean beginResolving(RelToResolve relToResolve) {
+        return true;
 	}
 
 	@Override
-	public Resolved<?> resolveRelation(Component client, RelToResolve relToResolve) {
+	public Resolved<?> resolve(RelToResolve relToResolve) {
 		
 		InterfaceReference target = relToResolve.getTarget().as(InterfaceReference.class);
 		if (target == null)
@@ -183,15 +178,6 @@ public class OSGiMan implements RelationManager {
 		} catch (InvalidSyntaxException ignored) { }
 
 		return resolution;
-	}
-
-	@Override
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-	}
-
-	@Override
-	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
-		return null;
 	}
 
 }

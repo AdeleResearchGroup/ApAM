@@ -14,11 +14,6 @@
  */
 package fr.imag.adele.apam;
 
-import java.net.URL;
-import java.util.List;
-import java.util.Set;
-
-import fr.imag.adele.apam.declarations.ResolvableReference;
 
 /**
  * Interface that each relation manager MUST implement. Used by APAM to resolve
@@ -30,66 +25,37 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 
 public interface RelationManager extends Manager {
 
-	public interface ComponentBundle {
-		URL getBundelURL();
-
-		public Set<String> getComponents();
+	/**
+	 * If several relation managers are registered their order is important, so we
+	 * use priorities to have some control over this order.
+	 * 
+	 * NOTE WARNING constants are enumerated in descending order of priority
+	 */
+	public enum Priority  {
+		HIGHEST,
+		HIGH,
+		MEDIUM,
+		LOW,
+		LOWEST  
 	}
-
-	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName);
-
+	
 	/**
 	 * Provided that a relation resolution is required by client, each manager
 	 * is asked if it want to be involved. If this manager is not involved, it
-	 * does nothing. If involved, it must return the list "selPath" including
-	 * itself somewhere (the order is important). It can *add* constraints or
-	 * preferences that will used by each manager during the resolution.
+	 * does nothing. Even if the manager is not involved in resolution, it can
+	 *  *add* constraints or preferences that will used during the resolution.
 	 * 
-	 * @param client
-	 *            the client asking for a resolution
 	 * @param relToResolve
 	 *            the relation to resolve. It contains the target type and name;
 	 *            and the constraints.
-	 * @param selPath
-	 *            the managers currently involved in this resolution.
 	 */
-	public void getSelectionPath(Component source, RelToResolve relToResolve, List<RelationManager> selPath);
+	public boolean beginResolving(RelToResolve relToResolve);
 
-	/**
-	 * Once the resolution terminated, either successful or not, the managers
-	 * are notified of the current selection. Currently, the managers cannot
-	 * "undo" nor change the current selection.
-	 * 
-	 * @param client
-	 *            the client of that resolution
-	 * @param resName
-	 *            : either the interfaceName, the spec name or the
-	 *            implementation name to resolve depending on the fact
-	 *            newWireSpec or newWireImpl has been called.
-	 * @param depName
-	 *            : the relation to resolve.
-	 * @param impl
-	 *            : the implementation selected
-	 * @param inst
-	 *            : the instance selected (null if cardinality multiple)
-	 * @param insts
-	 *            : the set of instances selected (null if simple cardinality)
-	 */
-	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts);
 
 	/**
 	 * Performs a complete resolution of the relation.
 	 * 
-	 * The manager is asked to find the "right" implementations and instances
-	 * for the provided relation. If relation is simple (not multiple), returns
-	 * a singleton, and a single element in insts.
 	 * 
-	 * WARNING: can return instances but no implementation, or vice versa (e.g.
-	 * implementations are not visible, but their instances are visible).
-	 * 
-	 * @param client
-	 *            the instance asking for the resolution (and where to create
-	 *            implementation, if needed). Cannot be null.
 	 * @param relToResolve
 	 *            a relation declaration containing the type and name of the
 	 *            relation target. It can be -the specification Name (new
@@ -97,12 +63,7 @@ public interface RelationManager extends Manager {
 	 *            (new ImplementationRefernece (name) -an interface name (new
 	 *            InterfaceReference (interfaceName)) -a message name (new
 	 *            MessageReference (dataTypeName)) - or any future resource ...
-	 * @param insts
-	 *            : an empty set in input, or null. If null, do not try to find
-	 *            the instances.
-	 * @return the implementations if resolved, null otherwise
-	 * @return in insts, the valid instances, null if none.
 	 */
-	public Resolved<?> resolveRelation(Component source, RelToResolve relToResolve);
+	public Resolved<?> resolve(RelToResolve relToResolve);
 
 }

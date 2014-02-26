@@ -86,12 +86,10 @@ public interface Composite extends Instance {
 	public Instance getMainInst();
 
 	/**
-	 * returns the model with the "name"
+	 * returns the model of the specified manager
 	 * 
-	 * @param name
-	 * @return
 	 */
-	public ManagerModel getModel(String name);
+	public ManagerModel getModel(ContextualManager manager);
 
 	/**
 	 * 
