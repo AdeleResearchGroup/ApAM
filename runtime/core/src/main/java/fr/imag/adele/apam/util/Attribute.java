@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class Attribute {
 	/**
 	 * Check if the attribute value is valid; if so return the value to put into
 	 * the object property Map. In the Map, values are String, Integer or
-	 * Set<String> for all sets. Type can be a singleton "int", "boolean" or
+	 * Set<String> for all sets. Type can be a singleton "int", "boolean", "float", "version" or
 	 * "string" or enumeration "v1, v2, v3 ..." or a set of these : "{int}", or
 	 * "{string}" or enumeration "{v1, v2, v3 ...}"
 	 * 
@@ -111,7 +112,7 @@ public class Attribute {
 				Set<String> valSetFloat = new HashSet<String>();
 				try {
 					for (Object i : (Set<?>) value) {
-						if (i instanceof Double) {
+						if (i instanceof Float) {
 							valSetFloat.add(Float.toString((Float) i));
 						} else {
 							if (i instanceof String) {
@@ -134,6 +135,40 @@ public class Attribute {
 			logger.error("Invalid Float value " + value + " for attribute " + attribute);
 			return false;
 		}		
+		
+		if (aType.type == AttrType.VERSION) {
+			if (aType.isSet) {
+				// Value MUST be a Set of Version
+				if (!(value instanceof Set<?>)) {
+					logger.error("Attribute value " + value + " not an a Set<Version> for attribute " + attribute);
+					return false;
+				}
+				Set<String> valSetVersion = new HashSet<String>();
+				try {
+					for (Object i : (Set<?>) value) {
+						if (i instanceof Version) {
+							valSetVersion.add(i.toString());
+						} else {
+							if (i instanceof String) {
+								// to be sure it is an integer
+								Version.parseVersion((String) i);
+								valSetVersion.add((String) i);
+							}
+						}
+					}
+				} catch (Exception e) {
+					logger.error("In attribute value " + value + " is not an Version Set, for attribute " + attribute);
+					return false;
+				}
+				return valSetVersion ;
+			}
+			// A singleton
+			if (value instanceof Version) {
+				return value;
+			}
+			logger.error("Invalid Version value " + value + " for attribute " + attribute);
+			return false;
+		}			
 
 		/*
 		 * Booleans
@@ -263,7 +298,7 @@ public class Attribute {
 				if (!at.isSet) {
 					return Float.valueOf(value);
 				}
-				// unfortunately, match does not recognizes a set of integer.
+				// unfortunately, match does not recognizes a set of float.
 				// return the list as a string ;
 				Set<String> normalizedValues = new HashSet<String>();
 				for (String val : values) {
@@ -274,6 +309,23 @@ public class Attribute {
 				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Float value(s) expected");
 				return null;
 			}			
+		case AttrType.VERSION:
+			try {
+				if (!at.isSet) {
+					return Version.parseVersion(value);
+				}
+				// unfortunately, match does not recognizes a set of version.
+				// return the list as a string ;
+				Set<String> normalizedValues = new HashSet<String>();
+				for (String val : values) {
+					normalizedValues.add(val);
+				}
+				return normalizedValues;
+			} catch (Exception e) {
+				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Version value(s) expected");
+				return null;
+			}			
+			
 		case AttrType.STRING:
 			// if (type.equals("string")) {
 			// All values are Ok for string.
@@ -365,8 +417,8 @@ public class Attribute {
 		}
 		type = enumVals.iterator().next();
 
-		if (type == null || !(type.equals("string") || type.equals("int") || type.equals("boolean") || type.equals("float") || type.charAt(0) == '{')) {
-			logger.error("Invalid type " + type + ". Supported: string, int, boolean, double, enumeration; and sets");
+		if (type == null || !(type.equals("string") || type.equals("int") || type.equals("boolean") || type.equals("float") || type.equals("version") || type.charAt(0) == '{')) {
+			logger.error("Invalid type " + type + ". Supported: string, int, boolean, float, version, enumeration; and sets");
 			return false;
 		}
 		return true;

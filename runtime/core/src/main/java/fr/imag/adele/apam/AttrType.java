@@ -15,6 +15,7 @@ public class AttrType {
 	public static final int BOOLEAN = 2;
 	public static final int ENUM = 3;
 	public static final int FLOAT = 4;
+	public static final int VERSION = 5;
 	
 	public boolean isSet = false;
 	public int type;
@@ -37,7 +38,7 @@ public class AttrType {
 
 		/*
 		 * check if type is correct. It can be either an enumeration
-		 * "a, b, c, ...", or "int", "integer", "string", "boolean"
+		 * "a, b, c, ...", or "int", "integer", "string", "boolean", "float" or "version"
 		 */
 
 		if (typeString.indexOf(',') != -1) {
@@ -64,9 +65,14 @@ public class AttrType {
 		if (typeString.equalsIgnoreCase("float")) {
 			type = FLOAT;
 			return;
-		}		
+		}	
 		
-		logger.error("Invalid type " + typeString + ". Expected enumeration, string, integer, boolean, float.");
+		if (typeString.equalsIgnoreCase("version")) {
+			type = VERSION;
+			return;
+		}			
+		
+		logger.error("Invalid type " + typeString + ". Expected enumeration, string, integer, boolean, float, version.");
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,6 +217,9 @@ public final class Util {
 			return value.toString();
 		}
 		if (value instanceof Float) {
+			return value.toString();
+		}		
+		if (value instanceof Version) {
 			return value.toString();
 		}		
 		if (value instanceof Boolean) {

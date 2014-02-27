@@ -415,6 +415,7 @@ public final class CheckObr {
 		if (Substitute.checkSubType(st, new AttrType(pd), attr, sub)) {
 			return true;
 		}
+
 		setFailedParsing(true);
 		return false;
 
