@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.felix.ipojo.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,12 +146,12 @@ public class ApamResolverImpl implements ApamResolver {
 				long currentTime = System.currentTimeMillis();
 				if (currentTime > maxDisableTime) {
 
-					System.err.println("APAM RESOLVER resuming resolution, condition did not happen: " + condition);
+					logger.debug("APAM RESOLVER resuming resolution, condition did not happen: " + condition);
 					enable();
 					return;
 				}
 
-				System.err.println("APAM RESOLVER waiting for: " + condition);
+				logger.debug("APAM RESOLVER waiting for: " + condition);
 				wait(this.maxDisableTime - currentTime);
 
 			} catch (InterruptedException ignored) {
@@ -165,7 +166,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	public synchronized void disable(String condition, long timeout) {
 		
-		System.err.println("Resolver disabled waiting for "+condition);
+		logger.debug("Resolver disabled waiting for "+condition);
 		this.enabled = false;
 		this.condition = condition;
 		this.maxDisableTime = System.currentTimeMillis() + timeout;
@@ -177,7 +178,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	public synchronized void enable() {
 
-		System.err.println("Resolver enabled");
+		logger.debug("Resolver enabled");
 
 		this.enabled = true;
 		this.condition = null;
