@@ -28,4 +28,9 @@ public class InstanceReference extends ComponentReference<InstanceDeclaration> {
 		return ComponentKind.INSTANCE;
 	}
 
+	@Override
+	public String toString() {
+		return "Instance " + getIdentifier();
+	}
+
 }

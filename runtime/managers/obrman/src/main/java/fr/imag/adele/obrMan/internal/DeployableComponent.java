@@ -2,12 +2,16 @@ package fr.imag.adele.obrMan.internal;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Reason;
+import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
@@ -38,6 +42,8 @@ public class DeployableComponent {
 
 	private final OBRMan 				manager;
 
+	private final String				repository;
+	
 	private final Resource 				resource;
 	private final Capability			metadata;
 	private final ComponentReference<?> component;
@@ -46,13 +52,16 @@ public class DeployableComponent {
 
 
 
-	public DeployableComponent(OBRMan manager, Resource resource, Capability capability) {
+	public DeployableComponent(Repository repository, OBRMan manager, Resource resource, Capability capability) {
 		
 		assert capability.getName().equals(CST.CAPABILITY_COMPONENT);
 
 		this.manager	= manager;
 		this.resource 	= resource;
+		
+		this.repository	= repository.getURI();
 		this.metadata	= capability;
+
 		this.component	= getComponent(metadata);
 		
 		this.hashCode	= this.resource.getURI().hashCode()^
@@ -270,9 +279,12 @@ public class DeployableComponent {
 			
 			if (missingRequirements.length > 0) {
 				
-				logger.error("Unable to deploy resource: " + resource);
+				logger.error("Unable to deploy component: " + component);
+				logger.error("	repository: " + repository);
+				logger.error("	bundle: " + resource);
+				logger.error("	bundle location: " + resource.getURI());
 				for (Reason missingRequirement : missingRequirements) {
-					logger.error("	unsatified requirement: " + missingRequirement.getRequirement());
+					logger.error("	unsatisfied requirement: " + missingRequirement.getRequirement());
 				}
 				
 				return null;
@@ -286,8 +298,28 @@ public class DeployableComponent {
 			 * 
 			 */
 			try {
-				
+
 				resolver.deploy(Resolver.START);
+				
+				logger.debug("Deployed component: " + component);
+				logger.debug("	repository: " + repository);
+				
+				List<Resource> deployedResources = new ArrayList<Resource>();
+				
+				deployedResources.addAll(Arrays.asList(resolver.getAddedResources()));
+				deployedResources.addAll(Arrays.asList(resolver.getRequiredResources()));
+				deployedResources.addAll(Arrays.asList(resolver.getOptionalResources()));
+				
+				for (Resource deployedResource : deployedResources) {
+					logger.debug("	deployed resource: " + deployedResource);
+					logger.debug("		location: " + deployedResource.getURI());
+					
+					Reason[] reasons = resolver.getReason(deployedResource);
+					for(Reason reason : reasons != null ? reasons : new Reason[0]) {
+						logger.debug("		satisfies requirement: " + reason.getRequirement()+" of "+reason.getResource());
+					}
+				}
+				
 				retrying = false;
 				deployed = true;
 				
@@ -298,7 +330,7 @@ public class DeployableComponent {
 				
 			} catch (Exception e) {
 				
-				logger.error ("Deployment of " + component + " from "+resource+"failed.") ;
+				logger.error ("Deployment of " + component + " from "+resource+" failed.",e) ;
 				retrying = false;
 				deployed = false;
 			}

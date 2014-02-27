@@ -115,7 +115,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 			for (Resource resource : repository.getResources()) {
 				for (Capability capability : resource.getCapabilities()) {
 					if (capability.getName().equals(CST.CAPABILITY_COMPONENT))
-						components.add(new DeployableComponent(manager,resource,capability));
+						components.add(new DeployableComponent(repository,manager,resource,capability));
 				}
 			}
 			
