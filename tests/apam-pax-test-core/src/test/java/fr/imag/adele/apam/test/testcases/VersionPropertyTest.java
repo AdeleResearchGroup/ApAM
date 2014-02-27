@@ -88,8 +88,10 @@ public class VersionPropertyTest extends ExtensionAbstract {
 
 		Implementation server1 = waitForImplByName(null, "implem-server");
 		Assert.assertNotNull("server v1 must exists", server1);
-		System.err.println("version : "+server1.getPropertyObject("version"));		
-		Assert.assertNotNull("Property version must exist ",server1.getPropertyObject("version"));
+		System.err.println("properties, "+server1.getImplDeclaration().getProperties());
+
+		System.err.println("version : "+server1.getProperty("apam.version"));		
+		Assert.assertNotNull("Property version must exist ",server1.getPropertyObject("apam.version"));
 		
 
 

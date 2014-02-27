@@ -180,8 +180,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 				if (artifact instanceof Artifact) {
 
 					Artifact relation = (Artifact) artifact;
-					System.err.println("relation artefact : "
-							+ relation.getArtifactId());
 
 					VersionRange range = relation.getVersionRange();
 

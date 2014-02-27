@@ -4,6 +4,11 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 
-    <implementation name="implem-client" classname="fr.imag.adele.apam.tests.app.Dummy"></implementation>
+    <implementation name="implem-client" classname="fr.imag.adele.apam.tests.app.Dummy">
+        <definition name="testVersionDef" type="version"/>
+        <definition name="testVersionProp" type="version"/>
+        <property name="testVersionProp" value="1.2.3"/>
+        
+    </implementation>
 
 </apam>

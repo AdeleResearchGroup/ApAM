@@ -112,38 +112,6 @@
 		</resources>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.felix</groupId>
-					<artifactId>maven-bundle-plugin</artifactId>
-					<version>${bundle.plugin.version}</version>
-					<extensions>true</extensions>
-					<configuration>
-						<instructions>
-							<Provide-Capability>
-								fr.imag.adele.apam;
-								project.groupId:String="${project.groupId}";
-								project.artifactId:String="${project.artifactId}";
-								project.version:String="${project.version}"
-							</Provide-Capability>
-							<Maven-groupId>${project.groupId}</Maven-groupId>
-							<Maven-artifactId>${project.artifactId}</Maven-artifactId>
-							<Maven-version>${project.version}</Maven-version>
-							<Apam-version>${project.parent.version}</Apam-version>
-							<Bundle-Name>${project.name}</Bundle-Name>
-							<Bundle-Description>
-								${project.description}
-							</Bundle-Description>
-							<Bundle-SymbolicName>
-								${project.artifactId}
-							</Bundle-SymbolicName>
-							<Bundle-Vendor>
-								Adele/LIG/ Grenoble University, France
-							</Bundle-Vendor>
-							<Bundle-Version>${project.version}</Bundle-Version>
-						</instructions>
-						<remoteOBR>${remote.obr.url}</remoteOBR>
-					</configuration>
-				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
