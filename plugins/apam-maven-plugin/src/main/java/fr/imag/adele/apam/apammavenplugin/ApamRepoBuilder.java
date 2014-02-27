@@ -203,18 +203,7 @@ public class ApamRepoBuilder {
 		obrContent.append(BEGIN_P + "apam.version" + "' t='" + "version"
 				+ ATT_V + ApamMavenProperties.mavenVersion.replace('-', '.')
 				+ END_P);
-		// TODO : Check to set these properties not as final
-		// generateTypedProperty(obrContent, component, "maven.artifactId",
-		// "string",
-		// OBRGeneratorMojo.currentProjectArtifactId);
-		// generateTypedProperty(obrContent, component, "maven.version",
-		// "string",
-		// OBRGeneratorMojo.currentProjectVersion);
-		//
 
-		// generateTypedProperty(obrContent, component, "apam.version",
-		// "version",
-		// ApamMavenProperties.mavenVersion.replace('-', '.'));
 		generateTypedProperty(obrContent, component, "version", "version",
 				OBRGeneratorMojo.thisBundleVersion);
 		ApamCapability.get(component.getReference()).freeze();
