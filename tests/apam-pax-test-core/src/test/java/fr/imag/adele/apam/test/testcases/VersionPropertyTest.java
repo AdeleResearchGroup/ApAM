@@ -14,12 +14,9 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,23 +26,15 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.impl.APAMImpl;
-import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
-import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
-import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch;
-import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeIntChangeNotificationSwitch;
-import fr.imag.adele.apam.pax.test.implS1.S1Impl;
-import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct021;
-import fr.imag.adele.apam.pax.test.implS1.S1Impl_tct025;
-import fr.imag.adele.apam.tests.app.Implems1tct026;
-import fr.imag.adele.apam.tests.helpers.Constants;
+
+import fr.imag.adele.apam.tests.app.ClientObject;
+
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(PaxExam.class)
@@ -58,10 +47,10 @@ public class VersionPropertyTest extends ExtensionAbstract {
 	public List<Option> config() {
 		Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
 
-		mapOfRequiredArtifacts.put("implem-server-v1",
-				"fr.imag.adele.apam.tests.services");
-		mapOfRequiredArtifacts.put("implem-server-v2",
-				"fr.imag.adele.apam.tests.services");
+//		mapOfRequiredArtifacts.put("implem-server-v1",
+//				"fr.imag.adele.apam.tests.services");
+//		mapOfRequiredArtifacts.put("implem-server-v2",
+//				"fr.imag.adele.apam.tests.services");
 		mapOfRequiredArtifacts.put("implem-client",
 				"fr.imag.adele.apam.tests.services");
 
@@ -73,27 +62,66 @@ public class VersionPropertyTest extends ExtensionAbstract {
 	public void getNewPredefinedProperties_tct039()
 			throws InvalidSyntaxException {
 
-		Implementation server1 = waitForImplByName(null, "implem-server");
-		System.err.println("properties, "+server1.getImplDeclaration().getProperties());
-		Assert.assertNotNull("server v1 must exists", server1);
-		Assert.assertNotNull("Property maven.groupId must exist ",server1.getPropertyObject("maven.groupId"));
-		Assert.assertNotNull("Property maven.artifactId must exist ",server1.getPropertyObject("maven.artifactId"));
-		Assert.assertNotNull("Property maven.version must exist ",server1.getPropertyObject("maven.version"));
-		Assert.assertNotNull("Property apam.version must exist ",server1.getPropertyObject("apam.version"));
+		Implementation client = waitForImplByName(null, "implem-client");
+		System.err.println("properties, "+client.getImplDeclaration().getProperties());
+		Assert.assertNotNull("client must exists", client);
+		Assert.assertNotNull("Property maven.groupId must exist ",client.getPropertyObject("maven.groupId"));
+		Assert.assertEquals("Property maven.groupId type is a string ", "string", client.getPropertyDefinition("maven.groupId").getType());
+		
+		Assert.assertNotNull("Property maven.artifactId must exist ",client.getPropertyObject("maven.artifactId"));
+		Assert.assertEquals("Property maven.artifactId type is a string ", "string", client.getPropertyDefinition("maven.artifactId").getType());
+		
+		Assert.assertNotNull("Property maven.version must exist ",client.getPropertyObject("maven.version"));
+		Assert.assertEquals("Property maven.version type is a string ", "string", client.getPropertyDefinition("maven.version").getType());
+		
+		Assert.assertNotNull("Property apam.version must exist ",client.getPropertyObject("apam.version"));
+		Assert.assertEquals("Property apam.version type is a version ", "version", client.getPropertyDefinition("apam.version").getType());
+		
+		Assert.assertNotNull("Property version must exist ",client.getPropertyObject("version"));
+		Assert.assertEquals("Property version type is a version ", "version", client.getPropertyDefinition("version").getType());
 	}
 	
 	@Test
 	public void getPropertyVersion_tct040()
 			throws InvalidSyntaxException {
 
-		Implementation server1 = waitForImplByName(null, "implem-server");
-		Assert.assertNotNull("server v1 must exists", server1);
-		System.err.println("properties, "+server1.getImplDeclaration().getProperties());
+		Implementation client = waitForImplByName(null, "implem-client");
+		Assert.assertNotNull("client must exists", client);
+		System.err.println("Client implem properties, "+client.getImplDeclaration().getProperties());
 
-		System.err.println("version : "+server1.getProperty("apam.version"));		
-		Assert.assertNotNull("Property version must exist ",server1.getPropertyObject("apam.version"));
+		System.err.println("version : "+client.getProperty("testVersionProp"));		
+		Assert.assertNotNull("Property testVersionProp must exist ",client.getPropertyObject("testVersionProp"));
+		Assert.assertEquals("Property testVersionProp type is a version ", "version", client.getPropertyDefinition("testVersionProp").getType());
+		Assert.assertEquals("Property testVersionProp value is 1.2.3 ", Version.parseVersion("1.2.3"), client.getPropertyObject("testVersionProp"));
 		
+		client.setProperty("testVersionDef", Version.parseVersion("4.5.6"));
+		Assert.assertNotNull("Property testVersionDef must exist ",client.getPropertyObject("testVersionDef"));
+		Assert.assertEquals("Property testVersionDef type is a version ", "version", client.getPropertyDefinition("testVersionDef").getType());
+		Assert.assertEquals("Property testVersionDef value is 4.5.6 ", Version.parseVersion("4.5.6"), client.getPropertyObject("testVersionDef"));
+		
+		System.err.println("Creating an instance, defined properties should be inherited");
 
+		Instance instClient = client.createInstance(null, null);
+		System.err.println("Client instance properties, "+instClient.getAllProperties().entrySet());
+
+		Assert.assertNotNull("Property testVersionProp must exist ",instClient.getPropertyObject("testVersionProp"));
+		Assert.assertEquals("Property testVersionProp type is a version ", "version", instClient.getPropertyDefinition("testVersionProp").getType());
+		Assert.assertEquals("Property testVersionProp value is 1.2.3 ", Version.parseVersion("1.2.3"), instClient.getPropertyObject("testVersionProp"));
+		
+		Assert.assertNotNull("Property testVersionDef must exist ",instClient.getPropertyObject("testVersionDef"));
+		Assert.assertEquals("Property testVersionDef type is a version ", "version", instClient.getPropertyDefinition("testVersionDef").getType());
+		Assert.assertEquals("Property testVersionDef value is 4.5.6 ", Version.parseVersion("4.5.6"), instClient.getPropertyObject("testVersionDef"));
+		
+		System.err.println("Test injection");
+		ClientObject myObject = (ClientObject) instClient.getServiceObject();
+		myObject.setMyVersionInjected(Version.parseVersion("7.8.9"));
+		
+		Assert.assertNotNull("Property testVersionInjected must exist ",instClient.getPropertyObject("testVersionInjected"));
+		Assert.assertEquals("Property testVersionInjected type is a version ", "version", instClient.getPropertyDefinition("testVersionInjected").getType());
+		Assert.assertEquals("Property testVersionInjected value is 7.8.9 ", Version.parseVersion("7.8.9"), instClient.getPropertyObject("testVersionInjected"));	
+		
+		instClient.setProperty("testVersionInjected", Version.parseVersion("1.0.1"));
+		Assert.assertEquals("Property testVersionInjected value (from javaclass) ", Version.parseVersion("1.0.1"), myObject.getMyVersionInjected());
 
 	}
 
