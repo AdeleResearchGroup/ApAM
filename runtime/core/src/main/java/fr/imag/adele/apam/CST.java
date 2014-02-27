@@ -79,7 +79,18 @@ public class CST {
 	public static final String[] notInheritedAttribute = { NAME, COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
 
 	// Attributes that cannot be changed nor set by users
-	public static final String[] finalAttributes = { CST.NAME, VERSION, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON };
+	public static final String[] finalAttributes = { CST.NAME, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON };
+
+	// Attributes set during the build that cannot be changed nor set by users
+	public static final String[] buildAttributes = { CST.buildMavenGroupId, CST.buildMavenArtifactId, CST.buildMavenVersion, CST.buildApamVersion, CST.buildVersion};
+	
+	public static final String buildAttributePrefix = "build.";
+	public static final String buildMavenGroupId = "maven.groupId";
+	public static final String buildMavenArtifactId = "maven.artifactId";
+	public static final String buildMavenVersion = "maven.version";
+	public static final String buildApamVersion = "apam.version";
+	public static final String buildVersion = "version";
+	
 
 	public static final String V_TRUE = "true";
 	public static final String V_FALSE = "false";
