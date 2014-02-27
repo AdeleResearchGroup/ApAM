@@ -953,6 +953,7 @@ implements Component, Comparable<Component> {
 		 *  First add the valid attributes.
 		 */
 		for (Map.Entry<String, String> entry : props.entrySet()) {
+			
 			PropertyDefinition def = validDef(entry.getKey(), true);
 			if (def != null) {
 				Object val = Attribute.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
@@ -1505,7 +1506,7 @@ implements Component, Comparable<Component> {
 	 * @return
 	 */
 	public PropertyDefinition validDef(String attr, boolean forced) {
-		if (Attribute.isFinalAttribute(attr)) {
+		if (Attribute.isFinalAttribute(attr) ) {
 			logger.error("In " + this + ", cannot redefine final attribute \""
 					+ attr + "\"");
 			return null;
@@ -1518,7 +1519,7 @@ implements Component, Comparable<Component> {
 		}
 
 		PropertyDefinition definition = this.getAttrDefinition(attr);
-		if (definition == null) {
+		if (definition == null ) {
 			logger.error("In " + this + ", attribute \"" + attr
 					+ "\" is undefined.");
 			return null;
@@ -1541,7 +1542,7 @@ implements Component, Comparable<Component> {
 		if (group != null && group.get(attr) != null) {
 			// If the attribute above is the default value, it is allowed to
 			// change it
-			if (!group.get(attr).equals(definition.getDefaultValue())) {
+			if (!group.get(attr).equals(definition.getDefaultValue()) && !Attribute.isBuiltAttribute(attr)) {
 				logger.error("In " + this + ", cannot redefine attribute \""
 						+ attr + "\"");
 				return null;

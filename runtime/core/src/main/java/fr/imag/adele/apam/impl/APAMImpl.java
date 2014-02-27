@@ -162,7 +162,6 @@ public class APAMImpl implements Apam {
 			throw new RuntimeException("Error while constructor of updateMan");
 		}
 		failureMan = new FailedResolutionManager();
-		System.err.println("deadlock ?");
 		
 		Map<String,URL> rootConfiguration = parseRootConfiguration(context.getProperty(Apam.EXPECTED_MANAGERS));
 		new CST(this, rootConfiguration);

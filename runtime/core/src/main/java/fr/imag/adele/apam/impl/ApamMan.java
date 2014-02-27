@@ -131,10 +131,10 @@ public class ApamMan implements RelationManager {
 			if (relToResolve.getTargetKind() == ComponentKind.INSTANCE) {
 				return new Resolved<Instance>(inst);
 			}
-			System.err.println("if (relToResolve.getTarget() instanceof InstanceReference) ") ;
+			logger.debug("if (relToResolve.getTarget() instanceof InstanceReference) ") ;
 			return null;
 		} else if (relToResolve.getTarget() instanceof ComponentReference<?>) {
-			System.err.println("Invalid target reference : " + relToResolve.getTarget());
+			logger.error("Invalid target reference : " + relToResolve.getTarget());
 			return null;
 		}
 

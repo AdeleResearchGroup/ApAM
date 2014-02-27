@@ -343,6 +343,19 @@ public class Attribute {
 		}
 		return false;
 	}
+	
+	public static boolean isBuiltAttribute(String attr) {
+		// Attributes sets during build are considered final
+		for (String pred : CST.buildAttributes) {
+			if (pred.equals(attr)) {
+				return true;
+			}
+		}		
+		if(attr != null && attr.startsWith(CST.buildAttributePrefix)) {
+			return true;
+		}
+		return false;
+	}
 
 	public static boolean isInheritedAttribute(String attr) {
 		if (isReservedAttributePrefix(attr)) {
