@@ -387,24 +387,52 @@ public class RelToResolveImpl implements RelToResolve {
 		return getPreferedFilter(candidates, getInstancePreferenceFilters());
 	}
 
+	/**
+	 * Calculates the ranking of the given candidate according to the preferences.
+	 * 
+	 */
+	public int ranking(ComponentKind kind, Map<String, Object> candidate) {
+		switch(kind) {
+		case IMPLEMENTATION:
+			return ranking(candidate,getImplementationPreferenceFilters());
+		case INSTANCE:
+			return ranking(candidate,getInstancePreferenceFilters());
+		default:
+			return 0;
+		
+		}
+	}
+	
+	/**
+	 * Calculates the ranking of the given candidate according to the preferences.
+	 * 
+	 * The ranking is the number of satisfied criteria of the candidate, in the
+	 * order of definition. If a criteria is not satisfied, the other preferences 
+	 * are not considered.
+	 * 
+	 * The higher the number the better the ranking.
+	 */
+	private int ranking(Map<String, Object> candidate, List<ApamFilter> preferences) {
+
+		if (!isInitialized) {
+			computeFilters();
+		}
+		
+		int ranking = 0;
+		for (ApamFilter preference : preferences) {
+			if (! preference.match(candidate))
+				break;
+			
+			ranking++;
+		}
+		
+		return ranking;
+
+	}
+
 	@Override
 	public RelationDefinition getRelationDefinition() {
 		return relationDefinition;
-	}
-
-	/*
-	 * return the component corresponding to the sourceKind.
-	 */
-	@Override
-	public Component getRelSource() {
-		Component source = linkSource;
-		while (source != null) {
-			if (source.getKind() == getSourceKind()) {
-				return source;
-			}
-			source = source.getGroup();
-		}
-		return null;
 	}
 
 	@Override

@@ -122,9 +122,12 @@ public class ApamManagers {
 		((APAMImpl) CST.apam).managerRegistered(manager);
 		logger.info("[" + manager.getName() + "] registered and initialized");
 
+		/*
+		 * Initialize contextual managers for all context that were created before the
+		 * manager registered
+		 */
 		if (manager instanceof ContextualManager) {
-			ContextualManager contextualManager = ContextualManager.class.cast(manager);
-			contextualManager.initializeContext(CompositeTypeImpl.getRootCompositeType());
+			initializeContextualManager(ContextualManager.class.cast(manager),CompositeTypeImpl.getRootCompositeType());
 		}
 		
 		if (manager instanceof DeploymentManager)
@@ -133,6 +136,13 @@ public class ApamManagers {
 			contextualManagers.add((ContextualManager)manager);
 	}
 
+	private static void initializeContextualManager(ContextualManager manager, CompositeType context) {
+		manager.initializeContext(context);
+		for (CompositeType nested : context.getEmbedded()) {
+			initializeContextualManager(manager,nested);
+		}
+	}
+	
 	private static void unregister(Manager manager) {
 
 		boolean managerRemoved = managers.remove(manager);

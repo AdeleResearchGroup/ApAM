@@ -69,16 +69,6 @@ public interface RelToResolve {
 	// the associated relation
 	public RelationDefinition getRelationDefinition();
 
-	// // The defining component
-	// public Component getComponent() ;
-
-	// return the ancestor or base (including base) corresponding to the
-	// sourceKind
-	public Component getRelSource();
-
-	// //Get the source (ancestor) for ctxt relation
-	// public String getSource () ;
-
 	public ResolvePolicy getResolve();
 
 	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion);
@@ -129,6 +119,8 @@ public interface RelToResolve {
 	public boolean matchRelationConstraints(Component target);
 
 	public boolean matchRelationConstraints(ComponentKind candidateKind, Map<String, Object> properties);
+
+	public int ranking(ComponentKind candidateKind, Map<String, Object> properties);
 
 	public boolean matchRelationTarget(Component target);
 

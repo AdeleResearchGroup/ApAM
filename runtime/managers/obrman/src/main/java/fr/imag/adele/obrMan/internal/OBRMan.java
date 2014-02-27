@@ -15,20 +15,27 @@
 package fr.imag.adele.obrMan.internal;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 
+import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resolver;
+import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,19 +51,30 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
 import fr.imag.adele.obrMan.OBRManCommand;
-import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
+
+/**
+ * This manager handles automatic component installation from a bundle repository. This allows
+ * incremental installation of components as they are requested by service clients.
+ * 
+ * This is a contextual manager, a model can be associated with each composite type context to
+ * configure the repositories used to look for components.
+ * 
+ * This is the main entry point that extends the APAM core, it dispatches to appropriate managers
+ * depending on the context of the source component of the request.
+ * 
+ * This class handles a pool of bundle repositories that is shared by all contextual managers,
+ * this reduces the memory footprint in the usual case that the same repository is configured
+ * for several composite types. 
+ *  
+ * @author vega
+ *
+ */
 public class OBRMan implements ContextualManager, DeploymentManager, RelationManager, OBRManCommand {
+
+	private final Logger logger = LoggerFactory.getLogger(OBRMan.class);
 
 	/**
 	 * An injected reference to the APAM core, used to ensure proper order
@@ -78,15 +96,160 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 	 */
 	private final Map<CompositeType, OBRManager> obrManagers;
 
+	/**
+	 * This class represents an APAM component repository associated with a bundle repository.
+	 * 
+	 * The repository handles a read-only view on the APAM components declared in the bundle
+	 * repository
+	 */
+	private static class ComponentRepository  {
+		
+		private final Repository repository;
+		
+		private final Set<DeployableComponent> components;
+		
+		public ComponentRepository(OBRMan manager, Repository repository) {
+			this.repository = repository;
+			
+			this.components = new HashSet<DeployableComponent>();
+			for (Resource resource : repository.getResources()) {
+				for (Capability capability : resource.getCapabilities()) {
+					if (capability.getName().equals(CST.CAPABILITY_COMPONENT))
+						components.add(new DeployableComponent(manager,resource,capability));
+				}
+			}
+			
+		}
+		
+		public Repository getBundleRepository() {
+			return repository;
+		}
+		
+		public Set<DeployableComponent> getComponents() {
+			return components; 
+		}
+	}
 
-	private final Logger logger = LoggerFactory.getLogger(OBRMan.class);
+	/**
+	 * The pool of all APAM components repositories, shared by all contexts
+	 */
+	private final Map<URI,ComponentRepository> repositories;
 
+	/**
+	 * Updates the in-memory repositories associated with the given contextual managers, and
+	 * the metadata associated with APAM components in that context
+	 */
+	private void update(Set<OBRManager> contexts) {
+		
+		Set<URI> loadedBundleRepositories = new HashSet<URI>();
+		
+		for (OBRManager context : contexts) {
+			
+			for (URI repositoryLocation : context.getModel().getRepositoryLocations()) {
+				try {
+
+					/*
+					 * just avoid loading the same repository several times
+					 */
+					if (loadedBundleRepositories.contains(repositoryLocation)) {
+						continue;
+					}
+					
+					/*
+					 * load repository in memory and extract APAM component metadata
+					 */
+					Repository bundleRepository 			= repoAdmin.getHelper().repository(repositoryLocation.toURL());
+					ComponentRepository componentRepository = new ComponentRepository(this,bundleRepository);
+					
+					loadedBundleRepositories.add(repositoryLocation);
+					repositories.put(repositoryLocation,componentRepository);
+					
+				} catch (Exception e) {
+					logger.error("Composite "+context.getName(),"Error when loading repository  :" + repositoryLocation, e);
+				}
+			}
+			
+		}
+	}
+
+	/**
+	 * This class provides a filtered read-only view of the APAM component repositories visible
+	 * in a given context.
+	 * 
+	 * The view show only the components that are specified as part of the model associated with
+	 * the composite context.
+	 *
+	 */
+	private static class ContextualIterator implements Iterator<DeployableComponent> {
+
+		/**
+		 * Iterator over the visible repositories in the context
+		 */
+		private final Iterator<ComponentRepository> repositories;
+
+		/**
+		 * The currently iterated component repository
+		 */
+		private Iterator<DeployableComponent> repository;
+
+		private ContextualIterator(OBRMan manager, OBRManager context) {
+			
+			Set<ComponentRepository> selectedRepositories = new HashSet<ComponentRepository>();
+			
+			for (URI location : context.getModel().getRepositoryLocations()) {
+				ComponentRepository repository = manager.repositories.get(location);
+				
+				if (repository != null)
+					selectedRepositories.add(repository);
+			}
+			
+			this.repositories 	= selectedRepositories.iterator();
+			this.repository		= null;
+		}
+
+
+		/**
+		 * Updates the reference to the next repository in the iteration 
+		 */
+		private void changeRepositoryIfNeeded() {
+			while ((repository == null || !repository.hasNext()) && repositories.hasNext()) {
+				repository = repositories.next().getComponents().iterator();
+			}
+		}
+				
+		@Override
+		public boolean hasNext() {
+			
+			changeRepositoryIfNeeded();
+			
+			return repository != null && repository.hasNext();
+		}
+
+		@Override
+		public DeployableComponent next() {
+			
+			changeRepositoryIfNeeded();
+			
+			if (repository == null)
+				throw new NoSuchElementException();
+			
+			return repository.next();
+		}
+		
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("component repository is read-only");
+		}
+	}
+	
 	/**
 	 * Initialize OBR Man
 	 */
 	public OBRMan(BundleContext context) {
-		m_context = context;
-		obrManagers = new HashMap<CompositeType, OBRManager>();
+		m_context 		= context;
+		repositories	= new ConcurrentSkipListMap<URI,ComponentRepository>();
+
+		obrManagers 	= new HashMap<CompositeType, OBRManager>();
 	}
 
 	@Override
@@ -116,38 +279,9 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		return apam;
 	}
 	
-	
-	/**
-	 * Loads the repositories associated with the given context
-	 */
-	public List<Repository> loadRepositories(OBRManager manager) {
-		List<Repository> result = new ArrayList<Repository>();
-		
-		for (URL repositoryLocation : manager.getModel().getRepositoryLocations()) {
-			try {
-				result.add(repoAdmin.getHelper().repository(repositoryLocation));
-			} catch (Exception e) {
-				logger.error("Composite "+manager.getContext().getName(),"Error when loading repository  :" + repositoryLocation, e);
-			}
-		}
-		
-		return result;
-	}
 
 	/**
-	 * Get a resolver that allows to install bundles from resources in the given context
-	 */
-	public Resolver getResolver(OBRManager manager) {
-		
-		List<Repository> repositories = loadRepositories(manager);
-		repositories.add(0,repoAdmin.getSystemRepository());
-		repositories.add(0,repoAdmin.getLocalRepository());
-		
-		return repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
-	}
-
-	/**
-	 * Updates the list of managers associated with a new context
+	 * Initializes a new context from its specified model
 	 */
 	@Override
 	public synchronized void initializeContext(CompositeType compositeType) {
@@ -156,7 +290,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		
 		/*
 		 * If no model is specified for this context, use the model of the root composite
-		 * context.
+		 * context. This ensures that there is always a manager created for every context.
 		 *
 		 * If no model is specified for the root composite, then initialize a default model. 
 		 * 
@@ -172,14 +306,76 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 				model = rootManager.getModel();
 			}
 		}
-		
-		obrManagers.put(compositeType, new OBRManager(this, compositeType, model));
+
+		OBRManager contextualManager = new OBRManager(this, compositeType, model);
+		obrManagers.put(compositeType,contextualManager);
+
+		update(Collections.singleton(contextualManager));
 	}
 
-	public synchronized OBRManager getManager(CompositeType context) {
-		return obrManagers.get(context);
+	/**
+	 * The model associated with a given context
+	 */
+	public Model getModel(CompositeType context) {
+		return obrManagers.get(context).getModel();
+	}
+
+
+	/**
+	 * Get the components available in the specified context
+	 */
+	public Iterable<DeployableComponent> getComponents(final OBRManager context) {
+		return new Iterable<DeployableComponent>() {
+			public Iterator<DeployableComponent> iterator() {
+				return new ContextualIterator(OBRMan.this,context);
+			}
+		};
 	}
 	
+	/**
+	 * Creates a query that can be used to filter components in the repository
+	 * associated with the given context
+	 */
+	public Requirement parseRequirement(OBRManager context, String requirement) {
+		return repoAdmin.getHelper().requirement(CST.CAPABILITY_COMPONENT,requirement);
+	}
+	
+	
+	/**
+	 * Creates a resolver that can be used to install components from the repository
+	 * associated with the given context
+	 */
+	public Resolver getResolver(OBRManager context) {
+		List<Repository> scope = new ArrayList<Repository>();
+		
+		for (URI repositoryLocation : context.getModel().getRepositoryLocations()) {
+			ComponentRepository repository = repositories.get(repositoryLocation);
+			
+			if (repository != null)
+				scope.add(repository.getBundleRepository());
+		}
+		
+		scope.add(0,repoAdmin.getLocalRepository());
+		scope.add(0,repoAdmin.getSystemRepository());
+		
+		return repoAdmin.resolver(scope.toArray(new Repository[scope.size()]));
+	}
+
+	/**
+	 * Search a deployed version of the specified resource in the running platform
+	 */
+	public Bundle getBundle(Resource resource) {
+		
+		String bundleName = resource.getSymbolicName();
+		for (Bundle bundle :m_context.getBundles()) {
+			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(bundleName)) {
+				return bundle;
+			}
+		}
+		
+		return null;
+	}
+
 	/**
 	 * This external manager is actively involved in resolution
 	 */
@@ -192,125 +388,67 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 	 * Perform resolution
 	 */
 	@Override
-	public Resolved<?> resolve(RelToResolve dep) {
+	public Resolved<?> resolve(RelToResolve relation) {
 		
-		Component ret 		= null;
-
-		// It is either a resolution (spec -> instance) or a resource reference
-		// (interface or message)
-		if ((dep.getTarget() instanceof ResourceReference) || (((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.SPECIFICATION && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
-			ret = resolveByResource(dep);
+		/*
+		 * Find the context in which the resolution must be performed.
+		 * 
+		 * This has some subtle corner cases as this method is used for two very different
+		 * purposes :
+		 * 
+		 * 1) resolving a relationship : in this case the context is determined by the source
+		 * of the relation, but there are several cases depending on its kind.
+		 * 
+		 * 2) finding a component by name : in this case either the specified source is an
+		 * instance (and the component must be visible in its enclosing composite type), or
+		 * directly the composite type that must be used as context. 
+		 * 
+		 */
+		Component source		= relation.getLinkSource();
+		CompositeType context 	= null;
+		
+		if (relation.isRelation()) {
+			
+			switch (relation.getRelationDefinition().getSourceKind()) {
+			case INSTANCE:
+				context = ((Instance) source).getComposite().getCompType();
+				break;
+			case IMPLEMENTATION:
+				context = ((Implementation) source).getFirstDeployed();
+				break;
+			case SPECIFICATION:
+				context = CompositeTypeImpl.getRootCompositeType();
+				break;
+			default:
+				break;
+			}
+			
 		} else {
-			ret = findByName(dep);
+
+			if (source instanceof Instance) {
+				context = ((Instance) source).getComposite().getCompType();
+			}
+			
+			if (source instanceof CompositeType) {
+				context = (CompositeType) source;
+			}
 		}
 
-		// Not found
-		if (ret == null) {
+		if (context == null) {
+			logger.error("OBR: No context found for resolution " + relation);
 			return null;
 		}
+
 
 		/*
-		 * Check if the found component is of the right kind. If requires an
-		 * Instance, and found an implementation, it is ok, but build the
-		 * "toInstantiate" result.
+		 *  Resolve in the appropriate context
 		 */
-		boolean badKind = (ret.getKind() != dep.getTargetKind());
-		if (badKind) {
-			logger.debug("Looking for " + dep.getTargetKind() + " but found " + ret);
-			// It is Ok to return an implem when an instance is required. The
-			// resolver will instantiate.
-			if (!(ret.getKind() == ComponentKind.IMPLEMENTATION && dep.getTargetKind() == ComponentKind.INSTANCE)) {
-				logger.error("invalide return from OBR : expected " + dep.getTargetKind() + " got " + ret.getKind());
-				return null;
-			}
-		}
-
-		switch (dep.getTargetKind()) {
-		case SPECIFICATION:
-			return new Resolved<Specification>((Specification) ret);
-		case IMPLEMENTATION:
-			if (badKind) {
-				return new Resolved<Implementation>((Implementation) ret, true);
-			}
-			return new Resolved<Implementation>((Implementation) ret);
-		case INSTANCE:
-			if (badKind) {
-				return new Resolved<Instance>((Implementation) ret, true);
-			}
-			return new Resolved<Instance>((Instance) ret);
-		case COMPONENT: // Not allowed
-		}
-		return null;
+		return obrManagers.get(context).resolve(relation);
+		
 	}
 
-	/**
-	 * Find the target of the relation, by name
-	 */
-	private Component findByName(RelToResolve rel) {
 
-		Component source		= rel.getLinkSource();
-		CompositeType compoType = null;
-		
-		if (source instanceof Instance) {
-			compoType = ((Instance) source).getComposite().getCompType();
-		}
-		
-		if (source instanceof CompositeType) {
-			compoType = (CompositeType) source;
-		}
-		
-		// Find the composite OBRManager
-		OBRManager obrManager = getManager(compoType);
-		if (obrManager == null) {
-			logger.error("OBR: No context found for composite " + compoType);
-			return null;
-		}
 
-		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + rel.getTarget().getName() + ")", rel);
-		fr.imag.adele.apam.Component c = installInstantiate(selected);
-		if (c == null) {
-			return null;
-		}
-		if (c.getKind() != rel.getTargetKind()) {
-			logger.debug("ERROR : " + rel.getTarget().getName() + " is found but is an " + rel.getTargetKind() + " not an " + c.getKind());
-		}
-
-		return c;
-	}
-
-	/**
-	 * Search for a component providing the target resource
-	 */
-	private Component resolveByResource(RelToResolve dep) {
-
-		Component source				= dep.getLinkSource();
-		ResolvableReference resource	= dep.getTarget();
-		CompositeType compoType = null;
-		if (source instanceof Instance) {
-			compoType = ((Instance) source).getComposite().getCompType();
-		}
-
-		// Find the composite OBRManager
-		OBRManager obrManager = getManager(compoType);
-		if (obrManager == null) {
-			return null;
-		}
-
-		fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
-		if (resource instanceof SpecificationReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification*>" + resource.as(SpecificationReference.class).getName() + ")", dep);
-		}
-		if (resource instanceof InterfaceReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces*>" + resource.as(InterfaceReference.class).getJavaType() + ")", dep);
-		}
-		if (resource instanceof MessageReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages*>" + resource.as(MessageReference.class).getJavaType() + ")", dep);
-		}
-		if (selected != null) {
-			return installInstantiate(selected);
-		}
-		return null;
-	}
 
 	/**
 	 * Get the deployment unit associated with a bundle deployed by this manager.
@@ -326,160 +464,8 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		}
 
 		// Find the composite OBRManager
-		OBRManager obrManager = getManager(context);
-		if (obrManager == null) {
-			return null;
-		}
-
-		Selected componentCapability = obrManager.lookForBundle(bundle.getSymbolicName(), componentName);
-		return componentCapability != null ? new DeployedComponent(context, component,componentCapability,logger) : null;
+		return obrManagers.get(context).getDeploymentUnit(component);
 	}
-
-	/**
-	 * This represents a component that has been deployed in the system by obrman, and that can be
-	 * updated from the repository
-	 */
-	private static class DeployedComponent implements DeploymentManager.Unit {
-
-		private final Logger 		logger;
-		
-		private final CompositeType	context;
-		private final Bundle 		componentBundle;
-		private final Selected		componentCapability;
-		
-		
-		public DeployedComponent(CompositeType context, Implementation component, Selected capability, Logger logger) {
-			
-			this.context				= context;
-			this.componentBundle		= component.getApformComponent().getBundle();
-			this.componentCapability	= capability;
-			
-			this.logger					= logger;
-		}
-		
-		
-		@Override
-		public Set<String> getComponents() {
-			return componentCapability.getComponents();
-		}
-
-		@Override
-		public void update() throws Exception {
-
-			logger.info("Updating component " + componentCapability.getComponentName() + " in composite " + context + ".\n     From bundle: " + componentCapability.getBundelURL());
-			componentBundle.update(componentCapability.getBundelURL().openStream());
-			
-		}
-		
-	}
-	
-
-	/**
-	 * Deploy and return the component, if possible. Null if failed. if : the
-	 * component we are looking for is existing (maybe arrived in the mean
-	 * time), return it the bundle does not exist currently : deploy, wait for
-	 * the component and return it the bundle is already deployed and active :
-	 * it is not the version we are looking for : do nothing and return false
-	 * wait for the component and return it the bundle is starting : wait for
-	 * the component and return it. the bundle is installed but is not started :
-	 * try to start it, wait for the component and return it, if failed, return
-	 * null
-	 * 
-	 * @param selected
-	 *            : the selected bundle and component(s)
-	 * @return
-	 */
-	private Component installInstantiate(Selected selected) {
-		if (selected == null) {
-			return null;
-		}
-
-		/*
-		 * If the component exists, maybe arrived in the mean time, or from
-		 * another bundle or in another version, do nothing
-		 */
-		fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(selected.getComponentName());
-		if (c != null) {
-			return c;
-		}
-
-		/*
-		 * Check if the bundle is already existing
-		 */
-		Bundle[] bundles = m_context.getBundles();
-		Bundle theBundle = null;
-		String bundleName = selected.resource.getSymbolicName();
-		for (Bundle bundle : bundles) {
-			if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(bundleName)) {
-				theBundle = bundle;
-				break;
-			}
-		}
-
-		/*
-		 * Normal case : bundle does not exist : deploy, wait and return the
-		 * component
-		 */
-		if (theBundle == null) {
-			if (! selected.obrManager.deployInstall(selected)) {
-				return null;
-			}
-			return waitAndReturnComponent(selected);
-		}
-
-		/*
-		 * the bundle is already deployed and active : it is not the version we
-		 * are looking for. Do nothing and return false It may be active or
-		 * starting if started in parallel by another thread ... OK wait for the
-		 * component and return it.
-		 */
-		if (theBundle.getState() == Bundle.ACTIVE || theBundle.getState() == Bundle.STARTING) {
-			if (theBundle.getVersion().equals(selected.resource.getVersion())) {
-				return waitAndReturnComponent(selected);
-			}
-			logger.error("Bundle " + selected.getComponentName() + " is already installed under version " + theBundle.getVersion() + " while trying to deploy version " + selected.resource.getVersion());
-			return null;
-		}
-
-		/*
-		 * the bundle is installed but is not started : try to start it, wait
-		 * for the component and return it, if failed, return null
-		 */
-		if (theBundle.getState() == Bundle.INSTALLED || theBundle.getState() == Bundle.RESOLVED) {
-			try {
-				theBundle.start();
-			} catch (BundleException e) {
-				// Starting failed. No solution : cannot be deployed and cannot
-				// be started. Make as if failed
-				logger.info("The bundle " + theBundle.getSymbolicName() + " is installed but cannot be started!");
-				return null;
-			}
-
-			logger.info("The bundle " + theBundle.getSymbolicName() + " is installed and has been be started!");
-			return waitAndReturnComponent(selected);
-		}
-		return null;
-	}
-
-
-	private Component waitAndReturnComponent(Selected selected) {
-		// waiting for the component to be ready in Apam.
-		Component c = CST.componentBroker.getWaitComponent(selected.getComponentName(), timeout);
-
-		/*
-		 * In fact, we are waiting for its instances; they are "arriving"; wait
-		 * for them
-		 */
-		if (c != null && c instanceof Implementation) {
-			for (String instanceName : selected.getInstancesOfSelectedImpl()) {
-				CST.componentBroker.getWaitComponent(instanceName, timeout);
-			}
-		}
-		return c;
-	}
-	
-
-	private final long timeout = 10000;
 
 
 	@Override
@@ -501,11 +487,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		if (context == null)
 			return result;
 		
-		OBRManager obrmanager = getManager(context);
-		if (obrmanager == null)
-			return result;
-
-		return obrmanager.getModel().getRepositories();
+		return obrManagers.get(context).getModel().getRepositories();
 	}
 
 
@@ -517,6 +499,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 	 */
 	@Override
 	public boolean updateRepos(String compositeName) {
+
 		if (compositeName == null) {
 			return false;
 		}
@@ -525,9 +508,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		 * refresh all
 		 */
 		if (compositeName.equals("*")) {
-			for (OBRManager obrManager : new HashSet<OBRManager>(obrManagers.values())) {
-				obrManager.refresh();
-			}
+			update(new HashSet<OBRManager>(obrManagers.values()));
 			return true;
 		}
 
@@ -541,13 +522,11 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 		if (context == null)
 			return false;
 		
-		OBRManager obrmanager = getManager(context);
-		if (obrmanager == null)
-			return false;
 		
-		obrmanager.refresh();
+		update(Collections.singleton(obrManagers.get(context)));
 		return true;
 	}
 
 
 }
+

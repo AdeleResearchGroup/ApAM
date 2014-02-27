@@ -17,6 +17,7 @@ package fr.imag.adele.obrMan.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Properties;
@@ -143,14 +144,14 @@ public class Model {
 	/**
 	 * The list of configured repositories
 	 */
-	private final Set<URL> repositories;
+	private final Set<URI> repositories;
 	
 	/**
 	 * Builds a new model from the specified configuration
 	 */
 	private Model(OBRMan obrManager, CompositeType context, Properties configuration, BundleContext osgiContext) {
 
-		this.repositories	= new HashSet<URL>();
+		this.repositories	= new HashSet<URI>();
 		
 		/*
 		 * Get the repository list, specified in the model 
@@ -173,7 +174,7 @@ public class Model {
 				// Add obr repositories declared in the composite
 				for (String repositoryLocation : configuration.getProperty(REPOSITORIES).split("\\s+")) {
 					try {
-						repositories.add(new URL(repositoryLocation));
+						repositories.add(new URI(repositoryLocation));
 					} catch (Exception e) {
 						logger.error("Error when adding default local repository to obr manager :" + repositoryLocation, e.getCause());
 					}
@@ -189,7 +190,7 @@ public class Model {
 					if (osgiRepositoryLocations != null) {
 						for (String osgiRepositoryLocation : osgiRepositoryLocations.split("\\s+")) {
 							try {
-								repositories.add(new URL(osgiRepositoryLocation));
+								repositories.add(new URI(osgiRepositoryLocation));
 							} catch (Exception e) {
 								logger.error("Error when adding default local repository to obr manager :" + osgiRepositoryLocations, e.getCause());
 							}
@@ -203,9 +204,10 @@ public class Model {
 				String[] otherCompositesRepositories = configuration.getProperty(COMPOSITES).split("\\s+");
 
 				for (String composite : otherCompositesRepositories) {
-					OBRManager manager = obrManager.getManager(obrManager.getApam().getCompositeType(composite));
-					if (manager != null) {
-						repositories.addAll(manager.getModel().getRepositoryLocations());
+					CompositeType importedContext = obrManager.getApam().getCompositeType(composite);
+					Model importedModel = importedContext != null ? obrManager.getModel(importedContext) : null;
+					if (importedContext != null && importedModel != null) {
+						repositories.addAll(importedModel.getRepositoryLocations());
 					} else {
 						// If the compositeType is not present, do nothing
 						logger.error("The composite " + context.getName() + " reference a missing composite " + composite);
@@ -220,14 +222,14 @@ public class Model {
 	/**
 	 * The list of repositories configured in this model 
 	 */
-	public Set<URL> getRepositoryLocations() {
+	public Set<URI> getRepositoryLocations() {
 		return repositories;
 	};
 	
 	public Set<String> getRepositories() {
 		Set<String> result = new HashSet<String>();
-		for (URL repository :repositories) {
-			result.add(repository.toString());
+		for (URI repositoryLocation :repositories) {
+			result.add(repositoryLocation.toString());
 		}
 		return result;
 	}
@@ -235,7 +237,7 @@ public class Model {
 	/**
 	 * The OSGi Bundle Repository associated with the local maven installation.
 	 */
-	private static URL getLocalMavenBundleRepository() {
+	private static URI getLocalMavenBundleRepository() {
 
 		// try to find the maven settings.xml file
 		File globalSettings = getGlobalMavenSettings();
@@ -247,9 +249,9 @@ public class Model {
 		 *  If a global and a user settings are both specified, the
 		 *  user preferences override the global
 		 */
-		URL userDefinedRepository 	= null;
-		URL globalDefinedRepository = null;
-		URL defaultRepository 		= null;
+		URI userDefinedRepository 	= null;
+		URI globalDefinedRepository = null;
+		URI defaultRepository 		= null;
 
 		if (userSettings != null) {
 			userDefinedRepository = getMavenBundleRepository(userSettings);
@@ -285,7 +287,7 @@ public class Model {
 	 * the maven settings file.
 	 * 
 	 */
-	private static URL getMavenBundleRepository(File settingsFile) {
+	private static URI getMavenBundleRepository(File settingsFile) {
 		try {
 
 			SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -337,7 +339,7 @@ public class Model {
 			}
 		}
 
-		public URL getMavenBundleRepository() throws MalformedURLException {
+		public URI getMavenBundleRepository() throws MalformedURLException {
 
 			String repositoryDirectoryName = repositoryPath.toString().trim();
 
@@ -352,7 +354,7 @@ public class Model {
 				return null;
 			}
 
-			return repository.toURI().toURL();
+			return repository.toURI();
 		}
 
 	}
@@ -360,21 +362,20 @@ public class Model {
 	/**
 	 * Get the repository at the default maven location, when there is no specific configuration
 	 */
-	private static URL getDefaultBundleRepository() {
-		try {
-			File m2Folder = getUserMavenConfiguration();
-			if (m2Folder == null) {
-				return null;
-			}
-			File repositoryFile = new File(new File(m2Folder, "repository"), "repository.xml");
-			if (repositoryFile.exists()) {
-				URL repo = repositoryFile.toURI().toURL();
-				logger.info("Default Linux repository :" + repo);
-				return repo;
-			}
-		} catch (MalformedURLException e) {
-			logger.error(e.getMessage());
+	private static URI getDefaultBundleRepository() {
+
+		File m2Folder = getUserMavenConfiguration();
+		if (m2Folder == null) {
+			return null;
 		}
+		
+		File repositoryFile = new File(new File(m2Folder, "repository"), "repository.xml");
+		if (repositoryFile.exists()) {
+			URI repo = repositoryFile.toURI();
+			logger.info("Default Linux repository :" + repo);
+			return repo;
+		}
+		
 		return null;
 	}
 

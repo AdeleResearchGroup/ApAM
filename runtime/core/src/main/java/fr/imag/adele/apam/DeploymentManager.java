@@ -14,9 +14,9 @@ public interface DeploymentManager extends ContextualManager {
 	/**
 	 * A representation of a component deployment unit.
 	 * 
-	 * Because of packaging granularity, the same deployment unit may contain 
-	 * several components, that will be updated as a side effect of updating a
-	 * component.
+	 * Because of packaging granularity, the same deployment unit may contain
+	 * several other components, that will be updated as a side effect of 
+	 * updating the component.
 	 * 
 	 */
 	public interface Unit {

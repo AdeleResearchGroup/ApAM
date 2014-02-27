@@ -47,7 +47,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
  */
 public class UpdateMan implements RelationManager, DynamicManager {
 
-	private static Set<String> deployed = new HashSet<String>();
+	private static Set<String> installingComponents = new HashSet<String>();
 	static Logger logger = LoggerFactory.getLogger(UpdateMan.class);
 
 	public UpdateMan() {
@@ -56,6 +56,51 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	@Override
 	public String getName() {
 		return CST.UPDATEMAN;
+	}
+
+	/**
+	 * The component compo needs to be updated. Compo must be existing. We will
+	 * be looking for a bundle with same id as the one from which compo was
+	 * initially loaded. If no such bundle is found, does nothing: it is not an
+	 * update, but a normal installation.
+	 * 
+	 * Since all the components in the previous bundle will be uninstalled, we
+	 * have to record the components that will be re-installed in order to wait
+	 * for these new versions to be ready, in case the client accesses the
+	 * variable during the bundle loading.
+	 * 
+	 * @param compo
+	 * @return
+	 */
+	public static void updateComponent(Implementation component) {
+		try {
+
+			// return the composite type that physically deployed the bundle
+			CompositeType compoTypeFrom = component.getFirstDeployed();
+
+			logger.info("Updating implementation " + component.getName() + " in composite " + compoTypeFrom);
+
+			for (DeploymentManager manager : ApamManagers.getDeploymentManagers()) {
+
+				logger.debug(manager.getName() + "  ");
+				DeploymentManager.Unit deployed = manager.getDeploymentUnit(compoTypeFrom, component);
+
+				if (deployed != null && deployed.getComponents().contains(component.getName())) { 
+					// it is indeed a deployment
+					UpdateMan.addInstallingComponents(deployed);
+					
+					/**
+					 * WARNING: The new bundle may not start if the new
+					 * bundle has a new package relation not currently
+					 * satisfied
+					 */
+					deployed.update();
+					
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -68,8 +113,8 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	 * @param sel
 	 *            : the information about the bundle to deploy.
 	 */
-	public static void addDeployed(DeploymentManager.Unit deploying) {
-		if (deploying == null || deploying.getComponents().isEmpty()) {
+	private static void addInstallingComponents(DeploymentManager.Unit installingUnit) {
+		if (installingUnit == null || installingUnit.getComponents().isEmpty()) {
 			System.out.println("no component to update ???");
 			return;
 		}
@@ -77,8 +122,8 @@ public class UpdateMan implements RelationManager, DynamicManager {
 		/*
 		 * Be sure that the list is atomically updated
 		 */
-		synchronized (deployed) {
-			deployed.addAll(deploying.getComponents());
+		synchronized (installingComponents) {
+			installingComponents.addAll(installingUnit.getComponents());
 		}
 
 	}
@@ -97,8 +142,8 @@ public class UpdateMan implements RelationManager, DynamicManager {
 		 * notifications can originate concurrently with updates, so we need to
 		 * synchronize access to the list of currently updating components.
 		 */
-		synchronized (deployed) {
-			deployed.remove(newComponent.getName());
+		synchronized (installingComponents) {
+			installingComponents.remove(newComponent.getName());
 		}
 	}
 
@@ -153,8 +198,8 @@ public class UpdateMan implements RelationManager, DynamicManager {
 		 * First try the fast case when there is no pending updates for this
 		 * component
 		 */
-		synchronized (deployed) {
-			if (!deployed.contains(name)) {
+		synchronized (installingComponents) {
+			if (!installingComponents.contains(name)) {
 				return;
 			}
 		}
@@ -174,50 +219,6 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	}
 
 
-	/**
-	 * The component compo needs to be updated. Compo must be existing. We will
-	 * be looking for a bundle with same id as the one from which compo was
-	 * initially loaded. If no such bundle is found, does nothing: it is not an
-	 * update, but a normal installation.
-	 * 
-	 * Since all the components in the previous bundle will be uninstalled, we
-	 * have to record the components that will be re-installed in order to wait
-	 * for these new versions to be ready, in case the client accesses the
-	 * variable during the bundle loading.
-	 * 
-	 * @param compo
-	 * @return
-	 */
-	public static void updateComponent(Implementation component) {
-		try {
-
-			// return the composite type that physically deployed the bundle
-			CompositeType compoTypeFrom = component.getFirstDeployed();
-
-			logger.info("Updating implementation " + component.getName() + " in composite " + compoTypeFrom);
-
-			for (DeploymentManager manager : ApamManagers.getDeploymentManagers()) {
-
-				logger.debug(manager.getName() + "  ");
-				DeploymentManager.Unit deployed = manager.getDeploymentUnit(compoTypeFrom, component);
-
-				if (deployed != null && deployed.getComponents().contains(component.getName())) { 
-					// it is indeed a deployment
-					UpdateMan.addDeployed(deployed);
-					
-					/**
-					 * WARNING: The new bundle may not start if the new
-					 * bundle has a new package relation not currently
-					 * satisfied
-					 */
-					deployed.update();
-					
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 
 
