@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.ComponentBroker;
 import fr.imag.adele.apam.Composite;
@@ -125,7 +124,7 @@ public class ComponentBrokerImpl implements ComponentBroker {
 	 * ASM.
 	 */
 	public void disappearedComponent(String componentName) {
-		Component component = CST.componentBroker.getComponent(componentName);
+		Component component = getComponent(componentName);
 		if (component == null) {
 			// previous remove of the factory removed instances
 			return;
