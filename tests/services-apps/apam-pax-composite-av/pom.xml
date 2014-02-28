@@ -3,7 +3,7 @@
   <parent>
     <artifactId>services</artifactId>
     <groupId>fr.imag.adele.apam.tests.app</groupId>
-    <version>0.0.6</version>
+    <version>0.0.7-SNAPSHOT</version>
   </parent>
   <artifactId>apam-pax-composite-av</artifactId>
   <packaging>bundle</packaging>
@@ -12,13 +12,13 @@
         <dependency>
             <groupId>fr.imag.adele.apam.tests.services</groupId>
             <artifactId>apam-pax-samples-iface</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7-SNAPSHOT</version>
         </dependency>
         
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>apam-core</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

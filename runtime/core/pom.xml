@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>apam-runtime</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.6</version>
+		<version>0.0.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

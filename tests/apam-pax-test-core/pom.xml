@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>apam-tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.6</version>
+		<version>0.0.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -276,12 +276,12 @@
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>implem-server-v1</artifactId>
 			<scope>test</scope>
-			<version>0.0.6</version>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>implem-server-v2</artifactId>
-			<version>0.0.6</version>
+			<version>1.3.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

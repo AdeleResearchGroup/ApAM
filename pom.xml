@@ -13,7 +13,7 @@
 	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>apam-project</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.6</version>
+	<version>0.0.7-SNAPSHOT</version>
 	<name>ApAM Project</name>
 
 	<scm>
