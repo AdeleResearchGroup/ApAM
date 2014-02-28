@@ -210,6 +210,8 @@ public class MessageTest extends ExtensionAbstract {
 
 	sender1.join();
 	sender2.join();
+	apam.waitForIt(500);
+
 
 	final String message = "Given multiple producers and one consumer, the method that produces the message, from the different producers, are called by different threads. It is expected that all messages are received, but some messages got lost therefore not seem by the consumer";
 
@@ -246,6 +248,7 @@ public class MessageTest extends ExtensionAbstract {
 	producer1.pushMessage("message 1");
 	producer1.pushMessage("message 2");
 	producer1.pushMessage("message 3");
+	
 
 	// ensure queue is inject
 	Assert.assertTrue(String.format(usecase,
@@ -311,6 +314,8 @@ public class MessageTest extends ExtensionAbstract {
 	producer1.pushMessage(message1producer1);
 	producer2.pushMessage(message1producer2);
 	producer3.pushMessage(message1producer3);
+	apam.waitForIt(500);
+
 
 	Assert.assertTrue(consumer.getQueue().size() == 3);
 
@@ -350,6 +355,8 @@ public class MessageTest extends ExtensionAbstract {
 	for (int x = 0; x < POOL_SIZE; x++) {
 	    m1ProdImpl.pushMessage(String.format("message %d", x));
 	}
+	apam.waitForIt(500);
+
 
 	Assert.assertTrue(String.format(
 		"Producer sent %d messages but the consumer received %d",
@@ -390,6 +397,8 @@ public class MessageTest extends ExtensionAbstract {
 	m1ConsumerImpl.getQueue();
 
 	m1ProdImpl.pushMessage("message 1");
+	apam.waitForIt(500);
+
 
 	Assert.assertTrue(
 		String.format(
@@ -428,6 +437,8 @@ public class MessageTest extends ExtensionAbstract {
 		.getServiceObject();
 
 	m1ProdImpl.pushMessage("message 1");
+	apam.waitForIt(500);
+
 
 	Assert.assertTrue(
 		String.format(
@@ -487,6 +498,8 @@ public class MessageTest extends ExtensionAbstract {
 
 	sender.execute();
 	sender.join();
+	apam.waitForIt(500);
+
 
 	final String message = "Given one producer and one consumer, the method that produces the message is called by different threads expecting that all messages are received, but some messages got lost therefore not seem by the consumer";
 
