@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
-		<version>0.0.6-SNAPSHOT</version>
+		<version>0.0.6</version>
 		<artifactId>app1.obrman.test</artifactId>
         <relativePath>../pom.xml</relativePath>
 	</parent>
