@@ -56,8 +56,21 @@ Please suffix ApamCore with version number (using previous release number or lat
 
 ## Changelog
 
-* ApAM 0.0.6 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) (currently under development)
+* ApAM 0.0.7 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) (currently under development)
 	* To be defined
+
+* ApAM 0.0.6 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) (currently under development)
+	* Added new Property Type : float (a floating point value, mapped to java Float Class)
+	* Added new Property Type : version (defining an OSGi version, mapped to org.osgi.framework.Version)
+	* Contextual Relation : "ContextDependencyType" are back again for composite contextual behavior
+	* Refactoring of OBRMan manager for better compliance with OBR specifications
+	* Refactoring of Managers (startup, order, declaration of config files)
+	* ApAM is now building properly on maven 3.1.x (and still working for maven 3.0.x)
+	* Bufixes with composite behavior (now main implementation are working as expected, an apam-instance can refer to a composite in another bundle)
+	* A lot of bugfixes to improve startup behavior and asynchronous declaration processing (ApAM should be now waiting for the bundles to start correctly)
+	* ConflictMan Manager is now properly defined for grant behavior(and works accordingly)
+	* Bugfixes with promotions
+	* Added new feature to add properties to ApAM components during build, such as maven properties of the project, apam version that have made the built (to be considered as experimental, can change drastically with next releases)
 
 * ApAM 0.0.5 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=4&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.5/apam-basic-distribution-0.0.5.zip)
 	* WARNING : Several changes to apam.xsd (apam components descriptor schema) ARE NOT compatible with previous releases (0.0.4)
