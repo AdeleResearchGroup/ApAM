@@ -56,10 +56,10 @@ Please suffix ApamCore with version number (using previous release number or lat
 
 ## Changelog
 
-* ApAM 0.0.7 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) (currently under development)
+* ApAM 0.0.7 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=open) (currently under development)
 	* To be defined
 
-* ApAM 0.0.6 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) (currently under development)
+* ApAM 0.0.6 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.6/apam-basic-distribution-0.0.6.zip)
 	* Added new Property Type : float (a floating point value, mapped to java Float Class)
 	* Added new Property Type : version (defining an OSGi version, mapped to org.osgi.framework.Version)
 	* Contextual Relation : "ContextDependencyType" are back again for composite contextual behavior
