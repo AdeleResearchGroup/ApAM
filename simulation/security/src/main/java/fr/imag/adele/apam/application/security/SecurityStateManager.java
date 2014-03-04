@@ -155,18 +155,5 @@ public class SecurityStateManager implements PropertyManager {
 		return "SecurityStateManager";
 	}
 
-	@Override
-	public int getPriority() {
-		return 0;
-	}
-
-
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-	}
-
-
-	
-	
 	
 }

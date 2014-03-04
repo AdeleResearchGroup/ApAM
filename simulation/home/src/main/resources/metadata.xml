@@ -35,16 +35,6 @@
 	<composite name="Room" specification="Zone" singleton="false">
 		
 		<contentMngt>
-			
-			<!--  Automatically start the lighten application and force binding to presence sensor  
-			<start implementation="BasicLightAutomation" name="ligthen">
-				<property name="location" value="$this.composite$location"/>
-			</start>
-			-->
-			
-			<override source=".*Automation" name=".*" specification="Presence" creation="eager" />
-			
-			
 		</contentMngt>
 	</composite>
 

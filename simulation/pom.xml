@@ -6,7 +6,7 @@
 
 		<!-- Dependencies version -->
 
-		<apam.version>0.0.6-SNAPSHOT</apam.version>
+		<apam.version>0.0.6</apam.version>
 		<icasa.version>1.2.5</icasa.version>
 
 		<!-- java compilation version -->
@@ -26,11 +26,11 @@
 	</properties>
 
     <groupId>fr.imag.adele.apam</groupId>
-	<artifactId>apam-icasa-scenario</artifactId>
+	<artifactId>apam-otb-scenario</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
-	<name>ApAM iCasa Scenario</name>
+	<name>ApAM Open The Box Scenario</name>
 	<description></description>
 	
 	<modules>
@@ -78,18 +78,17 @@
 	
 	<repositories>
 		<repository>
-			<id>cloudbees-iCASA-release</id>
-			<name>Cloudbees Private Repository - icasa - Release </name>
-			<url>https://repository-icasa.forge.cloudbees.com/release/</url>
+			<id>apam-repo</id>
+			<url>http://repository-apam.forge.cloudbees.com/release/repository/</url>
 		</repository>
-		
-		<repository>
-			<id>cloudbees-iCASA-snapshot</id>
-			<name>Cloudbees Private Repository - icasa - Snapshot</name>
-			<url>https://repository-icasa.forge.cloudbees.com/snapshot/</url>
-		</repository>
-
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apam-plugin-repository-release</id>
+			<url>https://repository-apam.forge.cloudbees.com/release/repository</url>
+		</pluginRepository>
+	</pluginRepositories>
 	
 	<build>
 		<pluginManagement>
