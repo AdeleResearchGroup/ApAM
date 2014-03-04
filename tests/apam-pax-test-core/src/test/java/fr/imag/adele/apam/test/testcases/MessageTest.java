@@ -106,20 +106,18 @@ public class MessageTest extends ExtensionAbstract {
 		List<Option> defaults = super.config(mapOfRequiredArtifacts, false);
 
 		try {
-			defaults.add(bundle((new File(PathUtils.getBaseDir(),
-					"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
+			defaults.add(bundle((new File(PathUtils.getBaseDir(),"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
 
 		} catch (Exception error) {
 			Assert.assertTrue("Error deploying WireAdmin", false);
 		}
-
+		
 		return defaults;
 	}
 
 	@Test
 	public void MessageMultipleProducersSingleConsumerAssyncSend_tc084()
 			throws InterruptedException {
-		apam.waitForIt(500);
 
 		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -181,7 +179,6 @@ public class MessageTest extends ExtensionAbstract {
 
 	@Test
 	public void MessageMultipleProducersSingleConsumerEnsureOnlyQueueTypeIsAccepted_tc078() {
-		apam.waitForIt(500);
 
 		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -237,7 +234,6 @@ public class MessageTest extends ExtensionAbstract {
 
 	@Test
 	public void MessageMultipleProducersSingleConsumerSendReceive_tc077() {
-		apam.waitForIt(500);
 
 		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -289,7 +285,6 @@ public class MessageTest extends ExtensionAbstract {
 
 	@Test
 	public void MessageSingleProducerSingleConsumerReceiveAllInStackOrder_tc076() {
-		apam.waitForIt(500);
 
 		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -334,7 +329,6 @@ public class MessageTest extends ExtensionAbstract {
 
 	@Test
 	public void MessageSingleProducerSingleConsumerSendReceive_tc075() {
-		apam.waitForIt(500);
 
 		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -356,7 +350,6 @@ public class MessageTest extends ExtensionAbstract {
 		m1ConsumerImpl.getQueue();
 
 		m1ProdImpl.pushMessage("message 1");
-		apam.waitForIt(500);
 
 		Assert.assertTrue(
 				String.format(
@@ -374,7 +367,6 @@ public class MessageTest extends ExtensionAbstract {
 
 	@Test
 	public void MessageSingleProducerSingleConsumerStartingConsumerBeforeProducerSendReceive_tc082() {
-		apam.waitForIt(500);
 
 		Implementation producerImpl = waitForImplByName(null,
 				"MessageProducerImpl01");
@@ -396,7 +388,6 @@ public class MessageTest extends ExtensionAbstract {
 				.getServiceObject();
 
 		m1ProdImpl.pushMessage("message 1");
-		apam.waitForIt(500);
 
 		Assert.assertTrue(
 				String.format(
@@ -415,7 +406,6 @@ public class MessageTest extends ExtensionAbstract {
 	@Test
 	public void MessageSingleProducersSingleConsumerAssyncSend_tc083()
 			throws InterruptedException {
-		apam.waitForIt(500);
 
 		Implementation producer01Impl = waitForImplByName(null,
 				"MessageProducerImpl01");

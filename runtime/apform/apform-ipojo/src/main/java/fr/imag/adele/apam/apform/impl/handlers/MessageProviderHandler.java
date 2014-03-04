@@ -18,8 +18,11 @@ import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
@@ -72,30 +75,34 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	private Class<?>[] messageFlavors;
 
 	/**
-	 * Represent the provider execution id
-	 */
-	private String providerId;
-
-	/**
 	 * Represent the producer persistent id
 	 */
 	private String producerId;
-	
+
 	/**
-	 * The name of the wire property used to tag it with the provider identification
+	 * Represent the producer execution session id
 	 */
-	public final static String ATT_PROVIDER_ID = "provider.id";
+	private String sessionId;
+
+	/**
+	 * The name of the property used to tag wires with the producer session
+	 */
+	private final static String ATT_SESSION_ID = "session.id";
 	
 	/**
 	 * A reference to the WireAdmin
 	 */
 	private WireAdmin wireAdmin;
 	
-	/**
-	 * The list of connected consumers
-	 */
-	private List<Wire> wires;
+    /**
+     * The list of connected consumers, indexed by consumer identification
+     */
+    private final Map<String,Wire> wires;
 	
+    public MessageProviderHandler() {
+    	this.wires = new HashMap<String, Wire>();
+	}
+    
 	/**
 	 * Whether this handler is required for the specified configuration
 	 */
@@ -136,11 +143,13 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     	
     	isRegisteredProducer	= !providedFlavors.isEmpty();
     	messageFlavors			= providedFlavors.toArray(new Class[providedFlavors.size()]);
-    	wires					= new ArrayList<Wire>();
+    	
 
     	producerId 				= NAME+"["+getInstanceManager().getInstanceName()+"]";
-    	providerId				= Long.toString(System.currentTimeMillis());
-    	
+    	sessionId				= Long.toString(System.currentTimeMillis());
+
+    	wires.clear();
+
     	ApamAtomicComponentFactory implementation	= (ApamAtomicComponentFactory) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
@@ -205,25 +214,6 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     }
 
     /**
-     * The WireAdmin producer Id
-     */
-    public String getProducerId() {
-		return producerId;
-	}
-    
-    /**
-     * The identifier of this provider. This is a non-persistent, volatile identifier.
-     * 
-     * APAM wires are not persistent and are recreated by the resolution process at each execution. On the
-     * other hand, WireAdmin wires are persistent across executions of the platform, so we use this identifier
-     * to tag the wires so that we can garbage collect old wires at the next execution.
-     * 
-     */
-    public String getProviderId() {
-    	return providerId;
-    }
-    
-    /**
      * The description of the state of the handler
      *
      */
@@ -237,11 +227,20 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 		public Element getHandlerInfo() {
 			Element info = super.getHandlerInfo();
 			info.addAttribute(new Attribute("producer.id",producerId));
-			info.addAttribute(new Attribute("session.id",providerId));
+			info.addAttribute(new Attribute("session.id",sessionId));
 			info.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
 			info.addAttribute(new Attribute("isRegistered",Boolean.toString(isRegisteredProducer)));
-			
-			for (Wire wire : wires) {
+	
+	        /*
+	         * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
+	         * current target services and do not use directly the field that can be concurrently modified
+	         */
+	        List<Wire> resolutions = new ArrayList<Wire>();
+	        synchronized (this) {
+	            resolutions.addAll(wires.values());
+	        }
+
+			for (Wire wire : resolutions) {
 				Element wireInfo = new Element("wire",ApamComponentFactory.APAM_NAMESPACE);
 				wireInfo.addAttribute(new Attribute("consumer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_CONSUMER_PID)));
 				wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
@@ -251,6 +250,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 		}
     	
     }
+    
     @Override
     public HandlerDescription getDescription() {
     	return new Description();
@@ -261,45 +261,101 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
         return "APAM Message producer for " + getInstanceManager().getInstanceName();
     }
 
-    /**
-     * This WireAdmin producer can not be polled, it works only in push mode.
-     */
-	@Override
-	public Object polled(Wire wire) {
-		return null;
-	}
 
+    /**
+     * Creates a new wire, at the wire admin level, towards the specified consumer
+     */
+    public Wire createWire(MessageInjectionManager consumer) {
+        if (wireAdmin != null ) {
+            Properties wireProperties = new Properties();
+            wireProperties.put(MessageProviderHandler.ATT_SESSION_ID, sessionId);
+            
+            Wire wire = wireAdmin.createWire(this.producerId, consumer.getConsumerId(), wireProperties);
+            
+            synchronized (this) {
+                wires.put(consumer.getInstance().getDeclaration().getName(),wire);
+			}
+            
+            return wire;
+        }
+    	
+        return null;
+    }
+    
+    /**
+     * Deletes an existing wire, at the wire admin level, towards the specified consumer
+     */
+    public Wire deleteWire(MessageInjectionManager consumer) {
+
+        Wire wire = null;
+        synchronized (this) {
+        	wire = wires.remove(consumer.getInstance().getDeclaration().getName());
+		}
+
+        /*
+         * Remove the wire at the WireAdmin level
+         */
+    	if (wireAdmin != null && wire != null) {
+                wireAdmin.deleteWire(wire);
+    	}
+        	
+    	return wire;
+    }
+
+    
+	/**
+	 * The APAM relation handler only manages wires created indirectly by mapping APAM resolution
+	 * into WireAdmin events. Those wires are already tracked by this manager, so we do not need
+	 * notifications.
+	 * 
+	 * However, because WireAdmin persists wires, we can get notified of wires from previous executions.
+	 * APAM wires on the other hand are not persistent across executions, so we try to avoid duplicates
+	 * and do some basic garbage collection here.
+	 *  
+	 * We use a session id associated with this handler as a tag of wires created in this execution
+	 * 
+	 */
 	@Override
-	public synchronized void consumersConnected(Wire[] newWires) {
-		wires.clear();
+	public void consumersConnected(Wire[] newWires) {
 
 		if (newWires == null || newWires.length == 0)
 			return;
 
 		/*
-		 *  Because WireAdmin persists wires, we can get notified of wires from previous executions. APAM
-		 *  wires on the other hand are not persistent across executions, so we try to avoid duplicates and
-		 *  do some basic garbage collection here.
-		 *  
 		 *  NOTE The APAM message provider handler only manages wires created indirectly by mapping APAM
-		 * 	resolution into WireAdmin events, so we can assume providerIds are unique.
+		 * 	resolution into WireAdmin events, so we can assume session ids are unique.
 		 */
 		for (Wire wire : newWires) {
 			
-			String wireProvider = (String) wire.getProperties().get(ATT_PROVIDER_ID);
+			String wireSessionId = (String) wire.getProperties().get(ATT_SESSION_ID);
 			
 			// delete old wires or not apam wires
-			if (wireProvider == null || ! wireProvider.equals(getProviderId())) {
+			if (wireSessionId == null || ! wireSessionId.equals(sessionId)) {
 				if (wireAdmin != null) wireAdmin.deleteWire(wire);
 				continue;
 			}
 			
-			// register new wire
-			wires.add(wire);
 		}
 	}
 
 
+	/**
+	 * Get the return value of the intercepted method and automatically push the message
+	 *  
+	 */
+	@Override
+	public void onExit(Object pojo, Member method, Object returnedObj) {
+	    super.onExit(pojo, method, returnedObj);
+	    if (returnedObj instanceof Message){
+	        push((Message<?>)returnedObj);
+	    }else {
+	    	push(new Message<Object>(returnedObj));
+	    }
+	}
+
+	/**
+	 * Push a message to all registered consumers
+	 */
 	private void push(Message<?> message) {
 		
 	    
@@ -307,13 +363,13 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 			return;
 	     
         /*
-         * Create a local copy of the current list of wire sto avoid synchronization
+         * Create a local copy of the current list of wires to avoid synchronization
          * problems
          */
         
         List<Wire> currentWires = new ArrayList<Wire>(); 
         synchronized (this) {
-            currentWires.addAll(wires);
+            currentWires.addAll(wires.values());
         }
 		
         /*
@@ -339,6 +395,14 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	}
 
 
+    /**
+     * This WireAdmin producer can not be polled, it works only in push mode.
+     */
+	@Override
+	public Object polled(Wire wire) {
+		throw new UnsupportedOperationException("APAM Messages do not support polling");
+	}
+
 	@Override
 	public void start() {
 	}
@@ -347,14 +411,5 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	public void stop() {
 	}
 	
-	@Override
-	public void onExit(Object pojo, Member method, Object returnedObj) {
-	    super.onExit(pojo, method, returnedObj);
-	    if (returnedObj instanceof Message){
-	        push((Message<?>)returnedObj);
-	    }else {
-	    	push(new Message<Object>(returnedObj));
-	    }
-	}
 
 }

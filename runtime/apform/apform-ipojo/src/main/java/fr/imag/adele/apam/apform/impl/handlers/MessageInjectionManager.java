@@ -14,9 +14,11 @@
  */
 package fr.imag.adele.apam.apform.impl.handlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.Handler;
-import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.MethodMetadata;
@@ -39,10 +40,11 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
-import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
 
@@ -107,7 +109,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     private ServiceRegistration consumer;
 
     /**
-     * The list of connected producers, indexed by target identification
+     * The list of connected producers, indexed by producer identification
      */
     private final Map<String,Wire> wires;
 
@@ -190,6 +192,13 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     }
 
     /**
+     * The apform instance associated with this manager
+     */
+    ApformInstance getInstance() {
+    	return instance.getApform();
+    }
+    
+    /**
 	 * The relation injection associated to this manager
 	 */
     @Override
@@ -215,7 +224,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
          * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
          * current target services and do not use directly the field that can be concurrently modified
          */
-        Set<Wire> resolutions = new HashSet<Wire>();
+        List<Wire> resolutions = new ArrayList<Wire>();
         synchronized (this) {
             resolutions.addAll(wires.values());
         }
@@ -238,19 +247,6 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         
         return consumerDescription;
     
-    }
-    
-    /**
-     * Get the reference to an Apform handler associated to an instance
-     * 
-     * NOTE This performs an unchecked down casts, as it assumes the calling client knows the exact class of the
-     * requested handler
-     */
-    @SuppressWarnings("unchecked")
-    private static <T extends Handler> T getHandler(InstanceManager instance, String namespace, String handlerId) {
-        String qualifiedHandlerId = namespace+":"+handlerId;
-        return (T) instance.getHandler(qualifiedHandlerId);
-        
     }
     
     /**
@@ -316,32 +312,28 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     }
     
     /**
-     * The identification of the APAM message producer. It is composed of the identification of the
-     * provider and the WireAdmin producer identifier
-     * @author vega
-     *
-     */
-    private class MessageProducerIdentifier {
-        public final String providerId;
-        public final String producerId;
-        
-        public MessageProducerIdentifier(String providerId, String producerId) {
-            this.providerId = providerId;
-            this.producerId = producerId;
-        }
-        
-    }
-    /**
-     * The message producer associated to the given target instance
+     * The message provider handler associated to the given target instance
      * 
      * NOTE This performs an unchecked down cast, as it assumes the target instance  is an Apform-iPojo provided
      * instance
      */
-    public MessageProducerIdentifier getMessageProducer(Instance target) {
-        MessageProviderHandler providerHandler = getHandler(((ApamInstanceManager.Apform)target.getApformInst()).getManager(),ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
-        return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
+    private static MessageProviderHandler getMessageProvider(Instance target) {
+        return getHandler(target,ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
     }
-    
+
+    /**
+     * Get the reference to an Apform handler associated to an instance
+     * 
+     * NOTE This performs an unchecked down casts, as it assumes the calling client knows the exact class of the
+     * requested handler
+     */
+    @SuppressWarnings("unchecked")
+    private static <T extends Handler> T getHandler(Instance component, String namespace, String handlerId) {
+        String qualifiedHandlerId = namespace+":"+handlerId;
+        return (T) ((ApamInstanceManager.Apform)component.getApformInst()).getManager().getHandler(qualifiedHandlerId);
+        
+    }
+
      
     /*
 	 * (non-Javadoc)
@@ -380,14 +372,9 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
             /*
              * Create a wire at the WireAdmin level
              */
-            WireAdmin wireAdmin = getWireAdmin();
-            if (wireAdmin != null) {
-                MessageProducerIdentifier messageProducer = getMessageProducer((Instance)target);
-                Properties wireProperties = new Properties();
-                wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
-                Wire wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
-                wires.put(target.getName(),wire);
-                
+            MessageProviderHandler	producer = getMessageProvider((Instance)target);
+            if (producer != null) {
+                wires.put(target.getName(),producer.createWire(this));
             }
         }
 
@@ -403,19 +390,21 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     @Override
     public void removeTarget(Component target) {
 
-        /*
-         * Remove this target and invalidate cache
-         */
         synchronized (this) {
 
+ 
             /*
-             * Remove the wire at the WireAdmin level
+             * Delete the wire at the WireAdmin level
              */
-            WireAdmin wireAdmin = getWireAdmin();
-            Wire wire           = wires.remove(target.getName());
-            if (wireAdmin != null && wire != null)
-                wireAdmin.deleteWire(wire);
-            
+            MessageProviderHandler	producer = getMessageProvider((Instance)target);
+            if (producer != null) {
+            	producer.deleteWire(this);
+            }
+ 
+            /*
+             * Remove this target and invalidate cache
+             */
+            wires.remove(target.getName());
             targetServices.remove(target);
             
             /*
@@ -427,6 +416,18 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
             }
             
         }
+    }
+
+
+    /**
+	 * The APAM relation handler only manages wires created indirectly by mapping APAM resolution
+	 * into WireAdmin events. 
+	 * 
+	 * Those wires are already tracked by the provider handler, wer do not use notifications.
+	 */
+
+    @Override
+    public void producersConnected(Wire[] newWires) {
     }
 
     /**
@@ -471,14 +472,5 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         }
     }
 
-    @Override
-    public void producersConnected(Wire[] newWires) {
-        /*
-		 * The APAM relation handler only manages wires created indirectly by
-		 * mapping APAM resolution into WireAdmin events. Those wires are
-		 * already tracked by this manager, so we can ignore asynchronous
-		 * notifications
-		 */
-    }
 
 }
