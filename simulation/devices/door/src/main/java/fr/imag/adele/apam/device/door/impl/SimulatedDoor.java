@@ -44,7 +44,7 @@ public class SimulatedDoor implements Lock {
     }
     
 	@Override
-	public void enableAcces() {
+	public void enableAuthorization() {
 		enabled = true;
 		locked	= true;
 		
@@ -52,7 +52,7 @@ public class SimulatedDoor implements Lock {
 	}
 
 	@Override
-	public void disableAcces(boolean lock) {
+	public void disableAuthorization(boolean lock) {
 		enabled = false;
 		locked	= lock;
 		

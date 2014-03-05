@@ -3,14 +3,14 @@ package fr.liglab.adele.apam.device.access;
 public interface Lock {
 	
 	/**
-	 * Activate access control
+	 * Activate card based access authorization
 	 */
-	public void enableAcces();
+	public void enableAuthorization();
 
 	/**
-	 * Deactivate access control and lock/unlock the door to
+	 * Deactivate access authorization and lock/unlock the door to
 	 * everyone
 	 */
-	public void disableAcces(boolean lock);
+	public void disableAuthorization(boolean lock);
 
 }

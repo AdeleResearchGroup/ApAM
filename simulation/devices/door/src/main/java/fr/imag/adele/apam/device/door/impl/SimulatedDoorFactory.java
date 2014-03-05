@@ -184,8 +184,11 @@ public class SimulatedDoorFactory {
 			 * still available, and abort the processing as soon as possible.
 			 */
 			synchronized (this) {
-				if (resolver == null)
+				if (resolver == null) {
+					pending.add(declaration);
 					return;
+				}
+					
 			}
 
 

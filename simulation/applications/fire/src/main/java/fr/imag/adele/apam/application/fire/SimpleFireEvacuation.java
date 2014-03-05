@@ -59,14 +59,14 @@ public class SimpleFireEvacuation {
 		fireDetected(smokeDetected);
 
 		/*
-		 * Disable doors acces control to allow evacuation when smoke detceted
+		 * Disable doors access control to allow evacuation when smoke detected
 		 */
 				
 		for(Lock door: optional(doors)) {
 			if (smokeDetected)
-				door.disableAcces(false);
+				door.disableAuthorization(false);
 			else
-				door.enableAcces();
+				door.enableAuthorization();
 		}
 		
 	}

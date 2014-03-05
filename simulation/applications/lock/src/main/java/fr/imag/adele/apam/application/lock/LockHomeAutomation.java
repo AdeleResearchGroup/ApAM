@@ -59,14 +59,15 @@ public class LockHomeAutomation {
 		instance.getComposite().setProperty("locked",activated);
 
 		/* 
-		 * lock/unlock doors on activation
+		 * lock doors on activation, and enable card-based authorization
+		 * on deactivation
 		 * 
 		 */
 		for (Lock door: optional(doors)){
 			if (activated)
-				door.disableAcces(true);
+				door.disableAuthorization(true);
 			else
-				door.enableAcces();
+				door.enableAuthorization();
 		}
 			
 		
