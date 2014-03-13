@@ -185,10 +185,8 @@ public class DeployableComponent {
 	 */
 	public Component install(OBRManager context) {
 
-
 		/*
-		 * If the component exists, maybe arrived in the mean time, or from
-		 * another bundle or in another version, do nothing
+		 * If the component exists, maybe arrived in the mean time, or from another bundle or in another version, do nothing
 		 */
 		Component result = CST.componentBroker.getComponent(component.getName());
 		if (result != null)
@@ -197,53 +195,56 @@ public class DeployableComponent {
 		/*
 		 * Check if the bundle is already existing in the platform
 		 */
-		Bundle theBundle = manager.getBundle(resource);
+		Bundle installed = getBundle(resource);
 
-		/*
-		 * Normal case : bundle does not exist : deploy, wait and return the
-		 * component
-		 */
-		if (theBundle == null) {
-			return deploy(context);
-		}
+		return  installed != null ? CST.componentBroker.getWaitComponent(component.getName(), 10*1000 /* milliseconds*/) : deploy(context);
 
-		boolean alreadyDeployed = false;
-		
-		/*
-		 * the bundle is already deployed and active : it is not the version we
-		 * are looking for. Do nothing and return false It may be active or
-		 * starting if updated in parallel by another thread ... OK wait for the
-		 * component and return it.
-		 */
-		if (theBundle.getState() == Bundle.ACTIVE || theBundle.getState() == Bundle.STARTING) {
-			alreadyDeployed = theBundle.getVersion().equals(resource.getVersion());
-			if (!alreadyDeployed) {
-				logger.error("Bundle " + resource.getSymbolicName() + " is already installed under version " + theBundle.getVersion() + " while trying to deploy version " + resource.getVersion());
-			}
-		}
-
-		/*
-		 * the bundle is installed but is not started : try to start it, wait
-		 * for the component and return it, if failed, return null
-		 */
-		if (theBundle.getState() == Bundle.INSTALLED || theBundle.getState() == Bundle.RESOLVED) {
-			try {
-				theBundle.start();
-			} catch (BundleException e) {
-				// Starting failed. No solution : cannot be deployed and cannot
-				// be started. Make as if failed
-				logger.info("The bundle " + theBundle.getSymbolicName() + " is installed but cannot be started!");
-				alreadyDeployed = false;
-			}
-
-			logger.info("The bundle " + theBundle.getSymbolicName() + " is installed and has been be started!");
-			alreadyDeployed = true; 
-		}
-
-		
-		return alreadyDeployed ? CST.componentBroker.getWaitComponent(component.getName(), 10*1000 /* milliseconds*/) : null;
 	}
 
+	/**
+	 * Get the installed bundle corresponding to the specified resource. Activates the bundle if necessary.
+	 */
+	private final Bundle getBundle(Resource resource) {
+
+		/*
+		 * Get the platform bundle with the same symbolic name, if any
+		 */
+		Bundle bundle = manager.getBundle(resource);
+		
+		if (bundle == null) {
+			return null;
+		}
+
+		/*
+		 * the bundle is installed but is not started : try to start it before checking version numbers to be sure that any updates are finished
+		 */
+		if (bundle.getState() == Bundle.INSTALLED || bundle.getState() == Bundle.RESOLVED) {
+			try {
+				bundle.start();
+				logger.info("The bundle " + bundle.getSymbolicName() + " is installed and has been started!");
+			} catch (BundleException e) {
+				logger.info("The bundle " + bundle.getSymbolicName() + " is installed but cannot be started!");
+			}
+
+		}
+
+		/*
+		 * Verify the version, notice that there can be only a single version of a bundle in the platform, so if we find another installed version,
+		 * there may be conflicting updates in progress.
+		 * 
+		 */
+		boolean matchVersion 	= bundle.getVersion().equals(resource.getVersion());
+		boolean active			= (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING);
+
+		if (!matchVersion) {
+			logger.error("Bundle " + resource.getSymbolicName() + " is already installed under version " + bundle.getVersion() + " while trying to deploy version " + resource.getVersion());
+		}
+
+
+		
+		return active && matchVersion ? bundle : null;
+
+	}
 
 	/**
 	 * Deploy this resource on the platform and waits for the component to be reified in APAM.
@@ -266,76 +267,109 @@ public class DeployableComponent {
 		do {
 
 			/*
-			 * calculate the transitive dependencies to satisfy requirements of the resource being
-			 * deployed
+			 * calculate the transitive dependencies to satisfy requirements of the resource being deployed
 			 */
 			resolver.add(this.resource);
 			resolver.resolve();
 
 			/*
-			 * If we could not resolve the resource requirements, just give up completely
+			 * If we can not resolve the resource requirements, just give up
 			 */
-			Reason[] missingRequirements = resolver.getUnsatisfiedRequirements();
-			
-			if (missingRequirements.length > 0) {
+			if (resolver.getUnsatisfiedRequirements().length > 0) {
 				
-				logger.error("Unable to deploy component: " + component);
-				logger.error("	repository: " + repository);
-				logger.error("	bundle: " + resource);
-				logger.error("	bundle location: " + resource.getURI());
-				for (Reason missingRequirement : missingRequirements) {
-					logger.error("	unsatisfied requirement: " + missingRequirement.getRequirement());
-				}
+				retrying = false;
+				deployed = false;
 				
-				return null;
+				continue;
 			}
 
-			/* Try to perform the actual installation. Concurrent bundle deployment may interfere and
-			 * change the state of the local repository, which produces an IllegalStateException of
-			 * the resolver. 
-			 * 
-			 * We should try again the resolution and installation process, in the new context.
-			 * 
+			/* 
+			 * Perform the actual installation, 
 			 */
 			try {
 
 				resolver.deploy(Resolver.START);
+
+				retrying = false;
+				deployed = true;
 				
-				logger.debug("Deployed component: " + component);
-				logger.debug("	repository: " + repository);
-				
+				/*
+				 * Verify that all required resources were actually installed. A resource may not be installed if a 
+				 * concurrent deployment has installed a conflicting version.
+				 * 
+				 * In this case there is not much we can do, we just give up the deployment
+				 */
 				List<Resource> deployedResources = new ArrayList<Resource>();
 				
 				deployedResources.addAll(Arrays.asList(resolver.getAddedResources()));
 				deployedResources.addAll(Arrays.asList(resolver.getRequiredResources()));
 				deployedResources.addAll(Arrays.asList(resolver.getOptionalResources()));
 				
+
 				for (Resource deployedResource : deployedResources) {
-					logger.debug("	deployed resource: " + deployedResource);
-					logger.debug("		location: " + deployedResource.getURI());
-					
-					Reason[] reasons = resolver.getReason(deployedResource);
-					for(Reason reason : reasons != null ? reasons : new Reason[0]) {
-						logger.debug("		satisfies requirement: " + reason.getRequirement()+" of "+reason.getResource());
-					}
+					if (getBundle(deployedResource) == null)
+						deployed = false;
 				}
+
 				
-				retrying = false;
-				deployed = true;
-				
-			} catch (IllegalStateException e) {
+			} 
+			
+			/* 
+			 * Concurrent bundle deployment may interfere with installation and change the state of the local repository,
+			 * which produces an IllegalStateException of the resolver. 
+			 * 
+			 * We can recover by trying again the resolution and installation process, using the new local bundles.
+			 * 
+			 */
+			catch (IllegalStateException e) {
 				
 				logger.debug("OBR changed state. Resolving again " + this.resource.getSymbolicName());
-				retrying = true;
 				
-			} catch (Exception e) {
+				retrying = true;
+				deployed = false;
+			} 
+
+			/* 
+			 * If we can not recover from the error, just give up
+			 * 
+			 */
+			catch (Exception e) {
 				
 				logger.error ("Deployment of " + component + " from "+resource+" failed.",e) ;
+				
 				retrying = false;
 				deployed = false;
 			}
 
 		} while (retrying);
+
+		
+		/*
+		 * Log deployment result 
+		 */
+
+		logger.debug("Component: " + component+ (deployed ? " successfully " : " not ") + "deployed");
+		logger.debug("	repository: " + repository);
+		
+		List<Resource> deployedResources = new ArrayList<Resource>();
+		
+		deployedResources.addAll(Arrays.asList(resolver.getAddedResources()));
+		deployedResources.addAll(Arrays.asList(resolver.getRequiredResources()));
+		deployedResources.addAll(Arrays.asList(resolver.getOptionalResources()));
+		
+		for (Resource deployedResource : deployedResources) {
+			logger.debug("	required resource: " + deployedResource+(getBundle(deployedResource) != null ? " (installed) ":" (not installed) "));
+			logger.debug("		location: " + deployedResource.getURI());
+			
+			Reason[] reasons = resolver.getReason(deployedResource);
+			for(Reason reason : reasons != null ? reasons : new Reason[0]) {
+				logger.debug("		satisfies requirement: " + reason.getRequirement()+" of "+reason.getResource());
+			}
+		}
+
+		for (Reason missingRequirement : resolver.getUnsatisfiedRequirements()) {
+			logger.error("	unsatisfied requirement: " + missingRequirement.getRequirement());
+		}
 
 		return deployed ? CST.componentBroker.getWaitComponent(component.getName(), 10*1000 /* milliseconds*/) : null;
 	} 
@@ -392,8 +426,10 @@ public class DeployableComponent {
 	public String toString() {
 		return this.component.getName()+"["+getVersion()+"] @ "+resource.getURI();
 	}
+	
+	
 	/*
-	 * Utility methods to manipulate metadata in capabilities
+	 * Utility methods to manipulate APAM metadata in capabilities
 	 */
 	
 	private final static ComponentReference<?> getComponent(Capability metadata) {
@@ -420,5 +456,6 @@ public class DeployableComponent {
 	private final static String getAttributeInCapability(Capability aCap, String attr) {
 		return (String) (aCap.getPropertiesAsMap().get(attr));
 	}
+
 
 }
