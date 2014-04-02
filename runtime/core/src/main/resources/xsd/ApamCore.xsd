@@ -99,13 +99,13 @@
 				<xs:element ref="callback" />
 				<xs:element ref="ipojo:requires" />
 				<xs:element ref="ipojo:provides" />
+				<xs:any namespace="##any" minOccurs="0" processContents="lax"/>
 
 			</xs:choice>
 			<xs:attributeGroup ref="basicComponentAttributes" />
 			<xs:attribute name="classname" type="xs:string" use="required" />
 			<xs:attribute name="push" type="xs:string" use="optional" />
 			<xs:attribute name="specification" type="xs:string" use="optional" />
-
 		</xs:complexType>
 	</xs:element>
 
