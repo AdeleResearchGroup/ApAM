@@ -1,0 +1,11 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
+	<implementation name="Relation-Pack1"
+		classname="fr.imag.adele.apam.tests.app.relationpack1.ClientClass">
+		<relation package="fr.imag.adele.apam.tests.app.exportpack1" creation="eager"></relation>
+	</implementation>
+
+</apam>
