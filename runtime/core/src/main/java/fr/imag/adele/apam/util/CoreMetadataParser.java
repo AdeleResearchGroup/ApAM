@@ -56,6 +56,7 @@ import fr.imag.adele.apam.declarations.LinkDeclaration;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
+import fr.imag.adele.apam.declarations.PackageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
@@ -641,6 +642,8 @@ public class CoreMetadataParser implements CoreParser {
 	public static final String OVERRIDE = "override";
 	public static final String LINK = "link";
 	public static final String INTERFACE = "interface";
+	public static final String PACKAGE = "package";
+	
 	public static final String MESSAGE = "message";
 	public static final String CONSTRAINTS = "constraints";
 	public static final String CONSTRAINT = "constraint";
@@ -669,6 +672,7 @@ public class CoreMetadataParser implements CoreParser {
 	public static final String ATT_MAIN_IMPLEMENTATION = "main"; // "mainImplem"
 	public static final String ATT_INSTANCE = "instance";
 	public static final String ATT_INTERFACES = "interfaces";
+	public static final String ATT_PACKAGES = "packages";
 	public static final String ATT_MESSAGES = "messages";
 	public static final String ATT_TYPE = "type";
 	public static final String ATT_DEFAULT = "default";
@@ -1605,9 +1609,11 @@ public class CoreMetadataParser implements CoreParser {
 		if (introspector != null) {
 			for (ResourceReference providedResource : declaration.getProvidedResources()) {
 
-				if (providedResource instanceof UndefinedReference) {
+				if (providedResource instanceof UndefinedReference
+						|| providedResource instanceof PackageReference) {
 					continue;
 				}
+				// TODO : check the provided package (one class belonging to this package should exists)
 
 				try {
 					introspector.getInstrumentedClass(providedResource.getJavaType());
@@ -1731,6 +1737,7 @@ public class CoreMetadataParser implements CoreParser {
 
 		String interfaces = parseString(component.getName(), element, CoreMetadataParser.ATT_INTERFACES, false);
 		String messages = parseString(component.getName(), element, CoreMetadataParser.ATT_MESSAGES, false);
+		String packages = parseString(component.getName(), element, CoreMetadataParser.ATT_PACKAGES, false);
 
 		for (String interfaceName : Util.split(interfaces)) {
 			component.getProvidedResources().add(new InterfaceReference(interfaceName));
@@ -1739,6 +1746,10 @@ public class CoreMetadataParser implements CoreParser {
 		for (String message : Util.split(messages)) {
 			component.getProvidedResources().add(new MessageReference(message));
 		}
+		
+		for (String reqpackage : Util.split(packages)) {
+			component.getProvidedResources().add(new PackageReference(reqpackage));
+		}		
 
 	}
 

@@ -475,6 +475,7 @@
 		<xs:attribute name="shared" type="xs:boolean" use="optional" />
 		<xs:attribute name="interfaces" type="xs:string" use="optional" />
 		<xs:attribute name="messages" type="xs:string" use="optional" />
+        <xs:attribute name="packages" type="xs:string" use="optional" />
 	</xs:attributeGroup>
 
 
@@ -484,6 +485,7 @@
 		<xs:attribute name="implementation" type="xs:string" use="optional" />
 		<xs:attribute name="interface" type="xs:string" use="optional" />
 		<xs:attribute name="message" type="xs:string" use="optional" />
+        <xs:attribute name="package" type="xs:string" use="optional" />
 		<xs:attribute name="multiple" type="xs:boolean" use="optional">
 			<xs:annotation>
 				<xs:documentation>If unspecified, default value is "false"
