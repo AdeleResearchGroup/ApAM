@@ -312,6 +312,13 @@
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>relation-pack1</artifactId>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>		
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.app</groupId>

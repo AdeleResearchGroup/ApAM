@@ -5,7 +5,7 @@
 
 	<implementation name="Relation-Pack1"
 		classname="fr.imag.adele.apam.tests.app.relationpack1.ClientClass">
-		<relation package="fr.imag.adele.apam.tests.app.exportpack1" creation="eager"></relation>
+		<relation package="fr.imag.adele.apam.tests.app.exportpack1" creation="lazy"></relation>
 	</implementation>
 
 </apam>

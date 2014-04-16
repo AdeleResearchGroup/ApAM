@@ -33,6 +33,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.PackageReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.tests.app.relationpack1.ClientClass;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
@@ -50,8 +51,10 @@ public class ResourcesTest extends ExtensionAbstract {
 	public List<Option> config() {
 
 		Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
-		mapOfRequiredArtifacts.put("export-pack1",
-				"fr.imag.adele.apam.tests.services");
+//		mapOfRequiredArtifacts.put("export-pack1",
+//				"fr.imag.adele.apam.tests.services");
+//		mapOfRequiredArtifacts.put("relation-pack1",
+//				"fr.imag.adele.apam.tests.services");
 
 		List<Option> defaults = super.config(mapOfRequiredArtifacts, true);
 
@@ -65,7 +68,7 @@ public class ResourcesTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void testExportedResource() {
+	public void testProvidePackage() {
 		Implementation implementation = waitForImplByName(null,
 				"Export-Pack1");
 
@@ -80,5 +83,21 @@ public class ResourcesTest extends ExtensionAbstract {
 		Assert.assertNotNull("Instance should provide resources (the package is inherited)", inst.getProvidedResources());
 		Assert.assertTrue("Instance should provides "+exported,inst.getProvidedResources().contains(ref));		
 	}
+	
+	@Test
+	public void testRelationPackage() {
+		Implementation implementation = waitForImplByName(null,
+				"Relation-Pack1");
+
+		Instance inst = implementation.createInstance(null,
+				Collections.<String, String> emptyMap());
+		
+		PackageReference ref = new PackageReference(exported);
+		
+		ClientClass client = (ClientClass)inst.getServiceObject();
+		System.err.println(client.service());
+		auxListInstances();
+				
+	}	
 
 }
