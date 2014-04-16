@@ -793,7 +793,8 @@ public final class CheckObr {
 			}
 
 			// Checking if the interface is existing
-			if (dep.getTarget() instanceof ResourceReference) {
+			if (dep.getTarget() instanceof InterfaceReference
+					|| dep.getTarget() instanceof MessageReference) {
 				checkInterfaceExist(dep.getTarget().getName());
 			} else {
 
@@ -990,7 +991,7 @@ public final class CheckObr {
 		if (dep.getTarget() == null) {
 			return;
 		}
-
+		
 		ComponentReference<?> targetComponent = dep.getTarget().as(
 				ComponentReference.class);
 

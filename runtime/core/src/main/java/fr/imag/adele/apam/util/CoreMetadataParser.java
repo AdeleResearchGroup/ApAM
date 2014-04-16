@@ -750,12 +750,12 @@ public class CoreMetadataParser implements CoreParser {
 	/**
 	 * The list of possible kinds of component references
 	 */
-	private final static List<String> RESOURCE_REFERENCES = Arrays.asList(CoreMetadataParser.INTERFACE, CoreMetadataParser.MESSAGE);
+	private final static List<String> RESOURCE_REFERENCES = Arrays.asList(CoreMetadataParser.INTERFACE, CoreMetadataParser.MESSAGE, CoreMetadataParser.PACKAGE);
 
 	/**
 	 * The list of possible kinds of references
 	 */
-	private final static List<String> ALL_REFERENCES = Arrays.asList(CoreMetadataParser.SPECIFICATION, CoreMetadataParser.IMPLEMENTATION, CoreMetadataParser.INSTANCE, CoreMetadataParser.COMPONENT, CoreMetadataParser.INTERFACE, CoreMetadataParser.MESSAGE);
+	private final static List<String> ALL_REFERENCES = Arrays.asList(CoreMetadataParser.SPECIFICATION, CoreMetadataParser.IMPLEMENTATION, CoreMetadataParser.INSTANCE, CoreMetadataParser.COMPONENT, CoreMetadataParser.INTERFACE, CoreMetadataParser.MESSAGE, CoreMetadataParser.PACKAGE);
 
 	/**
 	 * Handle transparently optional elements in the metadata
@@ -1362,6 +1362,14 @@ public class CoreMetadataParser implements CoreParser {
 		String messageName = parseString(inComponent, element, attribute, mandatory);
 		return ((messageName == null) && !mandatory) ? null : new MessageReference(messageName);
 	}
+	
+	/**
+	 * Get a package reference coded in an attribute
+	 */
+	private PackageReference parsePackageReference(String inComponent, Element element, String attribute, boolean mandatory) {
+		String packageName = parseString(inComponent, element, attribute, mandatory);
+		return ((packageName == null) && !mandatory) ? null : new PackageReference(packageName);
+	}	
 
 	/**
 	 * Get a mandatory element name
@@ -1819,7 +1827,8 @@ public class CoreMetadataParser implements CoreParser {
 				 * Accept only resource references
 				 */
 				String resourceKind = instrumentation.getName();
-				if (!(CoreMetadataParser.INTERFACE.equals(resourceKind) || CoreMetadataParser.MESSAGE.equals(resourceKind))) {
+				if (!(CoreMetadataParser.INTERFACE.equals(resourceKind) || CoreMetadataParser.MESSAGE.equals(resourceKind) 
+						|| CoreMetadataParser.PACKAGE.equals(resourceKind))) {
 					continue;
 				}
 
@@ -2176,6 +2185,11 @@ public class CoreMetadataParser implements CoreParser {
 		if (CoreMetadataParser.MESSAGE.equals(referenceKind)) {
 			return parseMessageReference(inComponent, element, attribute, mandatory);
 		}
+		
+		if (CoreMetadataParser.PACKAGE.equals(referenceKind)) {
+			return parsePackageReference(inComponent, element, attribute, mandatory);
+		}
+		
 
 		if (mandatory) {
 			errorHandler.error(Severity.ERROR, "resource name must be specified in " + element.getName());
