@@ -17,41 +17,69 @@ package fr.imag.adele.apam.apform.legacy.osgi;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.Pojo;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.ContextualManager;
+import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.RelToResolve;
-import fr.imag.adele.apam.RelationManager;
-import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
-@Instantiate(name = "OSGiMan-Instance")
+
+/**
+ * This class is in charge of reifying native OSGi services as Apam instances, so
+ * that they can be used directly by Apam applications using the relation resolution
+ * mechanisms.
+ * 
+ * This class uses a simple strategy to decide which services to reify in Apam. Applications
+ * MUST define a specification to represent the required services, and this manager will try to
+ * match native services to defined specifications.
+ * 
+ * Matching of a specification is based on the following criteria :
+ * 
+ * - The specification MUST NOT declare dependencies
+ * - The specification MUST provide only interfaces, not messages
+ * - The registered interfaces of the service MUST include the provided interfaces of
+ *   the specification. 
+ * - The defined properties of the specification MUST include the registered properties
+ *   of the service 
+ *    
+ *    
+ * TODO currently this class has an important performance overhead, as it reacts to every event
+ * in the registry by trying to match all the declared Apam specifications. A more fine-grained
+ * approach will be to build a service tracker for each Apam specification with the appropriate
+ * registry filter, that reacts only to meaningfull events.    
+ * @author vega
+ *
+ */
+
 @org.apache.felix.ipojo.annotations.Component(name = "OSGiMan" , immediate=true)
-@Provides
-public class OSGiMan implements ContextualManager, RelationManager {
+@Provides(specifications={DynamicManager.class})
+@Instantiate(name = "OSGiMan-Instance")
 
-	// private final static Logger logger =
-	// LoggerFactory.getLogger(OSGiMan.class);
+public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
+
 
 	/**
 	 * A reference to the APAM machine
@@ -60,124 +88,264 @@ public class OSGiMan implements ContextualManager, RelationManager {
 	private Apam apam;
 
     /**
-     * The associated OSGi context
+     * The instances service tracker.
+     */
+    private ServiceTracker      instancesServiceTracker;
+
+    /**
+     * The bundle context associated with this manager
      */
     private final BundleContext context;
-    
-    /**
-     * The associated model
-     */
-    @SuppressWarnings("unused")
-	private ManagerModel model;
-    
-    public OSGiMan(BundleContext context) {
-        this.context = context;
-    }
+
 
 	@Override
 	public String getName() {
 		return "OSGiMan";
 	}
 
-
+    public OSGiMan(BundleContext context) {
+        this.context = context;
+    }
+    
 	@Validate
 	private synchronized void start() {
-		ApamManagers.addRelationManager(this,Priority.HIGH);
+		ApamManagers.addDynamicManager(this);
+		
+    	Filter filter;
+		try {
+			filter = context.createFilter("(" + Constants.OBJECTCLASS + "=*)");
+	        instancesServiceTracker = new ServiceTracker(context,filter, this);
+	        instancesServiceTracker.open(true);
+		} catch (InvalidSyntaxException ignored) {
+		}
+		
 	}
 	
 	@Invalidate
 	private synchronized void stop() {
-		ApamManagers.removeRelationManager(this);
+		ApamManagers.removeDynamicManager(this);
+        instancesServiceTracker.close();
 	}
-	
+
+    /**
+     * Find all specifications matching the osgi service
+     */
+    private Set<Specification> getMatchingSpecifications(ServiceReference reference) {
+    	
+    	Set<ResourceReference> providedServices = new HashSet<ResourceReference>();
+		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
+			providedServices.add(new InterfaceReference(interfaceName));
+		}
+
+		Set<Specification> matches	= new HashSet<Specification>();
+		
+		for (Specification candidate : CST.componentBroker.getSpecs()) {
+			
+			if (!candidate.getRelations().isEmpty())
+				continue;
+			
+			if (! candidate.getDeclaration().getProvidedResources(MessageReference.class).isEmpty())
+				continue;
+
+			if (candidate.getDeclaration().getProvidedResources(InterfaceReference.class).isEmpty())
+				continue;
+
+			if (! providedServices.containsAll(candidate.getDeclaration().getProvidedResources(InterfaceReference.class)))
+				continue;
+				
+			matches.add(candidate);
+		}
+		
+		return matches; 
+    	
+    }
+
+	/**
+     * Get a representation of all the possible Apam instances that match the specified
+     * reference.
+     * 
+     * Notice that we return apform objects that ARE NOT reified in Apam, this can be used
+     * to decide if the instance has already be created or not. 
+     */
+    private Set<ApformOSGiInstance> getMatchingInstances(ServiceReference reference) {
+
+		Set<Specification> specifications 	= getMatchingSpecifications(reference);
+		Set<ApformOSGiInstance> instances	= new HashSet<ApformOSGiInstance>();
+
+		for(Specification specification : specifications) {
+			instances.add(new ApformOSGiInstance(specification, reference));
+		}
+		
+		return instances;
+    }
     
-	@Override
-	public void initializeContext(CompositeType context) {
-		this.model = context.getModel(this);
-	}
+    @Override
+    public Object addingService(ServiceReference reference) {
+
+        /*
+         * Ignore events while APAM is not available
+         */
+        if (apam == null)
+            return null;
+
+        /*
+         * ignore services that are iPojo, these are treated separately
+         * 
+         * In this tracker we avoid getting the service object, as this 
+         * may interfere with delayed service creation when using the
+         * service factory pattern
+         *
+         */
+        
+        if (reference.getProperty("factory.name") != null)
+        	return null;
+
+        if (reference.getProperty("instance.name") != null)
+        	return null;
+        
+        Set<ApformOSGiInstance> instances = getMatchingInstances(reference);
+
+        /*
+         * Create all instances and implementations required in APAM
+         */
+    	for(ApformOSGiInstance instance : instances) {
+
+			ApformImplementation implementation = new ApformOSGiImplementation(instance);
+
+			if (CST.componentBroker.getImpl(implementation.getDeclaration().getName()) == null) {
+				Apform2Apam.newImplementation(implementation);
+			}
+
+			if (CST.componentBroker.getInst(instance.getDeclaration().getName()) == null) {
+				Apform2Apam.newInstance(instance);
+			}
+
+    	}
+
+    	/*
+    	 * Track all services to be sure to be informed when they are unregistered 
+    	 */
+        return reference;
+    }
+
+    @Override
+    public void removedService(ServiceReference reference, Object tracked) {
+
+    	/*
+    	 * Destroy all Apam instances created, and garbage-collect implementations
+    	 * if needed.
+    	 */
+        Set<ApformOSGiInstance> instances = getMatchingInstances(reference);
+        if (instances.isEmpty())
+            return;
+
+    	for(ApformOSGiInstance instance : instances) {
+
+    		Instance apamInstance = CST.componentBroker.getInst(instance.getDeclaration().getName());
+    		
+    		if (apamInstance == null)
+    			continue;
+    		
+    		Implementation apamImplementation = apamInstance.getImpl();
+    		
+    		if (apamInstance != null)
+    			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(apamInstance);
+    		
+    		if (apamImplementation.getInsts().isEmpty())
+    			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(apamImplementation);
+    	}
+
+    }
+
+    @Override
+    public void modifiedService(ServiceReference reference, Object instance) {
+    	
+        ApformOSGiInstance osgiInstance	= (ApformOSGiInstance) instance;
+    	Instance apamInstnstance 		= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
+
+    	if (apamInstnstance == null)
+    		return;
+    	
+
+        for (String key : reference.getPropertyKeys()) {
+            if (!Apform2Apam.isPlatformPrivateProperty(key)) {
+                String value = reference.getProperty(key).toString();
+                if (value != apamInstnstance.getProperty(key))
+                	apamInstnstance.setProperty(key, value);
+            }
+        }
+
+    }
+        
+
 
 	@Override
-	public boolean beginResolving(RelToResolve relToResolve) {
-        return true;
-	}
-
-	@Override
-	public Resolved<?> resolve(RelToResolve relToResolve) {
-		
-		InterfaceReference target = relToResolve.getTarget().as(InterfaceReference.class);
-		if (target == null)
-			return null;
-		
-		Resolved<?> resolution = null;
+	public void addedComponent(Component component) {
 		
 		/*
-		 * Get all matching OSGi services and reify them in APAM, along with their implementation
+		 * If a new specification is defined we need to try match existing services in the registry  
 		 */
-		try {
-			Set<Implementation> implementations = new HashSet<Implementation>();
-			Set<Instance> instances 			= new HashSet<Instance>();
+		if (!(component instanceof Specification))
+			return;
 		
-			ServiceReference matchingServices[] = context.getAllServiceReferences(target.getJavaType(), null);
-			for (ServiceReference matchingService : matchingServices != null ? matchingServices : new ServiceReference[0]) {
-				
-		        /*
-		         * ignore services that are iPojo, these are treated separately
-		         */
-		        Object service = context.getService(matchingService);
-		        if (service instanceof Pojo || service instanceof Factory)
-		        	continue;
+		Specification specification = (Specification) component;
 
-				/*
-				 * Register instance in APAM
-				 */
-				ApformOSGiInstance osgiInstance = new ApformOSGiInstance(matchingService);
-				Apform2Apam.newInstance(osgiInstance);
+		if (!specification.getRelations().isEmpty())
+			return;
+		
+		if (! specification.getDeclaration().getProvidedResources(MessageReference.class).isEmpty())
+			return;
 
-				/*
-				 * Find or create the associated implementation
-				 */
-				ApformImplementation osgiImplementation = new ApformOSGiImplementation(osgiInstance);
-				if (CST.componentBroker.getImpl(osgiImplementation.getDeclaration().getName()) == null) {
-					Apform2Apam.newImplementation(osgiImplementation);
-				}
-				
-				Component implementation	= CST.componentBroker.getWaitComponent(osgiImplementation.getDeclaration().getName());
-				Component instance 			= CST.componentBroker.getWaitComponent(osgiInstance.getDeclaration().getName());
-				
-				instances.add((Instance)instance);
-				implementations.add((Implementation)implementation);
-				
-			}
+		if (specification.getDeclaration().getProvidedResources(InterfaceReference.class).isEmpty())
+			return;
+
+
+		StringBuilder filter = new StringBuilder();
+		filter.append("(").append("&");
+		for (InterfaceReference providedInterface : specification.getDeclaration().getProvidedResources(InterfaceReference.class)) {
+			filter.append("(").append(Constants.OBJECTCLASS).append("=").append(providedInterface.getName()).append(")");
+		}
+		filter.append(")");
+		
+		String filterText = filter.toString();
+		
+		ServiceReference[] matchedServices = null;
+		try {
+			matchedServices = context.getAllServiceReferences(null,filterText);
+		} catch (InvalidSyntaxException e) {
+		}
+		
+		if (matchedServices == null)
+			return;
 			
-			/*
-			 * TODO BUG Evaluate constraints on implementations
-			 */
-			if (relToResolve.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+		for (ServiceReference reference : matchedServices)  {
 				
-				if (implementations.isEmpty())
-					return null;
-				
-				return relToResolve.isMultiple() ? 
-						new Resolved<Implementation> (implementations) :
-						new Resolved<Implementation> (implementations.iterator().next()) ;
-			}
-			
-			/*
-			 * TODO BUG Evaluate constraints on instances
-			 */
-			if (relToResolve.getTargetKind() == ComponentKind.INSTANCE) {
-				
-				if (instances.isEmpty())
-					return null;
-				
-				return relToResolve.isMultiple() ?
-						new Resolved<Instance> (instances) :
-						new Resolved<Instance> (instances.iterator().next()) ;
+			ApformOSGiInstance instance 		= new ApformOSGiInstance(specification, reference);
+			ApformImplementation implementation = new ApformOSGiImplementation(instance);
+
+			if (CST.componentBroker.getImpl(implementation.getDeclaration().getName()) == null) {
+				Apform2Apam.newImplementation(implementation);
 			}
 
-		} catch (InvalidSyntaxException ignored) { }
+			if (CST.componentBroker.getInst(instance.getDeclaration().getName()) == null) {
+				Apform2Apam.newInstance(instance);
+			}
+				
+			}
+	}
 
-		return resolution;
+
+	@Override
+	public void removedComponent(Component component) {
+	}
+
+	@Override
+	public void removedLink(Link wire) {
+	}
+
+
+	@Override
+	public void addedLink(Link wire) {
 	}
 
 }

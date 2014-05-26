@@ -14,27 +14,21 @@
  */
 package fr.imag.adele.apam.apform.legacy.osgi;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.framework.Bundle;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime
-
  *
  */
 public class ApformOSGiImplementation extends BaseApformComponent<Implementation,ImplementationDeclaration> implements ApformImplementation {
@@ -78,8 +72,8 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	 */
 	public ApformOSGiImplementation(ApformOSGiInstance prototype) {
 
-		super(new Declaration(prototype.getDeclaration().getImplementation().getName(),getSpecification(prototype)));
-   		declaration.getProvidedResources().addAll(prototype.getProvidedResources());
+		super(new Declaration(prototype.getDeclaration().getImplementation().getName(),prototype.getSpecification().getApformSpec().getDeclaration().getReference()));
+   		declaration.getProvidedResources().addAll(prototype.getSpecification().getProvidedResources());
 		
 		this.prototype		= prototype;
 		
@@ -106,24 +100,5 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 		throw new UnsupportedOperationException();
 	}
 	
-    /**
-     * Find a specification matching the osgi instance
-     */
-    private static SpecificationReference getSpecification(ApformOSGiInstance prototype) {
-    	
-		SpecificationReference  perfectMatch		= null;
-		Set<SpecificationReference> partialMatch	= new HashSet<SpecificationReference>();
-		
-		for (Specification candidate : CST.componentBroker.getSpecs()) {
-			Set<InterfaceReference> candidateInterfaces = candidate.getDeclaration().getProvidedResources(InterfaceReference.class);
-			
-			if (prototype.getProvidedResources().equals(candidateInterfaces))
-				perfectMatch = candidate.getApformSpec().getDeclaration().getReference();
-			else if (prototype.getProvidedResources().containsAll(candidateInterfaces))
-				partialMatch.add(candidate.getApformSpec().getDeclaration().getReference());
-		}
-		
-		return perfectMatch != null ? perfectMatch : partialMatch.size() == 1 ? partialMatch.iterator().next() : null; 
-    	
-    }
+ 
 }
