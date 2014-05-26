@@ -14,31 +14,34 @@
  */
 package fr.imag.adele.apam.apform.impl;
 
-import java.util.Properties;
-
-import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.IPojoContext;
+import org.apache.felix.ipojo.extender.DeclarationBuilderService;
+import org.apache.felix.ipojo.extender.DeclarationHandle;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.impl.APAMImpl;
 
 /**
  * This class is used to represent an instance declaration
  * 
+ * This automatically creates a corresponding iPOJO instance declaration, using the Declaration
+ * Builder Service (available since iPOJO 1.11.2). The iPOJO instance declaration is published
+ * as long as this factory remains valid.
+ *  
  * TODO Technically this class should not really be an iPOJO component factory. This is just an
- * implementation hack to reuse the iPOJO extender, as a base to handle statically defined APAM
- * instances.
+ * implementation hack to reuse the iPOJO extender, to process APAM metadata. In the future we
+ * could use another mechanism to load APAM metadata at runtime, and create the appropriate iPOJO
+ * declarations using the the Declaration Builder Service API, but we need to evaluate the impact
+ * on build-time tools.
  * 
  * @author vega
  *
@@ -46,14 +49,19 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 public class ApamInstanceDeclaration extends ApamComponentFactory {
 
     /**
-     * A dynamic reference to the apform implementation
+     * A dynamic reference to the iPOJO builder service
      */
-    protected final ImplementationTracker implementationTracker;
+    protected BuilderTracker builderTracker;
 
     /**
-     * The ipojo instance corresponding to this declaration
+     *The APAM bundle context used to look for the iPOJO builder
      */
-    private ComponentInstance iPojoInstance;
+    protected BundleContext apamContext;
+
+    /**
+     * The iPOJO instance handle corresponding to this declaration
+     */
+    private DeclarationHandle iPojoInstance;
 
 
     /**
@@ -61,16 +69,8 @@ public class ApamInstanceDeclaration extends ApamComponentFactory {
      */
     public ApamInstanceDeclaration(BundleContext context, Element element) throws ConfigurationException {
         super(context, element);
-        try {
-            String classFilter		= "(" + Constants.OBJECTCLASS + "=" + Factory.class.getName() + ")";
-            String factoryFilter	= "(" + "factory.name" + "=" + getDeclaration().getImplementation().getName() + ")";
-            String filter			= "(& "+classFilter+factoryFilter+")";
-
-            implementationTracker = new ImplementationTracker(context, context.createFilter(filter));
-        } catch (InvalidSyntaxException e) {
-            throw new ConfigurationException(e.getLocalizedMessage());
-        }
     }
+
 
     public InstanceDeclaration getDeclaration() {
 		return (InstanceDeclaration) super.getDeclaration();
@@ -91,16 +91,7 @@ public class ApamInstanceDeclaration extends ApamComponentFactory {
 		return null;
 	}
     
-   @Override
-    protected void bindToApam(Apam apam) {
-        implementationTracker.open();
-    }
-
-    @Override
-    protected void unbindFromApam(Apam apam) {
-        implementationTracker.close();
-    }
-	
+ 	
     /**
      * Gets the class name.
      *
@@ -117,15 +108,65 @@ public class ApamInstanceDeclaration extends ApamComponentFactory {
         throw new UnsupportedOperationException("APAM instance declaration is not instantiable");
     }
 
+    @Override
+    public synchronized void start() {
+    	
+    	super.start();
+    	
+    	if (iPojoInstance != null) {
+    		iPojoInstance.publish();
+    	}
+    }
+    
+    
+    @Override
+    public synchronized void stop() {
+    	super.stop();
+
+    	if (iPojoInstance != null) {
+    		iPojoInstance.retract();
+    	}
+
+    }
+    @Override
+    protected void bindToApam(Apam apam) {
+    	
+    	/*
+    	 * We have just bound to APAM for the first time, or it has been updated,
+    	 * we force building a new instance declaration 
+    	 */
+    	if (this.apamContext != APAMImpl.context) {
+    		
+    		if (iPojoInstance != null) {
+    			iPojoInstance.retract();
+    		}
+    		
+    		if (builderTracker != null) {
+    			builderTracker.close();
+    		}
+
+    		iPojoInstance 	= null;
+    		apamContext 	= APAMImpl.context;
+       		builderTracker	= new BuilderTracker(apamContext);
+    	}
+
+        builderTracker.open();
+
+    }
+
+    @Override
+    protected void unbindFromApam(Apam apam) {
+   		builderTracker.close();
+    }
+
      /**
-     * A class to dynamically track the apform implementation. This allows to dynamically create the instance
-     * represented by this declaration
+     * A class to dynamically track the iPOJO builder implementation.
      *
      */
-    class ImplementationTracker extends ServiceTracker {
+    private class BuilderTracker extends ServiceTracker {
 
-        public ImplementationTracker(BundleContext context, Filter filter) {
-            super(context,filter,null);
+        public BuilderTracker(BundleContext apamContext) {
+        	super(apamContext,DeclarationBuilderService.class.getName(),null);
         }
 
         @Override
@@ -134,30 +175,25 @@ public class ApamInstanceDeclaration extends ApamComponentFactory {
             if (iPojoInstance != null)
                 return null;
 
-            try {
+           	DeclarationBuilderService builder 	=  (DeclarationBuilderService) super.addingService(reference);
 
-                Factory factory 			= (Factory) this.context.getService(reference);
-                Properties configuration	= new Properties();
-                configuration.put(ApamInstanceManager.ATT_DECLARATION, ApamInstanceDeclaration.this.getDeclaration());
-                iPojoInstance = factory.createComponentInstance(configuration);
+            /*
+             * Create the iPOJo instance declaration as soon as the builder is available.
+             */
+           	iPojoInstance 	= builder.newInstance(getDeclaration().getImplementation().getName(),getDeclaration().getName()).
+           									context(getBundleContext()).
+           									configure().property(ApamInstanceManager.ATT_DECLARATION, getDeclaration()).
+           									build();
+           	
+           	/*
+           	 * Publish it, this is necessary if this event arrives after this factory has been started
+           	 */
+           	if (ApamInstanceDeclaration.this.getState() == Factory.VALID)
+           		iPojoInstance.publish();
 
-                return factory;
-
-            } catch (Exception instantiationError) {
-                instantiationError.printStackTrace(System.err);
-                return null;
-            }
-
+           	return builder;
         }
 
-        @Override
-        public void removedService(ServiceReference reference, Object service) {
-            if (iPojoInstance != null)
-                iPojoInstance.dispose();
-
-            this.context.ungetService(reference);
-            iPojoInstance = null;
-        }
 
     }
 
