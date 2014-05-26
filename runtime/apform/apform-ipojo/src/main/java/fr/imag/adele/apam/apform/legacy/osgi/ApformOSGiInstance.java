@@ -14,7 +14,11 @@
  */
 package fr.imag.adele.apam.apform.legacy.osgi;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -53,6 +57,11 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
 	 */
 	private final Bundle				bundle;
 
+	/**
+	 * The bundle context that registered the instance
+	 */
+	private final BundleContext			bundleContext;
+
     /**
      * The cached service object
      */
@@ -79,6 +88,10 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     	
     	this.reference			= reference;
     	this.bundle				= reference.getBundle();
+    	this.bundleContext		= AccessController.doPrivileged(new PrivilegedAction<BundleContext>() {
+										public BundleContext run() { return bundle.getBundleContext();}
+								  });
+    	
         this.service			= null;
     	
     }
@@ -102,6 +115,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     	return bundle;
     }
     
+    
     @Override
     public Object getServiceObject() {
     	
@@ -117,7 +131,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     	 * declarative services
     	 */
     	synchronized (this) {
-    		service = bundle.getBundleContext().getService(reference);
+    		service = bundleContext.getService(reference);
 		}
     	
         return service;
@@ -133,8 +147,8 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     public void dispose() {
     	service = null;
     	
-    	if (bundle.getBundleContext() != null)
-    		bundle.getBundleContext().ungetService(reference);
+    	if (bundleContext != null)
+    		bundleContext.ungetService(reference);
     }
 
     @Override
