@@ -530,7 +530,7 @@ public class RelationDefinitionImpl implements RelationDefinition {
 					// implementation
 					if (getTarget() instanceof SpecificationReference) {
 						String clientReqSpec = ((SpecificationReference) getTarget()).getName();
-						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec) && (!multiple || compoDep.isMultiple())) {
+						if (impl.getSpec().getName().equals(clientReqSpec) && (!multiple || compoDep.isMultiple())) {
 							return true;
 						}
 					} else {

@@ -1643,8 +1643,8 @@ public final class CheckObr {
 					if (clientDep.getTarget() instanceof SpecificationReference) {
 						String clientReqSpec = ((SpecificationReference) clientDep
 								.getTarget()).getName();
-						if (impl.getSpecification().getName()
-								.equals(clientReqSpec)
+						SpecificationReference spec = impl.getSpecification(); 
+						if ( spec!= null && spec.getName().equals(clientReqSpec)
 								&& (!multiple || compoDep.isMultiple())) {
 							return true;
 						}
