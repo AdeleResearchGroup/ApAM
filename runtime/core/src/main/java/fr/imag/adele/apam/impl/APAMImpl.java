@@ -253,6 +253,9 @@ public class APAMImpl implements Apam {
 				}
 
 			} catch (MalformedURLException e) {
+                logger.error("Error parsing manager configuration for " + managerName
+                + ", manager model "+managerModel
+                +", exception : "+e.getMessage());
 			}
 			
 			/*
