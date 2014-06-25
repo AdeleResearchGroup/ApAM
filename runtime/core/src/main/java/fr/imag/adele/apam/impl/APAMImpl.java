@@ -163,12 +163,14 @@ public class APAMImpl implements Apam {
 		}
 		failureMan = new FailedResolutionManager();
 		
-		Map<String,URL> rootConfiguration = parseRootConfiguration(context.getProperty(Apam.EXPECTED_MANAGERS));
+		Map<String,URL> rootConfiguration = parseRootConfiguration(context.getProperty(Apam.CONFIGURATION_MANAGERS));
+        expectedManagers.addAll(Util.splitSet(context.getProperty(Apam.EXPECTED_MANAGERS)));
+
 		new CST(this, rootConfiguration);
 
-		for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
-			expectedManagers.add(rootModel.getManagerName());
-		}
+//		for (ManagerModel rootModel : CompositeTypeImpl.getRootCompositeType().getModels()) {
+//			expectedManagers.add(rootModel.getManagerName());
+//		}
 
 		/*
 		 * disable resolution temporarily, until all the required managers of
