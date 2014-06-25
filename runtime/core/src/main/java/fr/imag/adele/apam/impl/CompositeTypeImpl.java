@@ -327,6 +327,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		return null;
 	}
 
+    @Override
+    public ManagerModel getModel(String managerName) {
+        for (ManagerModel model : models) {
+            if (model.getManagerName().equals(managerName)) {
+                return model;
+            }
+        }
+        return null;
+    }
+
 	@Override
 	public Set<ManagerModel> getModels() {
 		return Collections.unmodifiableSet(models);

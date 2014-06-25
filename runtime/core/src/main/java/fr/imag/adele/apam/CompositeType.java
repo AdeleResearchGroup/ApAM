@@ -99,6 +99,9 @@ public interface CompositeType extends Implementation {
 	 */
 	public ManagerModel getModel(ContextualManager manager);
 
+    public ManagerModel getModel(String managerName);
+
+
 	/**
 	 * returns all the models
 	 * 
