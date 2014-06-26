@@ -127,33 +127,72 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
         instancesServiceTracker.close();
 	}
 
+	/**
+	 * Whether the specification is a possible candidate to be matched to an OSGi services
+	 */
+	private static boolean isMatchable(Specification specification) {
+		
+		if (!specification.getRelations().isEmpty())
+			return false;
+		
+		if (! specification.getDeclaration().getProvidedResources(MessageReference.class).isEmpty())
+			return false;
+
+		if (specification.getDeclaration().getProvidedResources(InterfaceReference.class).isEmpty())
+			return false;
+		
+		return true;
+	}
+	
+	/**
+	 * Whether the service is a possible candidate to be matched to APAM specifications
+	 */
+	private static boolean isMatchable(ServiceReference reference) {
+		
+        /*
+         * ignore services that are iPojo, these are treated separately
+         * 
+         * In this tracker we avoid getting the service object, as this 
+         * may interfere with delayed service creation when using the
+         * service factory pattern
+         *
+         */
+        
+        if (reference.getProperty("factory.name") != null)
+        	return false;
+
+        if (reference.getProperty("instance.name") != null)
+        	return false;
+		
+		return true;
+	}
+
+	
+	/**
+	 * Whether the service matches the specification
+	 */
+	private static boolean matches(Specification specification, ServiceReference reference) {
+		
+    	Set<InterfaceReference> providedServices = new HashSet<InterfaceReference>();
+		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
+			providedServices.add(new InterfaceReference(interfaceName));
+		}
+		
+		return providedServices.containsAll(specification.getDeclaration().getProvidedResources(InterfaceReference.class));
+	}
+	
     /**
      * Find all specifications matching the osgi service
      */
     private Set<Specification> getMatchingSpecifications(ServiceReference reference) {
     	
-    	Set<ResourceReference> providedServices = new HashSet<ResourceReference>();
-		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
-			providedServices.add(new InterfaceReference(interfaceName));
-		}
 
 		Set<Specification> matches	= new HashSet<Specification>();
 		
-		for (Specification candidate : CST.componentBroker.getSpecs()) {
+		for (Specification specification : CST.componentBroker.getSpecs()) {
 			
-			if (!candidate.getRelations().isEmpty())
-				continue;
-			
-			if (! candidate.getDeclaration().getProvidedResources(MessageReference.class).isEmpty())
-				continue;
-
-			if (candidate.getDeclaration().getProvidedResources(InterfaceReference.class).isEmpty())
-				continue;
-
-			if (! providedServices.containsAll(candidate.getDeclaration().getProvidedResources(InterfaceReference.class)))
-				continue;
-				
-			matches.add(candidate);
+			if (isMatchable(specification) && matches(specification,reference))
+				matches.add(specification);
 		}
 		
 		return matches; 
@@ -189,25 +228,16 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
             return null;
 
         /*
-         * ignore services that are iPojo, these are treated separately
+         * ignore services that are not matchable
          * 
-         * In this tracker we avoid getting the service object, as this 
-         * may interfere with delayed service creation when using the
-         * service factory pattern
-         *
          */
-        
-        if (reference.getProperty("factory.name") != null)
-        	return null;
-
-        if (reference.getProperty("instance.name") != null)
+        if (! isMatchable(reference))
         	return null;
         
-        Set<ApformOSGiInstance> instances = getMatchingInstances(reference);
-
         /*
          * Create all instances and implementations required in APAM
          */
+        Set<ApformOSGiInstance> instances = getMatchingInstances(reference);
     	for(ApformOSGiInstance instance : instances) {
 
 			ApformImplementation implementation = new ApformOSGiImplementation(instance);
@@ -290,16 +320,9 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 		
 		Specification specification = (Specification) component;
 
-		if (!specification.getRelations().isEmpty())
+		if (!isMatchable(specification))
 			return;
 		
-		if (! specification.getDeclaration().getProvidedResources(MessageReference.class).isEmpty())
-			return;
-
-		if (specification.getDeclaration().getProvidedResources(InterfaceReference.class).isEmpty())
-			return;
-
-
 		StringBuilder filter = new StringBuilder();
 		filter.append("(").append("&");
 		for (InterfaceReference providedInterface : specification.getDeclaration().getProvidedResources(InterfaceReference.class)) {
@@ -319,6 +342,9 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 			return;
 			
 		for (ServiceReference reference : matchedServices)  {
+			
+			if (!isMatchable(reference))
+				continue;
 				
 			ApformOSGiInstance instance 		= new ApformOSGiInstance(specification, reference);
 			ApformImplementation implementation = new ApformOSGiImplementation(instance);
