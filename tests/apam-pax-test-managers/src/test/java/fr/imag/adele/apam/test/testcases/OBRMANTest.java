@@ -61,9 +61,10 @@ public class OBRMANTest extends ExtensionAbstract {
 	@Override
 	public List<Option> config() {
 		List<Option> obrmanconfig = super.config(null, true);
-		
-		obrmanconfig.add(frameworkProperty(Apam.EXPECTED_MANAGERS).value("OBRMAN:file:./conf/test.obrman.config"));
-		
+
+        obrmanconfig.add(frameworkProperty(Apam.EXPECTED_MANAGERS).value("OBRMAN"));
+        obrmanconfig.add(frameworkProperty(Apam.CONFIGURATION_MANAGERS).value("OBRMAN:file:./conf/test.obrman.config"));
+
 		return obrmanconfig;
 	}
 
