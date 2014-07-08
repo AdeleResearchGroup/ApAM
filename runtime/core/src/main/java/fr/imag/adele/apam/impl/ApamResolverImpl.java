@@ -52,6 +52,7 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.util.ApamFilter;
 
 public class ApamResolverImpl implements ApamResolver {
 
@@ -539,16 +540,13 @@ public class ApamResolverImpl implements ApamResolver {
 		/*
 		 * Get the list of external managers.
 		 * 
-		 * NOTE Notice that we invoke getSelectionPath on all managers (even if
+		 * NOTE that we invoke getSelectionPath on all managers (even if
 		 * resolve policy is specified EXTERNAL). In this way, managers can
 		 * influence resolution, by adding constraints, even if they do not
 		 * perform resolution themselves.
 		 * 
-		 * TODO We should have two separate methods in managers: one for adding
-		 * constraints and another for actually performing resolution.
 		 */
-		Component source = relToResolve.getLinkSource();
-		// RelToResolve relToResolve = new RelToResolveImpl (source, relation);
+
 		SortedSet<RelationManager> externalManagers = new TreeSet<RelationManager>(ApamManagers.getRelationManagers().comparator());
 		
 		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
@@ -573,10 +571,8 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		/*
-		 * If resolve = exist or internal, only predefined managers must be
-		 * called
+		 * If resolve = exist or internal, only predefined managers must be called
 		 */
-
 		boolean resolveExternal = (relToResolve.getResolve() == ResolvePolicy.EXTERNAL);
 		if (resolveExternal) {
 			selectionPath.addAll(externalManagers);
@@ -588,113 +584,136 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info("Resolving " + relToResolve);
 		}
 
-		Resolved<?> res = null;
-		boolean deployed = false;
-
-		boolean resolveExist = relToResolve.getResolve() == ResolvePolicy.EXIST;
+		Resolved<?> res ;
 		String mess = "";
+
 		for (RelationManager manager : selectionPath) {
 			if (manager == null) {
-				throw new RuntimeException("Manager is null, SelectionPath " + selectionPath);
+				throw new RuntimeException("Manager is null, SelectionPath " ) ; //+ selectionPath);
 			}
 			if (manager.getName() == null) {
 				throw new RuntimeException("Manager : " + manager + ", manager name is null");
-			}
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
-				deployed = true;
-			}
-			// logger.debug(manager.getName() + "  ");
+			}			
 			mess += manager.getName() + "  ";
-			// Does the real job
-			res = manager.resolve(relToResolve);
-			if (res == null || res.isEmpty()) {
-				// This manager did not found a solution, try the next manager
-				continue;
-			}
 
-			/*
-			 * a manager succeeded to find a solution If an unused or deployed
-			 * implementation. Can be into singleton or in toInstantiate if an
-			 * instance is required
-			 */
-			Component depl = (res.toInstantiate != null) ? res.toInstantiate : res.singletonResolved;
-			deployedImpl(source, depl, deployed);
-
-			/*
-			 * If an implementation is returned as "toInstantiate" it has to be
-			 * instantiated
-			 */
-			if (res.toInstantiate != null) {
-				if (relToResolve.getTargetKind() != ComponentKind.INSTANCE) {
-					logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not an Instance");
-					continue;
-				}
-
-				/*
-				 * If resolveExist, we cannot instanciate.
-				 */
-				if (resolveExist) {
-					logger.error(mess + "resolve=\"exist\" but only an implementations was found : " + res.toInstantiate + " cannot be instantiated. Resolve failed.");
-					continue;
-				}
-
-				Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
-				Instance inst = res.toInstantiate.createInstance(compo, null);
-				if (inst == null) { // may happen if impl is non instantiable
-					logger.error(mess + "Failed creating instance of " + res.toInstantiate);
-					continue;
-				}
-
-				if (!relToResolve.matchRelationConstraints(inst)) {
-					logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints");
-					((ComponentImpl) inst).unregister();
-					continue;
-				}
-
-				logger.info(mess + "Instantiated " + inst);
-				if (relToResolve.isMultiple()) {
-					Set<Instance> insts = new HashSet<Instance>();
-					insts.add(inst);
-					return new Resolved<Instance>(insts);
-				} else {
-					return new Resolved<Instance>(inst);
-				}
-			}
-
-			/*
-			 * Because managers can be third party, we cannot trust them. Verify
-			 * that the result is correct.
-			 */
-			if (relToResolve.isMultiple()) {
-				if (res.setResolved == null || res.setResolved.isEmpty()) {
-					logger.info(mess + "manager " + manager + " returned an empty result. Should be null.");
-					continue;
-				}
-				if (((Component) res.setResolved.iterator().next()).getKind() != relToResolve.getTargetKind()) {
-					logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
-					continue;
-				}
-				logger.info(mess + "Selected : " + res.setResolved);
-				return res;
-			}
-
-			// Result is a singleton
-			if (res.singletonResolved == null) {
-				logger.info(mess + "manager " + manager + " returned an empty result. ");
-				continue;
-			}
-			if (res.singletonResolved.getKind() != relToResolve.getTargetKind()) {
-				logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
-				continue;
-			}
-			logger.info(mess + "Selected : " + res.singletonResolved);
-			return res;
+			res = resolveOneManager(manager, relToResolve, mess) ;
+			if (res != null) 
+				return res ;
 		}
-		// No solution found
+		
+		//All managers have been tried. No solution found
 		logger.debug(mess + " : not found");
 		return null;
 	}
 
+
+	private Resolved<?> resolveOneManager (RelationManager manager, RelToResolve relToResolve, String mess) {
+
+		Resolved<?> resolved = manager.resolve(relToResolve);
+		if (resolved == null || resolved.isEmpty()) {
+			return null;
+		}
+
+		/*
+		 * This manager succeeded to find a solution If an unused or deployed
+		 * implementation. Can be into singleton or in toInstantiate if an
+		 * instance is required
+		 */
+		Component source = relToResolve.getLinkSource();
+		boolean deployed = !manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN) ;
+		Component depl = (resolved.toInstantiate != null) ? resolved.toInstantiate : resolved.singletonResolved;
+
+		deployedImpl(source, depl, deployed);
+
+		/*
+		 * If an implementation is returned as "toInstantiate" it has to be instantiated
+		 */
+		if (resolved.toInstantiate != null) {
+			if (relToResolve.getTargetKind() != ComponentKind.INSTANCE) {
+				logger.error(mess + "Invalid Resolved value. toInstantiate is set, but target kind is not an Instance");
+				return null;
+			}
+
+			/*
+			 * If resolveExist, we cannot instantiate.
+			 */
+			if (relToResolve.getResolve() == ResolvePolicy.EXIST) {
+				logger.error(mess + "resolve=\"exist\" but no valid instance of " + resolved.toInstantiate + " are found. Resolve failed.");
+				return null;
+			}
+
+			/*
+			 * This external manager returned a non instantiable implem (ApamMan does not do that).
+			 * Try this manager again but with a constraint avoiding to find the same implem. 
+			 */
+			if (!resolved.toInstantiate.isInstantiable()) {
+				logger.debug(mess + "Implementation non-instantiable " + resolved.toInstantiate + " was found, but no instance. Resolve failed.");
+				relToResolve.getImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + ")") ;
+				return resolveOneManager(manager, relToResolve, mess);
+			}
+
+			Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
+			Instance inst = resolved.toInstantiate.createInstance(compo, null);
+			if (inst == null) { 
+				/*
+				 *  Failed to be instantiated.
+				 *  Flag instantiateFails is turned to "true" in createInstance. 
+				 *  Instantiation will not be attempted again on this implem.
+				 */
+				logger.error(mess + "Failed creating instance. Hiding " + resolved.toInstantiate);
+				//try to resolve again from beginning but prohibits this implementation (for external managers like OBRMan)
+				relToResolve.getImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + ")") ;
+				return resolveOneManager(manager, relToResolve, mess);
+			}
+
+			if (!relToResolve.matchRelationConstraints(inst)) {
+				logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints");
+				((ComponentImpl) inst).unregister();
+				return null ;
+			}
+
+			logger.info(mess + "Instantiated " + inst);
+			if (relToResolve.isMultiple()) {
+				Set<Instance> insts = new HashSet<Instance>();
+				insts.add(inst);
+				return new Resolved<Instance>(insts);
+			} else {
+				return new Resolved<Instance>(inst);
+			}
+		} //end instantiating	
+
+		/*
+		 * We have the solution, including the instance if an instance is required.
+		 * But because managers can be third party, we cannot trust them. 
+		 * We have to check if the result is correct.
+		 */
+		if (relToResolve.isMultiple()) {
+			if (resolved.setResolved == null || resolved.setResolved.isEmpty()) {
+				logger.info(mess + "manager " + manager + " returned an empty result. Should be null.");
+				return null ;
+			}
+			if (((Component) resolved.setResolved.iterator().next()).getKind() != relToResolve.getTargetKind()) {
+				logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
+				return null ;
+			}
+			logger.info(mess + "Selected : " + resolved.setResolved);
+			return resolved;
+		}
+
+		// Result is a singleton
+		if (resolved.singletonResolved == null) {
+			logger.info(mess + "manager " + manager + " returned an empty result. ");
+			return null ;
+		}
+		if (resolved.singletonResolved.getKind() != relToResolve.getTargetKind()) {
+			logger.error(mess + "Manager " + manager + " returned objects of the bad type for relation " + relToResolve);
+			return null ;
+		}
+		logger.info(mess + "Selected : " + resolved.singletonResolved);
+		return resolved;
+	}
+	
+	
 	@Override
 	public Instance resolveImpl(Component client, Implementation impl, Set<String> constraints, List<String> preferences) {
 		if (client == null) {

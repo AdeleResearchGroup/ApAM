@@ -195,6 +195,71 @@ public class RelToResolveImpl implements RelToResolve {
 		/*
 		 * intrinsic constraints. To recompute only if they have substitutions.
 		 */
+		reComputeSubstFilters();
+//		if (!getImplementationConstraints().isEmpty()) {
+//			if (!((RelationDefinitionImpl) relationDefinition).isStaticImplemConstraints()) {
+//				for (String c : relationDefinition.getImplementationConstraints()) {
+//					f = ApamFilter.newInstanceApam(c, linkSource);
+//					if (f != null) {
+//						allImplementationConstraintFilters.add(f);
+//					}
+//				}
+//			} else {
+//				allImplementationConstraintFilters.addAll(((RelationDefinitionImpl) relationDefinition).getImplementationConstraintFilters());
+//			}
+//		}
+//
+//		if (!getInstanceConstraints().isEmpty()) {
+//			if (!((RelationDefinitionImpl) relationDefinition).isStaticInstConstraints()) {
+//				for (String c : relationDefinition.getInstanceConstraints()) {
+//					f = ApamFilter.newInstanceApam(c, linkSource);
+//					if (f != null) {
+//						allInstanceConstraintFilters.add(f);
+//					}
+//				}
+//			} else {
+//				allInstanceConstraintFilters.addAll(((RelationDefinitionImpl) relationDefinition).getInstanceConstraintFilters());
+//			}
+//		}
+//
+//		if (!getImplementationPreferences().isEmpty()) {
+//			if (!((RelationDefinitionImpl) relationDefinition).isStaticImplemPreferences()) {
+//				for (String c : relationDefinition.getImplementationPreferences()) {
+//					f = ApamFilter.newInstanceApam(c, linkSource);
+//					if (f != null) {
+//						allImplementationPreferenceFilters.add(f);
+//					}
+//				}
+//			} else {
+//				allImplementationPreferenceFilters.addAll(((RelationDefinitionImpl) relationDefinition).getImplementationpreferencfeFilters());
+//			}
+//		}
+//
+//		if (!getInstancePreferences().isEmpty()) {
+//			if (!((RelationDefinitionImpl) relationDefinition).isStaticInstPreferences()) {
+//				for (String c : relationDefinition.getInstancePreferences()) {
+//					f = ApamFilter.newInstanceApam(c, linkSource);
+//					if (f != null) {
+//						allInstancePreferenceFilters.add(f);
+//					}
+//				}
+//			} else {
+//				allInstancePreferenceFilters.addAll(((RelationDefinitionImpl) relationDefinition).getInstancePreferenceFilters());
+//			}
+//		}
+
+	}
+
+	/**
+	 * Recompute the filters if there are substitutions. 
+	 * Supposed to be called each time an attribute is changes in the component (setProperty)
+	 */
+	public void reComputeSubstFilters () {
+		ApamFilter f;
+
+		/*
+		 * intrinsic constraints. To recompute only if they have substitutions.
+		 */
 		if (!getImplementationConstraints().isEmpty()) {
 			if (!((RelationDefinitionImpl) relationDefinition).isStaticImplemConstraints()) {
 				for (String c : relationDefinition.getImplementationConstraints()) {
@@ -246,9 +311,9 @@ public class RelToResolveImpl implements RelToResolve {
 				allInstancePreferenceFilters.addAll(((RelationDefinitionImpl) relationDefinition).getInstancePreferenceFilters());
 			}
 		}
-
 	}
-
+	
+	
 	// Supposed to be called after filters have been computed and added
 	@Override
 	public Set<ApamFilter> getAllImplementationConstraintFilters() {

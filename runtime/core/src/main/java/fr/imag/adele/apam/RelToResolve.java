@@ -18,6 +18,9 @@ public interface RelToResolve {
 	public Set<ApamFilter> getAllInstanceConstraintFilters();
 
 	public CreationPolicy getCreation();
+	
+	//To be called when a property is modified in the source component
+	public void reComputeSubstFilters () ;
 
 	// Get the constraints that need to be satisfied by the implementation that
 	// resolves the reference

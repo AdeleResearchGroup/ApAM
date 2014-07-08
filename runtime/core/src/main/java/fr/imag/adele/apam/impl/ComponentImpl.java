@@ -84,6 +84,12 @@ implements Component, Comparable<Component> {
 	private final ApformComponent apform;
 
 	private final ComponentDeclaration declaration;
+	
+	/*
+	 * set to true if an instantiation failed.
+	 * True means : do not try to instantiate again
+	 */
+	private boolean instantiateFails = false ;
 
 	// Contains the composite type that was the first to physically deploy that
 	// component.
@@ -1079,12 +1085,22 @@ implements Component, Comparable<Component> {
 	 */
 	@Override
 	public boolean isInstantiable() {
+		if (instantiateFails) return false ;
+		
 		if (declaration.isDefinedInstantiable() || getGroup() == null) {
 			return declaration.isInstantiable();
 		}
 		return getGroup().isInstantiable();
 	}
 
+	/**
+	 * Set the flag InstantiateFails which when true means : do not try to instantiate.
+	 * Should be used only by the resolver when createinstance fails
+	 * @param doNotTry
+	 */
+	public void setInstantiateFails (boolean doNotTryToInstantiate) {
+		instantiateFails = doNotTryToInstantiate ;
+	}
 	/**
 	 * Whether the component is shared
 	 */
@@ -1454,8 +1470,10 @@ implements Component, Comparable<Component> {
 
 		// If outgoing constraints have substitution, the link may be now invalid
 		for (Link outgoing : getLocalLinks()) {
-			if (!!!((RelationDefinitionImpl) outgoing.getRelDefinition()).isStaticImplemConstraints()
-					&& !outgoing.isValid()) {
+//			if (!!!((RelationDefinitionImpl) outgoing.getRelDefinition()).isStaticImplemConstraints()
+//					&& !outgoing.isValid()) {
+			outgoing.getRelToResolve().reComputeSubstFilters();
+			if (!outgoing.isValid()) {
 				outgoing.remove();
 			}
 		}
