@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.felix.ipojo.ConfigurationException;
+import org.apache.felix.ipojo.parser.MethodMetadata;
+import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.apache.felix.ipojo.util.Callback;
 
 import fr.imag.adele.apam.Instance;
@@ -40,6 +42,19 @@ public class LifecycleCallback extends Callback {
 		} catch (NoSuchMethodException e) {
 			throw new ConfigurationException("invalid method declaration in callback "+declaration.getMethodName());
 		}
+	}
+	
+	
+	public MethodMetadata getMethodMetadata() {
+		
+		PojoMetadata metadata 	= instance.getFactory().getPojoMetadata();
+		String[] arguments		= needsArgument ? new String[] {m_methodObj.getParameterTypes()[0].getCanonicalName()}: new String[0];
+		
+		return metadata.getMethod(m_methodObj.getName(),arguments);
+	}
+	
+	public boolean invokes(Method method)  {
+		return m_methodObj.equals(method);
 	}
 	
 	public boolean isTriggeredBy(AtomicImplementationDeclaration.Event trigger) {

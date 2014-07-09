@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.apform.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -25,6 +26,7 @@ import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.InstanceManager;
+import org.apache.felix.ipojo.MethodInterceptor;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescription;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
@@ -54,7 +56,7 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class ApamInstanceManager extends InstanceManager implements
-		RelationInjectionManager.Resolver {
+		RelationInjectionManager.Resolver, MethodInterceptor {
 
 	/**
 	 * The property used to configure this instance with its declaration
@@ -344,34 +346,85 @@ public class ApamInstanceManager extends InstanceManager implements
 			if (callbacks == null)
 				continue;
 
-			for (CallbackDeclaration callback : callbacks) {
-				addCallback(new LifecycleCallback(this, trigger, callback));
+			for (CallbackDeclaration callbackDeclaration : callbacks) {
+				
+				LifecycleCallback callback = new LifecycleCallback(this, trigger, callbackDeclaration);
+				addCallback(callback);
+				
+				/*
+				 * track remove callback execution
+				 */
+				if (trigger == AtomicImplementationDeclaration.Event.REMOVE) {
+					register(callback.getMethodMetadata(),this);
+				}
 			}
 
 		}
 	}
 
+
+	/**
+	 * Stop the component when the remove callback is explicitly invoked by
+	 * code
+	 */
+	@Override
+	public void onFinally(Object pojo, Member method) {
+		
+		if (getApform().getApamComponent() != null) {
+			
+			/*
+			 * avoid re-executing the invoked callback
+			 */
+			LifecycleCallback triggering = null;
+			for (LifecycleCallback callback : this.apform.lifeCycleCallbacks) {
+				if (callback.invokes((Method)method))
+					triggering = callback;
+			}
+			
+			if (triggering != null)
+				removeCallback(triggering);
+			
+			/*
+			 * stop the instance
+			 */
+			stop();
+		}
+	}
+
+	@Override
+	public void onEntry(Object pojo, Member method, Object[] args) {
+	}
+
+	@Override
+	public void onExit(Object pojo, Member method, Object returnedObj) {
+	}
+
+	@Override
+	public void onError(Object pojo, Member method, Throwable throwable) {
+	}
+
 	/**
 	 * Adds a new life-cycle change callback
 	 */
-	public void addCallback(LifecycleCallback callback)
-			throws ConfigurationException {
+	public void addCallback(LifecycleCallback callback)	throws ConfigurationException {
 		apform.lifeCycleCallbacks.add(callback);
+	}
+
+	private void removeCallback(LifecycleCallback callback)	{
+		apform.lifeCycleCallbacks.remove(callback);
 	}
 
 	/**
 	 * Adds a new property change callback
 	 */
-	public void addCallback(PropertyCallback callback)
-			throws ConfigurationException {
+	public void addCallback(PropertyCallback callback) throws ConfigurationException {
 		apform.propertyCallbacks.add(callback);
 	}
 
 	/**
 	 * Adds a new relation life-cycle callback
 	 */
-	public void addCallback(RelationCallback callback)
-			throws ConfigurationException {
+	public void addCallback(RelationCallback callback) throws ConfigurationException {
 		apform.relationCallbacks.add(callback);
 	}
 
@@ -587,4 +640,5 @@ public class ApamInstanceManager extends InstanceManager implements
 		}
 
 	}
+
 }
