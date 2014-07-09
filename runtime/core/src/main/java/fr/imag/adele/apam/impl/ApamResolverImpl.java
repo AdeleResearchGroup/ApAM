@@ -647,8 +647,9 @@ public class ApamResolverImpl implements ApamResolver {
 			 * Try this manager again but with a constraint avoiding to find the same implem. 
 			 */
 			if (!resolved.toInstantiate.isInstantiable()) {
-				logger.debug(mess + "Implementation non-instantiable " + resolved.toInstantiate + " was found, but no instance. Resolve failed.");
-				relToResolve.getImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + ")") ;
+				logger.debug(mess + "Implementation non-instantiable " + resolved.toInstantiate + " was found, but no valid instance. Resolve failed.");
+				relToResolve.getMngImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + "))") ;
+				((RelToResolveImpl)relToResolve).computeFilters();
 				return resolveOneManager(manager, relToResolve, mess);
 			}
 
@@ -660,9 +661,10 @@ public class ApamResolverImpl implements ApamResolver {
 				 *  Flag instantiateFails is turned to "true" in createInstance. 
 				 *  Instantiation will not be attempted again on this implem.
 				 */
-				logger.error(mess + "Failed creating instance. Hiding " + resolved.toInstantiate);
+				logger.error(mess + "Failed creating instance. " + resolved.toInstantiate + " turned to non-instantiable.");
 				//try to resolve again from beginning but prohibits this implementation (for external managers like OBRMan)
-				relToResolve.getImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + ")") ;
+				relToResolve.getMngImplementationConstraints().add("(!(name = " + resolved.toInstantiate.getName() + "))") ;
+				((RelToResolveImpl)relToResolve).computeFilters();
 				return resolveOneManager(manager, relToResolve, mess);
 			}
 

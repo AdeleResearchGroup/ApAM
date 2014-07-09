@@ -125,7 +125,7 @@ public class perfWire implements Runnable, ApamComponent {
 		long fin ;
 		long duree ;
 		long deb ;
-		int nb = 10;
+		int nb = 1000;
 		int nbInst = 0 ;
 
 		System.out.println("creating 2 instances");
@@ -139,7 +139,6 @@ public class perfWire implements Runnable, ApamComponent {
 		deb = System.currentTimeMillis();
 		for (int i = 0; i < nb; i++) {
 			test = CST.componentBroker.getInstService(testPerf) ;
-			test.setProperty("debit", 10) ;
 			testPerf.getName() ;
 			test.setProperty("debit", 10) ;
 		}
@@ -152,102 +151,107 @@ public class perfWire implements Runnable, ApamComponent {
 			test = CST.componentBroker.getInstService(testPerf) ;
 			test.setProperty("debit", 2) ;
 			testPerf.getName() ;
+			System.out.println(testPerf.getName());
 			test.setProperty("debit", 10) ;
 		}
 		fin = System.currentTimeMillis();
 		duree = (fin - deb - overHead);
 		System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " appels avec changement de dependance : " + duree + " milli secondes");
 
-
 		for (int j = 0; j < 10; j++) {
 			System.out.println("creating 100 instances");
 			for (int i = 0; i < 100; i++) {
-				implS1.createInstance(null, null);
+				test = implS1.createInstance(null, null);
 				nbInst++ ;
 			}
+			test.setProperty("debit",  2000) ;
 
 			deb = System.currentTimeMillis();
+//			System.out.println(testSimple.getName());
 			for (int i = 0; i < nb; i++) {
-				test = CST.componentBroker.getInstService(testPerf) ;
+				test = CST.componentBroker.getInstService(testSimple) ;
 				test.setProperty("debit", 10) ;
-				testPerf.getName() ;
-				test.setProperty("debit", 10) ;
+				testSimple.getName() ;
+//				System.out.println(testSimple.getName());
 			}
 			fin = System.currentTimeMillis();
 			overHead = (fin - deb) ;
 			System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " appels sans changement : " + overHead + " milli secondes");
 
 			deb = System.currentTimeMillis();
-			nb = 100 ;
+//			System.out.println(testPerf.getName());
 			for (int i = 0; i < nb; i++) {
 				test = CST.componentBroker.getInstService(testPerf) ;
 				test.setProperty("debit", 2) ;
 				testPerf.getName() ;
 				test.setProperty("debit", 10) ;
+//				System.out.println(testPerf.getName());
 			}
 			fin = System.currentTimeMillis();
 			duree = (fin - deb - overHead) ;
-			System.out.println("Nombre d'instances " + nbInst +  "duree de " + nb + " appels avec changement de dep : " + duree + " milli secondes");
+			System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " appels avec contrainte et changement de dep : " + duree + " milli secondes");
 
 			deb = System.currentTimeMillis();
-			nb = 100 ;
+//			System.out.println(testPerfPrefere.getName());
 			for (int i = 0; i < nb; i++) {
-				test = CST.componentBroker.getInstService(testPerf) ;
+				test = CST.componentBroker.getInstService(testPerfPrefere) ;
+//				System.out.println("debit = " +test.getProperty("debit"));
 				test.setProperty("debit", 2) ;
-				testPerf.getName() ;
-				test.setProperty("debit", 10) ;
+				Link l = thisInstance.getLink("testPerfPrefere") ;
+				l.reevaluate(true, true) ;
+
+				testPerfPrefere.getName() ;
+//				System.out.println(testPerfPrefere.getName());
 			}
 			fin = System.currentTimeMillis();
 			duree = (fin - deb - overHead) ;
-			System.out.println("Nombre d'instances " + nbInst +  "duree de " + nb + " changement de dep et preference : " + duree + " milli secondes");
+			System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " changement de dep et preference : " + duree + " milli secondes");
 		
 		}
 
 
 //=========== start testPerfLink test
-//creating 2 instances
-//2 : duree de 10 appels sans changement : 1 milli secondes
-//Nombre d'instances 2 : duree de 10 appels avec changement de dependance : 3 milli secondes
-//creating 100 instances
-//Nombre d'instances 102 : duree de 10 appels sans changement : 1 milli secondes
-//Nombre d'instances 102duree de 100 appels avec changement de dep : 33 milli secondes
-//Nombre d'instances 102duree de 100 changement de dep et preference : 45 milli secondes
-//creating 100 instances
-//Nombre d'instances 202 : duree de 100 appels sans changement : 8 milli secondes
-//Nombre d'instances 202duree de 100 appels avec changement de dep : 21 milli secondes
-//Nombre d'instances 202duree de 100 changement de dep et preference : 23 milli secondes
-//creating 100 instances
-//Nombre d'instances 302 : duree de 100 appels sans changement : 13 milli secondes
-//Nombre d'instances 302duree de 100 appels avec changement de dep : 21 milli secondes
-//Nombre d'instances 302duree de 100 changement de dep et preference : 17 milli secondes
-//creating 100 instances
-//Nombre d'instances 402 : duree de 100 appels sans changement : 10 milli secondes
-//Nombre d'instances 402duree de 100 appels avec changement de dep : 26 milli secondes
-//Nombre d'instances 402duree de 100 changement de dep et preference : 50 milli secondes
-//creating 100 instances
-//Nombre d'instances 502 : duree de 100 appels sans changement : 7 milli secondes
-//Nombre d'instances 502duree de 100 appels avec changement de dep : 15 milli secondes
-//Nombre d'instances 502duree de 100 changement de dep et preference : 15 milli secondes
-//creating 100 instances
-//Nombre d'instances 602 : duree de 100 appels sans changement : 7 milli secondes
-//Nombre d'instances 602duree de 100 appels avec changement de dep : 17 milli secondes
-//Nombre d'instances 602duree de 100 changement de dep et preference : 46 milli secondes
-//creating 100 instances
-//Nombre d'instances 702 : duree de 100 appels sans changement : 6 milli secondes
-//Nombre d'instances 702duree de 100 appels avec changement de dep : 17 milli secondes
-//Nombre d'instances 702duree de 100 changement de dep et preference : 13 milli secondes
-//creating 100 instances
-//Nombre d'instances 802 : duree de 100 appels sans changement : 6 milli secondes
-//Nombre d'instances 802duree de 100 appels avec changement de dep : 15 milli secondes
-//Nombre d'instances 802duree de 100 changement de dep et preference : 14 milli secondes
-//creating 100 instances
-//Nombre d'instances 902 : duree de 100 appels sans changement : 6 milli secondes
-//Nombre d'instances 902duree de 100 appels avec changement de dep : 17 milli secondes
-//Nombre d'instances 902duree de 100 changement de dep et preference : 13 milli secondes
-//creating 100 instances
-//Nombre d'instances 1002 : duree de 100 appels sans changement : 19 milli secondes
-//Nombre d'instances 1002duree de 100 appels avec changement de dep : 25 milli secondes
-//Nombre d'instances 1002duree de 100 changement de dep et preference : 60 milli secondes
+//		Nombre d'instances 2 : duree de 1000 appels avec changement de dependance : 221 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 102 : duree de 1000 appels sans changement : 32 milli secondes
+//		Nombre d'instances 102 : duree de 1000 appels avec contrainte et changement de dep : 120 milli secondes
+//		Nombre d'instances 102 : duree de 1000 changement de dep et preference : 256 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 202 : duree de 1000 appels sans changement : 7 milli secondes
+//		Nombre d'instances 202 : duree de 1000 appels avec contrainte et changement de dep : 56 milli secondes
+//		Nombre d'instances 202 : duree de 1000 changement de dep et preference : 207 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 302 : duree de 1000 appels sans changement : 6 milli secondes
+//		Nombre d'instances 302 : duree de 1000 appels avec contrainte et changement de dep : 64 milli secondes
+//		Nombre d'instances 302 : duree de 1000 changement de dep et preference : 265 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 402 : duree de 1000 appels sans changement : 9 milli secondes
+//		Nombre d'instances 402 : duree de 1000 appels avec contrainte et changement de dep : 30 milli secondes
+//		Nombre d'instances 402 : duree de 1000 changement de dep et preference : 351 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 502 : duree de 1000 appels sans changement : 8 milli secondes
+//		Nombre d'instances 502 : duree de 1000 appels avec contrainte et changement de dep : 34 milli secondes
+//		Nombre d'instances 502 : duree de 1000 changement de dep et preference : 474 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 602 : duree de 1000 appels sans changement : 8 milli secondes
+//		Nombre d'instances 602 : duree de 1000 appels avec contrainte et changement de dep : 18 milli secondes
+//		Nombre d'instances 602 : duree de 1000 changement de dep et preference : 519 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 702 : duree de 1000 appels sans changement : 10 milli secondes
+//		Nombre d'instances 702 : duree de 1000 appels avec contrainte et changement de dep : 26 milli secondes
+//		Nombre d'instances 702 : duree de 1000 changement de dep et preference : 658 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 802 : duree de 1000 appels sans changement : 10 milli secondes
+//		Nombre d'instances 802 : duree de 1000 appels avec contrainte et changement de dep : 15 milli secondes
+//		Nombre d'instances 802 : duree de 1000 changement de dep et preference : 978 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 902 : duree de 1000 appels sans changement : 11 milli secondes
+//		Nombre d'instances 902 : duree de 1000 appels avec contrainte et changement de dep : 26 milli secondes
+//		Nombre d'instances 902 : duree de 1000 changement de dep et preference : 976 milli secondes
+//		creating 100 instances
+//		Nombre d'instances 1002 : duree de 1000 appels sans changement : 12 milli secondes
+//		Nombre d'instances 1002 : duree de 1000 appels avec contrainte et changement de dep : 16 milli secondes
+//		Nombre d'instances 1002 : duree de 1000 changement de dep et preference : 1189 milli secondes
 
 
 	}

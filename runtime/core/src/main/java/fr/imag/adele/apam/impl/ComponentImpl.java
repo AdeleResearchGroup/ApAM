@@ -1088,7 +1088,9 @@ implements Component, Comparable<Component> {
 		if (instantiateFails) return false ;
 		
 		if (declaration.isDefinedInstantiable() || getGroup() == null) {
-			return declaration.isInstantiable();
+			if (!declaration.isInstantiable()) return false ;
+			if (isSingleton() && !getMembers().isEmpty() ) return false;
+			return true ;
 		}
 		return getGroup().isInstantiable();
 	}

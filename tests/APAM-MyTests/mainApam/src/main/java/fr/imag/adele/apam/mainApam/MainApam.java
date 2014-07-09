@@ -706,9 +706,9 @@ public class MainApam implements Runnable, ApamComponent {
 
 		deb = System.nanoTime();
 		nb = 100 ;
-		String dest = "" ;
-		String oldName = "";
-		Object sync = new Object() ;
+//		String dest = "" ;
+//		String oldName = "";
+//		Object sync = new Object() ;
 		//		for (int i=0; i < 100 ; i++) {
 		//			s1_0.setProperty("debit", 10) ;
 		//			s1_1.setProperty("debit", 2) ;
@@ -825,7 +825,7 @@ public class MainApam implements Runnable, ApamComponent {
 //				changeProperties() ;
 //			}
 //		}
-		
+	
 //				testFindImplByName () ;
 //				testCompoURL () ;
 //				testCreateCompoRootS1toS2Final () ;
@@ -836,8 +836,6 @@ public class MainApam implements Runnable, ApamComponent {
 
 		//		testImplemWithoutSpec () ;
 	}
-
-
 
 	@Override
 	public void apamInit(Instance apamInstance) {
