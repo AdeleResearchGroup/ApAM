@@ -19,8 +19,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="fr.imag.adele.apam  http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd " >    
 
 	 <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}" > 
-		<relation specification="S4" />
-		<relation interface="fr.imag.adele.apam.test.s4.S4" />
+<!-- 		<relation specification="S4" /> -->
+<!-- 		<relation interface="fr.imag.adele.apam.test.s4.S4" /> -->
 <!-- 	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}"> -->
 <!-- 		<definition name="shared" type="boolean"/> -->
 <!--		<property name="shared" value="false" />  -->

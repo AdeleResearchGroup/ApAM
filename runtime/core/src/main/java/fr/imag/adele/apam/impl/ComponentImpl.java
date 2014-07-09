@@ -1080,19 +1080,25 @@ implements Component, Comparable<Component> {
 		return group.isAncestorOf(this);
 	}
 
+	private boolean isInternalInstantiable () {
+		if (declaration.isDefinedInstantiable() || getGroup() == null) {
+			return (declaration.isInstantiable())  ;
+		}
+		return ((ComponentImpl)getGroup()).isInternalInstantiable();
+	}
+	
 	/**
-	 * Whether the component is instantiable
+	 * Whether the component can be instantiated
 	 */
 	@Override
 	public boolean isInstantiable() {
 		if (instantiateFails) return false ;
+		if (!isInternalInstantiable()) return false ;
 		
-		if (declaration.isDefinedInstantiable() || getGroup() == null) {
-			if (!declaration.isInstantiable()) return false ;
-			if (isSingleton() && !getMembers().isEmpty() ) return false;
-			return true ;
+		if (this instanceof Implementation) {
+			if (isSingleton() && !getMembers().isEmpty() ) return false;			
 		}
-		return getGroup().isInstantiable();
+		return true ;
 	}
 
 	/**
