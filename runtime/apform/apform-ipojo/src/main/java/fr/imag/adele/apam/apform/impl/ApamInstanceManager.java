@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.apform.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -322,13 +323,23 @@ public class ApamInstanceManager extends InstanceManager implements
 		if (!(getFactory().getDeclaration() instanceof AtomicImplementationDeclaration))
 			return;
 
-		AtomicImplementationDeclaration implementation = (AtomicImplementationDeclaration) getFactory()
-				.getDeclaration();
-		for (AtomicImplementationDeclaration.Event trigger : AtomicImplementationDeclaration.Event
-				.values()) {
+		AtomicImplementationDeclaration implementation = (AtomicImplementationDeclaration) getFactory().getDeclaration();
 
-			Set<CallbackDeclaration> callbacks = implementation
-					.getCallback(trigger);
+		/*
+		 * Add automatically a life-cycle callback in case the class implements directly the APAM component interface
+		 */
+		Class<?> pojoClass = this.getClazz();
+		if (ApamComponent.class.isAssignableFrom(pojoClass)) {
+			implementation.addCallback(AtomicImplementationDeclaration.Event.INIT, 	 new CallbackDeclaration(implementation, "apamInit"));
+			implementation.addCallback(AtomicImplementationDeclaration.Event.REMOVE, new CallbackDeclaration(implementation, "apamRemove"));
+		}
+		
+		/*
+		 * egister callbacks
+		 */
+		for (AtomicImplementationDeclaration.Event trigger : AtomicImplementationDeclaration.Event.values()) {
+
+			Set<CallbackDeclaration> callbacks = implementation.getCallback(trigger);
 
 			if (callbacks == null)
 				continue;
@@ -436,11 +447,6 @@ public class ApamInstanceManager extends InstanceManager implements
 				if (handler != null)
 					handler.setApamComponent(apamComponent);
 
-				if (pojo instanceof ApamComponent) {
-					ApamComponent serviceComponent = (ApamComponent) pojo;
-					serviceComponent.apamInit(this.apamComponent);
-				}
-
 				fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent,false);
 				return;
 			}
@@ -448,11 +454,6 @@ public class ApamInstanceManager extends InstanceManager implements
 			if (apamComponent == null) { // stopping the instance
 
 				fireCallbacks(AtomicImplementationDeclaration.Event.REMOVE,previousComponent,true);
-
-				if (pojo instanceof ApamComponent) {
-					ApamComponent serviceComponent = (ApamComponent) pojo;
-					serviceComponent.apamRemove();
-				}
 
 				/*
 				 * dispose this instance
@@ -549,14 +550,18 @@ public class ApamInstanceManager extends InstanceManager implements
 					if (callback.isTriggeredBy(event))
 						callback.invoke(component);
 				} catch (Throwable exception) {
+
 					if (exception instanceof InvocationTargetException) {
 						exception = exception.getCause();
 					}
+					
 					getLogger().log(Logger.ERROR,"error invoking lifecycle callback "+ callback.getMethod(), exception);
 					if (! ignoreException)
 						throw new InvalidConfiguration(exception);
 				}
 			}
+			
+
 		}
 
 		private void fireCallbacks(String attr, Object value)   {

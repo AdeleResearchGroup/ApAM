@@ -10,6 +10,14 @@
 
 	<artifactId>apam-pax-samples-lifecycle</artifactId>
 	<packaging>bundle</packaging>
+
+	<dependencies>
+  	  <dependency>
+	    <artifactId>apam-core</artifactId>
+	    <groupId>fr.imag.adele.apam</groupId>
+	    <version>${project.version}</version>
+	  </dependency>
+	</dependencies>
   
 	<build>
 	  <plugins>
