@@ -28,7 +28,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.lifecycle.Service;
@@ -71,7 +70,7 @@ public class LifeCycleTest extends ExtensionAbstract {
 	public void testNormalStart() {
 
 		Implementation implem = waitForImplByName(null, "LifeCycleTest");
-		Instance instance = implem.createInstance(null,configuration);
+		implem.createInstance(null,configuration);
 		Assert.assertNotNull("instance must be created",CST.apamResolver.findInstByName(null,configuration.get("instance.name")));
 	}
 
@@ -80,7 +79,7 @@ public class LifeCycleTest extends ExtensionAbstract {
 
 		Implementation implem = waitForImplByName(null, "LifeCycleTest");
 		configuration.put("selfDestroy","true");
-		Instance instance = implem.createInstance(null,configuration);
+		implem.createInstance(null,configuration);
 		Assert.assertNull("instance must not be created",CST.apamResolver.findInstByName(null,configuration.get("instance.name")));
 	}
 
