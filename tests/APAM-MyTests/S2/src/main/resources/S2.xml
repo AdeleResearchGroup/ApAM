@@ -23,7 +23,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<relation interface="fr.imag.adele.apam.test.s4.S4" />
 <!-- 	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}"> -->
 <!-- 		<definition name="shared" type="boolean"/> -->
-		<property name="shared" value="false" />
+<!--		<property name="shared" value="false" />  -->
 		<definition name="scope" type="string"/>
 		<property name="scope" value="global"/>
 		<definition name="test-spec"  type="string" />

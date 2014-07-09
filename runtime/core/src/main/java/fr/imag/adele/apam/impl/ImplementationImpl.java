@@ -179,8 +179,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	@Override
 	public Instance createInstance(Composite composite, Map<String, String> initialProperties) {
 
-		// if ((composite != null) &&
-		// !Util.checkImplVisible(composite.getCompType(), this)) {
 		if ((composite != null) && !this.canBeInstantiatedIn(composite)) {
 			logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);
 			return null;
@@ -206,6 +204,8 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			}
 			
 			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM " + configurationError.getMessage());
+			//to avoid trying again when attempting a resolution.
+			setInstantiateFails(true);
 		}
 		return null;
 	}

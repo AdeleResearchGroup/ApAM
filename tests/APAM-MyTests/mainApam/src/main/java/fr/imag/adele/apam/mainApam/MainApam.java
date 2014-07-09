@@ -702,35 +702,35 @@ public class MainApam implements Runnable, ApamComponent {
 		s1_0.setProperty("debit", 10) ;
 		s1_1.setProperty("debit", 5) ;
 
-		System.out.println("testPerf dest initital " + testPerf.toString());
+		System.out.println("testPerf dest initital " + testPerf.getName());
 
 		deb = System.nanoTime();
 		nb = 100 ;
-		String dest = "" ;
-		String oldName = "";
-		Object sync = new Object() ;
+//		String dest = "" ;
+//		String oldName = "";
+//		Object sync = new Object() ;
 		//		for (int i=0; i < 100 ; i++) {
 		//			s1_0.setProperty("debit", 10) ;
 		//			s1_1.setProperty("debit", 2) ;
-		synchronized (sync) {			
-			try {
-				while (true) {
-					sync.wait (80) ;
+//		synchronized (sync) {			
+//			try {
+//				while (true) {
+//					sync.wait (80) ;
 //					if (testPerf == null) {
 //						System.out.println("Linked to nobody");
 //						continue ;
 //					}
-					dest = testPerf.getName() ;
-					if (! dest.equals(oldName)) {
-						System.out.println("Linked to " + dest) ;
-						oldName = dest ;
-					}
-				}
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//					dest = testPerf.getName() ;
+//					if (! dest.equals(oldName)) {
+//						System.out.println("Linked to " + dest) ;
+//						oldName = dest ;
+//					}
+//					else System.out.println("No change ") ;
+//				}
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		//			s1_0.setProperty("debit", 2) ;		
 		//			s1_1.setProperty("debit", 10) ;
 		//			testPerf.callS1("") ;
@@ -814,9 +814,9 @@ public class MainApam implements Runnable, ApamComponent {
 	@Override
 	public void run() {
 
-		String sync = "" ;
+//		String sync = "" ;
 //		synchronized (sync) {		
-			System.out.println("Starting new mainApam " + cpt);
+//			System.out.println("Starting new mainApam " + cpt);
 //			if (cpt == 0) {
 //				cpt ++ ;
 //				new Thread(this, "MainApam change Properties").start();
@@ -825,18 +825,17 @@ public class MainApam implements Runnable, ApamComponent {
 //				changeProperties() ;
 //			}
 //		}
+	
 //				testFindImplByName () ;
-				//testCompoURL () ;
-				testCreateCompoRootS1toS2Final () ;
-				testCreateCompoBySpec () ;
+//				testCompoURL () ;
+//				testCreateCompoRootS1toS2Final () ;
+//				testCreateCompoBySpec () ;
 
-		//		testInitialAttributes () ;
-		//		testSettingAttributes () ;
+				testInitialAttributes () ;
+				testSettingAttributes () ;
 
 		//		testImplemWithoutSpec () ;
 	}
-
-
 
 	@Override
 	public void apamInit(Instance apamInstance) {
