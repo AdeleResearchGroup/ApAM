@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.apform.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class ApamInstanceManager extends InstanceManager implements
@@ -408,8 +410,11 @@ public class ApamInstanceManager extends InstanceManager implements
 		}
 
 		@Override
-		public void setApamComponent(Component apamComponent) {
+		public void setApamComponent(Component apamComponent) throws InvalidConfiguration {
 
+			if (this.apamComponent == apamComponent)
+				return;
+			
 			Instance previousComponent = this.apamComponent;
 			super.setApamComponent(apamComponent);
 
@@ -436,13 +441,13 @@ public class ApamInstanceManager extends InstanceManager implements
 					serviceComponent.apamInit(this.apamComponent);
 				}
 
-				fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent);
+				fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent,false);
 				return;
 			}
 
 			if (apamComponent == null) { // stopping the instance
 
-				fireCallbacks(AtomicImplementationDeclaration.Event.REMOVE,previousComponent);
+				fireCallbacks(AtomicImplementationDeclaration.Event.REMOVE,previousComponent,true);
 
 				if (pojo instanceof ApamComponent) {
 					ApamComponent serviceComponent = (ApamComponent) pojo;
@@ -523,8 +528,7 @@ public class ApamInstanceManager extends InstanceManager implements
 			if (pojo == null)
 				return true;
 
-			fireCallbacks(RelationDeclaration.Event.UNBIND, depName,
-					destination);
+			fireCallbacks(RelationDeclaration.Event.UNBIND, depName,destination);
 
 			return true;
 		}
@@ -536,50 +540,43 @@ public class ApamInstanceManager extends InstanceManager implements
 			if (pojo == null)
 				return;
 
-			fireCallbacks(attr, super.getApamComponent()
-					.getPropertyObject(attr));
+			fireCallbacks(attr, super.getApamComponent().getPropertyObject(attr));
 		}
 
-		private void fireCallbacks(AtomicImplementationDeclaration.Event event,
-				Instance component) {
+		private void fireCallbacks(AtomicImplementationDeclaration.Event event, Instance component, boolean ignoreException) throws InvalidConfiguration {
 			for (LifecycleCallback callback : lifeCycleCallbacks) {
 				try {
 					if (callback.isTriggeredBy(event))
 						callback.invoke(component);
-				} catch (Exception ignored) {
-					getLogger().log(
-							Logger.ERROR,
-							"error invoking lifecycle callback "
-									+ callback.getMethod(), ignored);
+				} catch (Throwable exception) {
+					if (exception instanceof InvocationTargetException) {
+						exception = exception.getCause();
+					}
+					getLogger().log(Logger.ERROR,"error invoking lifecycle callback "+ callback.getMethod(), exception);
+					if (! ignoreException)
+						throw new InvalidConfiguration(exception);
 				}
 			}
 		}
 
-		private void fireCallbacks(String attr, Object value) {
+		private void fireCallbacks(String attr, Object value)   {
 			for (PropertyCallback callback : propertyCallbacks) {
 				try {
 					if (callback.isTriggeredBy(attr))
 						callback.invoke(value);
 				} catch (Exception ignored) {
-					getLogger().log(
-							Logger.ERROR,
-							"error invoking callback " + callback.getMethod()
-									+ " for property " + attr, ignored);
+					getLogger().log(Logger.ERROR,"error invoking callback " + callback.getMethod() + " for property " + attr, ignored);
 				}
 			}
 		}
 
-		private void fireCallbacks(RelationDeclaration.Event event,
-				String relationName, Component target) {
+		private void fireCallbacks(RelationDeclaration.Event event,	String relationName, Component target)  {
 			for (RelationCallback callback : relationCallbacks) {
 				try {
 					if (callback.isTriggeredBy(relationName, event))
 						callback.invoke(target);
 				} catch (Exception ignored) {
-					getLogger().log(
-							Logger.ERROR,
-							"error invoking lifecycle callback "
-									+ callback.getMethod(), ignored);
+					getLogger().log(Logger.ERROR,"error invoking relation callback " + callback.getMethod() + " for relation" + relationName, ignored);
 				}
 			}
 		}

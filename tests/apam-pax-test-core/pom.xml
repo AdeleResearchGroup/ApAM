@@ -393,6 +393,15 @@
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<!-- LifeCycle Tests -->
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.app</groupId>
+			<artifactId>apam-pax-samples-lifecycle</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+		
 		<!-- Log -->
 
 		<dependency>

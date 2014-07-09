@@ -5,6 +5,7 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class is the basic implementation of an apform component. It implements
@@ -66,7 +67,7 @@ public abstract class BaseApformComponent<C extends Component, D extends Compone
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void setApamComponent(Component apamComponent) {
+	public void setApamComponent(Component apamComponent) throws InvalidConfiguration {
 		this.apamComponent = (C) apamComponent;
 	}
 

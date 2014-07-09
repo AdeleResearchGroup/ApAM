@@ -30,6 +30,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.BaseApformComponent;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class represents an OSGi service interface reified as an APAM instance.
@@ -138,7 +139,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     }
     
     @Override
-    public void setApamComponent(Component apamInstance) {
+    public void setApamComponent(Component apamInstance) throws InvalidConfiguration {
     	super.setApamComponent(apamInstance);
         if (apamInstance == null)
         	dispose();
