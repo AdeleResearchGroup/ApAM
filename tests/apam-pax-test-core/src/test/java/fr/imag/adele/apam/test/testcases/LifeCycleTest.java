@@ -28,6 +28,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.lifecycle.Service;
@@ -55,7 +56,6 @@ public class LifeCycleTest extends ExtensionAbstract {
 	public void initialize() {
 		configuration = new HashMap<String, String>();
 		configuration.put("instance.name", "LifecycleTest-Instance");
-		configuration.put("selfDestroy","false");
 	}
 	
 
@@ -108,6 +108,16 @@ public class LifeCycleTest extends ExtensionAbstract {
 		service.action();
 		
 		Assert.assertNull("instance must be destroyed",CST.apamResolver.findInstByName(null,configuration.get("instance.name")));
+	}
+
+	@Test
+	public void testBlacklistFailedInstantiation() {
+
+		Implementation implem = waitForImplByName(null, "LifeCycleClient");
+		Instance instance = implem.createInstance(null,configuration);
+		
+		Instance target  = (Instance)instance.getLink("service").getDestination();
+		Assert.assertTrue(target.getImpl().getPropertyObject("failable").equals(false));
 	}
 
 }

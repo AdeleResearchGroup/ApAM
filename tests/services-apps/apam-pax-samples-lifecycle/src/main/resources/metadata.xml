@@ -3,16 +3,26 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="fr.imag.adele.apam  https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >    
 
- 	<specification name="LifeCycleService" interfaces="fr.imag.adele.apam.pax.test.lifecycle.Service" >
+ 	<specification name="LifeCycleService" interfaces="fr.imag.adele.apam.pax.test.lifecycle.Service">
+ 	    <definition name="failable" type="boolean" default="false"/>
  	</specification>
 
- 	<implementation name="LifeCycleConstructorTest" classname="fr.imag.adele.apam.pax.test.lifecycle.ConstructorTest" specification="LifeCycleService"/>
+ 	<implementation name="LifeCycleConstructorTest" classname="fr.imag.adele.apam.pax.test.lifecycle.ConstructorTest" specification="LifeCycleService">
+ 		<property name="failable" value="true"/>
+ 	</implementation>
  	
 	<implementation name="LifeCycleTest" classname="fr.imag.adele.apam.pax.test.lifecycle.Test" specification="LifeCycleService">
-		<callback onInit="start" onRemove="stop"/>
-		
+	    	<callback onInit="start" onRemove="stop"/>
 		<definition name="selfDestroy" type="boolean" field="selfDestroy" default="false"/>
-		
 	</implementation>
 
+ 	<implementation name="LifeCycleClient" classname="fr.imag.adele.apam.pax.test.lifecycle.Client">
+		<callback onInit="start"/>
+		
+		<relation specification="LifeCycleService" field="service">
+		    <preferences>
+		        <implementation filter="(failable=true)"/>
+		    </preferences>
+		</relation>
+ 	</implementation>	
 </apam>
