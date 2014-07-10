@@ -50,8 +50,8 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * @author thibaud
  * 
  */
-@RunWith(PaxExam.class)
-@ExamReactorStrategy(PerMethod.class)
+//@RunWith(PaxExam.class)
+//@ExamReactorStrategy(PerMethod.class)
 public class LightScenarioTest extends ExtensionAbstract {
 
 	Instance myKitchen;
