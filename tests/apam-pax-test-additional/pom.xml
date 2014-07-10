@@ -9,7 +9,6 @@
     </parent>
 
 
-    <groupId>fr.imag.adele.apam.tests.services</groupId>
     <artifactId>apam-pax-test-additional</artifactId>
     <name>ApAM PaxExam additional Tests</name>
 
@@ -162,33 +161,14 @@
 
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>S2</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
             <artifactId>MainApam</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>
 
 
     <build>
-        <resources>
-            <resource>
-                <directory>models</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
@@ -202,6 +182,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
 
         </plugins>

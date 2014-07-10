@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import fr.imag.adele.apam.mainApam.MainApam;
+import fr.imag.adele.apam.mainApam.perfWire;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,53 +61,45 @@ public class JackyTesting extends ExtensionAbstract {
 
 	@Before
 	public void constructor() {
+        System.out.println("********** constructor");
 
-	}
+
+    }
 
 	@Before
 	@Override
 	public void setUp() {
 		super.setUp();
+        System.out.println("********** setting up");
 
 		waitForInstByName(null, "OBRMAN-Instance");
+        System.out.println("*********** OBRMAN is there");
 
 	}
 
-
-	class InstanceCreator extends Thread {
-
-		String myCompositeName;
-		public Instance created;
-
-		public InstanceCreator(String compositeName) {
-			myCompositeName = compositeName;
-			created = null;
-		}
-
-		@Override
-		public void run() {
-			CompositeType compo = (CompositeType) waitForComponentByName(null,
-					myCompositeName);			
-			if (compo != null) {
-				created = compo.createInstance(null, null);
-			}
-		}
-	}
-
-    private void initmainApamInstance() {
+    private MainApam initmainApamInstance() {
         Implementation implM = CST.apamResolver.findImplByName(null,"M");
         Assert.assertNotNull("M implementation not found", implM);
 
         Instance instM = implM.createInstance(null,null);
-        Assert.assertNotNull("M instance note created", instM);
+        Assert.assertNotNull("M instance not created", instM);
 
         MainApam serviceObject = (MainApam) instM.getServiceObject();
+        Assert.assertNotNull("MainApam service object created successfully", serviceObject);
 
-
+        return serviceObject;
     }
 
-    private void initperfWireInstance() {
+    private perfWire initperfWireInstance() {
         Implementation implW = CST.apamResolver.findImplByName(null,"W");
+
+        Instance instW = implW.createInstance(null,null);
+        Assert.assertNotNull("W instance not created", instW);
+
+        perfWire serviceObject = (perfWire) instW.getServiceObject();
+        Assert.assertNotNull("perfWire service object created successfully", serviceObject);
+
+        return serviceObject;
     }
 
 
@@ -114,6 +107,7 @@ public class JackyTesting extends ExtensionAbstract {
 	public void testReactionSimple_tct041() {
 
         System.out.println("=========== start testReaction test Simple");
+        initperfWireInstance();
 
         System.out.println("creating instance");
         Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");

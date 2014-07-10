@@ -270,7 +270,7 @@
         <module>APAM-MyTests</module>
         <module>apam-pax-test-core</module>
         <module>apam-pax-test-managers</module>
-        <module>apam-pax-test-jacky</module>
+        <module>apam-pax-test-additional</module>
 
     </modules>
 
