@@ -212,6 +212,8 @@ public class perfWire implements Runnable, ApamComponent {
 
 				deb = System.nanoTime();
 				//			System.out.println(testPerf.getName());
+
+                //TODO: PAxizer ce test (le for)
 				for (int i = 0; i < nb; i++) {
 					test = CST.componentBroker.getInstService(testPerf) ;
 					test.setProperty("debit", 2) ;

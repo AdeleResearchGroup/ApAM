@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>APAM-MyTests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.6-SNAPSHOT</version>
+		<version>0.0.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -52,36 +52,26 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S1</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S5</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>TestAttrSpec</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>
