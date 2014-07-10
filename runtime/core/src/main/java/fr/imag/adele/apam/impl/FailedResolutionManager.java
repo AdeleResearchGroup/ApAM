@@ -275,7 +275,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	/**
 	 * Get a thread-safe (stack confined) copy of the waiting requests
 	 */
-	private List<PendingRequest> getWaitingRequests() {
+	public List<PendingRequest> getWaitingRequests() {
 		synchronized (waitingResolutions) {
 			return new ArrayList<PendingRequest>(waitingResolutions);
 		}
