@@ -267,8 +267,11 @@
         <module>services-apps</module>
         <module>obrman-apps</module>
         <module>messages-apps</module>
+        <module>APAM-MyTests</module>
         <module>apam-pax-test-core</module>
         <module>apam-pax-test-managers</module>
+        <module>apam-pax-test-jacky</module>
+
     </modules>
 
     <name>Tests for ApAM framework and managers</name>
