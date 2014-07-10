@@ -28,6 +28,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -38,7 +39,7 @@ import fr.imag.adele.apam.declarations.ResourceReference;
  * 
  * 
  */
-public class PendingRequest {
+public class PendingRequest extends Apform2Apam.PendingThread {
 
 	/**
 	 * The source of the relation
@@ -130,6 +131,9 @@ public class PendingRequest {
 	 * Builds a new pending request reification
 	 */
 	public PendingRequest(ApamResolver resolver, Component source, RelationDefinition relDef) {
+		
+		super(source.toString());
+		
 		this.resolver = resolver;
 
 		this.source = source;
@@ -137,6 +141,11 @@ public class PendingRequest {
 		this.relDef = relDef;
 
 		this.resolution = null;
+	}
+
+	@Override
+	public String getCondition() {
+		return relDef.toString();
 	}
 
 	private synchronized void beginResolve() {

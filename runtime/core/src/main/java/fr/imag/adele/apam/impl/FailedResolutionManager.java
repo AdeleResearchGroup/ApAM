@@ -29,6 +29,7 @@ import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 
 /**
@@ -275,10 +276,17 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	/**
 	 * Get a thread-safe (stack confined) copy of the waiting requests
 	 */
-	public List<PendingRequest> getWaitingRequests() {
+	private List<PendingRequest> getWaitingRequests() {
 		synchronized (waitingResolutions) {
 			return new ArrayList<PendingRequest>(waitingResolutions);
 		}
+	}
+
+	/**
+	 * Get the list of threads blocked waiting for a resolution
+	 */
+	public final List<? extends PendingThread> getWaitingThreads() {
+		return getWaitingRequests();
 	}
 
 

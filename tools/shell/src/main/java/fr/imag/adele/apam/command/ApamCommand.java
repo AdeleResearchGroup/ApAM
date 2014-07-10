@@ -57,12 +57,11 @@ import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.apform.Apform2Apam.Request;
+import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.PendingRequest;
 
 //import org.apache.felix.ipojo.annotations.Component;
 
@@ -480,37 +479,33 @@ public class ApamCommand {
 	}
     }
 
+    private static void printPendingList(PrintWriter out, List<? extends PendingThread> pending) {
+    	for (PendingThread pendingThread : pending) {
+    	    out.println("\t" + pendingThread.getDescription()  + " is waiting for " + pendingThread.getCondition());
+    	    List<StackTraceElement> stack = pendingThread.getStack();
+
+    	    if (stack == null) {
+    		continue;
+    	    }
+
+    	    for (StackTraceElement frame : stack) {
+    		out.println("\t\t " + frame);
+    	    }
+    	}
+    	
+    }
+    
     /** Display the pending platform installations */
     public void pending(PrintWriter out, String... args) {
-	out.println("APAM platform : pending requests for component deployment : ");
-	for (Request pendingRequest : Apform2Apam.getPending()) {
-	    out.println("\t" + pendingRequest.getDescription()
-		    + " is waiting for component "
-		    + pendingRequest.getRequiredComponent());
-	    List<StackTraceElement> stack = pendingRequest.getStack();
 
-	    if (stack == null) {
-		continue;
-	    }
+    out.println("APAM platform : pending threads for platform processing : ");
+	printPendingList(out, Apform2Apam.gePlatformWaitingThreads());
 
-	    for (StackTraceElement frame : stack) {
-		out.println("\t\t " + frame);
-	    }
-	}
+    out.println("APAM platform : pending threads for component deployment : ");
+	printPendingList(out, Apform2Apam.getComponentWaitingThreads());
 
-	out.println("APAM platform: pending requests for relation resolution : ");
-	for (PendingRequest pendingRequest : ((APAMImpl)CST.apam).getFailedResolutionManager().getWaitingRequests()) {
-	    out.println("\t" + pendingRequest.getSource() + " is waiting for "+pendingRequest.getRelation());
-	    List<StackTraceElement> stack = pendingRequest.getStack();
-
-	    if (stack == null) {
-		continue;
-	    }
-
-	    for (StackTraceElement frame : stack) {
-		out.println("\t\t " + frame);
-	    }
-	}
+	out.println("APAM platform: pending threads for relation resolution : ");
+	printPendingList(out, ((APAMImpl)CST.apam).getFailedResolutionManager().getWaitingThreads());
 
     }
 
