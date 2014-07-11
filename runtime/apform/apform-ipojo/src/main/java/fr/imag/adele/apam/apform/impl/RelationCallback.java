@@ -27,8 +27,7 @@ public class RelationCallback extends Callback {
     private final RelationDeclaration.Event trigger;
     private final CallbackDeclaration 		callback;
 
-    private boolean needsArgument;
-    
+    private Class<?> argumentType;
 
 	public RelationCallback(ApamInstanceManager instance, RelationDeclaration relation, RelationDeclaration.Event trigger, CallbackDeclaration callback) throws ConfigurationException {
 		super(callback.getMethodName(),(String[])null,false,instance);
@@ -64,12 +63,54 @@ public class RelationCallback extends Callback {
             searchMethod();
         }
 
-		return call(needsArgument ? new Object[] {target} : new Object[0]);
+		return call(argumentType != null ? new Object[] {argumentType.isInstance(target) ? target : ((Instance)target).getServiceObject()} : new Object[0]);
 	}
 
 	@Override
 	protected void searchMethod() throws NoSuchMethodException {
         
+
+    	ComponentKind targetKind = relation.getTargetKind();
+    	
+    	/*
+    	 * If target kind is not directly specified in the declaration, wee ask APAM to perform
+    	 * the calculation.
+    	 */
+    	if (targetKind == null && instance.getApamComponent() != null) {
+    		targetKind = instance.getApamComponent().getRelation(relation.getIdentifier()).getTargetKind();
+    	}
+
+    	if (targetKind == null)
+    		throw new NoSuchMethodException(callback.getMethodName());
+
+    	/*
+    	 * Calculate the expected parameter type depending on the target kind
+    	 * 
+    	 * TODO for instance targets we allow the parameter to be a service object, but we do not validate
+    	 * the parameter type
+    	 */
+    	
+    	boolean validateParameter = true;
+    	
+    	Class<?> parameterType = Component.class;
+    	switch (targetKind) {
+    		case SPECIFICATION:
+    			parameterType = Specification.class;
+    			break;
+    		case IMPLEMENTATION:
+    			parameterType = Implementation.class;
+    			break;
+    		case INSTANCE:
+    			parameterType = Instance.class;
+    			validateParameter = false;
+    			break;
+			case COMPONENT:
+				parameterType = Component.class;
+				break;
+			default:
+				break;
+    	}
+    	
 		/*
 		 * Try to find the declared method with the specified name that best matches the callback signature
 		 * 
@@ -77,51 +118,18 @@ public class RelationCallback extends Callback {
 		 * reflection to search for methods.
 		 */
 		
-        Method[] methods = instance.getClazz().getMethods();
+        Method[] methods 			= instance.getClazz().getMethods();
         
         Method candidate 			= null;
         Class<?> candidateParameter	= null;
-        
+    	
         for (Method method : methods) {
 			
         	if (! method.getName().equals(callback.getMethodName()))
 				continue;
 
-    		
-        	ComponentKind targetKind = relation.getTargetKind();
-        	
         	/*
-        	 * If target kind is not directly specified in the declaration, wee ask APAM to perform
-        	 * the calculation.
-        	 */
-        	if (targetKind == null && instance.getApamComponent() != null) {
-        		targetKind = instance.getApamComponent().getRelation(relation.getIdentifier()).getTargetKind();
-        	}
-
-        	if (targetKind == null)
-        		throw new NoSuchMethodException(callback.getMethodName());
-        	
-        	Class<?> parameterKind = Component.class;
-        	switch (targetKind) {
-        		case SPECIFICATION:
-        			parameterKind = Specification.class;
-        			break;
-        		case IMPLEMENTATION:
-        			parameterKind = Implementation.class;
-        			break;
-        		case INSTANCE:
-        			parameterKind = Instance.class;
-        			break;
-				case COMPONENT:
-					parameterKind = Component.class;
-					break;
-			default:
-				break;
-        	}
-
-
-        	/*
-        	 * We are looking for a method with an optional, single parameter of kind
+        	 * We are looking for a method with an optional, single parameter of type
         	 * APAM component (depending on the target of the relation if specified)
         	 */
 
@@ -130,7 +138,7 @@ public class RelationCallback extends Callback {
         		continue;
 
            	Class<?> parameter = parameters.length == 1 ? parameters[0] : null;
-           	if (parameter != null && ! parameter.isAssignableFrom(parameterKind))
+           	if (parameter != null && validateParameter && ! parameter.isAssignableFrom(parameterType))
         		continue;
         	
         	if (candidate == null) {
@@ -155,7 +163,7 @@ public class RelationCallback extends Callback {
 		}
 
         m_methodObj 	= candidate;
-        needsArgument	= (candidateParameter != null);
+        argumentType	= candidateParameter;
         
 		if (m_methodObj == null) {
 			throw new NoSuchMethodException(callback.getMethodName());

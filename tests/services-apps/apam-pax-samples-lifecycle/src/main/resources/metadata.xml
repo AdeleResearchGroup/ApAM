@@ -17,7 +17,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</implementation>
 
  	<implementation name="LifeCycleClient" classname="fr.imag.adele.apam.pax.test.lifecycle.Client">
-		<relation specification="LifeCycleService" field="service">
+		<relation specification="LifeCycleService" field="service" added="bind" removed="unbind">
 		    <preferences>
 		        <implementation filter="(failable=true)"/>
 		    </preferences>
