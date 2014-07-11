@@ -1981,14 +1981,14 @@ public class CoreMetadataParser implements CoreParser {
 
 		if (component instanceof AtomicImplementationDeclaration) {
 			if (bindCallback != null) {
-				CallbackDeclaration callback = new CallbackDeclaration((AtomicImplementationDeclaration) component, bindCallback);
+				CallbackDeclaration callback = new CallbackDeclaration((AtomicImplementationDeclaration) component, bindCallback,true);
 				if (!callback.isValidInstrumentation()) {
 					errorHandler.error(Severity.ERROR, component.getName() + " : the specified method \"" + bindCallback + "\" in \"" + CoreMetadataParser.ATT_BIND + "\" is invalid or not found");
 				}
 				relation.addCallback(RelationDeclaration.Event.BIND, callback);
 			}
 			if (unbindCallback != null) {
-				CallbackDeclaration callback = new CallbackDeclaration((AtomicImplementationDeclaration) component, unbindCallback);
+				CallbackDeclaration callback = new CallbackDeclaration((AtomicImplementationDeclaration) component, unbindCallback,true);
 				if (!callback.isValidInstrumentation()) {
 					errorHandler.error(Severity.ERROR, component.getName() + " : the specified method \"" + unbindCallback + "\" in \"" + CoreMetadataParser.ATT_UNBIND + "\" is invalid or not found");
 				}

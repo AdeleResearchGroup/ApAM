@@ -16,7 +16,6 @@
 	<modules>
 		<module>apam-pax-dummy-dependency</module>
 		<module>apam-pax-dummy-osgi-dependency</module>
-
 		<module>apam-pax-samples-iface</module>
 		<module>apam-pax-samples-impl-s1</module>
 		<module>apam-pax-samples-impl-s2</module>
@@ -31,10 +30,6 @@
 		<module>apam-pax-samples-impl-s9-depok</module>
 		<module>apam-pax-samples-impl-s9-depfail</module>
 		<module>apam-pax-samples-impl-s9</module>
-		
-        <module>apam-pax-samples-packages</module>
-		
-
 		<module>apam-pax-distriman-iface</module>
 		<module>apam-pax-distriman-P1</module>
 		<module>apam-pax-distriman-P2</module>
@@ -43,8 +38,9 @@
 		<module>apam-pax-dynaman-grant</module>
 		<module>apam-pax-eldritch</module>
 		<module>apam-pax-samples</module>
-        <module>apam-pax-testversions</module>
-		
+        	<module>apam-pax-testversions</module>
+        	<module>apam-pax-samples-packages</module>
+        	<module>apam-pax-samples-lifecycle</module>
 	</modules>
 
 </project>

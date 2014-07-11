@@ -14,6 +14,10 @@
  */
 package fr.imag.adele.apam.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.ApamResolver;
@@ -24,6 +28,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -34,7 +39,7 @@ import fr.imag.adele.apam.declarations.ResourceReference;
  * 
  * 
  */
-public class PendingRequest {
+public class PendingRequest extends Apform2Apam.PendingThread {
 
 	/**
 	 * The source of the relation
@@ -72,6 +77,11 @@ public class PendingRequest {
 	private boolean isBlocked = false;
 
 	/**
+	 * The stack of the blocked requests
+	 */
+	private List<StackTraceElement> stack;
+	
+	/**
 	 * Whether this request has been disposed, this happen for instance when the
 	 * source component is removed
 	 */
@@ -94,9 +104,36 @@ public class PendingRequest {
 	}
 
 	/**
+	 * The stack of the request executing in the context of the current thread.
+	 * 
+	 */
+	private static List<StackTraceElement> getCurrentStack() {
+
+		List<StackTraceElement> stack = new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
+
+		/*
+		 * Remove APAM implementtaion frameworks from the top of the stack, to increase the readability
+		 * of the stack trace
+		 */
+		Iterator<StackTraceElement> frames = stack.iterator();
+		while (frames.hasNext()) {
+			if (frames.next().getClassName().startsWith(PendingRequest.class.getPackage().getName())) {
+				frames.remove();
+				continue;
+			}
+
+			break;
+		}
+		return stack;
+	}
+
+	/**
 	 * Builds a new pending request reification
 	 */
 	public PendingRequest(ApamResolver resolver, Component source, RelationDefinition relDef) {
+		
+		super(source.toString());
+		
 		this.resolver = resolver;
 
 		this.source = source;
@@ -104,6 +141,11 @@ public class PendingRequest {
 		this.relDef = relDef;
 
 		this.resolution = null;
+	}
+
+	@Override
+	public String getCondition() {
+		return relDef.toString();
 	}
 
 	private synchronized void beginResolve() {
@@ -128,16 +170,26 @@ public class PendingRequest {
 				 */
 
 				isBlocked = true;
+				stack = getCurrentStack();
+
 				while (!isResolved()) {
 					this.wait();
 				}
 
 				isBlocked = false;
-
+				stack = null;
 			} catch (InterruptedException ignored) {
 			}
 		}
 	}
+	
+	/**
+	 * The stack trace for blocked requests
+	 */
+	public List<StackTraceElement> getStack() {
+		return stack;
+	}
+
 
 	public synchronized void dispose() {
 		isDisposed = true;

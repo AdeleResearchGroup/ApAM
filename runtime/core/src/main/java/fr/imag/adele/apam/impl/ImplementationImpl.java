@@ -191,12 +191,19 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		/*
 		 * Create and register the object in the APAM state model
 		 */
+		
+		Instance instance = null;
 		try {
-			Instance instance = instantiate(composite, initialProperties);
+			instance = instantiate(composite, initialProperties);
 			((InstanceImpl) instance).register(initialProperties);
 			setInstantiateFails(false);
 			return instance;
 		} catch (InvalidConfiguration configurationError) {
+			
+			if (instance != null) {
+				((InstanceImpl) instance).unregister();
+			}
+			
 			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM " + configurationError.getMessage());
 			//to avoid trying again when attempting a resolution.
 			setInstantiateFails(true);

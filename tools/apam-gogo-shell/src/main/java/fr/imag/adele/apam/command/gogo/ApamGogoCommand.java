@@ -58,8 +58,9 @@ import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.apform.Apform2Apam.Request;
+import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
 //import org.apache.felix.ipojo.annotations.Component;
@@ -475,24 +476,34 @@ public class ApamGogoCommand {
 	}
     }
 
+    private void printPendingList(List<? extends PendingThread> pending) {
+    	for (PendingThread pendingThread : pending) {
+    	    out.println("\t" + pendingThread.getDescription()  + " is waiting for " + pendingThread.getCondition());
+    	    List<StackTraceElement> stack = pendingThread.getStack();
+
+    	    if (stack == null) {
+    		continue;
+    	    }
+
+    	    for (StackTraceElement frame : stack) {
+    		out.println("\t\t " + frame);
+    	    }
+    	}
+    	
+    }
+
     /** Display the pending platform installations */
     @Descriptor("display all pending installations in apam platform")
     public void pending(@Descriptor("target component") String... args) {
-	out.println("APAM platform pending requests : ");
-	for (Request pendingRequest : Apform2Apam.getPending()) {
-	    out.println("\t" + pendingRequest.getDescription()
-		    + " is waiting for component "
-		    + pendingRequest.getRequiredComponent());
-	    List<StackTraceElement> stack = pendingRequest.getStack();
+    	
+        out.println("APAM platform : pending threads for platform processing : ");
+    	printPendingList(Apform2Apam.gePlatformWaitingThreads());
 
-	    if (stack == null) {
-		continue;
-	    }
+        out.println("APAM platform : pending threads for component deployment : ");
+    	printPendingList(Apform2Apam.getComponentWaitingThreads());
 
-	    for (StackTraceElement frame : stack) {
-		out.println("\t\t " + frame);
-	    }
-	}
+    	out.println("APAM platform: pending threads for relation resolution : ");
+    	printPendingList(((APAMImpl)CST.apam).getFailedResolutionManager().getWaitingThreads());
 
     }
 

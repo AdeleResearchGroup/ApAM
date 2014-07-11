@@ -265,7 +265,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		/*
 		 * Unbind from the underlying execution platform instance
 		 */
-		getApformInst().setApamComponent(null);
+		try {
+			getApformInst().setApamComponent(null);
+		} catch (InvalidConfiguration ignored) {
+			logger.error("error unregistering instance "+ this, ignored.getCause());
+		}
 
 		/*
 		 * Do no remove the outgoing wires, in case a Thread is still here. If

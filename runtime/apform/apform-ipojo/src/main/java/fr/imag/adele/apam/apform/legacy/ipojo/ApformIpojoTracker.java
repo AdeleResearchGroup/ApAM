@@ -15,6 +15,9 @@
 package fr.imag.adele.apam.apform.legacy.ipojo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.felix.ipojo.ComponentInstance;
@@ -42,6 +45,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
@@ -249,17 +253,104 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer, Apform2Apam
 	public void waitForDeclarations() {
 		synchronized (this) {
 			try {
+				
+				WaitingThread thread = new WaitingThread();
+				
 				while (hasPendingDeclarations()) {
 					if (DEBUG)
 						System.err.println(Thread.currentThread()+" waiting for "+getPendingJobs()+" iPOJO jobs");
 					
+					thread.pending(getPendingJobs()+" iPOJO jobs");
 					this.wait();
+					thread.resumed();
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
 		}
+	}
+
+	/**
+	 * The list of threads waiting for a iPOJO completion if processing
+	 */
+	static private final List<WaitingThread> pending = new ArrayList<WaitingThread>();
+
+	/**
+	 * The list of threads waiting for a component in APAM
+	 */
+	@Override
+	public List<? extends PendingThread> getPending() {
+		return Collections.unmodifiableList(pending);
+	}
+
+	/**
+	 * A description of thread that needs to wait for iPOJO processing declarations 
+	 * 
+	 * @author vega
+	 */
+	private static class WaitingThread extends PendingThread {
+
+		private String condition;
+		
+		public WaitingThread() {
+			super("Thread " + Thread.currentThread().getName());
+		}
+
+		/**
+		 * The condition this thread is waiting for
+		 */
+		public String getCondition() {
+			return condition;
+		}
+
+
+		/**
+		 * Mark this thread as pending for a codition
+		 */
+		protected void pending(String condition) {
+			this.condition = condition;
+			this.stack = getCurrentStack();
+			pending.add(this);
+		}
+
+		/**
+		 * Mark this request as resumed after the condition is satisfied
+		 */
+		protected void resumed() {
+			this.condition = null;
+			this.stack = null;
+
+			pending.remove(this);
+		}
+
+		@Override
+		public String toString() {
+			return description;
+		}
+	}
+
+	/**
+	 * The stack of the thread currently executing inside this class, and that is going to wait for a platform condition
+	 * 
+	 */
+	private static List<StackTraceElement> getCurrentStack() {
+
+		List<StackTraceElement> stack = new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
+
+		/*
+		 * Remove ourselves from the top of the stack, to increase the readability of the stack trace
+		 */
+		Iterator<StackTraceElement> frames = stack.iterator();
+		while (frames.hasNext()) {
+			if (frames.next().getClassName().startsWith(ApformIpojoTracker.class.getName())) {
+				frames.remove();
+				continue;
+			}
+
+			break;
+		}
+		return stack;
 	}
 
 	
@@ -355,5 +446,6 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer, Apform2Apam
             }
         }
     }
+
 
 }

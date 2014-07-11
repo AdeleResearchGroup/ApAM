@@ -22,7 +22,14 @@ import java.util.List;
  * notify an APAM event (component and dependencies lifecycle).
  * 
  * Currently all the supported callbacks take a single parameter of type
- * fr.imag.adele.apam.Component
+ * fr.imag.adele.apam.Component.
+ * 
+ * TODO currently we also allow to disable parameter validation to allow injecting
+ * service objects for dependencies. However we should be more precise on the type
+ * of the parameters.
+ * 
+ * It is possible to specify a 
+ * 
  */
 public class CallbackDeclaration extends Instrumentation {
 
@@ -31,17 +38,25 @@ public class CallbackDeclaration extends Instrumentation {
 	 */
 	protected final String methodName;
 
+	private final boolean disableValidation;
+	
 	private static final List<String> APAM_COMPONENTS = Arrays.asList(
-			"fr.imag.adele.apam.Component", "fr.imag.adele.apam.Instance",
+			"fr.imag.adele.apam.Component",
 			"fr.imag.adele.apam.Implementation",
-			"fr.imag.adele.apam.Specification");
+			"fr.imag.adele.apam.Specification",
+			"fr.imag.adele.apam.Instance");
 
-	public CallbackDeclaration(AtomicImplementationDeclaration implementation,
-			String methodName) {
+	public CallbackDeclaration(AtomicImplementationDeclaration implementation,String methodName) {
+		this(implementation,methodName,false);
+	}
+	
+	public CallbackDeclaration(AtomicImplementationDeclaration implementation,String methodName, boolean disableValidation) {
 		super(implementation);
 
 		assert methodName != null;
 		this.methodName = methodName;
+		
+		this.disableValidation = disableValidation;
 	}
 
 	/**
@@ -77,7 +92,7 @@ public class CallbackDeclaration extends Instrumentation {
 			String[] types = implementation.getReflection()
 					.getMethodParameterTypes(methodName, true);
 
-			return APAM_COMPONENTS.contains(types[0]);
+			return disableValidation || APAM_COMPONENTS.contains(types[0]);
 
 		} catch (NoSuchMethodException e) {
 			return false;

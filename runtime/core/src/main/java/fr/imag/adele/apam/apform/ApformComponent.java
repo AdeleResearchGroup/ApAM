@@ -18,6 +18,7 @@ import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**
  * This class represents the interface between the logical state in APAM and the
@@ -59,7 +60,7 @@ public interface ApformComponent {
 	 * When the APAM component is destroyed, this method will be called again
 	 * with a null a value.
 	 */
-	public void setApamComponent(Component apamComponent);
+	public void setApamComponent(Component apamComponent) throws InvalidConfiguration;
 
 	/**
 	 * Notifies the underlying platform of a change in the outgoing links of the

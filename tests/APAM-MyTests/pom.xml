@@ -9,7 +9,6 @@
 	</parent>
 	
   <artifactId>APAM-MyTests</artifactId>
-  <version>0.0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -28,7 +27,7 @@
   	<module>TestAttrImpl</module> 
   	<module>TestDependency</module>
   	<module>mainApam</module>
-  	<module>TestCompile</module>
+  	<!--<module>TestCompile</module>-->
 	
 <!--    <module>TestPromotion</module> -->
 <!--    <module>SpellCtxt</module> -->
