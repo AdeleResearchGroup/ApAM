@@ -11,107 +11,12 @@ import fr.imag.adele.apam.test.s1.S1;
 public class perfWire implements Runnable, ApamComponent {
 	// injected
 	Apam apam;
-	S1 testPerf ;
-	S1 testReaction ;
-	S1 testPerfPrefere ;
-	S1 testSimple ;
+	S1 simpleDep ;
+	S1 constraintDep ;
+	S1 preferenceDep ;
+	//S1 testSimple ;
 	Instance thisInstance ;
-
-	public void testReactionSimple () {
-		System.out.println("=========== start testReaction test Simple");
-
-		System.out.println("creating instance");
-		Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");
-		implS1.createInstance(null, null);
-		Instance test = CST.componentBroker.getInstService(testSimple) ;
-		System.out.println("connected to " + test.getName());
-
-
-		long overHead = 0 ;
-		long fin ;
-		long duree ;
-		long deb ;
-		int nb = 1000;
-
-		//		//overhead
-		//		deb = System.nanoTime();
-		//		for (int i = 0; i < nb; i++) {
-		//			Link l = thisInstance.getLink("testSimple") ;
-		//			//			l.reevaluate(true, true) ;
-		//		}
-		//		fin = System.nanoTime();
-		//		overHead = (fin - deb) ;
-		//		System.out.println(" : duree de " + nb + " appels. Overhead : " + overHead + " milli secondes");
-		//
-		//		//heating the system
-		//		for (int i = 0; i < nb; i++) {
-		//			Link l = thisInstance.getLink("testSimple") ;
-		//			l.reevaluate(true, true) ;
-		//		}
-		//
-		//		//Preference
-		//		deb = System.nanoTime();
-		//		for (int i = 0; i < nb; i++) {
-		//			Link l = thisInstance.getLink("testPerfPrefere") ;
-		//			l.reevaluate(true, true) ;
-		//		}
-		//		fin = System.nanoTime();
-		//		duree = (fin - deb - overHead) ;
-		//		System.out.println(" : duree de " + nb + " appels avec changement de dep, contrainte et Preference : " + duree/1000000 + " milli secondes");		
-
-		overHead = 0 ;
-		for (int j = 0; j < 10; j++) {
-			//simple
-			deb = System.nanoTime();
-			for (int i = 0; i < nb; i++) {
-				Link l = thisInstance.getLink("testSimple") ;
-				l.reevaluate(true, true) ;
-			}
-			fin = System.nanoTime();
-			duree = (fin - deb - overHead) ;
-			System.out.println("2 instances : duree de " + nb + " appels sans contrainte : " + duree/1000000 + " milli secondes");		
-
-			//Contrainte
-			deb = System.nanoTime();
-			for (int i = 0; i < nb; i++) {
-				Link l = thisInstance.getLink("testPerf") ;
-				l.reevaluate(true, true) ;
-			}
-			fin = System.nanoTime();
-			duree = (fin - deb - overHead) ;
-			System.out.println("2 instances : duree de " + nb + " appels avec contrainte : " + duree/1000000 + " milli secondes");		
-
-			//preference
-			deb = System.nanoTime();
-			for (int i = 0; i < nb; i++) {
-				Link l = thisInstance.getLink("testPerfPrefere") ;
-				l.reevaluate(true, true) ;
-			}
-			fin = System.nanoTime();
-			duree = (fin - deb - overHead) ;
-			System.out.println("2 instances : duree de " + nb + " appels avec preference : " + duree/1000000 + " milli secondes");		
-
-		}
-
-		//		=========== start testReaction test Simple
-		//				creating instance
-		//				connected to S1ImplEmpty-0
-		//				2 instances : duree de 1000 appels sans contrainte : 268 milli secondes
-		//				2 instances : duree de 1000 appels avec contrainte : 145 milli secondes
-		//		2 instances : duree de 1000 appels sans contrainte : 19 milli secondes
-		//		2 instances : duree de 1000 appels avec contrainte : 10 milli secondes
-		//		2 instances : duree de 1000 appels avec preference : 20 milli secondes
-		//		2 instances : duree de 1000 appels sans contrainte : 10 milli secondes
-		//		2 instances : duree de 1000 appels avec contrainte : 20 milli secondes
-		//		2 instances : duree de 1000 appels avec preference : 20 milli secondes
-		//		2 instances : duree de 1000 appels sans contrainte : 10 milli secondes
-		//		2 instances : duree de 1000 appels avec contrainte : 20 milli secondes
-		//		2 instances : duree de 1000 appels avec preference : 10 milli secondes
-		//		2 instances : duree de 1000 appels sans contrainte : 20 milli secondes
-		//		2 instances : duree de 1000 appels avec contrainte : 21 milli secondes
-		//		2 instances : duree de 1000 appels avec preference : 20 milli secondes
-
-	}
+	S1 testReaction ;
 
 
 	public void testReaction () {
@@ -158,39 +63,11 @@ public class perfWire implements Runnable, ApamComponent {
 		nbInst++ ;
 
 		Instance test = null ;
-		deb = System.nanoTime();
-		for (int i = 0; i < nb; i++) {
-			test = CST.componentBroker.getInstService(testPerf) ;
-			testPerf.getName() ;
-			test.setProperty("debit", 10) ;
-		}
-		fin = System.nanoTime();
-		overHead = (fin - deb) ;
-		System.out.println(nbInst + " : duree de " + nb + " appels sans changement : " + overHead + " milli secondes");
-
-		for (int j = 0; j < 10; j++) {
-			deb = System.nanoTime();
-			for (int i = 0; i < nb; i++) {
-				test = CST.componentBroker.getInstService(testPerf) ;
-				test.setProperty("debit", 2) ;
-				testPerf.getName() ;
-				//			System.out.println(testPerf.getName());
-				test.setProperty("debit", 10) ;
-			}
-			fin = System.nanoTime();
-			duree = (fin - deb);
-			System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " appels avec changement de dependance : " + duree/1000000 + " milli secondes");
-		}
-
-		//		for (int i = 0; i < 100; i++) {
-		//			test = implS1.createInstance(null, null);
-		//			nbInst++ ;
-		//		}
-		//		test.setProperty("debit",  2000) ;
 
 		String s ;
+		Link l ;
 		for (int k = 0; k < 10; k++) {
-			System.out.println("creating 100 instances");
+			System.out.println("creating 1000 instances");
 			for (int i = 0; i < 100; i++) {
 				test = implS1.createInstance(null, null);
 				nbInst++ ;
@@ -199,45 +76,67 @@ public class perfWire implements Runnable, ApamComponent {
 			for (int j = 0; j < 10; j++) {
 
 				deb = System.nanoTime();
+				for (int i = 0; i < nb; i++) {
+					simpleDep.getName();
+					simpleDep = null ;
+//					l = thisInstance.getLink("testSimple") ;
+//					l.reevaluate(true, true) ;
+				}
+				fin = System.nanoTime();
+				duree = (fin - deb) ;
+				System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " resolution sans contrainte : " + duree/1000000 + " milli secondes");		
+
+				//Contrainte
+				deb = System.nanoTime();
+				for (int i = 0; i < nb; i++) {
+					constraintDep.getName();
+					constraintDep = null ;
+//					l = thisInstance.getLink("testPerf") ;
+//					l.reevaluate(true, true) ;
+				}
+				fin = System.nanoTime();
+				duree = (fin - deb - overHead) ;
+				System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " resolution avec contrainte : " + duree/1000000 + " milli secondes");		
+
+				//predference
+				deb = System.nanoTime();
+				for (int i = 0; i < nb; i++) {
+					preferenceDep.getName() ; //resolve if pointer is null
+					preferenceDep = null;		//remove the link
+//					l = thisInstance.getLink("testPerfPrefere") ;
+//					l.reevaluate(true, true) ;
+				}
+				fin = System.nanoTime();
+				duree = (fin - deb - overHead) ;
+				System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " resolution avec preference : " + duree/1000000 + " milli secondes");		
+			
+
+				deb = System.nanoTime();
 				//			System.out.println(testSimple.getName());
 				for (int i = 0; i < nb; i++) {
-					test = CST.componentBroker.getInstService(testSimple) ;
+					test = CST.componentBroker.getInstService(simpleDep) ;
 					test.setProperty("debit", 10) ;
-					testSimple.getName() ;
-					//				System.out.println(testSimple.getName());
+					test.setProperty("debit", 20) ;
+					s = simpleDep.getName() ;
+					//				System.out.println(s);
 				}
 				fin = System.nanoTime();
 				overHead = (fin - deb) ;
-				System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " appels sans changement : " + overHead/1000000 + " milli secondes");
+				System.out.println("Nombre d'instances " + nbInst + " : duree de " + nb + " overhead : " + overHead/1000000 + " milli secondes");
 
 				deb = System.nanoTime();
 				//			System.out.println(testPerf.getName());
 				for (int i = 0; i < nb; i++) {
-					test = CST.componentBroker.getInstService(testPerf) ;
+					test = CST.componentBroker.getInstService(simpleDep) ;
 					test.setProperty("debit", 2) ;
-					s= testPerf.getName() ;
+					s= simpleDep.getName() ;
 					test.setProperty("debit", 10) ;
 					//System.out.println(s);
 				}
 				fin = System.nanoTime();
-				duree = (fin - deb) ;
+				duree = (fin - deb- overHead) ;
 				System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " appels avec contrainte et changement de dep : " + duree/1000000 + " milli secondes");
 
-				deb = System.nanoTime();
-				//			System.out.println(testPerfPrefere.getName());
-				for (int i = 0; i < nb; i++) {
-					test = CST.componentBroker.getInstService(testPerfPrefere) ;
-					//				System.out.println("debit = " +test.getProperty("debit"));
-					test.setProperty("debit", 2) ;
-					Link l = thisInstance.getLink("testPerfPrefere") ;
-					l.reevaluate(true, true) ;
-
-					testPerfPrefere.getName() ;
-					//				System.out.println(testPerfPrefere.getName());
-				}
-				fin = System.nanoTime();
-				duree = (fin - deb) ;
-				System.out.println("Nombre d'instances " + nbInst +  " : duree de " + nb + " changement de dep et preference : " + duree/1000000 + " milli secondes");
 
 			}
 		}
@@ -288,13 +187,48 @@ public class perfWire implements Runnable, ApamComponent {
 
 	}
 
+	public void resolWithInstantiation () {
+		long fin ;
+		long duree ;
+		long deb ;
+		int nb = 1000;
+//		int nbInst = 0 ;
+		
+		Instance test ;
+		String s ;
+		
+		deb = System.nanoTime();		
+		test = CST.componentBroker.getInstService(constraintDep) ;
+		fin = System.nanoTime();
+		System.out.println(constraintDep.getName());
+		duree = (fin - deb) ;
+		System.out.println("Time for first resolution : deploying and instantiating. : " + duree/1000000 + " milli secondes");
 
+		deb = System.nanoTime();
+		for (int i = 0; i < nb; i++) {
+			test = CST.componentBroker.getInstService(constraintDep) ;
+			test.setProperty("debit", 2) ;
+			s= constraintDep.getName() ;
+//			System.out.println(s);
+		}
+		fin = System.nanoTime();
+		duree = (fin - deb) ;
+		System.out.println("Duree de " + nb + " appels avec instantiation, contrainte et changement de dep : " + duree/1000000 + " milli secondes");
+
+//		S1ImplEmpty-0
+//		Time for first resolution : deploying and instantiating. : 314 milli secondes
+//		Duree de 1000 appels avec instantiation, contrainte et changement de dep : 9590 milli secondes
+	}
+
+	
 	@Override
 	public void run() {
 		System.out.println("Starting test perf Link");
-		testReactionSimple () ;
-		testReaction () ;
-		testPerfLink  () ;
+		
+		resolWithInstantiation () ;
+//		testReactionSimple () ;
+//		testReaction () ;
+//		testPerfLink  () ;
 	}
 
 

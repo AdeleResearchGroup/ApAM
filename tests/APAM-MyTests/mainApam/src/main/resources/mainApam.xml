@@ -20,25 +20,27 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="W"  classname="fr.imag.adele.apam.mainApam.perfWire" >
 			<relation field="apam" />
-			<relation field="testPerf" resolve="exist">
+
+			<relation field="simpleDep" />
+
+			<relation field="constraintDep" >
 				<constraints>
 					<instance filter="(debit >= 5)"/>
 				</constraints>
 			</relation>
-
-			<relation field="testSimple" />
 			
+			<relation field="preferenceDep" >
+				<preferences>
+					<instance filter="(debit >= 1000)"/>
+				</preferences>
+			</relation>
+
 			<relation field="testReaction" resolve="exist">
 				<constraints>
 					<instance filter="(debit >= $$need)"/>
 				</constraints>
 			</relation>
 
-			<relation field="testPerfPrefere" >
-				<preferences>
-					<instance filter="(debit >= 1000)"/>
-				</preferences>
-			</relation>
 
 			<definition name="need" type="int" default="7"/>
 	</implementation>

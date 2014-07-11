@@ -1080,7 +1080,7 @@ implements Component, Comparable<Component> {
 		return group.isAncestorOf(this);
 	}
 
-	private boolean isInternalInstantiable () {
+	public boolean isInternalInstantiable () {
 		if (declaration.isDefinedInstantiable() || getGroup() == null) {
 			return (declaration.isInstantiable())  ;
 		}

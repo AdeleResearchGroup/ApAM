@@ -194,6 +194,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		try {
 			Instance instance = instantiate(composite, initialProperties);
 			((InstanceImpl) instance).register(initialProperties);
+			setInstantiateFails(false);
 			return instance;
 		} catch (InvalidConfiguration configurationError) {
 			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM " + configurationError.getMessage());
@@ -280,7 +281,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 */
 	protected Instance instantiate(Composite composite, Map<String, String> initialProperties) throws InvalidConfiguration {
 
-		if (!this.isInstantiable()) {
+		if (!this.isInternalInstantiable()) {
 			throw new InvalidConfiguration("Implementation " + this + " is not instantiable");
 		}
 
