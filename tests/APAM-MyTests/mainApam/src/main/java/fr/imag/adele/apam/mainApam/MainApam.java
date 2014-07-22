@@ -30,10 +30,11 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.test.MainApamSpec;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.util.Util;
 
-public class MainApam implements Runnable, ApamComponent {
+public class MainApam implements Runnable, ApamComponent, MainApamSpec {
 	// injected
 	Apam apam;
 	S1 testPerf ;
@@ -81,6 +82,7 @@ public class MainApam implements Runnable, ApamComponent {
 	}
 
 
+    @Override
 	public void testFindImplByName () {
 		System.out.println("=====MODIFIED====== start testFindImplByName");
 		System.out.println("testing findImplByName in OBR");
@@ -167,7 +169,8 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testCreateCompoBySpec\n\n");
 	}
 
-	public void testInitialAttributes () {
+	@Override
+    public void testInitialAttributes () {
 		System.out.println("=========== start testInitialAttributes");
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("testMain", "valeurTestMain"); // not declared
@@ -195,7 +198,8 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testInitialAttributes\n\n");
 	}
 
-	public void testSettingAttributes () {  	   	
+	@Override
+    public void testSettingAttributes () {
 		System.out.println("=========== start testSettingAttributes");
 
 		/*
@@ -620,7 +624,8 @@ public class MainApam implements Runnable, ApamComponent {
 
 	}
 
-	public void testImplemWithoutSpec () {
+	@Override
+    public void testImplemWithoutSpec () {
 
 		System.out.println("=========== start test Implem without spec (dummy spec)");
 
@@ -639,6 +644,7 @@ public class MainApam implements Runnable, ApamComponent {
 	}
 
 
+    @Override
 	public void otherTests () {
 
 		Map<String, String> props = new HashMap<String, String>();
@@ -683,7 +689,8 @@ public class MainApam implements Runnable, ApamComponent {
 
 	}
 
-	public void testPerfLink () {
+	@Override
+    public void testPerfLink () {
 		System.out.println("=========== start testPerfLink test");
 		Implementation impl= CST.apamResolver.findImplByName(null,"S2Impl");
 		int nb = 1000;

@@ -2,18 +2,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<artifactId>APAM-MyTests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.7-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-
-	<artifactId>MainApam</artifactId>
+	
+	
+	<artifactId>S1</artifactId>
+	
 	<packaging>bundle</packaging>
-	<name>MainApam</name>
-	<description>test du main</description>
+	<name>S1</name>
 
 	<build>
 		<plugins>
@@ -25,6 +25,7 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
+			
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
@@ -35,7 +36,7 @@
 							<goal>apam-bundle</goal>
 						</goals>
 						<configuration>
-							<metadata>src/main/resources/mainApam.xml</metadata>
+							<metadata>src/main/resources/S1.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
@@ -43,42 +44,13 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>S1</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
+			<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
 			<version>${project.version}</version>
+			<type>bundle</type>
+			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>S5</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>TestAttrSpec</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+	</dependencies>
 
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>MainApamSpec</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-    </dependencies>
 </project>

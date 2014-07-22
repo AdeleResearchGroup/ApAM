@@ -6,9 +6,10 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.test.PerfWireSpec;
 import fr.imag.adele.apam.test.s1.S1;
 
-public class perfWire implements Runnable, ApamComponent {
+public class perfWire implements Runnable, ApamComponent, PerfWireSpec {
 	// injected
 	Apam apam;
 	S1 simpleDep ;
@@ -19,6 +20,12 @@ public class perfWire implements Runnable, ApamComponent {
 	S1 testReaction ;
 
 
+    @Override
+    public void testReactionSimple() {
+
+    }
+
+    @Override
 	public void testReaction () {
 		System.out.println("=========== start testReaction test");
 
@@ -44,6 +51,7 @@ public class perfWire implements Runnable, ApamComponent {
 		//					connected to S1ImplEmpty-1
 	}
 
+    @Override
 	public void testPerfLink () {
 		System.out.println("=========== start testPerfLink test");
 		Implementation impl= CST.apamResolver.findImplByName(null,"S2Impl");

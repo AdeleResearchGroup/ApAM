@@ -12,16 +12,9 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.test.support;
+package fr.imag.adele.apam.test;
 
-import fr.imag.adele.apam.test.testcases.JackyTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-
-@RunWith(Suite.class)
-@SuiteClasses({
-	JackyTest.class })
-public class AllTests {
-
+public interface MainApamSpec {
+    public void callS1(String s);
+    public String getName () ;
 }

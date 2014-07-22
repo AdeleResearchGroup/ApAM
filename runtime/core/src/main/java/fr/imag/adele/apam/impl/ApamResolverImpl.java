@@ -595,6 +595,7 @@ public class ApamResolverImpl implements ApamResolver {
 				throw new RuntimeException("Manager : " + manager + ", manager name is null");
 			}			
 			mess += manager.getName() + "  ";
+            logger.debug("Calling manager "+manager.getName());
 
 			res = resolveOneManager(manager, relToResolve, mess) ;
 			if (res != null) 
@@ -610,6 +611,7 @@ public class ApamResolverImpl implements ApamResolver {
 	private Resolved<?> resolveOneManager (RelationManager manager, RelToResolve relToResolve, String mess) {
 
 		Resolved<?> resolved = manager.resolve(relToResolve);
+        logger.debug("resolveOneManager(...), manager resolve returns "+(resolved==null?null:resolved.toString()));
 		if (resolved == null || resolved.isEmpty()) {
 			return null;
 		}

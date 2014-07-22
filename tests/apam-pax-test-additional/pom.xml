@@ -9,8 +9,9 @@
     </parent>
 
 
+    <groupId>fr.imag.adele.apam.tests.services</groupId>
     <artifactId>apam-pax-test-additional</artifactId>
-    <name>ApAM PaxExam additional Tests</name>
+    <name>ApAM PaxExam Tests for Additional tests</name>
 
     <dependencies>
 
@@ -64,8 +65,8 @@
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>apam-core</artifactId>
-            <scope>test</scope>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
 
 
@@ -117,58 +118,37 @@
         </dependency>
 
         <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>MainApamSpec</artifactId>
+            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <artifactId>apam-universal-shell</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
             <version>${project.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <!-- <version>4.1.0</version> -->
-        </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.fileinstall</artifactId>
-            <version>3.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.jmdns</groupId>
-            <artifactId>jmdns</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20090911</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.main</artifactId>
-            <version>1.8.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>MainApam</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>models</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
@@ -183,7 +163,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

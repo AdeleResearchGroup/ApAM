@@ -12,6 +12,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>MainApamSpec</module>
   	<module>S1</module>
   	<module>S2</module>
   	<module>S3</module>
