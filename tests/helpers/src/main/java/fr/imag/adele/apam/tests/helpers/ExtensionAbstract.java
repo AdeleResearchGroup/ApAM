@@ -323,8 +323,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 		root.setLevel(Level.WARN);
 
 
-//		String logpath = "file:" + PathUtils.getBaseDir() + "/log/logback.xml";
-//		File log = new File(logpath);
+		String logpath = "file:" + PathUtils.getBaseDir() + "/log/logback.xml";
+		//File log = new File(logpath);
 //
 //		boolean includeLog = log.exists() && log.isFile();
 
@@ -333,7 +333,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				vmOption("-XX:+UnsyncloadClass"),
 				frameworkProperty(
 				"org.osgi.service.http.port").value("8280"), cleanCaches(),
-//				systemProperty("logback.configurationFile").value(logpath),
+				systemProperty("logback.configurationFile").value(logpath),
 				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
 						.value("WARN"));
 
