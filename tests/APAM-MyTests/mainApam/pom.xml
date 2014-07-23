@@ -73,5 +73,12 @@
 			<artifactId>TestAttrSpec</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>MainApamSpec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
 </project>

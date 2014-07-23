@@ -16,7 +16,7 @@
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam   http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+ xsi:schemaLocation="fr.imag.adele.apam   https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd" >
 
 	<implementation name="W"  classname="fr.imag.adele.apam.mainApam.perfWire" >
 			<relation field="apam" />

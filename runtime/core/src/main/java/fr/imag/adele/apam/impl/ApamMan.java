@@ -229,7 +229,9 @@ public class ApamMan implements RelationManager {
 		 * If some bundle are starting, they may contain the solution (especially during the starting phase)
 		 * Just way for these bundles to complete their starting phase.
 		 */
-		if (newBundleArrived()) {
+        logger.debug("Checking newBundleArrived()");
+        if (newBundleArrived()) {
+            logger.debug("a newBundleArrived(), calling resolve again");
 			return resolve(relToResolve) ;
 		}
 		return null ;

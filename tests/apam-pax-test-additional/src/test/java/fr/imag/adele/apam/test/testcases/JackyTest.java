@@ -18,28 +18,27 @@ import static org.ops4j.pax.exam.CoreOptions.frameworkProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import fr.imag.adele.apam.mainApam.MainApam;
-import fr.imag.adele.apam.mainApam.perfWire;
+
+import fr.imag.adele.apam.test.MainApamSpec;
+import fr.imag.adele.apam.test.PerfWireSpec;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 /**
  * Test Suite
@@ -47,24 +46,24 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class JackyTesting extends ExtensionAbstract {
+public class JackyTest extends ExtensionAbstract {
 
 	@Override
 	public List<Option> config() {
-		List<Option> obrmanconfig = super.config(null, true);
+
+        Map<String, String> mapOfRequiredArtifacts = new HashMap<String, String>();
+        mapOfRequiredArtifacts.put("obrman",
+                "fr.imag.adele.apam");
+        mapOfRequiredArtifacts.put("MainApamSpec",
+                "fr.imag.adele.apam");
+
+		List<Option> obrmanconfig = super.config(mapOfRequiredArtifacts, true);
 
         obrmanconfig.add(frameworkProperty(Apam.EXPECTED_MANAGERS).value("OBRMAN"));
         obrmanconfig.add(frameworkProperty(Apam.CONFIGURATION_MANAGERS).value("OBRMAN:file:./conf/test.obrman.config"));
 
 		return obrmanconfig;
 	}
-
-	@Before
-	public void constructor() {
-        System.out.println("********** constructor");
-
-
-    }
 
 	@Before
 	@Override
@@ -77,26 +76,26 @@ public class JackyTesting extends ExtensionAbstract {
 
 	}
 
-    private MainApam initmainApamInstance() {
+    private MainApamSpec initmainApamInstance() {
         Implementation implM = CST.apamResolver.findImplByName(null,"M");
         Assert.assertNotNull("M implementation not found", implM);
 
         Instance instM = implM.createInstance(null,null);
         Assert.assertNotNull("M instance not created", instM);
 
-        MainApam serviceObject = (MainApam) instM.getServiceObject();
+        MainApamSpec serviceObject = (MainApamSpec) instM.getServiceObject();
         Assert.assertNotNull("MainApam service object created successfully", serviceObject);
 
         return serviceObject;
     }
 
-    private perfWire initperfWireInstance() {
+    private PerfWireSpec initperfWireInstance() {
         Implementation implW = CST.apamResolver.findImplByName(null,"W");
 
         Instance instW = implW.createInstance(null,null);
         Assert.assertNotNull("W instance not created", instW);
 
-        perfWire serviceObject = (perfWire) instW.getServiceObject();
+        PerfWireSpec serviceObject = (PerfWireSpec) instW.getServiceObject();
         Assert.assertNotNull("perfWire service object created successfully", serviceObject);
 
         return serviceObject;
@@ -105,13 +104,14 @@ public class JackyTesting extends ExtensionAbstract {
 
 	@Test
 	public void testReactionSimple_tct041() {
+        waitForApam();
 
         System.out.println("=========== start testReaction test Simple");
-        initperfWireInstance();
-
-        System.out.println("creating instance");
-        Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");
-        implS1.createInstance(null, null);
+//        initperfWireInstance();
+//
+//        System.out.println("creating instance");
+//        Implementation implS1 = CST.apamResolver.findImplByName(null,"S1ImplEmpty");
+//        implS1.createInstance(null, null);
 
 
 //        Instance test = CST.componentBroker.getInstService(testSimple) ;
