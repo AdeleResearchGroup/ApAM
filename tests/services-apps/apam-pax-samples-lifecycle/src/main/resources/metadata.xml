@@ -13,7 +13,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  	
 	<implementation name="LifeCycleTest" classname="fr.imag.adele.apam.pax.test.lifecycle.Test" specification="LifeCycleService">
 	    	<callback onInit="start" onRemove="stop"/>
-		<definition name="selfDestroy" type="boolean" field="selfDestroy" default="false"/>
+		<definition name="selfDestroy" type="boolean" field="selfDestroy" default="false" method="configure"/>
 	</implementation>
 
  	<implementation name="LifeCycleClient" classname="fr.imag.adele.apam.pax.test.lifecycle.Client">
