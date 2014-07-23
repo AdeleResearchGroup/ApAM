@@ -12,7 +12,7 @@
 	<!--  	<module>dependencies-distriman</module> -->
   	<module>apam-gogo-shell</module>
       	<!--<module>jmx</module>-->
-      	<module>apam-display</module>
+      	<!-- <module>apam-display</module> -->
   </modules>
   <name>Tools projects for ApAM</name>
 </project>
