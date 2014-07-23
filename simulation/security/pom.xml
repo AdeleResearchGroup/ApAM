@@ -37,9 +37,9 @@
 			<type>bundle</type>
 		</dependency>
 		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>applications.fire</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>com.orange.openthebox.hab</groupId>
+			<artifactId>m2m.fire.security.application.service</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 			<type>bundle</type>
 		</dependency>
 	</dependencies>

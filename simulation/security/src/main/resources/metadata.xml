@@ -11,7 +11,7 @@
 
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.6.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 	<!--
@@ -36,7 +36,10 @@
 		</contentMngt>
 	</composite>
 
-
+	<apam-instance name="securityDomain" 
+		implementation="SecurityDomain">
+	</apam-instance>
+			
 	<!--
 		This is the domain scope for fire management applications that are self contained, with a
 		fine grain control of the shared components
@@ -53,7 +56,7 @@
 		
 		<contentMngt>
 
-			<own implementation="SimpleFireEvacuation"/>
+			<own implementation="FireApplicationService"/>
 	
 			<state implementation="EmergencyDetection" property="emergency"/>
 			
@@ -91,7 +94,7 @@
 		<definition name="state" type="normal,fire,locked" field="stateProperty" injected="internal" />
 
 		<callback onInit="start"/>
-		<relation field="light" specification="CoreColorLightSpec" creation="eager" resolve="exist"/>
+		<!--  <relation field="light" specification="CoreColorLightSpec" creation="eager" resolve="exist"/>  -->
 
 	</implementation>
 
@@ -102,7 +105,7 @@
 	<implementation name="EmergencyDetection" classname="fr.imag.adele.apam.application.emergency.EmergencyDetection">
 		<callback onInit="start"/>
 		<definition name="emergency" type="emergency,normal" field="stateProperty" injected="internal" />
-		<relation name="emergencyEvents" creation="eager" resolve="exist" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/>
+		<!-- <relation name="emergencyEvents" creation="eager" resolve="exist" message="fr.liglab.adele.apam.device.fire.EmergencyEvent" push="onEvent"/> -->
 	</implementation>
 	
 </apam>

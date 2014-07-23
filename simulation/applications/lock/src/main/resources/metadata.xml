@@ -22,25 +22,28 @@
       	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd
                           http://www.osgi.org/xmlns/scr/v1.1.0 http://www.osgi.org/xmlns/scr/v1.1.0">
-                          
+                     
+    <specification name="X3DDevice" interfaces="org.osgi.x3d.IX3DDevice">
+        <definition name="DEVICE_FRIENDLY_NAME" type="string"/>
+       </specification>
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
  
  	<callback onInit="start"/>
         
+ 	<!--  
         <relation field="doors" specification="Door">
             <constraints>
             	<instance filter="(access=true)"/>
             </constraints>
         </relation>
-
-        <relation field="plugs" specification="CoreSmartPlugSpec"/>
-        
-        <relation name="notification" specification="CoreSwitchSensorSpec" creation="eager">
-            <message push="simulationNotification"/>
+	 -->
+        <relation field="shutter" specification="X3DDevice" multiple="false" resolve="exist" creation="eager">
             <constraints>
-            	<instance filter="(deviceId=ENO27b2b1)"/>
+            	<instance filter="(DEVICE_FRIENDLY_NAME=Shutter Switch*)"/>
             </constraints>
         </relation>
+        
+        <definition name="isDay" type="string" method="isDayChanged"/>
         
     </implementation>
     
