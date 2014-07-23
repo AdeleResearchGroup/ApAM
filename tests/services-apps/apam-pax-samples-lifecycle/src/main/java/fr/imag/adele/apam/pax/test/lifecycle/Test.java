@@ -19,6 +19,10 @@ public class Test implements Service {
 		System.out.println("Hello APAM");
 	}
 	
+	@SuppressWarnings("unused")
+	private void configure(boolean selfDestroy) {
+		System.out.println("Next call I will "+(selfDestroy? "":"not ")+"destroy myself");
+	}
 	/**
 	 * Component remove callback
 	 */

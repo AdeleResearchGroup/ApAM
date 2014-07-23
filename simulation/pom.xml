@@ -6,7 +6,7 @@
 
 		<!-- Dependencies version -->
 
-		<apam.version>0.0.6</apam.version>
+		<apam.version>0.0.7-SNAPSHOT</apam.version>
 		<icasa.version>1.2.5</icasa.version>
 
 		<!-- java compilation version -->

@@ -1,31 +1,29 @@
 package fr.imag.adele.apam.apform.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
-import org.apache.felix.ipojo.util.Callback;
+import org.osgi.framework.Version;
 
+import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.util.Attribute;
 
 /**
  * This is the callback associated to the APAM property changes
  * 
  * @author vega
  */
-public class PropertyCallback extends Callback {
+public class PropertyCallback extends InstanceCallback<Object> {
 
-	private final ApamInstanceManager 		instance;
-    private final PropertyDefinition		property;
+    private final PropertyDefinition property;
 
-    private boolean needsArgument;
-
-	public PropertyCallback(ApamInstanceManager instance, PropertyDefinition property) throws ConfigurationException {
-		super(property.getCallback(),(String[])null,false,instance);
+    public PropertyCallback(ApamInstanceManager instance, PropertyDefinition property) throws ConfigurationException {
+		super(instance,property.getCallback());
 		
-		this.instance	= instance;
-		this.property	= property;
-		
+		this.property = property;
 		/*
 		 * We force reflection meta-data calculation in the constructor to signal errors as soon as
 		 * possible. This however has a cost in terms of early class loading.  
@@ -33,7 +31,7 @@ public class PropertyCallback extends Callback {
 		try {
 			searchMethod();
 		} catch (NoSuchMethodException e) {
-			throw new ConfigurationException("invalid method declaration in property callback "+property.getCallback());
+			throw new ConfigurationException("invalid method declaration in property callback "+getMethod());
 		}
 	}
 	
@@ -41,77 +39,129 @@ public class PropertyCallback extends Callback {
 		return this.property.getName().equals(propertyName);
 	}
 	
-	public Object invoke(Object value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        if (m_methodObj == null) {
-            searchMethod();
-        }
-
- 		return call(needsArgument ? new Object[] {value} : new Object[0]);
-	}
 
 	@Override
-	protected void searchMethod() throws NoSuchMethodException {
-        
-		/*
-		 * Try to find the declared method with the specified name that best matches the callback signature
-		 * 
-		 * NOTE Notice that we force class loading of the implementation class (and its super classes) by using
-		 * reflection to search for methods.
-		 */
+	protected boolean isExpectedParameter(Class<?> parameterType) {
 		
-        Method[] methods = instance.getClazz().getMethods();
-        
-        Method candidate 			= null;
-        Class<?> candidateParameter	= null;
-        
-        for (Method method : methods) {
+		if (this.property.isSet()) {
+
+			/*
+			 * Multiply valued  properties can be injected as sets of the basic type of the
+			 * property.
+			 */
+
+			return 	parameterType.isAssignableFrom(Set.class);
 			
-        	if (! method.getName().equals(property.getCallback()))
-				continue;
-
-        	/*
-        	 * We are looking for a method with an optional, single String parameter
-        	 */
-        	
-        	Class<?>[] parameters = method.getParameterTypes();
-        	if (parameters.length > 1)
-        		continue;
-
-           	Class<?> parameter = parameters.length == 1 ? parameters[0] : null;
-           	if (parameter != null && ! parameter.isAssignableFrom(String.class))
-        		continue;
-        	
-        	if (candidate == null) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	if (candidateParameter == null && parameter != null) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	if (candidateParameter != null && parameter != null && candidateParameter.isAssignableFrom(parameter)) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	
 		}
+		else {
 
-        m_methodObj 	= candidate;
-        needsArgument	= (candidateParameter != null);
-        
-		if (m_methodObj == null) {
-			throw new NoSuchMethodException(property.getCallback());
-        } else {
-            if (! m_methodObj.isAccessible()) { 
-                m_methodObj.setAccessible(true);
-            }
-        }
+			/*
+			 * For atomic values we perform automatic conversion to Strings
+			 */
+			if (parameterType.isAssignableFrom(String.class)) {
+				return true;
+			}
+
+			/*
+			 * Otherwise we try to match the type of the property
+			 */
+			int type = Attribute.splitType(this.property.getBaseType()).type;
+
+			if (type == AttrType.STRING) {
+				return parameterType.isAssignableFrom(String.class);
+			}
+			else if (type == AttrType.ENUM) {
+				return parameterType.isAssignableFrom(String.class);
+			}
+			else if (type == AttrType.VERSION) {
+				return parameterType.isAssignableFrom(Version.class);
+			}
+			else if (type == AttrType.BOOLEAN) {
+				return parameterType.isAssignableFrom(Boolean.class) || parameterType.isAssignableFrom(Boolean.TYPE);
+			}
+			else if (type == AttrType.FLOAT) {
+				return parameterType.isAssignableFrom(Float.class)  || parameterType.isAssignableFrom(Float.TYPE);
+			}
+			else if (type == AttrType.INTEGER) {
+				return parameterType.isAssignableFrom(Integer.class)  || parameterType.isAssignableFrom(Integer.TYPE);
+			}
+			
+		}
+		
+		return false;
+		
+	}
+
+	/**
+	 * Perform automatic conversions from the internal representation of property values, to
+	 * parameters of the property configuration callback
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	protected Object cast(Object argument) {
+		
+		if (this.property.isSet()) {
+
+			/*
+			 * Multiply valued  properties are internally stored as set of Strings (to be compatible to LDAP filter
+			 * matching), to help developers writing callbacks, we automatically convert it to a immutable set of 
+			 * values of the specific type of the property. 
+			 */
+
+			if (getArgumentType().isAssignableFrom(Set.class)) {
+
+				int type = Attribute.splitType(this.property.getBaseType()).type;
+
+				if (type == AttrType.STRING) {
+					return Collections.unmodifiableSet((Set<String>)argument);
+				}
+				else if (type == AttrType.ENUM) {
+					return Collections.unmodifiableSet((Set<String>)argument);
+				}
+				else if (type == AttrType.BOOLEAN) {
+					Set<Boolean> value = new HashSet<Boolean>();
+					for (String element : (Set<String>)argument) {
+						value.add(Boolean.valueOf(element));
+					}
+					return Collections.unmodifiableSet(value);
+				}
+				else if (type == AttrType.FLOAT) {
+					Set<Float> value = new HashSet<Float>();
+					for (String element : (Set<String>)argument) {
+						value.add(Float.valueOf(element));
+					}
+					return Collections.unmodifiableSet(value);
+				}
+				else if (type == AttrType.INTEGER) {
+					Set<Integer> value = new HashSet<Integer>();
+					for (String element : (Set<String>)argument) {
+						value.add(Integer.valueOf(element));
+					}
+					return Collections.unmodifiableSet(value);
+				}
+				else if (type == AttrType.VERSION) {
+					Set<Version> value = new HashSet<Version>();
+					for (String element : (Set<String>)argument) {
+						value.add(Version.parseVersion(element));
+					}
+					return Collections.unmodifiableSet(value);
+				}
+
+			}
+			
+		}
+		else {
+
+			/*
+			 * For atomic values we perform automatic conversion to Strings
+			 */
+			
+			if (getArgumentType().isAssignableFrom(String.class)) {
+				return argument.toString();
+			}
+		}
+		
+		return argument;
 	}
 	
 }

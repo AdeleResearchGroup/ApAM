@@ -1,11 +1,9 @@
 package fr.imag.adele.apam.application.security;
 
-import appsgate.lig.colorLight.actuator.spec.CoreColorLightSpec;
+//import appsgate.lig.colorLight.actuator.spec.CoreColorLightSpec;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 
 public class SecurityStateManager implements PropertyManager {
@@ -85,7 +83,7 @@ public class SecurityStateManager implements PropertyManager {
 	@SuppressWarnings("unused")
 	private String stateProperty;
 
-	private CoreColorLightSpec light;
+	//private CoreColorLightSpec light;
 	
 
 	public SecurityStateManager() {
@@ -104,6 +102,9 @@ public class SecurityStateManager implements PropertyManager {
 		currentState 	= currentState.next(event);
 		stateProperty 	= currentState.getLabel();
 		
+		System.out.println("current state = "+currentState);
+		
+		/*
 		if (light != null) {
 			switch (currentState) {
 			case NORMAL:
@@ -118,6 +119,7 @@ public class SecurityStateManager implements PropertyManager {
 			}
 
 		}
+		*/
 	}
 
 	@Override

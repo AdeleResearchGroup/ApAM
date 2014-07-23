@@ -17,13 +17,11 @@ package fr.imag.adele.apam.application.lock;
 import java.util.Collections;
 import java.util.List;
 
-import org.json.JSONException;
-
-import appsgate.lig.button_switch.sensor.messages.SwitchNotificationMsg;
-import appsgate.lig.core.object.messages.NotificationMsg;
-import appsgate.lig.smartplug.actuator_sensor.spec.CoreSmartPlugSpec;
 import fr.imag.adele.apam.Instance;
-import fr.liglab.adele.apam.device.access.Lock;
+//import fr.liglab.adele.apam.device.access.Lock;
+
+import org.osgi.x3d.IX3DDevice;
+import org.osgi.x3d.X3DHandler;
 
 /**
  * This class implements a simplistic test application that lock doors and turns off plugs
@@ -32,15 +30,15 @@ import fr.liglab.adele.apam.device.access.Lock;
  * @author vega
  *
  */
-public class LockHomeAutomation {
+public class LockHomeAutomation implements X3DHandler {
 
 
 	private Instance 					instance;
 	private boolean 					activated;
 
-	private List<Lock>					doors;
-	private List<CoreSmartPlugSpec>		plugs;
-
+	//private List<Lock>					doors;
+	private IX3DDevice					shutter;
+	
 	@SuppressWarnings("unused")
 	private void start(Instance instance) {
 		this.instance = instance;
@@ -55,7 +53,6 @@ public class LockHomeAutomation {
 		 * toggle state, notify state change before accessing devices to allow
 		 * conflict arbitration 
 		 */
-		activated = !activated;
 		instance.getComposite().setProperty("locked",activated);
 
 		/* 
@@ -63,45 +60,45 @@ public class LockHomeAutomation {
 		 * on deactivation
 		 * 
 		 */
+		
+		/*
 		for (Lock door: optional(doors)){
 			if (activated)
 				door.disableAuthorization(true);
 			else
 				door.enableAuthorization();
 		}
-			
-		
-		/* 
-		 * switch power on/off
-		 * 
-		 */
-		for (CoreSmartPlugSpec plug: optional(plugs)){
-			if (activated)
-				plug.off();
-			else
-				plug.on();
+		*/	
+		if (shutter != null) {
+			if (activated) {
+				shutter.executeCommand("down", new String[] {}, this);
+			}
+			else{
+				shutter.executeCommand("up", new String[] {}, this);
+			}
 		}
 		
-		
+	}
+	
+	@Override
+	public void onCommandFailure(String arg0, String arg1) {
+		System.out.println("x3d command failure "+arg0);
 	}
 
-	@SuppressWarnings("unused")
-	private void simulationNotification(NotificationMsg notification) {
-		
-		try {
-			
-			SwitchNotificationMsg switchNotification = (SwitchNotificationMsg) notification;
-			boolean triggered = switchNotification.isOn() && switchNotification.JSONize().get("varName").equals("buttonStatus");
-			if (triggered)
-				toggleActivation();
-		
-		} catch (JSONException ignored) {
-		}
-		
-		
+	@Override
+	public void onCommandSuccess(String arg0, String arg1) {
+		System.out.println("x3d command ok "+arg0);
 	}
 
+	public void isDayChanged(String isDay) {
+		System.out.println("is day changed "+isDay);
+		activated = !(isDay.equals("true"));
+		toggleActivation();
+	}
+
+	/*
 	private static <T> List<T> optional(List<T> list) {
 		return list != null ? list : Collections.<T> emptyList();
 	}
+	*/
 }

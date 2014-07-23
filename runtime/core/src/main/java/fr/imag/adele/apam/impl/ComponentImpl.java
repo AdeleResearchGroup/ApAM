@@ -1467,7 +1467,7 @@ implements Component, Comparable<Component> {
 		 * only dynamic links
 		 */
 		Object oldValue = get(attr);
-		put(attr, value);
+		put(attr, val);
 
 		for (Link incoming : getInvLinks()) {
 			// If still valid, do nothing

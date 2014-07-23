@@ -20,24 +20,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>device.specifications</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>x3d.bundle</artifactId>
+			<version>1.0</version>
 		</dependency>
-
-
-		<dependency>
-			<groupId>appsgate.components</groupId>
-			<artifactId>CoreSwitchSensorSpec</artifactId>
-			<version>1.0.0</version>
-			<type>bundle</type>
-		</dependency>
-		<dependency>
-			<groupId>appsgate.components</groupId>
-			<artifactId>CoreSmartPlugSpec</artifactId>
-			<version>1.0.0</version>
-			<type>bundle</type>
-		</dependency>
+		
 	</dependencies>
 
 	<build>
