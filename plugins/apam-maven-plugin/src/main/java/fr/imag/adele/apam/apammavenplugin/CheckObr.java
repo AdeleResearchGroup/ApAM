@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.plugin.logging.Log;
 
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
@@ -29,6 +28,7 @@ import fr.imag.adele.apam.apammavenplugin.helpers.AttributeCheckHelpers;
 import fr.imag.adele.apam.apammavenplugin.helpers.FilterCheckHelpers;
 import fr.imag.adele.apam.apammavenplugin.helpers.ProvideHelpers;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -52,7 +52,6 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.CoreMetadataParser;
@@ -62,7 +61,7 @@ import fr.imag.adele.apam.util.Util;
 
 public final class CheckObr {
 
-	private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
+	private static Log logger;
 
 	private static final Set<String> ALL_FIELDS = new HashSet<String>();
 	private static final Set<String> ALL_GRANTS = new HashSet<String>();
@@ -87,18 +86,27 @@ public final class CheckObr {
 		return CheckObr.failedChecking;
 	}
 
-	public static void error(String msg) {
-		CheckObr.failedChecking = true;
-		logger.error(msg);
-	}
-
-	public static void warning(String msg) {
-		logger.warn(msg);
-	}
-
 	public static void setFailedParsing(boolean failed) {
 		CheckObr.failedChecking = failed;
 	}
+
+	public static void setLogger(Log logger) {
+		CheckObr.logger = logger;
+	}
+	
+	public static void error(String msg) {
+		CheckObr.failedChecking = true;
+		if (logger != null) logger.error(msg);
+	}
+
+	public static void warning(String msg) {
+		if (logger != null) logger.warn(msg);
+	}
+
+	public static void info(String msg) {
+		if (logger != null) logger.info(msg);
+	}
+
 
 	/**
 	 * Checks if the constraints set on this relation are syntacticaly valid.

@@ -2,7 +2,6 @@ package fr.imag.adele.apam.apammavenplugin.helpers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -12,12 +11,10 @@ import java.util.jar.Manifest;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.plugin.logging.Log;
 
 import fr.imag.adele.apam.apammavenplugin.InvalidApamMetadataException;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreParser;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
@@ -25,31 +22,19 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 public class JarHelper {
 
-	Logger logger = LoggerFactory.getLogger(JarHelper.class);
+	private final Log 			logger;
+	private final ErrorHandler 	m_ErrorHandler;
 
-	ErrorHandler m_ErrorHandler;
-	File m_File;
-	
-	JarFile m_JarFile;
-	
-	public JarFile getJarFile() {
-		try {
-			return new JarFile(m_File);
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			m_ErrorHandler.error(Severity.ERROR, e.getMessage());
-			return null;
-		}
-	}
+	private final File 			m_File;
 
-	Manifest m_Manifest;
+	private final Manifest 		m_Manifest;
 
-	public Manifest getManifest() {
-		return m_Manifest;
-	}
+	public JarHelper(File file, ErrorHandler handler, Log logger) throws InvalidApamMetadataException {
 
-	public JarHelper(File file, ErrorHandler handler)
-			throws InvalidApamMetadataException {
+		/*
+		 * Set logger and error handler
+		 */
+		this.logger = logger;
 
 		if (handler == null) {
 			throw new InvalidApamMetadataException("No ErrorHandlerProvided");
@@ -57,73 +42,103 @@ public class JarHelper {
 			m_ErrorHandler = handler;
 		}
 
+		/*
+		 * Refence original file
+		 */
+		this.m_File 	= file;
+
+		/*
+		 * Verify file is a valid bundle (jar with manifest)
+		 */
+
+		Manifest loadedManifest  = null;
 		try {
+
 			if (file == null || !file.exists()) {
-				throw new InvalidApamMetadataException(
-						"Jar File does not exists");
-			}
-			m_File=file;
-
-			m_JarFile = new JarFile(m_File);
-			m_Manifest = m_JarFile.getManifest();
-
-			if (m_Manifest == null) {
-				m_JarFile.close();
-				throw new InvalidApamMetadataException("Manifest is Empty");
+				throw new InvalidApamMetadataException("Jar File does not exists");
 			}
 
-			m_JarFile.close();
+			JarFile jarFile = getJarFile();
+			loadedManifest 	= jarFile != null ? jarFile.getManifest() : null;
+			jarFile.close();
 
 		} catch (IOException e) {
-			logger.error(e.getMessage());
-			m_ErrorHandler.error(Severity.ERROR, e.getMessage());
+			throw new InvalidApamMetadataException("Jar File invalid");
+		}
+		
+		this.m_Manifest	= loadedManifest;
+
+		if (m_Manifest == null) {
+			throw new InvalidApamMetadataException("Manifest is Empty");
 		}
 
 	}
 	
-
-	public List<ComponentDeclaration> getApAMComponents()
-			throws InvalidApamMetadataException {
-		if(getRootiPojoElement() == null) {
+	public List<ComponentDeclaration> getApAMComponents() throws InvalidApamMetadataException {
+		
+		Element metadata = getiPojoMetadata();
+		
+		if( metadata == null) {
 			return Collections.emptyList();
 		}
 
-		CoreParser parser = new CoreMetadataParser(getRootiPojoElement(), null);
+		CoreParser parser = new CoreMetadataParser(metadata, null);
 		List<ComponentDeclaration> ret = parser.getDeclarations(m_ErrorHandler);
 
 		String contains = "    contains components: ";
 		for (ComponentDeclaration comp : ret) {
 			contains += comp.getName() + " ";
 		}
-		logger.info(contains);
+		
+		info(contains);
 
 		return ret;
 	}
 
-	public Element getRootiPojoElement() {
+	public Element getiPojoMetadata() {
 		Attributes iPOJOmetadata = m_Manifest.getMainAttributes();
 		String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
 
 		iPOJOmetadata = null;
 		if (ipojoMetadata == null) {
-			String message = " No Apam metadata for " + m_File;
-			logger.error(message);
 			return null;
 		}
 
-		logger.info("Parsing Apam metadata for " + m_File + " - SUCCESS ");
+		info("Parsing Apam metadata for " + m_File + " - SUCCESS ");
 		try {
-			Element root = ManifestMetadataParser
-					.parseHeaderMetadata(ipojoMetadata);
+			Element root = ManifestMetadataParser.parseHeaderMetadata(ipojoMetadata);
 			return root;
 		} catch (ParseException e) {
-			String message = "Parsing manifest metadata for " + m_File
-					+ " - FAILED ";
-			logger.error(message);
-			m_ErrorHandler.error(Severity.ERROR, message);
-
+			error("Parsing manifest metadata for " + m_File + " - FAILED ",e);
 		}
+		
 		return null;
 	}
 
+	public JarFile getJarFile() {
+		try {
+			return new JarFile(m_File);
+		} catch (IOException e) {
+			error(e);
+			return null;
+		}
+	}
+
+	public Manifest getManifest() {
+		return m_Manifest;
+	}
+
+	private void error(Throwable cause) {
+		error(cause.getMessage(),cause);
+	}
+
+	private void error(String message, Throwable cause) {
+		m_ErrorHandler.error(Severity.ERROR, message);
+		if (cause != null)
+			logger.error(cause);
+	}
+
+	private void info(String message) {
+		logger.info(message);
+	}
 }
