@@ -22,7 +22,9 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>x3d.bundle</artifactId>
+			<scope>system</scope>
 			<version>1.0</version>
+			<systemPath>${basedir}/lib/org.osgi.x3d_-_bundle_1.0.1.jar</systemPath>
 		</dependency>
 		
 	</dependencies>
