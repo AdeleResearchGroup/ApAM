@@ -15,9 +15,52 @@ public class perfWire implements Runnable, ApamComponent, PerfWireSpec {
 	S1 simpleDep ;
 	S1 constraintDep ;
 	S1 preferenceDep ;
-	//S1 testSimple ;
+    //S1 testSimple ;
 	Instance thisInstance ;
 	S1 testReaction ;
+
+    //Getter to automate the test using pax
+    public S1 getFieldSimpleDep() {
+        return simpleDep;
+    }
+
+    //Setter to automate the test using pax
+    public void resetFieldSimpleDep() {
+        simpleDep = null;
+    }
+
+
+
+    //Getter to automate the test using pax
+    public S1 getFieldConstraintDep() {
+        return constraintDep;
+    }
+
+    //Setter to automate the test using pax
+    public void resetFieldConstraintDep() {
+        constraintDep = null;
+    }
+
+
+    //Getter to automate the test using pax
+    public S1 getFieldPreferenceDep() {
+        return preferenceDep;
+    }
+    //Setter to automate the test using pax
+    public void resetFieldPreferenceDep() {
+        preferenceDep = null;
+    }
+
+
+    //Getter to automate the test using pax
+    public S1 getFieldTestReaction() {
+        return testReaction;
+    }
+
+    //Getter to automate the test using pax
+    public Instance getFieldThisInstance() {
+        return thisInstance;
+    }
 
 
     @Override
@@ -135,7 +178,7 @@ public class perfWire implements Runnable, ApamComponent, PerfWireSpec {
 				deb = System.nanoTime();
 				//			System.out.println(testPerf.getName());
 
-                //TODO: PAxizer ce test (le for)
+                // PAxizer ce test (le for) : Fait !
 				for (int i = 0; i < nb; i++) {
 					test = CST.componentBroker.getInstService(simpleDep) ;
 					test.setProperty("debit", 2) ;
@@ -235,7 +278,7 @@ public class perfWire implements Runnable, ApamComponent, PerfWireSpec {
 	public void run() {
 		System.out.println("Starting test perf Link");
 		
-		resolWithInstantiation () ;
+//		resolWithInstantiation () ;
 //		testReactionSimple () ;
 //		testReaction () ;
 //		testPerfLink  () ;

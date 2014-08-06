@@ -118,13 +118,6 @@
         </dependency>
 
         <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>MainApamSpec</artifactId>
-            <scope>compile</scope>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <artifactId>apam-universal-shell</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
             <version>${project.version}</version>
@@ -133,6 +126,38 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>S1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>S2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>S5</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>TestAttrSpec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>MainApamSpec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>MainApam</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
