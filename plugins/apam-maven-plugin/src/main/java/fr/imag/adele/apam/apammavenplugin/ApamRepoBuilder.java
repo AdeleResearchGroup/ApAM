@@ -49,11 +49,8 @@ public class ApamRepoBuilder {
 	 * Metadata (in internal format).
 	 */
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ApamRepoBuilder.class);
-
-	private final Set<SpecificationReference> bundleRequiresSpecifications = new HashSet<SpecificationReference>();
-	private final Set<ImplementationReference> bundleRequiresImplementations = new HashSet<ImplementationReference>();
+	private final Set<SpecificationReference> 		bundleRequiresSpecifications 	= new HashSet<SpecificationReference>();
+	private final Set<ImplementationReference<?>> 	bundleRequiresImplementations 	= new HashSet<ImplementationReference<?>>();
 
 	private static List<ComponentDeclaration> components;
 
@@ -138,7 +135,8 @@ public class ApamRepoBuilder {
 		if (component instanceof SpecificationDeclaration) {
 			type = "specification ";
 		}
-		logger.info("Checking " + type + component.getName() + " ...");
+		
+		CheckObr.info("Checking " + type + component.getName() + " ...");
 
 		// headers
 		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT

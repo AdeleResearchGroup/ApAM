@@ -9,7 +9,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>home</artifactId>
 
 	<packaging>bundle</packaging>

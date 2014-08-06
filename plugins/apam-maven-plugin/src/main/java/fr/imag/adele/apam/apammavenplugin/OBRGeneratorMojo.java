@@ -16,47 +16,32 @@ package fr.imag.adele.apam.apammavenplugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
 import org.apache.felix.ipojo.manipulator.store.JarFileResourceStore;
-import org.apache.felix.ipojo.manipulator.store.ManifestBuilder;
 import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.parser.ManifestMetadataParser;
-import org.apache.felix.ipojo.parser.ParseException;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import fr.imag.adele.apam.apammavenplugin.helpers.EnrichElementsHelper;
 import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.util.ApamMavenProperties;
-import fr.imag.adele.apam.util.CoreMetadataParser;
-import fr.imag.adele.apam.util.CoreParser;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
 /**
@@ -78,8 +63,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	public static Map<String, VersionRange> versionRange = new HashMap<String, VersionRange>();
 
 	public static String thisBundleVersion;
-
-	Logger logger = LoggerFactory.getLogger(OBRGeneratorMojo.class);
 
 	/**
 	 * The Maven project.
@@ -147,17 +130,14 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 			super.execute();
 
-			JarHelper myHelper = new JarHelper(artifact.getFile(), this);
+			JarHelper myHelper = new JarHelper(artifact.getFile(), this, getLog());
 
-			getLog().info(" ApAM bundle header manipulation");
+			getLog().info("ApAM metadata manipulator");
 
 			// The jar to compile
-			List<ComponentDeclaration> components = myHelper
-					.getApAMComponents();
-			myHelper.getRootiPojoElement();
-
+			List<ComponentDeclaration> components = myHelper.getApAMComponents();
 			if (components.isEmpty()) {
-				throw new InvalidApamMetadataException();
+				throw new InvalidApamMetadataException("No Apam metadata");
 			}
 
 			classpathDescriptor.add(artifact.getFile());
@@ -171,34 +151,51 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			 */
 			versionRange.clear();
 
-			/*
-			 * loop dependencies (from maven project, these are not all ApAM
-			 * components)
-			 */
 
+			
+			/*
+			 * Get all COMPILE scope dependencies transitively
+			 * 
+			 */
+			Set<Artifact> requiredArtifacts = new HashSet<Artifact>();
 			for (Object artifact : project.getArtifacts()) {
 				if (artifact instanceof Artifact) {
+					requiredArtifacts.add((Artifact) artifact);
+				}				
+			}
 
-					Artifact relation = (Artifact) artifact;
+			/*
+			 * Add also directly referenced SYSTEM scope dependencies, as they may
+			 * contain required declarations or classes
+			 */
+			for (Object dependency : project.getDependencyArtifacts()) {
+				if (artifact instanceof Artifact) {
+					Artifact artifact = (Artifact) dependency;
+					if ("system".equalsIgnoreCase(artifact.getScope())) {
+						requiredArtifacts.add((Artifact) artifact);
+					}
+				}				
+			}
+			
+			/*
+			 * Load APAM declarations from required artifacts and calculate a classpath to look for
+			 * referenced classes
+			 */
+			for (Artifact requiredArtifact : requiredArtifacts) {
 
-					VersionRange range = relation.getVersionRange();
+					VersionRange range = requiredArtifact.getVersionRange();
 
-					OBRGeneratorMojo.versionRange.put(relation.getArtifactId(),
-							range);
+					OBRGeneratorMojo.versionRange.put(requiredArtifact.getArtifactId(), range);
 
-					// JarHelper helper = new JarHelper(this);
-
-					List<ComponentDeclaration> subcomponents = new JarHelper(
-							((Artifact) artifact).getFile(), this)
-							.getApAMComponents();
-
+					List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this, getLog()).getApAMComponents();
 					if (subcomponents != null)
 						dependencies.addAll(subcomponents);
 
-					classpathDescriptor.add(relation.getFile());
-				}
+					classpathDescriptor.add(requiredArtifact.getFile());
 			}
 
+			CheckObr.setLogger(getLog());
+			
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
@@ -257,8 +254,16 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 	@Override
 	public void error(Severity severity, String message) {
-		logger.error("error parsing component declaration : " + message);
-		parsingFailed = true;
+		switch (severity) {
+		case ERROR : 
+			getLog().error("error parsing component declaration : " + message);
+			parsingFailed = true;
+			break;
+		case WARNING : 
+		case SUSPECT :
+			getLog().info("warning parsing component declaration : " + message);
+			break;
+		}
 	}
 
 	public void updateJarFile(JarHelper myHelper) throws MojoExecutionException {
@@ -269,14 +274,13 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 				newOutput.delete();
 			}
 
-			JarFileResourceStore store = new JarFileResourceStore(
-					myHelper.getJarFile(), newOutput);
+			JarFileResourceStore store = new JarFileResourceStore(myHelper.getJarFile(), newOutput);
 			store.setManifest(myHelper.getManifest());
 
 			DefaultManifestBuilder builder = new DefaultManifestBuilder();
 			builder.setMetadataRenderer(new MetadataRenderer());
 
-			Element metadata = myHelper.getRootiPojoElement();
+			Element metadata = myHelper.getiPojoMetadata();
 			Set<PropertyDefinition> addedDefinitions = new HashSet<PropertyDefinition>();
 			Map<String, String> addedProperties = new HashMap<String, String>();
 

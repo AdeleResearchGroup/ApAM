@@ -19,7 +19,7 @@
      	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      	xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
      	
-      	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd
+      	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd
                           http://www.osgi.org/xmlns/scr/v1.1.0 http://www.osgi.org/xmlns/scr/v1.1.0">
                      
