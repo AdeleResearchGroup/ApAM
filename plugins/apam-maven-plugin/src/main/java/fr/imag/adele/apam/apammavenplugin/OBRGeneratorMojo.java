@@ -17,6 +17,7 @@ package fr.imag.adele.apam.apammavenplugin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +52,6 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  * @extendsPlugin maven-ipojo-plugin
  * @goal apam-bundle
  * @extendsGoal ipojo-bundle
- * @phase package
  * @requiresrelationResolution runtime
  * @description manipulate an OSGi bundle jar to include the obr.xml file and
  *              build APAM bundle
@@ -63,6 +63,14 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	public static Map<String, VersionRange> versionRange = new HashMap<String, VersionRange>();
 
 	public static String thisBundleVersion;
+
+    /**
+     * ACR Repository (ApAM Component Repository)
+     *
+     * @parameter
+     */
+    private URL[] acrs;
+
 
 	/**
 	 * The Maven project.
@@ -116,8 +124,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	 *             : an exception occurs during the OBR generation..
 	 * 
 	 */
-	@Override
 	public void execute() throws MojoExecutionException {
+        for(int i=0;acrs!=null&&i<acrs.length;i++)
+            getLog().info("execute(), input ACR : " + acrs[i]);
+
 
 		currentProjectArtifactId = project.getArtifact().getArtifactId();
 		currentProjectGroupId = project.getArtifact().getGroupId();
@@ -151,8 +161,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			 */
 			versionRange.clear();
 
-
-			
 			/*
 			 * Get all COMPILE scope dependencies transitively
 			 * 
@@ -240,7 +248,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			// ObrAdditionalProperties.parseFile(obrFile,getLog());
 			// System.err.println("Obr file : " + obrFile.getAbsolutePath());
 			obr.close();
-			
+
 			updateJarFile(myHelper);
 
 		} catch (Exception e) {

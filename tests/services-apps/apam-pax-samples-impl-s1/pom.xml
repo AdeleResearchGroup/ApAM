@@ -50,6 +50,7 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
+                <extensions>true</extensions>
 			</plugin>
 
 		</plugins>

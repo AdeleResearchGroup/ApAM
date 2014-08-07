@@ -76,10 +76,12 @@
 			<scope>compile</scope>
 			<type>maven-plugin</type>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
 		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

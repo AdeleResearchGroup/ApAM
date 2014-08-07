@@ -19,16 +19,21 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-            </plugin>
+
             <plugin>
                 <groupId>fr.imag.adele.apam</groupId>
                 <artifactId>apam-maven-plugin</artifactId>
+                <extensions>true</extensions>
 
+                <configuration>
+                        <targetACR>/Users/thibaud/tmp/toto.xml</targetACR>
+                        <acrs>
+                            <repository>file://fie1</repository>
+                            <repository>http://fie2</repository>
+                            <repository>http://fie3</repository>
+                        </acrs>
+                </configuration>
             </plugin>
-
         </plugins>
     </build>
 

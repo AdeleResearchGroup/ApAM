@@ -21,6 +21,7 @@ target
 # apam
 
 obr.xml
+acr.xml
 *-repo.xml
 ~*
 app-store.xml
