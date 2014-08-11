@@ -17,6 +17,7 @@ package fr.imag.adele.apam.apammavenplugin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -81,6 +83,15 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	 */
 	private MavenProject project;
 
+    /**
+     * Local Repository.
+     *
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository localRepository;
+
 	/**
 	 * The project groupID
 	 */
@@ -117,7 +128,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	 */
 	public static ClasspathDescriptor classpathDescriptor;
 
-	/**
+    public static final String DEFAULT_OBR_XML = "repository.xml";
+
+
+    /**
 	 * Execute method : this method launches the OBR generation.
 	 * 
 	 * @throws MojoExecutionException
@@ -125,8 +139,27 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	 * 
 	 */
 	public void execute() throws MojoExecutionException {
-        for(int i=0;acrs!=null&&i<acrs.length;i++)
+
+        if(acrs==null ||acrs.length<1) {
+            getLog().info("No acrs repository URL specified, using the local maven repository");
+            try {
+                //TODO: Check if another local repository has been specified (with other filename than repository.xml)
+                acrs = new URL[1];
+                acrs[0] = new URL(localRepository.getUrl()+ DEFAULT_OBR_XML);
+            }catch (MalformedURLException exc) {
+                throw new MojoExecutionException("Malformed URL for local OBR Repository : "+localRepository.getBasedir() + DEFAULT_OBR_XML);
+            }
+        }
+        for(int i=0;i<acrs.length;i++)
             getLog().info("execute(), input ACR : " + acrs[i]);
+
+        try {
+            StandaloneACRResolver acrResolver = new StandaloneACRResolver(acrs, getLog());
+            ApamCapabilityBroker.setStandaloneACRResolver(acrResolver);
+        } catch (Exception exc) {
+            exc.printStackTrace();
+            throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());
+        }
 
 
 		currentProjectArtifactId = project.getArtifact().getArtifactId();

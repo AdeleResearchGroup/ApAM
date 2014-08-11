@@ -37,10 +37,7 @@ import fr.imag.adele.apam.util.CoreMetadataParser;
 
 public class ApamCapability {
 
-	private static Map<String, ApamCapability> capabilities = new HashMap<String, ApamCapability>();
-	private static Set<String> missing = new HashSet<String>();
-
-	public ComponentDeclaration dcl = null;
+	private ComponentDeclaration dcl = null;
 	private boolean isFinalized = false;
 
 	private Map<String, String> properties;
@@ -48,15 +45,11 @@ public class ApamCapability {
 	private Map<String, String> propertiesDefaults = new HashMap<String, String>();
 	private Map<String, String> finalProperties = new HashMap<String, String>();
 
-	// Only to return a true value
-	public static ApamCapability trueCap = new ApamCapability();
-
-	private ApamCapability() {
+	public ApamCapability() {
 	};
 
 	public ApamCapability(ComponentDeclaration dcl) {
 		this.dcl = dcl;
-		capabilities.put(dcl.getName(), this);
 		properties = dcl.getProperties();
 
 		for (PropertyDefinition definition : dcl.getPropertyDefinitions()) {
@@ -67,75 +60,8 @@ public class ApamCapability {
 		}
 	}
 
-	public static void init(List<ComponentDeclaration> components,
-			List<ComponentDeclaration> dependencies) {
-		capabilities.clear();
-		missing.clear();
-		for (ComponentDeclaration dcl : components) {
-			new ApamCapability(dcl);
-		}
-		for (ComponentDeclaration dcl : dependencies) {
-			if (!capabilities.containsKey(dcl.getName()))
-				new ApamCapability(dcl);
-		}
-	}
-
-	public static ApamCapability get(String name) {
-		if (name == null) {
-			return null;
-		}
-		ApamCapability cap = capabilities.get(name);
-		if (cap == null && !missing.contains(name)) {
-			missing.add(name);
-			CheckObr.error("Component " + name
-					+ " is not in your Maven dependencies.");
-		}
-		return cap;
-	}
-
-	public static ApamCapability get(ComponentReference<?> reference) {
-		if (reference == null) {
-			return null;
-		}
-		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-			return null;
-		}
-
-		ApamCapability cap = capabilities.get(reference.getName());
-		if (cap == null && !missing.contains(reference.getName())) {
-			missing.add(reference.getName());
-			CheckObr.error("Component " + reference.getName()
-					+ " is not in your Maven dependencies.");
-		}
-		return cap;
-	}
-
-	public static ComponentDeclaration getDcl(String name) {
-		if (name == null) {
-			return null;
-		}
-		if (name.equals(CoreMetadataParser.UNDEFINED)) {
-			return null;
-		}
-
-		if (capabilities.get(name) != null) {
-			return capabilities.get(name).dcl;
-		}
-		return null;
-	}
-
-	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
-		if (reference == null) {
-			return null;
-		}
-		if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-			return null;
-		}
-
-		if (capabilities.get(reference.getName()) != null) {
-			return capabilities.get(reference.getName()).dcl;
-		}
-		return null;
+	public ComponentDeclaration getDcl() {
+        return dcl;
 	}
 
 	/**
@@ -203,18 +129,18 @@ public class ApamCapability {
 	}
 
 	public String getAttrDefinition(String name) {
-		ApamCapability group = this;
+		ApamCapability parent = this;
 		name = name.toLowerCase() ;
 		String defAttr;
 		if (Attribute.isFinalAttribute(name)) {
 			return "string";
 		}
-		while (group != null) {
-			defAttr = group.getLocalAttrDefinition(name);
+		while (parent != null) {
+			defAttr = parent.getLocalAttrDefinition(name);
 			if (defAttr != null) {
 				return defAttr;
 			}
-			group = group.getGroup();
+            parent = parent.getGroup();
 		}
 		return null;
 	}
@@ -242,19 +168,7 @@ public class ApamCapability {
 	}
 
 	public ApamCapability getGroup() {
-		if (dcl instanceof SpecificationDeclaration) {
-			return null;
-		}
-		if (dcl instanceof ImplementationDeclaration) {
-			if (((ImplementationDeclaration) dcl).getSpecification() == null) {
-				return null;
-			}
-			return get(((ImplementationDeclaration) dcl).getSpecification());
-		}
-		if (dcl instanceof InstanceDeclaration) {
-			return get(((InstanceDeclaration) dcl).getImplementation());
-		}
-		return null;
+        return ApamCapabilityBroker.getGroup(getName());
 	}
 
 	public String getName() {

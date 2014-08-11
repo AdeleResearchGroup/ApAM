@@ -68,7 +68,7 @@ public class ApamRepoBuilder {
 	public ApamRepoBuilder(List<ComponentDeclaration> components,
 			List<ComponentDeclaration> dependencies) {
 		ApamRepoBuilder.components = components;
-		ApamCapability.init(components, dependencies);
+		ApamCapabilityBroker.init(components, dependencies);
 	}
 
 	public StringBuffer writeOBRFile() {
@@ -204,7 +204,7 @@ public class ApamRepoBuilder {
 
 		generateTypedProperty(obrContent, component, "version", "version",
 				OBRGeneratorMojo.thisBundleVersion);
-		ApamCapability.get(component.getReference()).freeze();
+        ApamCapabilityBroker.get(component.getReference()).freeze();
 		obrContent.append("   </capability>\n");
 	}
 
@@ -341,7 +341,7 @@ public class ApamRepoBuilder {
 
 	private void generateProperty(StringBuffer obrContent,
 			ComponentDeclaration component, String attr, String value) {
-		if (ApamCapability.get(component.getReference()).putAttr(attr, value)) {
+		if (ApamCapabilityBroker.get(component.getReference()).putAttr(attr, value)) {
 			obrContent.append(BEGIN_P + attr + ATT_V + value + END_P);
 			return;
 		}
@@ -356,7 +356,7 @@ public class ApamRepoBuilder {
 			value = "";
 		}
 
-		if (ApamCapability.get(component.getReference()).putAttr(attr, value)) {
+		if (ApamCapabilityBroker.get(component.getReference()).putAttr(attr, value)) {
 			obrContent.append(BEGIN_P + attr + "' t='" + type + ATT_V + value
 					+ END_P);
 			return;
@@ -437,7 +437,7 @@ public class ApamRepoBuilder {
 		for (ComponentDeclaration comp : new ArrayList<ComponentDeclaration>(
 				components)) {
 
-			ApamCapability existingDefinition = ApamCapability.get(comp
+			ApamCapability existingDefinition = ApamCapabilityBroker.get(comp
 					.getReference());
 
 			/*

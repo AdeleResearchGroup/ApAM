@@ -90,7 +90,7 @@ public final class AttributeCheckHelpers {
 		 */
 		ApamCapability group = entCap.getGroup();
 		if (group != null && group.getProperties() != null) {
-			if (group.dcl instanceof ImplementationDeclaration
+			if (group.getDcl() instanceof ImplementationDeclaration
 					&& !group.getProperties().containsKey(CST.IMPLNAME)) {
 				group.putAttr(CST.IMPLNAME, group.getName());
 			}
@@ -132,7 +132,6 @@ public final class AttributeCheckHelpers {
 
 	/**
 	 * @param component
-	 * @param name
 	 * @param group
 	 */
 	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group) {
