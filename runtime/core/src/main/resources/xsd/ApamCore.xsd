@@ -105,7 +105,8 @@
 			<xs:attributeGroup ref="basicComponentAttributes" />
 			<xs:attribute name="classname" type="xs:string" use="required" />
 			<xs:attribute name="push" type="xs:string" use="optional" />
-			<xs:attribute name="specification" type="xs:string" use="optional" />
+            <xs:attribute name="specification" type="xs:string" use="optional"/>
+            <xs:attribute name="specification-version" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 
@@ -125,6 +126,7 @@
 			</xs:choice>
 			<xs:attribute name="implementation" type="xs:string"
 				use="required" />
+            <xs:attribute name="implementation-version" type="xs:string" use="optional"/>
 			<xs:attribute name="name" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
@@ -189,7 +191,9 @@
 				</xs:element>
 			</xs:choice>
 			<xs:attribute name="main" type="xs:string" use="optional" />
+            <xs:attribute name="main-version" type="xs:string" use="optional" />
 			<xs:attribute name="specification" type="xs:string" use="optional" />
+            <xs:attribute name="specification-version" type="xs:string" use="optional" />
 			<xs:attributeGroup ref="basicComponentAttributes" />
 		</xs:complexType>
 	</xs:element>
@@ -389,6 +393,7 @@
 				maxOccurs="1" />
 		</xs:choice>
 		<xs:attribute name="implementation" type="xs:string" use="required" />
+        <xs:attribute name="implementation-version" type="xs:string" use="optional" />
 		<xs:attribute name="name" type="xs:string" use="required" />
 	</xs:complexType>
 
@@ -482,7 +487,9 @@
 	<xs:attributeGroup name="basicRelationAttributes">
 		<xs:attribute name="name" type="xs:string" use="optional" />
 		<xs:attribute name="specification" type="xs:string" use="optional" />
+        <xs:attribute name="specification-version" type="xs:string" use="optional" />
 		<xs:attribute name="implementation" type="xs:string" use="optional" />
+        <xs:attribute name="implementation-version" type="xs:string" use="optional" />
 		<xs:attribute name="interface" type="xs:string" use="optional" />
 		<xs:attribute name="message" type="xs:string" use="optional" />
         <xs:attribute name="package" type="xs:string" use="optional" />
@@ -544,9 +551,11 @@
 
 	<xs:attributeGroup name="overrideRelationAttributes">
 		<xs:attribute name="specification" type="xs:string" use="optional" />
+        <xs:attribute name="specification-version" type="xs:string" use="optional" />
 		<xs:attribute name="interface" type="xs:string" use="optional" />
 		<xs:attribute name="message" type="xs:string" use="optional" />
 		<xs:attribute name="implementation" type="xs:string" use="optional" />
+        <xs:attribute name="implementation-version" type="xs:string" use="optional" />
 		<xs:attribute name="name" type="xs:string" use="optional" />
 		<xs:attribute name="exception" type="xs:string" use="optional" />
 		<xs:attribute name="sourceKind" type="apamKindType" use="optional" />
