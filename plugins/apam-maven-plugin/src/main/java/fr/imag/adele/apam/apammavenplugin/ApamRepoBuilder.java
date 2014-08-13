@@ -150,6 +150,11 @@ public class ApamRepoBuilder {
 					component.getName());
 		}
 
+        if (component instanceof AtomicImplementationDeclaration) {
+            generateProperty(obrContent, component, CST.PROVIDE_CLASSNAME,
+                    ((AtomicImplementationDeclaration) component).getClassName());
+        }
+
 		if (component instanceof InstanceDeclaration) {
 			generateProperty(obrContent, component, CST.COMPONENT_TYPE,
 					CST.INSTANCE);
@@ -187,6 +192,8 @@ public class ApamRepoBuilder {
 
 		// properties
 		printProperties(obrContent, component);
+
+        printRelations(obrContent, component);
 
 		// Require, fields and constraints
 		printRequire(obrContent, component);
@@ -265,6 +272,20 @@ public class ApamRepoBuilder {
 
 		}
 	}
+
+    private void printRelations(StringBuffer obrContent,
+                                 ComponentDeclaration component) {
+        Set<RelationDeclaration> relations = component.getDependencies();
+        if(relations !=null && relations.size()>0) {
+            for (RelationDeclaration rel : relations) {
+                obrContent.append(BEGIN_P + CST.RELATION_PREFIX+rel.getIdentifier()
+                        + ATT_V + rel.getTarget().getName() + END_P);
+            }
+        }
+
+
+    }
+
 
 	private void printProperties(StringBuffer obrContent,
 			ComponentDeclaration component) {

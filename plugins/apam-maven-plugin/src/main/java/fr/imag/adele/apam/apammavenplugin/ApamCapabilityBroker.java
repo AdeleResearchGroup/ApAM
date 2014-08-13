@@ -1,8 +1,6 @@
 package fr.imag.adele.apam.apammavenplugin;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.*;
-import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import org.apache.felix.bundlerepository.Resource;
 
@@ -16,15 +14,17 @@ public class ApamCapabilityBroker {
     private static Map<String, ApamCapability> internalCapabilities = new HashMap<String, ApamCapability>();
     private static Map<String, ApamCapability> externalCapabilities = new HashMap<String, ApamCapability>();
 
+    private static Map<String, List<String>> capabilityVersions = new HashMap<String, List<String>>();
+
     private static Set<String> missing = new HashSet<String>();
 
 
     // Only to return a true value
     public static ApamCapability trueCap = new ApamCapability();
 
-    private static StandaloneACRResolver acrResolver;
+    private static StandaloneACRParser acrResolver;
 
-    public static void setStandaloneACRResolver(StandaloneACRResolver acrResolver) {
+    public static void setStandaloneACRResolver(StandaloneACRParser acrResolver) {
         ApamCapabilityBroker.acrResolver=acrResolver;
     }
 
@@ -37,12 +37,18 @@ public class ApamCapabilityBroker {
                             List<ComponentDeclaration> dependencies) {
         internalCapabilities.clear();
         externalCapabilities.clear();
+        capabilityVersions.clear();
         missing.clear();
-        for (ComponentDeclaration dcl : components) {
-            internalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
+        if(components!=null) {
+            for (ComponentDeclaration dcl : components) {
+                internalCapabilities.put(dcl.getName(), new ApamCapability(dcl));
+            }
         }
-        for (ComponentDeclaration dcl : dependencies) {
-            externalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
+
+        if(dependencies!= null) {
+            for (ComponentDeclaration dcl : dependencies) {
+                externalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
+            }
         }
     }
 
@@ -65,15 +71,15 @@ public class ApamCapabilityBroker {
 
         // Step 3 : try to find the dependency inside the OBR/ACR
         if(cap ==null &&acrResolver!= null) {
-            acrResolver.getApAMComponentResource(name,null);
+//            acrResolver.getApAMComponentResource(name,null);
 
 
             // Not inside this component, check if it exists in the ACRs
             // TODO check there in the ACR (and by default in local if no ACR specified)
             // Un problème avec les versions, on ne peux pas récupérer la version d'une dépendance ?
-
-            Resource res = acrResolver.getApAMComponentResource(name, null);
-            if(res!=null) {
+            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilities(name, null)) {
+                externalCapabilities.put(singlecap.getName(), singlecap);
+            }
 
                 //TODO try to build those allowedType props from metadatas
 //                    allowedTypes.addAll(cap.getProvideResources());
@@ -83,9 +89,6 @@ public class ApamCapabilityBroker {
 //                    if (implementationClass != null)
 //                        allowedTypes.add(new ImplementatioClassReference(
 //                                implementationClass));
-            }
-
-
             cap = externalCapabilities.get(name);
         }
 

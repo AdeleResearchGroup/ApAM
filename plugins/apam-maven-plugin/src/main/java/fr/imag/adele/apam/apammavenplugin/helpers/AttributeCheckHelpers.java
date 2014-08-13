@@ -176,7 +176,7 @@ public final class AttributeCheckHelpers {
 							+ " not equal " + groupType);
 					return false;
 				}
-				if (group.getAttrDefault(name) != null) {
+				if (group.getAttrDefault(name) != null && group.getAttrDefault(name).length()>0) {
 					CheckObr.error("Cannot refine property definition with a default value properties "
 							+ name + "=" + group.getAttrDefault(name));
 					return false;

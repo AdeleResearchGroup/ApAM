@@ -154,7 +154,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
             getLog().info("execute(), input ACR : " + acrs[i]);
 
         try {
-            StandaloneACRResolver acrResolver = new StandaloneACRResolver(acrs, getLog());
+            StandaloneACRParser acrResolver = new StandaloneACRParser(acrs, getLog());
             ApamCapabilityBroker.setStandaloneACRResolver(acrResolver);
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -236,7 +236,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			}
 
 			CheckObr.setLogger(getLog());
-			
+			dependencies.clear();
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
