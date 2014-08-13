@@ -33,7 +33,7 @@
                     <configuration>
                         <targetACR>${basedir}/../../../repositories/public.components/obr/app-store.xml</targetACR>
                         <acrs>
-                            <repository>file://${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
+                            <repository>${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
                         </acrs>
                     </configuration>
                 </plugin>

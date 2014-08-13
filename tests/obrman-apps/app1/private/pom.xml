@@ -37,9 +37,9 @@
                     <configuration>
                         <targetACR>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</targetACR>
                         <acrs>
-                            <repository>file://${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</repository>
-                            <repository>file://${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
-                        </acrs>
+                            <repository>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</repository>
+                            <repository>${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
+                </acrs>
                     </configuration>
                 </plugin>
 			</plugins>

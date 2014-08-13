@@ -25,6 +25,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -125,7 +126,11 @@ public final class ACRInstallMojo extends AbstractMojo {
 
         // fall-back to file-system approach
         if (null == uri || !uri.isAbsolute()) {
-            uri = new File(targetPath).toURI();
+            try {
+                uri = new File(targetPath).getCanonicalFile().toURI();
+            }catch(IOException exc) {
+                uri=null;
+            }
         }
         return uri;
     }

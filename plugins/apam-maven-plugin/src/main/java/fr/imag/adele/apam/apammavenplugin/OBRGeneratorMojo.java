@@ -71,7 +71,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
      *
      * @parameter
      */
-    private URL[] acrs;
+    private String[] acrs;
 
 
 	/**
@@ -142,19 +142,25 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
         if(acrs==null ||acrs.length<1) {
             getLog().info("No acrs repository URL specified, using the local maven repository");
-            try {
                 //TODO: Check if another local repository has been specified (with other filename than repository.xml)
-                acrs = new URL[1];
-                acrs[0] = new URL(localRepository.getUrl()+ DEFAULT_OBR_XML);
-            }catch (MalformedURLException exc) {
-                throw new MojoExecutionException("Malformed URL for local OBR Repository : "+localRepository.getBasedir() + DEFAULT_OBR_XML);
-            }
+                acrs = new String[1];
+                acrs[0] = new String(localRepository.getUrl()+ DEFAULT_OBR_XML);
+
         }
-        for(int i=0;i<acrs.length;i++)
-            getLog().info("execute(), input ACR : " + acrs[i]);
+        URL[] tab_acr=new URL[acrs.length];
+        for(int i=0;i<acrs.length;i++) {
+            try {
+                tab_acr[i] = ACRInstallMojo.getTargetACR(acrs[i]).toURL();
+                getLog().info("execute(), input ACR : " + tab_acr[i]);
+
+            } catch(MalformedURLException exc) {
+                exc.printStackTrace();
+                throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());            }
+        }
+
 
         try {
-            StandaloneACRParser acrResolver = new StandaloneACRParser(acrs, getLog());
+            StandaloneACRParser acrResolver = new StandaloneACRParser(tab_acr, getLog());
             ApamCapabilityBroker.setStandaloneACRResolver(acrResolver);
         } catch (Exception exc) {
             exc.printStackTrace();
