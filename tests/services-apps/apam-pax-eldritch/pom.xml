@@ -26,12 +26,6 @@
                 <extensions>true</extensions>
 
                 <configuration>
-                        <targetACR>/Users/thibaud/tmp/toto.xml</targetACR>
-                        <acrs>
-                            <repository>file://fie1</repository>
-                            <repository>http://fie2</repository>
-                            <repository>http://fie3</repository>
-                        </acrs>
                 </configuration>
             </plugin>
         </plugins>
