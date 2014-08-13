@@ -24,6 +24,18 @@
                         <obrRepository>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</obrRepository>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>fr.imag.adele.apam</groupId>
+                    <artifactId>apam-maven-plugin</artifactId>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <targetACR>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</targetACR>
+                        <acrs>
+                            <repository>file://${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</repository>
+                            <repository>file://${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
+                        </acrs>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

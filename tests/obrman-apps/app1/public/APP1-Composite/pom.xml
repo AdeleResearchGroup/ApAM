@@ -36,11 +36,7 @@
 	</build>
 
         <dependencies>
-            <dependency>
-                <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-                <artifactId>APP1-MainImpl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
         </dependencies>
 
 
