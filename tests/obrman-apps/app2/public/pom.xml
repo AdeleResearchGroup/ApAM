@@ -31,8 +31,9 @@
                     <artifactId>apam-maven-plugin</artifactId>
                     <extensions>true</extensions>
                     <configuration>
-                        <targetACR>${basedir}/../../../repositories/public.components/obr/app-store.xml</targetACR>
+                        <targetACR>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</targetACR>
                         <acrs>
+                            <repository>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</repository>
                             <repository>${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
                         </acrs>
                     </configuration>

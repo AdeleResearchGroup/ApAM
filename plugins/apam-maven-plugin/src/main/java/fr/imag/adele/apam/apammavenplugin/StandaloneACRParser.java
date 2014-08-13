@@ -46,18 +46,23 @@ public class StandaloneACRParser {
                 }
             }
             if (repoAdmin.listRepositories().length < 1) {
-                throw new Exception("No valid repository");
+                logger.warn("No valid repository");
             }
 
 
         } else {
-            throw new Exception("No repository URLs specified");
+            logger.warn("No repository URLs specified");
         }
     }
 
     public static List<ApamCapability> getApAMCapabilities(String name, VersionRange versions) {
 
         List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
+
+        if(repoAdmin == null || repoAdmin.listRepositories() == null || repoAdmin.listRepositories().length<1) {
+            logger.warn("No valid repository, returning empty capability list");
+            return capabilities;
+        }
 
         // TODO: add checking of the version,
         // si non spécifié explicitement, toutes les versions conviennent
