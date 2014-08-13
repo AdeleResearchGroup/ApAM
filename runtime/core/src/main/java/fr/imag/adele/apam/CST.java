@@ -51,6 +51,7 @@ public class CST {
 	public static final String INSTANCE = "instance";
 	public static final String APAM_PREFIX = "apam-";
 	public static final String DEFINITION_PREFIX = "definition-";
+    public static final String RELATION_PREFIX = "relation-";
 	public static final String PROVIDE_PREFIX = "provide-";
 	public static final String REQUIRE_PREFIX = "require-";
 	public static final String REQUIRE_INTERFACE = "require-interface";
@@ -58,6 +59,8 @@ public class CST {
 	public static final String REQUIRE_MESSAGE = "require-message";
 	public static final String PROVIDE_INTERFACES = "provide-interfaces";
 	public static final String PROVIDE_MESSAGES = "provide-messages";
+    public static final String PROVIDE_CLASSNAME = "provide-classname";
+
 	public static final String PROVIDE_SPECIFICATION = "provide-specification";
 
 	public static final String NAME = "name";
@@ -74,12 +77,12 @@ public class CST {
 
 	// These prefix cannot be used by users because they would conflict in the
 	// OBR.
-	public static final String[] reservedPrefix = { CST.APAM_PREFIX, CST.DEFINITION_PREFIX, CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX };
+	public static final String[] reservedPrefix = { CST.APAM_PREFIX, CST.DEFINITION_PREFIX, CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX, CST.RELATION_PREFIX };
 
 	public static final String[] notInheritedAttribute = { NAME, COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
 
 	// Attributes that cannot be changed nor set by users
-	public static final String[] finalAttributes = { CST.NAME, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON };
+	public static final String[] finalAttributes = { CST.NAME, CST.COMPONENT_TYPE, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.PROVIDE_CLASSNAME, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON };
 
 	// Attributes set during the build that cannot be changed nor set by users
 	public static final String[] buildAttributes = { CST.buildMavenGroupId, CST.buildMavenArtifactId, CST.buildMavenVersion, CST.buildApamVersion, CST.buildVersion};

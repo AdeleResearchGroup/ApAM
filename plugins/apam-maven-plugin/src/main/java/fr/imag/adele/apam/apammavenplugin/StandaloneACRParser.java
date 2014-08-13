@@ -9,7 +9,9 @@ import org.osgi.framework.*;
 import org.apache.felix.utils.log.Logger;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -22,13 +24,13 @@ import static org.mockito.Mockito.when;
  * RepositoryAdmin and Resolver behavior (from OBR BundleRepository)
  * WITHOUT OSGi running (BundleContext is mocked and OSGi services won't be provided)
  */
-public class StandaloneACRResolver {
+public class StandaloneACRParser {
 
     private static Log logger;
 
     RepositoryAdmin repoAdmin;
 
-    public StandaloneACRResolver(URL[] repositories, Log logger) throws Exception {
+    public StandaloneACRParser(URL[] repositories, Log logger) throws Exception {
         if (repositories != null && repositories.length > 0) {
             this.logger = logger;
             repoAdmin = createRepositoryAdmin(repositories[0].toExternalForm());
@@ -50,7 +52,10 @@ public class StandaloneACRResolver {
         }
     }
 
-    public Resource getApAMCapabilities(String name, VersionRange versions) {
+    public List<ApamCapability> getApAMCapabilities(String name, VersionRange versions) {
+
+        List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
+
         // TODO: add checking of the version,
         // si non spécifié explicitement, toutes les versions conviennent
         // (au contraire, il faudra les rajouter dans le filtre)
@@ -69,7 +74,34 @@ public class StandaloneACRResolver {
         for(Resource res : resources) {
             logger.info("Resource found : "+res.getId());
 
-            return res;
+            // TODO, zut, vu que l'on utilise le nom comme clef, on ne peux pas avoir plusieurs version du même composant
+
+
+            return null;
+
+
+            // switch sur le type de composant, ensuite création de la component declaration correspondantes
+            // il manquera à priori les relations et les heritages de properties
+
+
+
+            this.name = name;
+
+            this.isInstantiable = true;
+            this.isExclusive = false;
+            this.isSingleton = false;
+            this.isShared = true;
+            this.isDefinedInstantiable = false;
+            this.isDefinedExclusive = false;
+            this.isDefinedSingleton = false;
+            this.isDefinedShared = false;
+
+            reference = generateReference();
+            properties = new HashMap<String, String>();
+            providedResources = new HashSet<ResourceReference>();
+            relations = new HashSet<RelationDeclaration>();
+            predefinedLinks = new HashSet<LinkDeclaration>();
+            definitions = new ArrayList<PropertyDefinition>();
 
 
             //Does not try to call resolver because:
