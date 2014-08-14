@@ -45,8 +45,23 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	 */
 	private final Set<ConstrainedReference> triggers;
 
-	public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<ConstrainedReference> triggers) {
+    /**
+     * The implementation versionRange
+     */
+    private final String implementationVersionRange;
+
+
+    public InstanceDeclaration(ImplementationReference<?> implementation, String name,
+                               Set<ConstrainedReference> triggers) {
+        this(implementation, name, triggers, null);
+    }
+
+	public InstanceDeclaration(ImplementationReference<?> implementation, String name,
+                               Set<ConstrainedReference> triggers,
+                               String implementationVersionRange) {
 		super(name);
+
+        this.implementationVersionRange = implementationVersionRange;
 
 		assert implementation != null;
 
@@ -70,6 +85,15 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	public ImplementationReference<?> getImplementation() {
 		return implementation;
 	}
+
+    /**
+     * Specify which Implmentation (related to the apam-component name) is applicable for this instance
+     * if null, any spec with the correct name should be ok
+     * (WARNING in case of code dependency, to check consistency)
+     */
+    public String getImplementationVersionRange() {
+        return implementationVersionRange;
+    }
 
 	/**
 	 * The triggering specification

@@ -28,11 +28,22 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	 */
 	private final SpecificationReference specification;
 
+    /**
+     * The specification versionRange
+     */
+    private final String specificationVersionRange;
+
 	public ImplementationDeclaration(String name,
 			SpecificationReference specification) {
-		super(name);
-		this.specification = specification;
+		this(name, specification, null);
 	}
+
+    public ImplementationDeclaration(String name, SpecificationReference specification,
+                                     String specificationVersionRange) {
+        super(name);
+        this.specification = specification;
+        this.specificationVersionRange = specificationVersionRange;
+    }
 
 	/**
 	 * Override with a narrower return type
@@ -60,6 +71,16 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	public SpecificationReference getSpecification() {
 		return specification;
 	}
+
+    /**
+     * Specify which specification (related to the apam-component name) is applicable for this implementation
+     * if null, any spec with the correct name should be ok
+     * (WARNING in case of code dependency, to check consistency)
+     */
+    public String getSpecificationVersionRange() {
+        return specificationVersionRange;
+    }
+
 
 	@Override
 	public boolean resolves(RelationDeclaration relation) {

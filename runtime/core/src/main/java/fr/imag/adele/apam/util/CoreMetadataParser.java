@@ -699,6 +699,8 @@ public class CoreMetadataParser implements CoreParser {
 	public static final String ATT_PULL = "pull";
 	public static final String ATT_BIND = "added";
 	public static final String ATT_UNBIND = "removed";
+    public static final String ATT_REQUIRE_VERSION = "require-version";
+
 
 	public static final String ATT_CREATION_POLICY = "creation";
 	public static final String ATT_RESOLVE_POLICY = "resolve";
@@ -1069,8 +1071,17 @@ public class CoreMetadataParser implements CoreParser {
 		String name = parseName(element);
 		SpecificationReference specification = parseSpecificationReference(name, element, CoreMetadataParser.ATT_SPECIFICATION, false);
 		ComponentReference<?> implementation = parseAnyComponentReference(name, element, CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, false);
+        String  versionRange = parseString(name, element, CoreMetadataParser.ATT_REQUIRE_VERSION, false);
 
-		CompositeDeclaration declaration = new CompositeDeclaration(name, specification, implementation);
+        CompositeDeclaration declaration;
+        if(versionRange != CoreMetadataParser.UNDEFINED){
+            declaration = new CompositeDeclaration(name, specification, implementation, versionRange);
+
+        } else {
+            declaration = new CompositeDeclaration(name, specification, implementation);
+
+        }
+
 		parseComponent(element, declaration);
 		parseCompositeContent(element, declaration);
 
@@ -1256,7 +1267,17 @@ public class CoreMetadataParser implements CoreParser {
 
 		}
 
-		InstanceDeclaration declaration = new InstanceDeclaration(implementation, name, triggerDeclarations);
+        String  versionRange = parseString(name, element, CoreMetadataParser.ATT_REQUIRE_VERSION, false);
+
+        InstanceDeclaration declaration;
+        if(versionRange != CoreMetadataParser.UNDEFINED){
+            declaration = new InstanceDeclaration(implementation, name, triggerDeclarations, versionRange);
+
+        } else {
+            declaration = new InstanceDeclaration(implementation, name, triggerDeclarations);
+
+        }
+
 		parseComponent(element, declaration);
 		return declaration;
 	}
