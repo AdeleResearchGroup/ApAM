@@ -148,6 +148,8 @@ public class ApamRepoBuilder {
 					CST.IMPLEMENTATION);
 			generateProperty(obrContent, component, CST.IMPLNAME,
 					component.getName());
+            generateProperty(obrContent, component, CST.REQUIRE_VERSION,
+                    ((ImplementationDeclaration) component).getSpecificationVersionRange());
 		}
 
         if (component instanceof AtomicImplementationDeclaration) {
@@ -160,6 +162,8 @@ public class ApamRepoBuilder {
 					CST.INSTANCE);
 			generateProperty(obrContent, component, CST.INSTNAME,
 					component.getName());
+            generateProperty(obrContent, component, CST.REQUIRE_VERSION,
+                    ((InstanceDeclaration) component).getImplementationVersionRange());
 		}
 
 		if (component instanceof CompositeDeclaration) {
