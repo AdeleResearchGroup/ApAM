@@ -1,15 +1,12 @@
 package fr.imag.adele.apam.apammavenplugin;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apammavenplugin.helpers.DummyCodeReflection;
-import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.*;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
 import org.apache.felix.bundlerepository.*;
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
-import org.apache.felix.utils.version.VersionRange;
 import org.apache.maven.plugin.logging.Log;
 import org.osgi.framework.*;
 import org.apache.felix.utils.log.Logger;
