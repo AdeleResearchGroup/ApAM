@@ -57,6 +57,7 @@ public class CST {
 	public static final String REQUIRE_INTERFACE = "require-interface";
 	public static final String REQUIRE_SPECIFICATION = "require-specification";
 	public static final String REQUIRE_MESSAGE = "require-message";
+    public static final String REQUIRE_VERSION = "require-version";
 	public static final String PROVIDE_INTERFACES = "provide-interfaces";
 	public static final String PROVIDE_MESSAGES = "provide-messages";
     public static final String PROVIDE_CLASSNAME = "provide-classname";
@@ -82,7 +83,7 @@ public class CST {
 	public static final String[] notInheritedAttribute = { NAME, COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
 
 	// Attributes that cannot be changed nor set by users
-	public static final String[] finalAttributes = { CST.NAME, CST.COMPONENT_TYPE, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.PROVIDE_CLASSNAME, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON };
+	public static final String[] finalAttributes = { CST.NAME, CST.COMPONENT_TYPE, CST.SPECNAME, CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION, CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION, CST.PROVIDE_CLASSNAME, CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED, CST.SINGLETON, CST.REQUIRE_VERSION };
 
 	// Attributes set during the build that cannot be changed nor set by users
 	public static final String[] buildAttributes = { CST.buildMavenGroupId, CST.buildMavenArtifactId, CST.buildMavenVersion, CST.buildApamVersion, CST.buildVersion};

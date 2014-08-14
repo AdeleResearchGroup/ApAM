@@ -1,7 +1,9 @@
 package fr.imag.adele.apam.apammavenplugin;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apammavenplugin.helpers.DummyCodeReflection;
+import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.*;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
@@ -55,7 +57,7 @@ public class StandaloneACRParser {
         }
     }
 
-    public static List<ApamCapability> getApAMCapabilities(String name, VersionRange versions) {
+    public static List<ApamCapability> getApAMCapabilitiesFromACR(String name, String versionRange) {
 
         List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
 
@@ -88,38 +90,41 @@ public class StandaloneACRParser {
                     capabilities.add(apacap);
                 }
             }
-
-
-            // TODO, zut, vu que l'on utilise le nom comme clef, on ne peux pas avoir plusieurs version du même composant
-
             // A priori on va parser toutes les capabilities mêmes celles qu'on ne cherche pas afin d'économiser des performance et ne pas reparser n fois le même fichier ?
-
-
-            // switch sur le type de composant, ensuite création de la component declaration correspondantes
-            // il manquera à priori les relations et les heritages de properties
-
-
-
-
-
-            //Does not try to call resolver because:
-            // 1° There is no running OSGi platform and therefore it may fail
-            // 2° There is no need for transitive dependency checking
-            // (if an apam component is there, all its dependencies have been already verified)
-//            Resolver resolver = repoAdmin.resolver();
-//            resolver.add(res);
-//            if(resolver.resolve()) {
-//                logger.info("Resolve OK for this one");
-//                return res;
-//            } else {
-//                Reason[] reasons = resolver.getUnsatisfiedRequirements();
-//                for (int i = 0; i < reasons.length; i++) {
-//                    logger.warn("Unable to resolve: " + reasons[i].getRequirement());
-//                }
-//            }
         }
         return capabilities;
     }
+
+
+    public static List<ApamCapability> getApAMCapabilitiesFromBundles(String name, String versionRange) {
+        List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
+
+        if(repoAdmin == null || repoAdmin.listRepositories() == null || repoAdmin.listRepositories().length<1) {
+            logger.warn("No valid repository, returning empty capability list");
+            return capabilities;
+        }
+
+        Resource[] resources = repoAdmin.discoverResources(
+                new Requirement[] {
+                        repoAdmin.getHelper().requirement(
+                                "apam-component", "(name="+name+")")
+                }
+        );
+
+        if(resources == null || resources.length<1) {
+            return capabilities;
+        }
+        for(Resource res : resources) {
+            logger.info("Resource found : " + res.getId());
+
+            // TODO : A big one (and not a priority)
+            // download the resource and use the JarHelper to get the apam components from it
+
+        }
+        return capabilities;
+
+    }
+
 
     public static ApamCapability parseOBRCapability(Capability cap) {
 
@@ -231,7 +236,12 @@ public class StandaloneACRParser {
 
             }
 
+            if(props.containsKey(CST.VERSION)) { // get the OSGi Version of the component
+                dcl.getProperties().put(CST.VERSION, props.get(CST.VERSION).getValue());
+            }
+
             return new ApamCapability(dcl);
+
 
 
             //

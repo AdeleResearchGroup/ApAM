@@ -40,8 +40,6 @@ public class ApamCapability {
 	private ComponentDeclaration dcl = null;
 	private boolean isFinalized = false;
 
-    private String version;
-
 	private Map<String, String> properties;
 	private Map<String, String> propertiesTypes = new HashMap<String, String>();
 	private Map<String, String> propertiesDefaults = new HashMap<String, String>();
@@ -60,13 +58,7 @@ public class ApamCapability {
 				propertiesDefaults.put(definition.getName().toLowerCase(),
 						definition.getDefaultValue());
 		}
-
-        version = properties.get("version");
 	}
-
-    public String getVersion() {
-        return version;
-    }
 
 	public ComponentDeclaration getDcl() {
         return dcl;

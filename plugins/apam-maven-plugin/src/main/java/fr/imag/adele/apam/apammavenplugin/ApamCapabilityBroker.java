@@ -1,8 +1,8 @@
 package fr.imag.adele.apam.apammavenplugin;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.*;
 import fr.imag.adele.apam.util.CoreMetadataParser;
-import org.apache.felix.bundlerepository.Resource;
 
 import java.util.*;
 
@@ -11,7 +11,14 @@ import java.util.*;
  */
 public class ApamCapabilityBroker {
 
+    /**
+     * internal capabilities are the Apam components declared within the current built
+     */
     private static Map<String, ApamCapability> internalCapabilities = new HashMap<String, ApamCapability>();
+
+    /**
+     * external capabilities are the Apam components found in maven dependencies or in the ACR
+     */
     private static Map<String, ApamCapability> externalCapabilities = new HashMap<String, ApamCapability>();
 
     private static Map<String, List<String>> capabilityVersions = new HashMap<String, List<String>>();
@@ -41,32 +48,57 @@ public class ApamCapabilityBroker {
         missing.clear();
         if(components!=null) {
             for (ComponentDeclaration dcl : components) {
+                // For the internal component they represent the current built, the version seems useless
+                // because one bundle = one same version for all the components inside
                 internalCapabilities.put(dcl.getName(), new ApamCapability(dcl));
+                if(dcl.getProperty(CST.VERSION)!=null) {
+                    internalCapabilities.put(dcl.getProperty(CST.VERSION),
+                            new ApamCapability(dcl));
+                }
             }
         }
 
         if(dependencies!= null) {
             for (ComponentDeclaration dcl : dependencies) {
+                System.out.println("Adding "+dcl.getName());
                 externalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
+                if(dcl.getProperty(CST.VERSION)!=null) {
+                    externalCapabilities.put(dcl.getProperty(CST.VERSION),
+                            new ApamCapability(dcl));
+                }
+
             }
         }
     }
 
     public void addExternalCapability(ApamCapability cap) {
         externalCapabilities.put(cap.getName(),cap);
+        if(cap.getProperty(CST.VERSION)!=null) {
+            externalCapabilities.put(cap.getName() + cap.getProperty(CST.VERSION), cap);
+        }
     }
 
-    public static ApamCapability get(String name) {
-        if (name == null) {
+    public static ApamCapability get(String nameWithoutVersion) {
+        return getCompleteName(nameWithoutVersion);
+    }
+
+    public static ApamCapability get(String name, String version) {
+
+        return getCompleteName(name+version);
+    }
+
+
+    private static ApamCapability getCompleteName(String completeName) {
+        if (completeName == null) {
             return null;
         }
 
         // Step 1 : if the capability is declared inside the artifact being built
-        ApamCapability cap = internalCapabilities.get(name);
+        ApamCapability cap = internalCapabilities.get(completeName);
 
         // Step 2 : if already declared outside (a dependency used several times
         if(cap ==null) {
-            cap = externalCapabilities.get(name);
+            cap = externalCapabilities.get(completeName);
         }
 
         // Step 3 : try to find the dependency inside the OBR/ACR
@@ -77,8 +109,11 @@ public class ApamCapabilityBroker {
             // Not inside this component, check if it exists in the ACRs
             // TODO check there in the ACR (and by default in local if no ACR specified)
             // Un problème avec les versions, on ne peux pas récupérer la version d'une dépendance ?
-            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilities(name, null)) {
+            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilitiesFromACR(completeName, null)) {
                 externalCapabilities.put(singlecap.getName(), singlecap);
+                if(singlecap.getProperty(CST.VERSION)!=null) {
+                    externalCapabilities.put(singlecap.getName() + singlecap.getProperty(CST.VERSION), singlecap);
+                }
             }
 
                 //TODO try to build those allowedType props from metadatas
@@ -89,7 +124,7 @@ public class ApamCapabilityBroker {
 //                    if (implementationClass != null)
 //                        allowedTypes.add(new ImplementatioClassReference(
 //                                implementationClass));
-            cap = externalCapabilities.get(name);
+            cap = externalCapabilities.get(completeName);
         }
 
         return cap;
