@@ -47,10 +47,9 @@ public final class ACRInstallMojo extends AbstractMojo {
     /**
      * ACR Repository (ApAM Component Repository)
      *
-     * @parameter
+     * @parameter property="targetACR"
      */
     private String targetACR;
-
 
     /**
      * Project types which this plugin supports.
@@ -63,7 +62,7 @@ public final class ACRInstallMojo extends AbstractMojo {
     /**
      * The Maven project.
      *
-     * @parameter expression="${project}"
+     * @parameter default-value="${project}"
      * @required
      * @readonly
      */
@@ -72,7 +71,7 @@ public final class ACRInstallMojo extends AbstractMojo {
     /**
      * Local Repository.
      *
-     * @parameter expression="${localRepository}"
+     * @parameter default-value="${localRepository}"
      * @required
      * @readonly
      */
@@ -90,9 +89,6 @@ public final class ACRInstallMojo extends AbstractMojo {
 
     /**
      * Remote repository id, used to lookup authentication settings.
-     *
-     * @parameter expression="${repositoryId}" default-value="remote-repository"
-     * @required
      */
     private String repositoryId;
 
@@ -139,6 +135,7 @@ public final class ACRInstallMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         getLog().info("execute(), targetACR : " + targetACR);
         URI repoXML = getTargetACR(targetACR);
+        repositoryId = localRepository.getId();
 
         if (repoXML != null) {
             String projectType = project.getPackaging();

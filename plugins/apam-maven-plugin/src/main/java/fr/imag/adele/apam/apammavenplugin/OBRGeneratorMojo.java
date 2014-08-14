@@ -69,15 +69,26 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
     /**
      * ACR Repository (ApAM Component Repository)
      *
-     * @parameter
+     * @parameter property="acrs"
      */
     private String[] acrs;
+
+
+    /**
+     * mojo boolean property includeMavenDependencies
+     * = true means that initial external ApamCapabilities are built from dependencies in the pom (default)
+     * = false means that all apam-component external dependencies will only be resolved using the acrs
+     *
+     * @parameter property="includeMavenDependencies" default-value="true"
+     */
+    private Boolean includeMavenDependencies;
+
 
 
 	/**
 	 * The Maven project.
 	 * 
-	 * @parameter expression="${project}"
+	 * @parameter default-value="${project}"
 	 * @required
 	 * @readonly
 	 */
@@ -86,7 +97,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
     /**
      * Local Repository.
      *
-     * @parameter expression="${localRepository}"
+     * @parameter default-value="${localRepository}"
      * @required
      * @readonly
      */
@@ -149,13 +160,12 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
         }
         URL[] tab_acr=new URL[acrs.length];
         for(int i=0;i<acrs.length;i++) {
+            getLog().info("execute(), input ACR : " + acrs[i]);
             try {
                 tab_acr[i] = ACRInstallMojo.getTargetACR(acrs[i]).toURL();
-                getLog().info("execute(), input ACR : " + tab_acr[i]);
-
             } catch(MalformedURLException exc) {
-                exc.printStackTrace();
-                throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());            }
+
+            }
         }
 
 
@@ -228,21 +238,25 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			 * Load APAM declarations from required artifacts and calculate a classpath to look for
 			 * referenced classes
 			 */
-			for (Artifact requiredArtifact : requiredArtifacts) {
+            if(includeMavenDependencies) {
+                getLog().info("includeMavenDependencies = true, adding ApAM components from maven dependencies");
+                for (Artifact requiredArtifact : requiredArtifacts) {
 
-					VersionRange range = requiredArtifact.getVersionRange();
+                    VersionRange range = requiredArtifact.getVersionRange();
 
-					OBRGeneratorMojo.versionRange.put(requiredArtifact.getArtifactId(), range);
+                    OBRGeneratorMojo.versionRange.put(requiredArtifact.getArtifactId(), range);
 
-					List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this, getLog()).getApAMComponents();
-					if (subcomponents != null)
-						dependencies.addAll(subcomponents);
+                    List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this, getLog()).getApAMComponents();
+                    if (subcomponents != null)
+                        dependencies.addAll(subcomponents);
 
-					classpathDescriptor.add(requiredArtifact.getFile());
-			}
+                    classpathDescriptor.add(requiredArtifact.getFile());
+                }
+            } else {
+                getLog().info("includeMavenDependencies = false, getting ApAM components only from acrs");
+            }
 
 			CheckObr.setLogger(getLog());
-			dependencies.clear();
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
