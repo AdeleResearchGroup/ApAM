@@ -7,7 +7,7 @@
 	</parent>
 
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
-	<artifactId>implem-server-v1</artifactId>
+	<artifactId>spec-server-v1</artifactId>
 	<packaging>bundle</packaging>
 	<version>1.0.0</version>
 

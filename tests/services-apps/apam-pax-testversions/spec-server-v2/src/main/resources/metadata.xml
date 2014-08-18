@@ -3,11 +3,5 @@
 	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-
-    <implementation name="implem-server"
-                    classname="fr.imag.adele.apam.tests.app.Dummy"
-            specification="spec-server" require-version="[2.0.0,3)">
-
-    </implementation>
-
+    <specification name="spec-server"/>
 </apam>

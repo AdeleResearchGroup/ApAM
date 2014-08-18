@@ -601,9 +601,9 @@ public final class CheckObr {
 			return true;
 		}
 		ApamCapability cap = ApamCapabilityBroker
-				.get(new SpecificationReference(spec));
+				.get(new SpecificationReference(spec).getName(), ((AtomicImplementationDeclaration) impl).getSpecificationVersionRange());
 		if (cap == null) {
-			return true;
+			return false;
 		}
 
 		Set<MessageReference> specMessages = cap.getProvideMessages();

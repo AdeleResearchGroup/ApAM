@@ -25,6 +25,8 @@ public class ApamCapabilityBroker {
 
     private static Set<String> missing = new HashSet<String>();
 
+    public final static String VERSION_SEPARATOR = "/";
+
 
     // Only to return a true value
     public static ApamCapability trueCap = new ApamCapability();
@@ -52,7 +54,7 @@ public class ApamCapabilityBroker {
                 // because one bundle = one same version for all the components inside
                 internalCapabilities.put(dcl.getName(), new ApamCapability(dcl));
                 if(dcl.getProperty(CST.VERSION)!=null) {
-                    internalCapabilities.put(dcl.getProperty(CST.VERSION),
+                    internalCapabilities.put(dcl.getName()+VERSION_SEPARATOR+dcl.getProperty(CST.VERSION),
                             new ApamCapability(dcl));
                 }
             }
@@ -63,7 +65,7 @@ public class ApamCapabilityBroker {
                 System.out.println("Adding "+dcl.getName());
                 externalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
                 if(dcl.getProperty(CST.VERSION)!=null) {
-                    externalCapabilities.put(dcl.getProperty(CST.VERSION),
+                    externalCapabilities.put(dcl.getName()+VERSION_SEPARATOR+dcl.getProperty(CST.VERSION),
                             new ApamCapability(dcl));
                 }
 
@@ -83,8 +85,11 @@ public class ApamCapabilityBroker {
     }
 
     public static ApamCapability get(String name, String version) {
-
-        return getCompleteName(name+version);
+        if(version != null && version.length()>0) {
+            return getCompleteName(name + VERSION_SEPARATOR + version);
+        }else {
+            return getCompleteName(name);
+        }
     }
 
 
@@ -92,39 +97,33 @@ public class ApamCapabilityBroker {
         if (completeName == null) {
             return null;
         }
+        String name = completeName;
+        String version = "";
+
+        int index = completeName.indexOf(VERSION_SEPARATOR);
+        if(index >0) {
+            name = completeName.substring(0,index);
+            version = completeName.substring(index+1);
+        }
 
         // Step 1 : if the capability is declared inside the artifact being built
-        ApamCapability cap = internalCapabilities.get(completeName);
+        ApamCapability cap = internalCapabilities.get(name);
 
         // Step 2 : if already declared outside (a dependency used several times
         if(cap ==null) {
-            cap = externalCapabilities.get(completeName);
+            cap = externalCapabilities.get(name);
         }
 
         // Step 3 : try to find the dependency inside the OBR/ACR
         if(cap ==null &&acrResolver!= null) {
-//            acrResolver.getApAMComponentResource(name,null);
-
-
-            // Not inside this component, check if it exists in the ACRs
-            // TODO check there in the ACR (and by default in local if no ACR specified)
-            // Un problème avec les versions, on ne peux pas récupérer la version d'une dépendance ?
-            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilitiesFromACR(completeName, null)) {
+            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilitiesFromACR(name, version)) {
                 externalCapabilities.put(singlecap.getName(), singlecap);
                 if(singlecap.getProperty(CST.VERSION)!=null) {
-                    externalCapabilities.put(singlecap.getName() + singlecap.getProperty(CST.VERSION), singlecap);
+                    externalCapabilities.put(singlecap.getName()+VERSION_SEPARATOR+ singlecap.getProperty(CST.VERSION),
+                            singlecap);
                 }
+                cap = singlecap;
             }
-
-                //TODO try to build those allowedType props from metadatas
-//                    allowedTypes.addAll(cap.getProvideResources());
-
-                // check target's implementation class
-//                    String implementationClass = cap.getImplementationClass();
-//                    if (implementationClass != null)
-//                        allowedTypes.add(new ImplementatioClassReference(
-//                                implementationClass));
-            cap = externalCapabilities.get(completeName);
         }
 
         return cap;
@@ -198,7 +197,13 @@ public class ApamCapabilityBroker {
         if(dcl!=null
                 && dcl.getGroupReference() !=null
                 && dcl.getGroupReference().getName() !=null) {
-            return get(dcl.getGroupReference().getName());
+            String versionRange=null;
+            if(dcl instanceof InstanceDeclaration) {
+                versionRange = ((InstanceDeclaration) dcl).getImplementationVersionRange();
+            } else if (dcl instanceof ImplementationDeclaration) {
+                versionRange = ((ImplementationDeclaration) dcl).getSpecificationVersionRange();
+            }
+            return get(dcl.getGroupReference().getName(), versionRange);
         }
         return null;
     }

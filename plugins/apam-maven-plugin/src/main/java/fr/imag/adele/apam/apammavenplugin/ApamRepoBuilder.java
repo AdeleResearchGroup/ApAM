@@ -21,26 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.*;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.PropertyDefinition;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.declarations.ImplementationReference;
-import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.util.ApamMavenProperties;
 
 public class ApamRepoBuilder {
@@ -142,14 +129,30 @@ public class ApamRepoBuilder {
 		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT
 				+ END_M);
 		generateProperty(obrContent, component, CST.NAME, component.getName());
+        generateTypedProperty(obrContent, component, "version", "version",
+                OBRGeneratorMojo.thisBundleVersion);
 
 		if (component instanceof ImplementationDeclaration) {
 			generateProperty(obrContent, component, CST.COMPONENT_TYPE,
 					CST.IMPLEMENTATION);
 			generateProperty(obrContent, component, CST.IMPLNAME,
 					component.getName());
-            generateProperty(obrContent, component, CST.REQUIRE_VERSION,
-                    ((ImplementationDeclaration) component).getSpecificationVersionRange());
+
+            SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
+            if(spec != null ) {
+                String versionRange = ((ImplementationDeclaration) component).getSpecificationVersionRange();
+
+                if(versionRange!=null && versionRange.length()>0) {
+                    generateProperty(obrContent, component, CST.REQUIRE_VERSION,
+                            versionRange);
+                }
+
+                if(ApamCapabilityBroker.get(spec.getName(), versionRange)==null) {
+                    CheckObr.error("Implementation "+component.getName()
+                            +" require specification "+spec.getName()+" with version "+versionRange
+                            +", which is not available !");
+                }
+            }
 		}
 
         if (component instanceof AtomicImplementationDeclaration) {
@@ -162,8 +165,22 @@ public class ApamRepoBuilder {
 					CST.INSTANCE);
 			generateProperty(obrContent, component, CST.INSTNAME,
 					component.getName());
-            generateProperty(obrContent, component, CST.REQUIRE_VERSION,
-                    ((InstanceDeclaration) component).getImplementationVersionRange());
+
+            ComponentReference impl = ((InstanceDeclaration) component).getImplementation();
+            if(impl!= null ) {
+                String versionRange = ((InstanceDeclaration) component).getImplementationVersionRange();
+
+                if(versionRange!=null && versionRange.length()>0) {
+                    generateProperty(obrContent, component, CST.REQUIRE_VERSION,
+                            versionRange);
+                }
+
+                if(ApamCapabilityBroker.get(impl.getName(), versionRange)==null) {
+                    CheckObr.error("Instance "+component.getName()
+                            +" require specification "+impl.getName()+" with version "+versionRange
+                            +", which is not available !");
+                }
+            }
 		}
 
 		if (component instanceof CompositeDeclaration) {
@@ -213,8 +230,6 @@ public class ApamRepoBuilder {
 				+ ATT_V + ApamMavenProperties.mavenVersion.replace('-', '.')
 				+ END_P);
 
-		generateTypedProperty(obrContent, component, "version", "version",
-				OBRGeneratorMojo.thisBundleVersion);
         ApamCapabilityBroker.get(component.getReference()).freeze();
 		obrContent.append("   </capability>\n");
 	}
@@ -273,7 +288,6 @@ public class ApamRepoBuilder {
 						interfaces, messages, undefinedInterfaces,
 						undefinedMessages);
 			}
-
 		}
 	}
 
@@ -366,7 +380,8 @@ public class ApamRepoBuilder {
 
 	private void generateProperty(StringBuffer obrContent,
 			ComponentDeclaration component, String attr, String value) {
-		if (ApamCapabilityBroker.get(component.getReference()).putAttr(attr, value)) {
+
+		if (ApamCapabilityBroker.get(component.getName(),component.getProperty(CST.VERSION)).putAttr(attr, value)) {
 			obrContent.append(BEGIN_P + attr + ATT_V + value + END_P);
 			return;
 		}

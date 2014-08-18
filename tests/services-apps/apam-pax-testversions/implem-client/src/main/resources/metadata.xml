@@ -13,9 +13,9 @@
 		<definition name="testVersionInjected" field="myVersionInjected" type="version" />
 	</implementation>
 
-    <apam-instance implementation="implem-server" name="testRelationWithSpecificVersion"
-                   require-version="1.2.3"></apam-instance>
-    <apam-instance implementation="implem-server" name="testRelationWithSpecificVersion"
-                   require-version="1.3"></apam-instance>
+    <apam-instance implementation="implem-server" name="testingInstanceSpecificVersion"
+                   require-version="1.0.0"></apam-instance>
+    <apam-instance implementation="implem-server" name="testingInstanceSpecificVersion2"
+                   require-version="2.0.0"></apam-instance>
 
 </apam>

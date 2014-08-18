@@ -12,6 +12,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
+        <module>spec-server-v1</module>
+        <module>spec-server-v2</module>
 		<module>implem-server-v1</module>
 		<module>implem-server-v2</module>
 		<module>implem-client</module>

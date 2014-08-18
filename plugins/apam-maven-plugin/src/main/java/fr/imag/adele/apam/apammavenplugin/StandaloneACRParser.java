@@ -7,11 +7,13 @@ import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
 import org.apache.felix.bundlerepository.*;
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
+import org.apache.felix.utils.version.VersionRange;
 import org.apache.maven.plugin.logging.Log;
 import org.osgi.framework.*;
 import org.apache.felix.utils.log.Logger;
 
 import java.net.URL;
+import java.text.ParseException;
 import java.util.*;
 
 import static org.mockito.Matchers.anyObject;
@@ -50,16 +52,18 @@ public class StandaloneACRParser {
 
 
         } else {
-            logger.warn("No repository URLs specified");
+            logger.info("No repository URLs specified");
         }
     }
 
     public static List<ApamCapability> getApAMCapabilitiesFromACR(String name, String versionRange) {
 
         List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
+        logger.info("looking for apam-component : "+name+", version range :"+versionRange);
+
 
         if(repoAdmin == null || repoAdmin.listRepositories() == null || repoAdmin.listRepositories().length<1) {
-            logger.warn("No valid repository, returning empty capability list");
+            logger.info("No valid repository, returning empty capability list");
             return capabilities;
         }
 
@@ -67,11 +71,21 @@ public class StandaloneACRParser {
         // si non spécifié explicitement, toutes les versions conviennent
         // (au contraire, il faudra les rajouter dans le filtre)
 
+        String requirement;
 
+        if(versionRange != null && versionRange.length() >0) {
+            requirement= "(&(name="+name+")";
+            requirement+=parseVersionRange(versionRange);
+            requirement+=")";
+        } else {
+            requirement= "(name="+name+")";
+        }
+
+        logger.info("requirement research (ldap filter) "+ requirement);
         Resource[] resources = repoAdmin.discoverResources(
                 new Requirement[] {
-                    repoAdmin.getHelper().requirement(
-                    "apam-component", "(name="+name+")")
+                        repoAdmin.getHelper().requirement(
+                                "apam-component", requirement)
                 }
         );
 
@@ -95,6 +109,7 @@ public class StandaloneACRParser {
 
     public static List<ApamCapability> getApAMCapabilitiesFromBundles(String name, String versionRange) {
         List<ApamCapability> capabilities = new ArrayList<ApamCapability>();
+        logger.info("looking for apam-component : "+name+", version range :"+versionRange);
 
         if(repoAdmin == null || repoAdmin.listRepositories() == null || repoAdmin.listRepositories().length<1) {
             logger.warn("No valid repository, returning empty capability list");
@@ -137,7 +152,7 @@ public class StandaloneACRParser {
             }
 
             for(Property prop : listPropr) {
-               props.put(prop.getName(), prop);
+                props.put(prop.getName(), prop);
             }
 
             ComponentDeclaration dcl;
@@ -236,6 +251,7 @@ public class StandaloneACRParser {
             if(props.containsKey(CST.VERSION)) { // get the OSGi Version of the component
                 dcl.getProperties().put(CST.VERSION, props.get(CST.VERSION).getValue());
             }
+            logger.info("Capability matching found : "+dcl.getName());
 
             return new ApamCapability(dcl);
 
@@ -243,12 +259,74 @@ public class StandaloneACRParser {
 
             //
         } else {
-            logger.warn("Capability "+(cap==null?null:cap.getName())+" is not an apam component");
+            logger.info("Capability " + (cap == null ? null : cap.getName()) + " is not an apam component");
             return null;
 
         }
     }
 
+    public static String parseVersionRange(String versionRange) {
+        String versionReq="";
+
+        try {
+            if(versionRange.startsWith("[") ||
+                    versionRange.startsWith("(")) {
+                versionReq+=parseFloor(versionRange.substring(0,
+                        versionRange.indexOf(",")));
+                versionReq+=parseCeiling(versionRange.substring(versionRange.indexOf(",")+1));
+            } else {
+                return parseRequirementVersion(versionRange);
+            }
+        } catch(Exception exc) {
+            logger.warn("Error when parsing the version"+exc.getMessage());
+        }
+
+        return versionReq;
+    }
+
+    private static String parseFloor(String beginRange) throws ParseException {
+        String part = "";
+        part+=parseRequirementVersion(beginRange.substring(1));
+        if(beginRange.startsWith("(")) {
+            part+="(!(version="+beginRange.substring(1)+"))";
+        }
+        return part;
+    }
+    private static String parseCeiling(String endRange) throws ParseException {
+        String part = "";
+        if(endRange.endsWith(")")) {
+            part+="(!(version>="+endRange.substring(0, endRange.length()-1)+"))";
+            return part;
+        } else if (endRange.endsWith("]")){
+            part+=parseRequirementVersion(endRange.substring(0, endRange.length()-1));
+            part+="(version<="+endRange.substring(0, endRange.length()-1)+")";
+            return part;
+        } else {
+            throw new ParseException("Version range does not stop with a correct ceiling delimiter",
+                    endRange.length());
+        }
+    }
+
+    private static String parseRequirementVersion(String version) throws ParseException {
+        if(version == null || version.length()<1) {
+            throw new ParseException("Version is empty ",0);
+        }
+        try{// This one does the checking of a properly formated version
+            Version.parseVersion(version);
+        } catch (IllegalArgumentException exc) {
+            throw new ParseException(exc.getMessage(),0);
+        }
+        return "(version>="+version+")";
+    }
+
+
+    /**
+     * This one is ugly (mockito should not be used to fake BundleContext
+     * Bundle context should not be used at all (as we mostly build upon the parser of capabilities)
+     * @param defaultRepo
+     * @return
+     * @throws Exception
+     */
 
     private RepositoryAdmin createRepositoryAdmin(String defaultRepo) throws Exception {
         BundleContext bundleContext = mock(BundleContext.class);

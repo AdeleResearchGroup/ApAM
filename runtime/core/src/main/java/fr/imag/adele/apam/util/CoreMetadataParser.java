@@ -1535,7 +1535,16 @@ public class CoreMetadataParser implements CoreParser {
 
 		CodeReflection reflection = new ImplementationReflection(className, pojoMetadata, instrumentedCode);
 
-		AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name, specification, reflection);
+        String  versionRange = parseString(name, element, CoreMetadataParser.ATT_REQUIRE_VERSION, false);
+
+        AtomicImplementationDeclaration declaration;
+        if(versionRange != CoreMetadataParser.UNDEFINED){
+            declaration = new AtomicImplementationDeclaration(name, specification, reflection, versionRange);
+
+        } else {
+            declaration = new AtomicImplementationDeclaration(name, specification, reflection);
+
+        }
 		parseComponent(element, declaration);
 
 		/*
