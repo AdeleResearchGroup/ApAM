@@ -33,10 +33,13 @@ public class StandaloneACRParser {
 
     static RepositoryAdmin repoAdmin;
 
+    public static void setLogger(Log logger) {
+        StandaloneACRParser.logger=logger;
+    }
 
-    public StandaloneACRParser(URL[] repositories, Log logger) throws Exception {
+
+    public StandaloneACRParser(URL[] repositories) throws Exception {
         if (repositories != null && repositories.length > 0) {
-            this.logger = logger;
             repoAdmin = createRepositoryAdmin(repositories[0].toExternalForm());
             logger.info("RepositoryAdmin created successfully (with mocked BundleContext)");
             for (URL repoURL : repositories) {

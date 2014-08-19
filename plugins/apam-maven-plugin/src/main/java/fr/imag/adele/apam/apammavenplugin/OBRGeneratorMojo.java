@@ -68,16 +68,28 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
     /**
      * ACR Repository (ApAM Component Repository)
-     *
-     * @parameter property="acrs"
+     * used as input (read only the existing component)
+     * @parameter
      */
-    private String[] acrs;
+    private String[] inputAcr;
+
+
+    /**
+     * ACR Repository (ApAM Component Repository)
+     * used as output (write the current component)
+     * @parameter property="outputAcr"
+     */
+    private String outputAcr;
+
+
+    public static final String NONE = "NONE";
+
 
 
     /**
      * mojo boolean property includeMavenDependencies
      * = true means that initial external ApamCapabilities are built from dependencies in the pom (default)
-     * = false means that all apam-component external dependencies will only be resolved using the acrs
+     * = false means that all apam-component external dependencies will only be resolved using the inputAcr
      *
      * @parameter property="includeMavenDependencies" default-value="true"
      */
@@ -151,26 +163,38 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	 */
 	public void execute() throws MojoExecutionException {
 
-        if(acrs==null ||acrs.length<1) {
-            getLog().info("No acrs repository URL specified, using the local maven repository");
-                //TODO: Check if another local repository has been specified (with other filename than repository.xml)
-                acrs = new String[1];
-                acrs[0] = new String(localRepository.getUrl()+ DEFAULT_OBR_XML);
+        if(inputAcr ==null || inputAcr.length<1) {
+            inputAcr = new String[1];
+
+            if(ACRInstallMojo.getTargetACR(outputAcr) != null) {
+                getLog().info("No inputAcr repository URL specified, first fallback, trying to use the target output ACR");
+                inputAcr[0] = ACRInstallMojo.getTargetACR(outputAcr).toString();
+
+            } else {
+                getLog().info("No inputAcr repository URL specified, using default local maven repo (obr)");
+                inputAcr[0] = new String(localRepository.getUrl()+ DEFAULT_OBR_XML);
+            }
 
         }
-        URL[] tab_acr=new URL[acrs.length];
-        for(int i=0;i<acrs.length;i++) {
-            getLog().info("execute(), input ACR : " + acrs[i]);
+        List<URL> tab_acr=new ArrayList<URL>();
+        for(int i=0;i< inputAcr.length;i++) {
             try {
-                tab_acr[i] = ACRInstallMojo.getTargetACR(acrs[i]).toURL();
-            } catch(MalformedURLException exc) {
+                if(inputAcr[i] != null && !NONE.equals(inputAcr[i]) && ACRInstallMojo.getTargetACR(inputAcr[i]).toURL() != null) {
+                    getLog().info("input ACR : " + inputAcr[i]+" successfully added");
 
+                    tab_acr.add(ACRInstallMojo.getTargetACR(inputAcr[i]).toURL());
+                } else {
+                    getLog().info("input ACR : " + inputAcr[i]+" is not a valid URL, not added");
+                }
+            } catch(MalformedURLException exc) {
+                getLog().info("input ACR : " + inputAcr[i]+" is not a valid URL, not added");
             }
         }
 
 
         try {
-            StandaloneACRParser acrResolver = new StandaloneACRParser(tab_acr, getLog());
+            StandaloneACRParser.setLogger(getLog());
+            StandaloneACRParser acrResolver = new StandaloneACRParser(tab_acr.toArray(new URL[0]));
             ApamCapabilityBroker.setStandaloneACRResolver(acrResolver);
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -253,7 +277,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
                     classpathDescriptor.add(requiredArtifact.getFile());
                 }
             } else {
-                getLog().info("includeMavenDependencies = false, getting ApAM components only from acrs");
+                getLog().info("includeMavenDependencies = false, getting ApAM components only from inputAcr");
             }
 
 			CheckObr.setLogger(getLog());

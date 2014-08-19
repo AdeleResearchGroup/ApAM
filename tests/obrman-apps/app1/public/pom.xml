@@ -32,10 +32,10 @@
                     <artifactId>apam-maven-plugin</artifactId>
                     <extensions>true</extensions>
                     <configuration>
-                        <targetACR>${basedir}/../../../repositories/public.components/obr/app-store.xml</targetACR>
-                        <acrs>
+                        <outputAcr>${basedir}/../../../repositories/public.components/obr/app-store.xml</outputAcr>
+                        <inputAcr>
                             <repository>${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
-                        </acrs>
+                        </inputAcr>
                     </configuration>
                 </plugin>
             </plugins>

@@ -15,6 +15,7 @@
         classname="fr.imag.adele.apam.pax.test.eldritch.lock.CallbackLoop">
         <definition name="a" field="a" type="int" default="5" method="aChanged" />
         <definition name="b" field="b" type="int" default="5" method="bChanged"/>
+        <relation specification="eletronic-device"></relation>
         
     </implementation>
 

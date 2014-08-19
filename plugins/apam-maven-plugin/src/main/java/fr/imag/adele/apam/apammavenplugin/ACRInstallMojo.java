@@ -46,10 +46,10 @@ public final class ACRInstallMojo extends AbstractMojo {
 
     /**
      * ACR Repository (ApAM Component Repository)
-     *
-     * @parameter property="targetACR"
+     * used as output (write the current component)
+     * @parameter property="outputAcr"
      */
-    private String targetACR;
+    private String outputAcr;
 
     /**
      * Project types which this plugin supports.
@@ -133,8 +133,8 @@ public final class ACRInstallMojo extends AbstractMojo {
 
 
     public void execute() throws MojoExecutionException {
-        getLog().info("execute(), targetACR : " + targetACR);
-        URI repoXML = getTargetACR(targetACR);
+        getLog().info("execute(), outputAcr : " + outputAcr);
+        URI repoXML = getTargetACR(outputAcr);
         repositoryId = localRepository.getId();
 
         if (repoXML != null) {
@@ -147,7 +147,7 @@ public final class ACRInstallMojo extends AbstractMojo {
                 return;
             }
 
-            String repoPath = targetACR;
+            String repoPath = outputAcr;
             if (repoPath.toLowerCase().endsWith(DOT_XML)) {
                 repoPath = repoPath.substring(0, repoPath.lastIndexOf('/'));
             }
@@ -174,8 +174,8 @@ public final class ACRInstallMojo extends AbstractMojo {
 
 
         } else {
-            getLog().info("Local ACR update disabled or incorrect (enable with -DtargetACR)," +
-                    " targetACR = " + targetACR);
+            getLog().info("No output ACR specified and local ACR update disabled or incorrect (enable with -DoutputAcr)," +
+                    " outputAcr = " + outputAcr);
             return;
         }
 

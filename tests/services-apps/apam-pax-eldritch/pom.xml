@@ -14,18 +14,27 @@
             <artifactId>apam-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-iface</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>fr.imag.adele.apam</groupId>
                 <artifactId>apam-maven-plugin</artifactId>
                 <extensions>true</extensions>
-
                 <configuration>
+                    <includeMavenDependencies>false</includeMavenDependencies>
+                    <!--<outputAcr>/monPath/monACR.xml</outputAcr>-->
+                    <!--<inputAcr>-->
+                        <!--<repo>http://public.apam.fr/public_acr.xml</repo>-->
+                        <!--<repo>file:///monPath/monACR.xml</repo>-->
+                    <!--</inputAcr>-->
                 </configuration>
             </plugin>
         </plugins>
