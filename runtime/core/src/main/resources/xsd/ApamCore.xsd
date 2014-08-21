@@ -20,7 +20,7 @@
 				bundle
 			</xs:documentation>
 		</xs:annotation>
-		<xs:complexType>
+		<xs:complexType >
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element ref="specification" />
 				<xs:element ref="implementation" />
@@ -142,6 +142,10 @@
 				</xs:documentation>
 			</xs:annotation>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+
+                <!-- This replace attribute main since ApAM 0.0.8  -->
+                <xs:element name="main" type="CompositeMainType" maxOccurs="1" minOccurs="0"/>
+
 				<xs:element name="property" type="PropertyType" />
 				<xs:element name="definition" type="DefinitionType" />
 				<xs:element name="relation" type="RelationType" />
@@ -190,6 +194,7 @@
 					</xs:complexType>
 				</xs:element>
 			</xs:choice>
+            <!-- Attribute main will be deprecated in ApAM 0.0.8, replaced by the child Element main -->
 			<xs:attribute name="main" type="xs:string" use="optional" />
 			<xs:attribute name="specification" type="xs:string" use="optional" />
             <xs:attribute name="require-version" type="xs:string" use="optional" />
@@ -378,6 +383,23 @@
 		<xs:attribute name="source" type="xs:string" use="optional" />
 		<xs:attributeGroup ref="overrideRelationAttributes" />
 	</xs:complexType>
+
+    <xs:complexType name="CompositeMainType">
+        <xs:annotation>
+            <xs:documentation>Specifies the main component of a Composite</xs:documentation>
+        </xs:annotation>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="constraints" type="ConstraintsType"
+                        minOccurs="0" maxOccurs="1" />
+            <xs:element name="preferences" type="PreferencesType"
+                        minOccurs="0" maxOccurs="1" />
+        </xs:choice>
+        <xs:attribute name="specification" type="xs:string" use="optional" />
+        <xs:attribute name="implementation" type="xs:string" use="optional" />
+        <xs:attribute name="composite" type="xs:string" use="optional" />
+        <xs:attribute name="apam-instance" type="xs:string" use="optional" />
+    </xs:complexType>
+
 
 
 
