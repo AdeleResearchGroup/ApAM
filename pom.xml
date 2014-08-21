@@ -18,7 +18,6 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/AdeleResearchGroup/ApAM.git</developerConnection>
-		<tag>apam-project-0.0.6</tag>
 	</scm>
 
 	<!-- <scm> <connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection> 
@@ -134,7 +133,7 @@
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
-				<module>tests</module>
+				<module>distributions</module>
 			</modules>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -156,7 +155,6 @@
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
-				<module>documentations/tutorials</module>
 				<module>distributions</module>
 			</modules>
 		</profile>
