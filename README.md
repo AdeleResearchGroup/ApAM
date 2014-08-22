@@ -45,7 +45,7 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 Please suffix ApamCore with version number (using previous release number or latest release number plus "-SNAPSHOT"). For instance to use ApAM release 0.0.3 :
 ```xml
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore-0.0.3.xsd">
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.3.xsd">
 
 ...
 
@@ -56,10 +56,29 @@ Please suffix ApamCore with version number (using previous release number or lat
 
 ## Changelog
 
-* ApAM 0.0.7 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=open) (currently under development)
+* ApAM 0.0.8 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=7&page=1&state=open) (currently under development)
 	* To be defined
 
-* ApAM 0.0.6 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.6/apam-basic-distribution-0.0.6.zip)
+* ApAM 0.0.7 - Ornery Orangutan [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.7/apam-basic-distribution-0.0.7.zip)
+	* Instance lifecycle
+		* Instances can self-destroy or be destroyed calling the onRemove callback
+		* Instances are not created if throwing exception on constructor or OnInit callback
+		* Instances are blacklisted for the current resolution if throwing exception during creation
+	* Apam component Repository (ACR)
+		* outputAcr configuration of Apam Maven Plugin installs apam component in a specific repository (OBR)
+		* inputAcr configuration of Apam Maven Plugin check a component dependencies against specific repositories (OBR)
+	* Apam Maven Plugin extended
+		* Maven artifacts of dependencies are no longer required in the pom where there are no code dependencies
+		* Maven bundle plugin is no longer required in the pom
+		* Checking the ipojo metadata of the dependencies (opening corresponding jar files) is now optional (using inputAcr instead)
+	* Possible to check particular version range for a group of a component during compilation
+	* Extended pending command behavior
+	* ApAM support event-admin and other attributes namespace in implementation declaration (compatible with ow2-chameleon Fuchsia)
+	* Adding java packages as provided/required resources (experimental, might interact with Bundle repository Resolution)
+	* Separation of concern between expected managers and manager configuration
+	* Several [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) 
+
+* ApAM 0.0.6 - Napkin Ninja [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=5&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.6/apam-basic-distribution-0.0.6.zip)
 	* Added new Property Type : float (a floating point value, mapped to java Float Class)
 	* Added new Property Type : version (defining an OSGi version, mapped to org.osgi.framework.Version)
 	* Contextual Relation : "ContextDependencyType" are back again for composite contextual behavior
