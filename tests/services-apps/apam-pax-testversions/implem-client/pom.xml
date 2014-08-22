@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>apam-pax-test-version</artifactId>
 		<groupId>fr.imag.adele.apam.tests.app</groupId>
-		<version>0.0.7</version>
+		<version>0.0.8-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>

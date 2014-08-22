@@ -3,12 +3,12 @@
 	<parent>
 		<artifactId>apam-pax-test-version</artifactId>
 		<groupId>fr.imag.adele.apam.tests.app</groupId>
-		<version>0.0.7</version>
+		<version>0.0.8-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>implem-server-v2</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.0.7</version>
+	<version>2.0.0</version>
 
 
 	<build>
@@ -16,7 +16,7 @@
             <plugin>
                 <groupId>fr.imag.adele.apam</groupId>
                 <artifactId>apam-maven-plugin</artifactId>
-                <version>${project.parent.version}</version>
+                <version>0.0.8-SNAPSHOT</version>
                 <extensions>true</extensions>
             </plugin>
 
