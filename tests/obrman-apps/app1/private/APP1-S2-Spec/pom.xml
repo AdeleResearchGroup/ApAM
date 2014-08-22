@@ -3,7 +3,7 @@
     <parent>
         <artifactId>app1.private.components</artifactId>
         <groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-        <version>0.0.7-SNAPSHOT</version>
+        <version>0.0.7</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <packaging>bundle</packaging>

@@ -3,13 +3,13 @@
 	<parent>
 		<artifactId>apam-pax-test-version</artifactId>
 		<groupId>fr.imag.adele.apam.tests.app</groupId>
-		<version>0.0.7-SNAPSHOT</version>
+		<version>0.0.7</version>
 	</parent>
 
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>spec-server-v1</artifactId>
 	<packaging>bundle</packaging>
-	<version>1.0.0</version>
+	<version>0.0.7</version>
 
 
 	<build>
