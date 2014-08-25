@@ -338,6 +338,21 @@
 				<enabled>true</enabled>
 			</releases>
 		</pluginRepository>
+        <pluginRepository>
+            <id>apam-release-plugin-repository</id>
+            <url>https://repository-apam.forge.cloudbees.com/release/repository/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>apam-snapshot-plugin-repository</id>
+            <url>https://repository-apam.forge.cloudbees.com/snapshot/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        
 	</pluginRepositories>
 
 	<distributionManagement>
