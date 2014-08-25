@@ -271,21 +271,6 @@
 
     </pluginRepositories>
 
-    <distributionManagement>
-        <repository>
-            <id>cloudbees-private-release-repository</id>
-            <name>Cloudbees Private Repository</name>
-            <url>dav:https://repository-apam.forge.cloudbees.com/release/repository</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-        <snapshotRepository>
-            <id>cloudbees-private-snapshot-repository</id>
-            <url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
