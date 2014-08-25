@@ -2,14 +2,16 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>apam-plugins</artifactId>
-		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.8-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
 
+    <parent>
+        <artifactId>apam-parent</artifactId>
+        <groupId>fr.imag.adele.apam</groupId>
+        <version>0.0.8-SNAPSHOT</version>
+    </parent>
+
+    <groupId>fr.imag.adele.apam</groupId>
 	<artifactId>apam-maven-plugin</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>ApAM Maven Plugin (Maven Mojo)</name>
 	<description>An maven plugin that extends an OSGi Bundle Repository (compliant with OSGi RFC 0112)
@@ -24,6 +26,7 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+			<version>${osgi.version}</version>
         </dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -67,16 +70,19 @@
 		<dependency>
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<groupId>org.apache.felix</groupId>
+			<version>${ipojo.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>maven-ipojo-plugin</artifactId>
+			<version>${ipojo.version}</version>
 			<scope>compile</scope>
 			<type>maven-plugin</type>
 		</dependency>
@@ -84,6 +90,7 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
+			<version>${ipojo.version}</version>
 		</dependency>
 
         <dependency>
