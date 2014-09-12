@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0"
+	factory="LockHomeAutomationFactory" enabled="true" immediate="true"  name="LockHomeAutomation">
+
+	<implementation 
+		class="fr.imag.adele.apam.application.lock.LockHomeAutomation" />
+	
+	<properties entry="OSGI-INF/otb.properties" />
+	
+    <property name="author" value="German Vega" />
+		
+	<reference name="x3dShutter" interface="org.osgi.x3d.IX3DDevice"
+		cardinality="0..n"
+		policy="dynamic" target="(DEVICE_FRIENDLY_NAME=Shutter Switch*)"/>
+	
+	<reference name="Zlock" interface="org.osgi.service.zigbee.ZigBeeEndpoint"
+		target="(DEVICE_FRIENDLY_NAME=Door Lock*)" cardinality="0..n" policy="dynamic" />
+	
+</scr:component>

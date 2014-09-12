@@ -26,26 +26,37 @@
     <specification name="X3DDevice" interfaces="org.osgi.x3d.IX3DDevice">
         <definition name="DEVICE_FRIENDLY_NAME" type="string"/>
        </specification>
+       
+ 	<specification name="DeviceZigbee" interfaces="org.osgi.service.zigbee.ZigBeeEndpoint" >
+ 	    <definition name="DEVICE_FRIENDLY_NAME" type="string"/>
+ 	</specification>
+
+       
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
  
- 	<callback onInit="start"/>
+ 		<callback onInit="start" onRemove="stop"/>
         
- 	<!--  
-        <relation field="doors" specification="Door">
-            <constraints>
-            	<instance filter="(access=true)"/>
-            </constraints>
-        </relation>
-	 -->
-        <relation field="shutter" specification="X3DDevice" multiple="false" resolve="exist" creation="eager">
+ 		<ipojo:requires optional="false" field="httpService"/>
+ 		
+         <relation field="shutter" specification="X3DDevice" multiple="false" resolve="exist" creation="eager">
             <constraints>
             	<instance filter="(DEVICE_FRIENDLY_NAME=Shutter Switch*)"/>
             </constraints>
         </relation>
+ 
+ 		<!-- requiert tous les Zlock -->
+		<relation name="Zlock" specification="DeviceZigbee" creation="eager" resolve="exist" multiple="true"  field="locks" >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=Door Lock*)"/>
+			</constraints>
+		</relation>
         
         <definition name="isDay" type="string" method="isDayChanged"/>
         
     </implementation>
     
+	<apam-instance name="Lock" 
+		implementation="LockHomeAutomation">
+	</apam-instance>
 
 </apam>
