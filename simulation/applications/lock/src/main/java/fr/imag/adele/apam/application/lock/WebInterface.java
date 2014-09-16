@@ -1,8 +1,7 @@
 package fr.imag.adele.apam.application.lock;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.http.HttpService;
 
+import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.util.Attribute;
 
 public class WebInterface extends HttpServlet {
 
@@ -37,17 +39,24 @@ public class WebInterface extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		setProperties(request);
-		
-		response.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
-		response.getWriter().println(getEncodedProperties());
-		response.setStatus(HttpServletResponse.SC_OK);
+		sendState(response);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		setProperties(request);
+		sendState(response);
+	}
+
+	private void sendState(HttpServletResponse response) throws ServletException, IOException  {
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		
+		PrintWriter builder = response.getWriter(); 
+		encodeProperties(builder);
+		builder.flush();
 		response.setStatus(HttpServletResponse.SC_OK);
+		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -60,22 +69,79 @@ public class WebInterface extends HttpServlet {
 		
 	}
 
-	private String getEncodedProperties() {
+	private void encodeProperties(PrintWriter builder) {
 		
-		StringBuilder builder = new StringBuilder();
-		for (Map.Entry<String,String> property : application.getAllPropertiesString().entrySet()) {
-			if (builder.length() > 0)
-				builder.append('&');
-			builder.append(property.getKey()).append('=').append(property.getValue());
+		builder.append('{');
+		
+		boolean first = true;
+		for (Map.Entry<String,Object> property : application.getAllProperties().entrySet()) {
+			
+			
+			PropertyDefinition definition = application.getPropertyDefinition(property.getKey());
+			
+			/*
+			 * skip internal properties
+			 */
+			if (definition == null)
+				continue;
+
+			if (!first)
+				builder.append(',');
+
+			builder.append('"').append(property.getKey()).append('"');
+			builder.append(':');
+			encodeAttribute(builder,definition,property.getValue());
+			
+			first = false;
 		}
 
-		try {
-			return URLEncoder.encode(builder.toString(),"UTF-8");
-		} catch (UnsupportedEncodingException ignored) {
-			return builder.toString();
-		}
+		builder.append('}');
+		
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void encodeAttribute(PrintWriter builder, PropertyDefinition definition, Object value) {
+		
+		/*
+		 * multi-valued properties are already stored as set of strings
+		 */
+		if (definition.isSet()) {
+			
+			builder.append('[');
+			boolean first = true;
+			for (String element : ((Set<String>) value)) {
+				if (! first)
+					builder.append(',');
+				
+				builder.append(element);
+				first = false;
+			};
+			builder.append(']');
+			return;
+		}
+		
+		/*
+		 * for other types encode depending on the type of property
+		 */
+		switch(Attribute.splitType(definition.getType()).type) {
+			case AttrType.INTEGER :
+				builder.append(((Integer)value).toString());
+				break;
+			case AttrType.BOOLEAN :
+				builder.append(((Boolean)value).toString());
+				break;
+			case AttrType.FLOAT :
+				builder.append(((Float)value).toString());
+				break;
+			case AttrType.STRING :
+			case AttrType.ENUM :
+			case AttrType.VERSION :
+			default :
+				builder.append('"').append(value.toString()).append('"');
+				break;
+		}
+
+	}
 	
 	public void dispose() {
 		webContainer.unregister("/DayNightApplication");

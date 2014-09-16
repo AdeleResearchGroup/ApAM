@@ -51,7 +51,7 @@
 			</constraints>
 		</relation>
         
-        <definition name="isDay" type="string" method="isDayChanged"/>
+        <definition name="isDay" type="boolean" method="isDayChanged"/>
         
     </implementation>
     

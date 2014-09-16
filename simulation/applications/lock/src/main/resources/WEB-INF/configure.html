@@ -5,20 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Day/Night lock Application By LIG</title>
 
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/font-awesome.min.css" rel="stylesheet" >
+<link href="css/bootstrap-switch.min.css" rel="stylesheet">
+
+<script src="js/jquery-2.1.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-switch.min.js"></script>
+
 </head>
 
 <body>
-	<div id="header">
-		<div id="title">
-			<p>Day/Night lock Application By LIG</p>
-		</div>
-	</div>
-	
-	<form  action="REST" method="POST">
-		<input type="checkbox" name="isDayChecker" value="True" onchange="">isDay<br>
-		<input type="hidden"   name="isDay" value="True">
-	</form>
 
+
+<div class="container">
+
+	<section id="main" class="section">
+	<H1>Day/Night lock Application <p><small>OTB sample conflict application</small></p></H1>
+	<form class="clearfix" role="form">
+		  <div class="form-group">
+     		<input id="isDay" type="checkbox" checked="true"
+    			data-animate="true"
+    			data-label-text = "<span class='text-center'/>"
+    			data-on-text="<span class='fa fa-4x fa-unlock'></span>"
+    			data-off-text="<span class='fa fa-4x fa-lock'></span>"
+    			data-size="large" data-on-color="danger" data-off-color="success"
+    		/>
+    			
+<!--		
+    			data-on-text="<span class='fa fa-4x fa-sun-o'></span>"
+    			data-off-text="<span class='fa fa-4x fa-moon-o'></span>"
+    			data-size="large" data-on-color="warning" data-off-color="default"
+-->
+    			
+    			
+    		<p class="help-block"><small>click switch to lock/unlock home</small></p>
+		  </div>
+	</form>	
+	</section>
+	
+</div>
+	
+<script src="js/configure.js"></script>
+	
 </body>
 
 </html>
