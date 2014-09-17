@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0"
-	factory="LockHomeAutomationFactory" enabled="true" immediate="true"  name="LockHomeAutomation">
+	factory="LockHomeAutomationFactory" enabled="true"   name="LockHomeAutomation">
 
 	<implementation 
 		class="fr.imag.adele.apam.application.lock.LockHomeAutomation" />

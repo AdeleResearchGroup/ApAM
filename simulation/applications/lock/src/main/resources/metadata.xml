@@ -35,10 +35,10 @@
     <implementation name="LockHomeAutomation" classname="fr.imag.adele.apam.application.lock.LockHomeAutomation">
  
  		<callback onInit="start" onRemove="stop"/>
+
+        <ipojo:requires field="httpService" proxy="false" optional="false" />
         
- 		<ipojo:requires optional="false" field="httpService"/>
- 		
-         <relation field="shutter" specification="X3DDevice" multiple="false" resolve="exist" creation="eager">
+        <relation field="shutter" specification="X3DDevice" multiple="false" resolve="exist" creation="eager">
             <constraints>
             	<instance filter="(DEVICE_FRIENDLY_NAME=Shutter Switch*)"/>
             </constraints>

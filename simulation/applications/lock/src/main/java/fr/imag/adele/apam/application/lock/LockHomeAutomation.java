@@ -138,9 +138,9 @@ public class LockHomeAutomation implements X3DHandler, ZigBeeCommandHandler {
 		System.out.println("x3d command ok "+arg0);
 	}
 
-	public void isDayChanged(String isDay) {
+	public void isDayChanged(boolean isDay) {
 		System.out.println("is day changed "+isDay);
-		isNight = !(isDay.equals("true"));
+		isNight = !isDay;
 		toggleActivation();
 	}
 

@@ -24,6 +24,10 @@ $(document).ready(function() {
 	 * Initialize the GUI from the current state of the application
 	 */
 	var initialize = function() {
+		
+		/*
+		 * initialize sitch button
+		 */
 		var $switch = $('#isDay');
 
 		$switch.bootstrapSwitch();
@@ -35,6 +39,8 @@ $(document).ready(function() {
 	};
 
 
+
+	
 	/**
 	 * Initializes the GUI and trigger initial refresh
 	 */
