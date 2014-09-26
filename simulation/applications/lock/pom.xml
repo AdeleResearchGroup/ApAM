@@ -11,7 +11,7 @@
 	<artifactId>applications.lock</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>ApAM OTB lock doors test application</name>
+	<name>Day/Night Security Application</name>
 
 	<dependencies>
 	
