@@ -1,0 +1,97 @@
+body {
+	background-color: black;
+	color: orange;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	margin: 10px;
+}
+
+#header {
+	display: block;
+	width : 100%;
+	margin-bottom: 25px;
+}
+
+#header_left {
+	display: inline;
+	float: left;
+	width: 100%;
+	text-align: center;
+	padding-top: 25px;
+	padding-bottom : 50px;
+}
+
+#header_right {
+	display: inline;
+	float: right;
+	margin-top: -90px;
+}
+
+
+#applicationName {
+	margin : auto;
+	display: inline;
+}
+
+#logoOrange {
+	float:right;
+}
+
+
+
+#status_label {
+	float: left;
+	width: 50%;
+	text-align: right;
+	margin-top: 40px;
+}
+
+#status_label span {
+	padding: 10px 50px 10px 10px;
+}
+
+#status_div {
+	float: left;
+	width: 50%;
+}
+
+#statusDiv {
+	
+}
+
+#serviceActivationDiv {
+	text-align: center;
+}
+
+#serviceActivationDiv button {
+	margin: 25px 25px 25px 25px;
+}
+
+
+.devices {
+	border: 2px solid orange;
+	width: 32%;
+	float : left;
+	margin-left: 5px;
+	margin-right: 5px;
+	height : 200px;
+}
+
+
+.deviceTitles {
+	margin-top: -12px;
+}
+
+.deviceTitles span {
+	background-color: black;
+	margin-left: 5px;
+}
+
+.device {
+	margin-left: 5px;
+}
+
+.device img {
+	width: 20px;
+	height: 20px;
+}

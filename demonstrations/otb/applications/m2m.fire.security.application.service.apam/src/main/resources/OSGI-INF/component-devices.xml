@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0"
+	factory="FactoryApamzimedFireApplication" enabled="true" immediate="true"  name="FireApplicationService">
+
+	<implementation 
+		class="com.francetelecom.m2m.gateway.bundle.application.FireApplicationService_Impl" />
+	
+	<service>
+		<provide interface="org.osgi.service.event.EventHandler" />
+	</service>
+	
+	<properties entry="OSGI-INF/otb.properties" />
+	
+	<property name="event.topics" value="zcl/*" />
+    <property name="author" value="Fabrice Blache" />
+
+	<reference name="LogService" interface="org.osgi.service.log.LogService" 
+		cardinality="0..1" policy="dynamic" 
+		bind="setLogServiceReference" unbind="unsetLogServiceReference" />
+	
+	<reference name="HttpService" interface="org.osgi.service.http.HttpService" 
+		cardinality="1..1"  policy="dynamic" 
+		bind="setHttpService" unbind="unsetHttpService" />
+	
+	<reference name="IASZoneFire" target="(DEVICE_FRIENDLY_NAME=IAS Zone*)"
+		interface="com.francetelecom.m2m.gateway.service.machine.zcl.element.EndPointService"
+		cardinality="0..n" policy="dynamic" 
+		bind="setZoneDetectorService" unbind="unsetZoneDetectorService" />
+		
+	<reference name="IASWDFire" target="(DEVICE_FRIENDLY_NAME=IAS Warning Device*)"
+		interface="com.francetelecom.m2m.gateway.service.machine.zcl.element.EndPointService"
+		cardinality="0..n" policy="dynamic" 
+		bind="setWarningDeviceService" unbind="unsetWarningDeviceService" />
+	
+	<reference name="Pump" target="(DEVICE_FRIENDLY_NAME=Pump*)"
+		interface="com.francetelecom.m2m.gateway.service.machine.zcl.element.EndPointService"
+		cardinality="0..n" policy="dynamic" 
+		bind="setPumpDeviceService" unbind="unsetPumpDeviceService" />
+		
+	<reference name="x3dLightDimmer" interface="org.osgi.x3d.IX3DDevice"
+		bind="setX3DLightDimmer" unbind="unsetX3DLightDimmer" cardinality="0..n"
+		policy="dynamic" target="(DEVICE_FRIENDLY_NAME=Light Dimmer*)"/>
+	
+	<reference name="hueLight" interface="com.orange.openthebox.hab.HueLightDevice"
+		bind="setHueLight" unbind="unsetHueLight" cardinality="0..n"
+		policy="dynamic" />
+	
+	<reference name="greennetSwitch" interface="com.st.greennet.service.Device"
+		bind="setGreenetSwitch" unbind="unsetGreenetSwitch" cardinality="0..n" target="(DEVICE_FRIENDLY_NAME=SWITCH)"
+		policy="dynamic" />
+	
+</scr:component>

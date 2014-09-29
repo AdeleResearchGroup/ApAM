@@ -1,0 +1,144 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <groupId>fr.imag.adele.apam</groupId>
+	<artifactId>demonstrations.parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>ApAM Demonstrations configuration</name>
+	<description>This POM defines the standard dependencies and tools</description>
+
+	<properties>
+
+		<!-- Dependencies version -->
+
+		<apam.version>0.0.8-SNAPSHOT</apam.version>
+
+		<!-- java compilation version -->
+		<compiler.plugin.version>2.5.1</compiler.plugin.version>
+		<java.version>1.6</java.version>
+		<javadoc.plugin.version>2.9</javadoc.plugin.version>
+		<source.plugin.version>2.1.2</source.plugin.version>
+		<release.plugin.version>2.4</release.plugin.version>
+		
+		<!-- ipojo compilation version -->
+		<osgi.version>4.2.0</osgi.version>
+		<bundle.plugin.version>2.5.3</bundle.plugin.version>
+
+		<ipojo.version>1.11.2</ipojo.version>
+		
+	</properties>
+
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>${osgi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.compendium</artifactId>
+				<version>${osgi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.ipojo.annotations</artifactId>
+				<version>${ipojo.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-core</artifactId>
+				<version>${apam.version}</version>
+				<scope>compile</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	
+	<repositories>
+		<repository>
+			<id>apam-repository-release</id>
+			<url>http://repository-apam.forge.cloudbees.com/release/repository/</url>
+		</repository>
+		<repository>
+			<id>apam-repository-snapshot</id>
+			<url>https://repository-apam.forge.cloudbees.com/snapshot/repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apam-plugin-repository-release</id>
+			<url>https://repository-apam.forge.cloudbees.com/release/repository</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>apam-plugin-repository-snapshot</id>
+			<url>https://repository-apam.forge.cloudbees.com/snapshot/repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+	
+	<build>
+		<pluginManagement>
+		<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${compiler.plugin.version}</version>
+					<configuration>
+						<debug>true</debug>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${bundle.plugin.version}</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>apam-maven-plugin</artifactId>
+					<version>${apam.version}</version>
+					<extensions>true</extensions>
+					
+					<executions>
+						<execution>
+							<goals>
+								<goal>apam-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${source.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>install</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+		</plugins>
+		
+		</pluginManagement>
+	</build>
+</project>

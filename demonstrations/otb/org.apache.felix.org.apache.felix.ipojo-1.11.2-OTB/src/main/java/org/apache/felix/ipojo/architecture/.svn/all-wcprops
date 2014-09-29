@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 143
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture
+END
+CustomHandlerInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 166
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/CustomHandlerInfo.java
+END
+InstanceDescription.java
+K 25
+svn:wc:ra_dav:version-url
+V 168
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/InstanceDescription.java
+END
+PropertyDescription.java
+K 25
+svn:wc:ra_dav:version-url
+V 168
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/PropertyDescription.java
+END
+ComponentTypeDescription.java
+K 25
+svn:wc:ra_dav:version-url
+V 173
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/ComponentTypeDescription.java
+END
+Architecture.java
+K 25
+svn:wc:ra_dav:version-url
+V 161
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/Architecture.java
+END
+HandlerDescription.java
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/architecture/HandlerDescription.java
+END

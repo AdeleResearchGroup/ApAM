@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>demonstrations.parent</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>applications.lock</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>Day/Night Security Application</name>
+	<description>This demonstration application allows to lock home at night, and unlock it during the day </description>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apam-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>x3d.bundle</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/org.osgi.x3d_1.1.0.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.zigbee</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/org.osgi.service.zigbee.jar</systemPath>
+		</dependency>
+		
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Vendor>LIG</Bundle-Vendor>
+						<Bundle-Author>German VEGA</Bundle-Author>
+						<Bundle-Description>${project.description}</Bundle-Description>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Import-Package>*</Import-Package>
+						<Private-Package>fr.imag.adele.apam.application.lock</Private-Package>
+						<Service-Component>OSGI-INF/component-devices.xml</Service-Component>
+						<Application-Icon>OSGI-INF/app_logo.png</Application-Icon>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-maven-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

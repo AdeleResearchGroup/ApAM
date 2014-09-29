@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 150
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/handlers/dependency
+END
+SmartProxyTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 170
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/handlers/dependency/SmartProxyTest.java
+END
+DependencyIdentifierTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/handlers/dependency/DependencyIdentifierTest.java
+END

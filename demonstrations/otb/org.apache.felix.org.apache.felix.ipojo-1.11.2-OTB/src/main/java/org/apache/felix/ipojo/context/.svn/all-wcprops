@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/context
+END
+ServiceRegistrationImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/context/ServiceRegistrationImpl.java
+END
+StringMap.java
+K 25
+svn:wc:ra_dav:version-url
+V 153
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/context/StringMap.java
+END
+ServiceReferenceImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 164
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/context/ServiceReferenceImpl.java
+END
+ServiceRegistry.java
+K 25
+svn:wc:ra_dav:version-url
+V 159
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/context/ServiceRegistry.java
+END

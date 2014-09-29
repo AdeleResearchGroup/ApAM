@@ -17,11 +17,9 @@
     </parent>
 
 
-	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>apam-project</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.8-SNAPSHOT</version>
-    <name>ApAM Project</name>
+	<name>ApAM Project</name>
 
 
 	<profiles>
@@ -159,7 +157,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>${maven.release.plugin.version}</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>

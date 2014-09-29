@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 154
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue
+END
+Statistic.java
+K 25
+svn:wc:ra_dav:version-url
+V 169
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/Statistic.java
+END
+PrefixedThreadFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 181
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/PrefixedThreadFactory.java
+END
+SynchronousQueueService.java
+K 25
+svn:wc:ra_dav:version-url
+V 183
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/SynchronousQueueService.java
+END
+NamingThreadFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 179
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/NamingThreadFactory.java
+END
+ExecutorQueueService.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/ExecutorQueueService.java
+END
+QueueNotifier.java
+K 25
+svn:wc:ra_dav:version-url
+V 173
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/QueueNotifier.java
+END
+AbstractQueueService.java
+K 25
+svn:wc:ra_dav:version-url
+V 180
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/AbstractQueueService.java
+END
+JobInfoCallable.java
+K 25
+svn:wc:ra_dav:version-url
+V 175
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/JobInfoCallable.java
+END
+GroupThreadFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 178
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/GroupThreadFactory.java
+END

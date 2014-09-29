@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 145
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue
+END
+Job.java
+K 25
+svn:wc:ra_dav:version-url
+V 154
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue/Job.java
+END
+JobInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 158
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue/JobInfo.java
+END
+QueueListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 164
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue/QueueListener.java
+END
+Callback.java
+K 25
+svn:wc:ra_dav:version-url
+V 159
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue/Callback.java
+END
+QueueService.java
+K 25
+svn:wc:ra_dav:version-url
+V 163
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/queue/QueueService.java
+END

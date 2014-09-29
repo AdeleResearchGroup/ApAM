@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>apam-otb-scenario</artifactId>
+        <groupId>fr.imag.adele.apam</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>apam-otb-applications</artifactId>
+    <name>ApAM Applications for Open The Box</name>
+    
+    <packaging>pom</packaging>
+    <modules>
+        <module>lock</module>
+        <module>m2m.fire.security.application.service.apam</module>
+    </modules>
+</project>

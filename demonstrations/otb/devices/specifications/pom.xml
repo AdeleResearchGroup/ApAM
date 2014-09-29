@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>fr.imag.adele.apam</groupId>
+		<artifactId>demonstrations.parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>device.specifications</artifactId>
+	<name>ApAM basic device specifications</name>
+	<description>This bundles defines the device specifications</description>
+	<packaging>bundle</packaging>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.zigbee</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/org.osgi.service.zigbee.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.orange.zigbee</groupId>
+			<artifactId>com.orange.zigbee.m2mgatewayservices</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/m2mgatewayservices.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>x3d.bundle</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/org.osgi.x3d_-_bundle_1.0.1.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.st.greennet</groupId>
+			<artifactId>core</artifactId>
+			<scope>system</scope>
+			<version>1.0</version>
+			<systemPath>${basedir}/lib/com.st.greennet.core.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.orange.openthebox.hab</groupId>
+			<artifactId>hue.basedriver</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/hue.basedriver-1.0.0-SNAPSHOT.jar</systemPath>
+		</dependency>
+	</dependencies>
+		
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

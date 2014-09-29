@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<link type="stylesheet" href="css/configure.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style type="text/css">
+body {
+	background-color: black;
+	color: orange;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	margin: 10px;
+}
+
+#header {
+	display: block;
+	width: 100%;
+	margin-bottom: 25px;
+}
+
+#header_left {
+	display: inline;
+	float: left;
+	width: 100%;
+	text-align: center;
+	padding-top: 25px;
+	padding-bottom: 50px;
+}
+
+#header_right {
+	display: inline;
+	float: right;
+	margin-top: -90px;
+}
+
+#applicationName {
+	margin: auto;
+	display: inline;
+}
+
+#logoOrange {
+	float: right;
+}
+
+#status_label {
+	float: left;
+	width: 50%;
+	text-align: right;
+	margin-top: 40px;
+}
+
+#status_label span {
+	padding: 10px 50px 10px 10px;
+}
+
+#status_div {
+	float: left;
+	width: 50%;
+}
+
+#statusDiv {
+	
+}
+
+#serviceActivationDiv {
+	text-align: center;
+}
+
+#serviceActivationDiv button {
+	margin: 25px 25px 25px 25px;
+}
+
+.devices {
+	border: 2px solid orange;
+	width: 31%;
+	float: left;
+	margin-left: 5px;
+	margin-right: 5px;
+	height: 100px;
+}
+
+.deviceTitles {
+	margin-top: -12px;
+}
+
+.deviceTitles span {
+	background-color: black;
+	margin-left: 5px;
+}
+
+.device {
+	margin-left: 5px;
+}
+
+.device img {
+	width: 50px;
+	height: 50px;
+}
+</style>
+<script type="text/javascript" src="script/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="script/ip.js"></script>
+<script type="text/javascript">
+	var devicesTest = {
+		"pumps" : [ {
+			"id" : "pump1",
+			"name" : "Pump #1545",
+			"img" : "img/zigbeePump.png",
+			"techno" : "ZigBee"
+		} ],
+		"iasZones" : [ {
+			"id" : "iasZone1",
+			"name" : "IASZone #1545",
+			"img" : "img/zigbeeIasZone.png",
+			"techno" : "ZigBee"
+		} ],
+		"iasWarnings" : [ {
+			"id" : "iasWarning1",
+			"name" : "IASWarning #1545",
+			"img" : "img/zigbeeIasWarning.png",
+			"techno" : "ZigBee"
+		} ]
+	};
+	/*var devicesTest = {
+			"pumps" : [ ],
+			"iasZones" : [],
+			"iasWarnings" : []
+		};*/
+
+	function getStatusComplete(data) {
+			$("#status_reasons").empty();
+		if (data.status === 0) {
+			$("#status").attr("src", "img/feuvert.png");
+			$("#onButton").attr("disabled", "disabled");
+			$("#offButton").removeAttr("disabled");
+			
+		} else if (data.status === 1) {
+			$("#status").attr("src", "img/feuorange.png");
+			
+			
+		} else if (data.status === 2) {
+			$("#status").attr("src", "img/feurouge.png");
+			$("#onButton").removeAttr("disabled");
+			$("#offButton").attr("disabled", "disabled");
+			
+			if (data.errorCodes.indexOf("SERVICE_DISABLED") != -1) {
+				$("#onButton").removeAttr("disabled");
+				$("#offButton").attr("disabled", "disabled");
+			} else {
+				$("#onButton").attr("disabled", "disabled");
+				$("#offButton").removeAttr("disabled");
+			}
+			
+			for ( var i = 0; i < data.errorCodes.length; i++) {
+				var errorCode = data.errorCodes[i];
+				$("#status_reasons").append("<span>" + errorCode + "</span>");
+			}
+			
+		}
+	}
+
+	function getStatusError(data) {
+		$("#status").attr("src", "img/ajax-loader.gif");
+	}
+
+	function enableComplete(d) {
+		getApplicationStatus(getStatusComplete, getStatusError);
+	}
+
+	function disableComplete(d) {
+		getApplicationStatus(getStatusComplete, getStatusError);
+	}
+
+	function getDevicesComplete(data) {
+		var pumps = data.pumps;
+		$("#pumpItems").empty();
+		if (pumps.length == 0) {
+			$("#pumpItems").append("<span>No pumps</span>");
+		} else {
+			for ( var i = 0; i < pumps.length; i++) {
+				var pump = pumps[i];
+				console.log("found pumps " + pump);
+				console.log("pump.id=" + pump.id);
+				console.log("pump.name=" + pump.name);
+				$("#pumpItems")
+						.append(
+								"<div id=\"" + pump.id + "\" class=\"device\">"
+										+ "<img src=\"" + pump.img + "\" alt=\"img pump\"></img> <span>"
+										+ pump.name + "</span></div>");
+			}
+		}
+
+		var iasZones = data.iasZones;
+		$("#iasZoneItems").empty();
+		if (iasZones.length == 0) {
+			$("#iasZoneItems").append("<span>No smoke detectors</span>");
+		} else {
+			for ( var i = 0; i < iasZones.length; i++) {
+				var iasZone = iasZones[i];
+				console.log("found iasZone " + iasZone);
+				console.log("iasZone.id=" + iasZone.id);
+				console.log("iasZone.name=" + iasZone.name);
+
+				$("#iasZoneItems")
+						.append(
+								"<div id=\"" + iasZone.id + "\" class=\"device\">"
+										+ "<img src=\"" + iasZone.img + "\" alt=\"img pump\"></img> <span>"
+										+ iasZone.name + "</span></div>");
+			}
+		}
+
+		var iasWarnings = data.iasWarnings;
+		$("#iasWarningItems").empty();
+		if (iasWarnings.length == 0) {
+			$("#iasWarningItems").append("<span>No Warning devices</span>");
+		} else {
+			for ( var i = 0; i < iasWarnings.length; i++) {
+				var iasWarning = iasWarnings[i];
+				console.log("found iasWarning " + iasWarning);
+				console.log("iasWarning.id=" + iasWarning.id);
+				console.log("iasWarning.name=" + iasWarning.name);
+
+				$("#iasWarningItems")
+						.append(
+								"<div id=\"" + iasWarning.id + "\" class=\"device\">"
+										+ "<img src=\"" + iasWarning.img + "\" alt=\"img pump\"></img> <span>"
+										+ iasWarning.name + "</span></div>");
+			}
+		}
+
+	}
+</script>
+<title>Fire Application By Orange - Configuration</title>
+</head>
+<body>
+	<div id="header">
+		<div id="header_left">
+			<div id="applicationName"><span>Fire Application by Orange</span></div>
+		</div>
+		<div id="header_right">
+			<img id="logoOrange" alt="Logo Orange" src="img/orange_logo.png"></img>
+		</div>
+	</div>
+	<div id="content">
+
+		<div id="statusDiv">
+			<div id="status_label">
+				<span>Service status</span>
+			</div>
+			<div id="status_reasons">
+			</div>
+			<div id="status_div">
+				<img id="status" src="img/ajax-loader.gif"></img>
+			</div>
+		</div>
+
+		<div id="serviceActivationDiv">
+			<span>Service activation</span>
+			<button id="onButton" type="button" disabled="disabled"
+				onclick="enable(enableComplete);">On</button>
+			<button id="offButton" type="button" disabled="disabled"
+				onclick="disable(disableComplete);">Off</button>
+
+		</div>
+
+		<div id="serviceDevices">
+
+			<div id="pumps" class="devices">
+				<div class="deviceTitles">
+					<span>Pumps</span>
+				</div>
+				<div id="pumpItems"></div>
+
+			</div>
+
+			<div id="iasZones" class="devices">
+				<div class="deviceTitles">
+					<span>Smoke detectors</span>
+				</div>
+				<div id="iasZoneItems"></div>
+			</div>
+
+			<div id="iasWarning" class="devices">
+				<div class="deviceTitles">
+					<span>Warning devices</span>
+				</div>
+				<div id="iasWarningItems"></div>
+			</div>
+
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	
+	
+	
+		getApplicationStatus(getStatusComplete, getStatusError);
+		getDevices(getDevicesComplete);
+		$(document).ready(function() {
+			var tid = setInterval(function() {
+				getDevices(getDevicesComplete);
+			}, 5000);
+			var tid = setInterval(function() {
+				getApplicationStatus(getStatusComplete, getStatusError);
+			}, 5000);
+		});
+	</script>
+</body>
+</html>

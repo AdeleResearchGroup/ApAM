@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 154
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue
+END
+SynchronousQueueServiceTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 191
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/SynchronousQueueServiceTestCase.java
+END
+NamingThreadFactoryTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 187
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/NamingThreadFactoryTestCase.java
+END
+ExecutorQueueServiceTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 188
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/ExecutorQueueServiceTestCase.java
+END
+AbstractQueueServiceTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 188
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/AbstractQueueServiceTestCase.java
+END
+JobInfoCallableTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 183
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/JobInfoCallableTestCase.java
+END
+GroupThreadFactoryTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 186
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/GroupThreadFactoryTestCase.java
+END
+PrefixedThreadFactoryTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 189
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/PrefixedThreadFactoryTestCase.java
+END

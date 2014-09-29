@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 163
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/callable
+END
+EmptyJob.java
+K 25
+svn:wc:ra_dav:version-url
+V 177
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/callable/EmptyJob.java
+END
+StringCallable.java
+K 25
+svn:wc:ra_dav:version-url
+V 183
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/callable/StringCallable.java
+END
+ExceptionCallable.java
+K 25
+svn:wc:ra_dav:version-url
+V 186
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/callable/ExceptionCallable.java
+END
+SleepingCallable.java
+K 25
+svn:wc:ra_dav:version-url
+V 185
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/queue/callable/SleepingCallable.java
+END

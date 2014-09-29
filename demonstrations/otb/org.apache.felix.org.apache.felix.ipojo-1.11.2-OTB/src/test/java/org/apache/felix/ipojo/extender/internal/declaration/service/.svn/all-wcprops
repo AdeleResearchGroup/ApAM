@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 168
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/declaration/service
+END
+DefaultConfigurationBuilderTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 209
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultConfigurationBuilderTestCase.java
+END
+DefaultInstanceBuilderTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 204
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultInstanceBuilderTestCase.java
+END
+DefaultDeclarationBuilderServiceTestCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 214
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/test/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultDeclarationBuilderServiceTestCase.java
+END

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 168
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/declaration/service
+END
+DeclarationServiceFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 199
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/declaration/service/DeclarationServiceFactory.java
+END
+DefaultConfigurationBuilder.java
+K 25
+svn:wc:ra_dav:version-url
+V 201
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultConfigurationBuilder.java
+END
+DefaultInstanceBuilder.java
+K 25
+svn:wc:ra_dav:version-url
+V 196
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultInstanceBuilder.java
+END
+DefaultDeclarationBuilderService.java
+K 25
+svn:wc:ra_dav:version-url
+V 206
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/declaration/service/DefaultDeclarationBuilderService.java
+END

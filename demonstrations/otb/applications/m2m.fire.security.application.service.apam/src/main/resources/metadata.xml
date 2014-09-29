@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam 	xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 		xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+
+ 	
+	<implementation name="FireApplicationService"
+		classname="com.francetelecom.m2m.gateway.bundle.application.FireApplicationService_Impl">
+ 	    
+	    <callback onInit="activate"/>
+	    
+	     <definition name="onFire" type="boolean" field="onFire"/>
+
+	    		<!-- pour être notifié d'alarme (porte ouverte ou fermée) du Zdoor  -->
+		<ipojo:provides specifications="org.osgi.service.event.EventHandler">
+			
+			<!-- les alarmes ZDoor sont publiées via l'event admin sur 
+		     le topic zcl/command/received/ZoneStatusChangeNotification -->
+			<ipojo:property name="event.topics" type="string" value="zcl/command/received/ZoneStatusChangeNotification" />
+			
+			<ipojo:property name="author" type="string" value="Gregory BONNARDEL" />
+		</ipojo:provides>
+	    
+		<relation name="LogService" specification="LogService" resolve="exist" creation="eager"	added="setLogServiceReference" removed="unsetLogServiceReference"/>
+		<relation name="HttpService" specification="HttpService" resolve="exist" creation="eager" fail="wait"	added="setHttpService" removed="unsetHttpService"/>
+				
+		<!-- requiert tous les Zdoor -->
+		<relation name="IASZoneFire" specification="M2MZigbeeDevice" creation="eager" multiple="true" resolve="exist" added="setZoneDetectorService" removed="unsetZoneDetectorService"  >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=IAS Zone*)"/>
+			</constraints>
+		</relation>
+			
+		<relation name="IASWDFire" specification="M2MZigbeeDevice" creation="eager" multiple="true" resolve="exist" added="setWarningDeviceService" removed="unsetWarningDeviceService"  >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=IAS Warning Device*)"/>
+			</constraints>
+		</relation>
+			
+		<relation name="Pump" specification="M2MZigbeeDevice" creation="eager" multiple="true" resolve="exist" added="setPumpDeviceService" removed="unsetPumpDeviceService"  >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=Pump*)"/>
+			</constraints>
+		</relation>
+				
+		<relation name="x3dShutterSwitch" specification="X3DDevice" creation="eager" multiple="true" resolve="exist" added="setX3DLightDimmer" removed="unsetX3DLightDimmer"  >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=Light Dimmer*)"/>
+			</constraints>
+		</relation>
+			
+		<relation name="hueLight" specification="HueLightDevice" multiple="true" creation="eager" resolve="exist" added="setHueLight" removed="unsetHueLight"  />
+				
+		<relation name="greennetSwitch" specification="GreennetDevice" multiple="true" creation="eager" resolve="exist" added="setGreenetSwitch" removed="unsetGreenetSwitch"  >
+			<constraints>
+				<instance filter="(DEVICE_FRIENDLY_NAME=SWITCH)"/>
+			</constraints>
+		</relation>
+		
+
+	</implementation>
+
+	<apam-instance name="FireApplicationServiceInstance" 
+		implementation="FireApplicationService">
+	</apam-instance>
+</apam>
+
+	

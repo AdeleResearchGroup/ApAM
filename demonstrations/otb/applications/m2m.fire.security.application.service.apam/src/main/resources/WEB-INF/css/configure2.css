@@ -1,0 +1,66 @@
+body {
+	background-color: black;
+	color: orange;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	margin: 10px;
+}
+
+a, a:HOVER, a:VISITED {
+	color: orange;
+}
+
+.panel-default, .panel-default>.panel-heading {
+	background-color: black;
+	border-color: orange;
+	color: orange;
+}
+
+.panel {
+	background-color: black;
+	color: orange;
+	border-color: orange;
+		
+}
+
+#header {
+	line-height: 50px;
+	height: 50px;
+	margin-bottom: 20px;
+}
+
+#logoOrange {
+	float: right;
+	margin-right: 5px;
+	margin-top: 5px;
+	vertical-align: middle !important;
+	display: inline-block !important; 
+}
+
+#title {
+	text-align: center;
+	display: inline-block !important;
+	vertical-align: middle !important;
+}
+
+#service_status_img {
+	float : right;
+}
+
+#service_status_panel_row {
+	height: 100px;
+	line-height: 100px;
+}
+
+#smoke_detectors_number_span, #warning_devices_number_span, #pumps_number_span, #activation_switch_div {
+	float: right;
+}
+
+#activation_title {
+	margin-top: 10px;
+}
+
+.device_img {
+	width: 40px;
+	height: 40px;
+}

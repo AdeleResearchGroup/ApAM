@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fire Application By Orange</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/bootstrap-switch.css" rel="stylesheet">
+<link href="css/configure2.css" rel="stylesheet">
+
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+	<div id="header" class="row">
+		<div class="col-xs-4"></div>
+		<div id="title" class="col-xs-4">
+			<p>Fire Application by Orange</p>
+		</div>
+		<div class="col-xs-4">
+			<img id="logoOrange" alt="Logo Orange" src="img/orange_logo.png"></img>
+		</div>
+	</div>
+
+	<div id="service_status" class="panel_group">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="panel-title">
+					<div id="service_status_panel_row" class="row">
+						<div class="col-xs-8">
+							<a data-toggle="collapse" data-parent="#service_status"
+								data-target="#collapseOne" href="#collapseOne"> Service
+								status </a>
+						</div>
+						<div class="col-xs-4">
+							<img id="service_status_img" src="img/feurouge.png">
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div id="collapseOne" class="panel-collapse collapse">
+				<div class="panel-body">
+					<ul id="errorCodes">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="service_activation" class="panel panel_default">
+		<div class="panel-heading">
+			<div class="panel-title">
+				<div class="row">
+					<div id="activation_title" class="col-xs-8">Activation</div>
+					<div class="col-xs-4">
+						<div id="activation_switch_div">
+							<input id="service_activation_switch" type="checkbox" checked
+								class="switch-large">
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div id="smoke_detectors_panel" class="panel_group">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="panel-title">
+					<div class="row">
+						<div class="col-xs-8">
+							<a data-toggle="collapse" data-parent="#smoke_detectors_panel"
+								data-target="#collapseSmokeDetectors"
+								href="#collapseSmokeDetectors">Smoke Detectors</a>
+						</div>
+						<div class="col-xs-4">
+							<span id="smoke_detectors_number_span">1</span>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div id="collapseSmokeDetectors" class="panel-collapse collapse in ">
+				<div class="panel-body" id="smoke_detectors_panel_body"></div>
+			</div>
+		</div>
+	</div>
+	<div id="pumps_panel" class="panel_group">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="panel-title">
+					<div class="row">
+						<div class="col-xs-8">
+							<a data-toggle="collapse" data-parent="#pumps_panel"
+								data-target="#collapsePumps" href="#collapsePumps">Actuators</a>
+						</div>
+						<div class="col-xs-4">
+							<span id="pumps_number_span">1</span>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div id="collapsePumps" class="panel-collapse collapse in">
+				<div class="panel-body" id="pumps_panel_body"></div>
+			</div>
+		</div>
+	</div>
+
+	<div id="warning_devices_panel" class="panel_group">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="panel-title">
+					<div class="row">
+						<div class="col-xs-8">
+							<a data-toggle="collapse" data-parent="#warning_devices_panel"
+								data-target="#collapseWarningDevices"
+								href="#collapseWarningDevices">Warning devices</a>
+						</div>
+						<div class="col-xs-4">
+							<span id="warning_devices_number_span">1</span>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div id="collapseWarningDevices" class="panel-collapse collapse in">
+				<div class="panel-body row" id="warning_devices_panel_body"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="script/jquery-1.10.2.min.js"></script>
+	<!-- for toggle -->
+	<script src="js/bootstrap-switch.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="js/bootstrap.min.js"></script>
+
+	<!-- Fire Application rest web service -->
+	<script type="text/javascript" src="script/ip.js"></script>
+
+	<script type="text/javascript">
+	<!--
+		// currentState = 0 => green state
+		// currentState = 1 => orange state
+		// currentState = 2 => red state
+		// currentState = -1 => init
+		var currentState = -1;
+
+		// Add a actuator device
+		function addActuator(actuator) {
+			var new_actuator = "<div id=\"" + actuator.id + "\" class=\"row\">"
+					+ "<div class=\"col-xs-3\">"
+					+ "<img src=\"" + actuator.img + "\" class=\"device_img\">"
+					+ "</div>" + "<div class=\"col-xs-9\">"
+					+ "<div class=\"row\">" + "<div class=\"col-xs-12\">"
+					+ actuator.name + "</div>" + "</div>" + "<div class=\"row\">"
+					+ "<div class=\"col-xs-12\">" + actuator.techno + "</div>"
+					+ "</div>" + "</div>" + "</div>";
+
+			$("#pumps_panel_body").append("<div class=\"col-xs-6\">" + new_actuator + "</div>");
+		}
+
+		// remove a actuator device 
+		function removeActuator(actuatorId) {
+
+		}
+
+		// Add a pump device
+		function addSmokeDetector(smokeDetector) {
+			var new_smoke_detector = "<div id=\"" + smokeDetector.id + "\" class=\"row\">"
+					+ "<div class=\"col-xs-1\">"
+					+ "<img src=\"" + smokeDetector.img + "\" class=\"device_img\">"
+					+ "</div>"
+					+ "<div class=\"col-xs-11\">"
+					+ "<div class=\"row\">"
+					+ "<div class=\"col-xs-12\">"
+					+ smokeDetector.name
+					+ "</div>"
+					+ "</div>"
+					+ "<div class=\"row\">"
+					+ "<div class=\"col-xs-12\">"
+					+ smokeDetector.techno
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>";
+
+			$("#smoke_detectors_panel_body").append(new_smoke_detector);
+		}
+
+		// remove a smoke detector device 
+		function removeSmokeDetector(smokeDetectorId) {
+
+		}
+
+		// Add a warning device
+		function addWarningDevice(warningDevice) {
+			var new_warning_device = "<div id=\"" + warningDevice.id + "\" class=\"row warningDevice\">"
+					+ "<div class=\"col-xs-3\">"
+					+ "<img src=\"" + warningDevice.img + "\" class=\"device_img\">"
+					+ "</div>"
+					+ "<div class=\"col-xs-9\">"
+					+ "<div class=\"row\">"
+					+ "<div class=\"col-xs-12\">"
+					+ warningDevice.name
+					+ "</div>"
+					+ "</div>"
+					+ "<div class=\"row\">"
+					+ "<div class=\"col-xs-12\">"
+					+ warningDevice.techno
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>";
+
+			$("#warning_devices_panel_body").append(
+					"<div class=\"col-xs-6\">" + new_warning_device + "</div>");
+		}
+
+		// remove a warning device 
+		function removeWarningDevice(warningDeviceId) {
+
+		}
+
+		// callback function called when loading device complete
+		function loadDeviceComplete(devices) {
+			// pumps
+			var pumps = devices.pumps;
+			var pumps_number = pumps.length;
+			var current_pumps_number = $("#pumps_number_span").text();
+
+			if (current_pumps_number != pumps_number) {
+				$("#pumps_number_span").empty();
+				$("#pumps_number_span").append(pumps_number);
+			}
+			if (pumps_number === 0) {
+				$("#pumps_panel_body").empty();
+				// add warning message
+
+			} else {
+				for ( var i = 0; i < pumps.length; i++) {
+					var pump = pumps[i];
+					console.log("pump.id :" + pump.id);
+					if (!$('#' + pump.id).length) {
+						// pump id does not exist
+						console.log("pump " + pump.id + " not found");
+						addActuator(pump);
+					} else {
+						// nothing to do
+						console.log("pump already exists - nothing to do");
+					}
+
+				}
+			}
+
+			// smoke detectors
+			var smokeDetectors = devices.iasZones;
+			var smoke_detectors_number = pumps.length;
+			var current_smoke_detectors_number = $(
+					"#smoke_detectors_number_span").text();
+
+			if (current_smoke_detectors_number != smoke_detectors_number) {
+				$("#smoke_detectors_number_span").empty();
+				$("#smoke_detectors_number_span")
+						.append(smoke_detectors_number);
+			}
+			if (smoke_detectors_number === 0) {
+				$("#smoke_detectors_panel_body").empty();
+				// add warning message
+
+			} else {
+				for ( var i = 0; i < smokeDetectors.length; i++) {
+					var smokeDetector = smokeDetectors[i];
+					console.log("smokeDetector.id :" + smokeDetector.id);
+					if (!$('#' + smokeDetector.id).length) {
+						// pump id does not exist
+						console.log("smoke detector " + smokeDetector.id
+								+ " not found");
+						addSmokeDetector(smokeDetector);
+					} else {
+						// nothing to do
+						console
+								.log("smoke detector already exists - nothing to do");
+					}
+
+				}
+			}
+
+			// warning devices
+			var warningDevices = devices.iasWarnings;
+			var warning_devices_number = warningDevices.length;
+			var current_warning_devices_number = $(
+					"#warning_devices_number_span").text();
+
+			if (current_warning_devices_number != warning_devices_number) {
+				$("#warning_devices_number_span").empty();
+				$("#warning_devices_number_span")
+						.append(warning_devices_number);
+			}
+			if (warning_devices_number === 0) {
+				$("#warning_devices_panel_body").empty();
+				// add warning message
+
+			} else {
+				var validWarningDeviceIds = [];
+				
+				// iterate over loaded warning device
+				// if one is not rendered, create a new row for it
+				for ( var i = 0; i < warningDevices.length; i++) {
+					var warningDevice = warningDevices[i];
+					console.log("warningDevice.id :" + warningDevice.id);
+					if (!$('#' + warningDevice.id).length) {
+						// warning device id does not exist
+						console.log("warning device " + warningDevice.id
+								+ " not found");
+						addWarningDevice(warningDevice);
+					} else {
+						// nothing to do
+						console
+								.log("warning device already exists - nothing to do");
+					}
+					
+					validWarningDeviceIds.push(warningDevice.id);
+
+				}
+				
+				// compose valid warning device ids with the existing one 
+				// in order to detect old warning device that MUST be removed
+				$('.warningDevice').each(function() {
+					if ($.inArray(this.id, validWarningDeviceIds) === -1) {
+						console.log("id" + this.id + " is no more in warning device. remove it");
+						// this entry must be removed
+						console.log("this=" + this);
+						this.remove();
+					} else {
+						console.log("id" + this.id + " is still in warning device");
+					}
+				});
+			
+			}
+
+		}
+
+		function loadDeviceError(devices) {
+
+		}
+
+		// Based on the value of the current state, 
+		// print out traffic light picture
+		function updateTrafficLight() {
+			$("#service_status_img").removeAttr("src");
+			console.log("currentstate" + currentState);
+			if (currentState === 0) {
+				$("#service_status_img").attr("src", "img/feuvert.png");
+
+				// close service_status panel
+				$("#collapseOne").collapse('hide');
+			} else if (currentState === 1) {
+				$("#service_status_img").attr("src", "img/feuorange.png");
+				// open service_status panel
+				$("#collapseOne").collapse('show');
+			} else if (currentState === 2) {
+				$("#service_status_img").attr("src", "img/feurouge.png");
+				// open service_status panel
+				$("#collapseOne").collapse('show');
+			} else {
+
+			}
+		}
+
+		function getStatusComplete(data) {
+			// status
+			var new_status = data.status;
+			if (new_status !== currentState) {
+				// update state
+				currentState = new_status;
+
+				updateTrafficLight();
+			}
+
+			var errorCodes = data.errorCodes;
+			// iterate over loaded errorCodes
+			var trueErrorCodes = [];
+			for ( var i = 0; i < errorCodes.length; i++) {
+				var errorCode = errorCodes[i];
+				var errorLi = $('#' + errorCode);
+				if (!errorLi.length) {
+					$("#errorCodes").append(
+							"<li id=\"" + errorCode + "\" class=\"errorCode\">"
+									+ errorCode + "</li>");
+				}
+
+				trueErrorCodes.push(errorCode);
+			}
+
+			// compare true error codes with existing error codes
+			$(".errorCode").each(function() {
+				console.log("iterate over existing id = " + this.id);
+				if ($.inArray(this.id, trueErrorCodes) === -1) {
+					// this entry must be removed
+					this.remove();
+				}
+			});
+
+			if ($.inArray("SERVICE_DISABLED", trueErrorCodes) !== -1) {
+				// service is disabled
+				$('#service_activation_switch').bootstrapSwitch('setState',
+						false);
+			} else {
+				$('#service_activation_switch').bootstrapSwitch('setState',
+						true);
+			}
+
+		}
+
+		//
+		function getStatusError() {
+			
+			
+		}
+		
+		$(document).ready(
+				function() {
+
+					var appStatus = {
+						"status" : 2,
+						"errorCodes" : [ "NO_PUMP_DEVICES",
+								"NO_SMOKE_DETECTOR_DEVICES",
+								"NO_WARNING_DEVICES" ]
+					};
+					var appStatusOrange = {
+						"status" : 1,
+						"errorCodes" : [ "NO_PUMP_DEVICES",
+								"NO_WARNING_DEVICES" ]
+					};
+
+					var devicesTest = {
+						"pumps" : [ {
+							"id" : "pump1",
+							"name" : "Pump #1545",
+							"img" : "img/zigbeePump.png",
+							"techno" : "ZigBee"
+						} ],
+						"iasZones" : [ {
+							"id" : "iasZone1",
+							"name" : "IASZone #1545",
+							"img" : "img/zigbeeSmokeDetector.png",
+							"techno" : "ZigBee"
+						} ],
+						"iasWarnings" : [ {
+							"id" : "iasWarning1",
+							"name" : "IASWarning #1545",
+							"img" : "img/zigbeeWarning.png",
+							"techno" : "ZigBee"
+						}, {
+							"id" : "iasWarning2",
+							"name" : "IASWarning #1546",
+							"img" : "img/zigbeeWarning.png",
+							"techno" : "ZigBee"
+						}, {
+							"id" : "iasWarning3",
+							"name" : "IASWarning #1547",
+							"img" : "img/zigbeeWarning.png",
+							"techno" : "ZigBee"
+						}, {
+							"id" : "iasWarning4",
+							"name" : "IASWarning #1548",
+							"img" : "img/zigbeeWarning.png",
+							"techno" : "ZigBee"
+						}, {
+							"id" : "iasWarning5",
+							"name" : "IASWarning #1549",
+							"img" : "img/zigbeeWarning.png",
+							"techno" : "ZigBee"
+						} ]
+					};
+
+					// init service activation switch
+					$("#service_activation_switch").bootstrapSwitch();
+
+					// add on click listener on switch
+					$('#service_activation_switch').on('switch-change', function(e, data) {
+						var value = data.value;
+						 var $element = $(data.el);
+						console.log(e, $element, value);
+						if (value === true) {
+							enable();
+							console.log("enable service");
+						} else {
+							disable();
+							console.log("disable service");
+						}
+					});
+					
+				
+
+					// load service status
+
+					// load devices
+					getDevices(loadDeviceComplete, loadDeviceError);
+					//loadDeviceComplete(devicesTest);
+
+					getApplicationStatus(getStatusComplete);
+
+					//getStatusComplete(appStatusOrange);
+
+					// do it periodically
+
+					var tid = setInterval(function() {
+						getDevices(loadDeviceComplete, loadDeviceError);
+					}, 5000); 
+					var tid = setInterval(function() {
+						getApplicationStatus(getStatusComplete, getStatusError);
+					}, 5000);
+
+					
+				});
+	//-->
+	</script>
+</body>
+</html>

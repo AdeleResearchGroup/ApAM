@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 159
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/pref
+END
+PreferenceQueueService.java
+K 25
+svn:wc:ra_dav:version-url
+V 187
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/pref/PreferenceQueueService.java
+END
+Preference.java
+K 25
+svn:wc:ra_dav:version-url
+V 175
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/pref/Preference.java
+END
+HeaderPreferenceSelection.java
+K 25
+svn:wc:ra_dav:version-url
+V 190
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/pref/HeaderPreferenceSelection.java
+END
+PreferenceSelection.java
+K 25
+svn:wc:ra_dav:version-url
+V 184
+/repos/asf/!svn/ver/1576399/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/extender/internal/queue/pref/PreferenceSelection.java
+END
