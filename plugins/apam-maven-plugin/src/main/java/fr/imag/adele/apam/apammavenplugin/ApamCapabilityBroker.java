@@ -122,8 +122,9 @@ public class ApamCapabilityBroker {
                     externalCapabilities.put(singlecap.getName()+VERSION_SEPARATOR+ singlecap.getProperty(CST.VERSION),
                             singlecap);
                 }
-                cap = singlecap;
             }
+            
+            cap = externalCapabilities.get(completeName);
         }
 
         return cap;
