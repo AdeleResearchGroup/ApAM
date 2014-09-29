@@ -17,11 +17,17 @@ package fr.imag.adele.apam.application.lock;
 import java.util.Collections;
 import java.util.List;
 
-import fr.imag.adele.apam.Instance;
-//import fr.liglab.adele.apam.device.access.Lock;
-
+import org.osgi.service.http.HttpService;
+import org.osgi.service.zigbee.ZigBeeCluster;
+import org.osgi.service.zigbee.ZigBeeCommand;
+import org.osgi.service.zigbee.ZigBeeCommandHandler;
+import org.osgi.service.zigbee.ZigBeeEndpoint;
+import org.osgi.service.zigbee.ZigBeeException;
 import org.osgi.x3d.IX3DDevice;
 import org.osgi.x3d.X3DHandler;
+
+import fr.imag.adele.apam.Instance;
+//import fr.liglab.adele.apam.device.access.Lock;
 
 /**
  * This class implements a simplistic test application that lock doors and turns off plugs
@@ -30,20 +36,29 @@ import org.osgi.x3d.X3DHandler;
  * @author vega
  *
  */
-public class LockHomeAutomation implements X3DHandler {
+public class LockHomeAutomation implements X3DHandler, ZigBeeCommandHandler {
 
 
 	private Instance 					instance;
-	private boolean 					activated;
+	private boolean 					isNight;
 
-	//private List<Lock>					doors;
+	private List<ZigBeeEndpoint> 		locks;
 	private IX3DDevice					shutter;
+	
+	private HttpService					httpService;
+	private WebInterface				webInterface;
 	
 	@SuppressWarnings("unused")
 	private void start(Instance instance) {
-		this.instance = instance;
+		this.instance 		= instance;
+		this.webInterface 	= new WebInterface(httpService, instance);
 	} 
 
+	@SuppressWarnings("unused")
+	private void stop() {
+		this.webInterface.dispose();
+	}
+	
 	/**
 	 * Notification callback to toggle the state of the application
 	 */
@@ -53,33 +68,66 @@ public class LockHomeAutomation implements X3DHandler {
 		 * toggle state, notify state change before accessing devices to allow
 		 * conflict arbitration 
 		 */
-		instance.getComposite().setProperty("locked",activated);
-
-		/* 
-		 * lock doors on activation, and enable card-based authorization
-		 * on deactivation
-		 * 
-		 */
+		instance.getComposite().setProperty("locked",isNight);
 		
-		/*
-		for (Lock door: optional(doors)){
-			if (activated)
-				door.disableAuthorization(true);
-			else
-				door.enableAuthorization();
+		if (isNight)
+			night();
+		else
+			day();
+
+	}
+	
+	private void day() {
+
+		for (ZigBeeEndpoint lock : optional(locks)) {
+			unlock(lock);
 		}
-		*/	
+
 		if (shutter != null) {
-			if (activated) {
-				shutter.executeCommand("down", new String[] {}, this);
-			}
-			else{
-				shutter.executeCommand("up", new String[] {}, this);
-			}
+			shutter.executeCommand("up", new String[] {}, this);
+			System.out.println("shutter up");
 		}
+		
 		
 	}
 	
+	private void night() {
+
+		for (ZigBeeEndpoint lock : optional(locks)) {
+			lock(lock);
+		}
+		
+		if (shutter != null) {
+			shutter.executeCommand("down", new String[] {}, this);
+			System.out.println("shutter down");
+		}
+		
+		
+	}
+	
+	
+	private void lock(ZigBeeEndpoint lock) {
+		ZigBeeCluster zigbeeCluster = lock.getServerCluster(0x101);
+		ZigBeeCommand lockCommand = zigbeeCluster.getCommand(0);
+
+		try {
+			lockCommand.invoke(new byte[] {}, this);
+			System.out.println("locked");
+		} catch (ZigBeeException e) {
+		}
+	}
+	
+	private void unlock(ZigBeeEndpoint lock) {
+		ZigBeeCluster zigbeeCluster = lock.getServerCluster(0x101);
+		ZigBeeCommand lockCommand = zigbeeCluster.getCommand(1);
+
+		try {
+			lockCommand.invoke(new byte[] {}, this);
+			System.out.println("unlocked");
+		} catch (ZigBeeException e) {
+		}
+	}
+
 	@Override
 	public void onCommandFailure(String arg0, String arg1) {
 		System.out.println("x3d command failure "+arg0);
@@ -90,15 +138,25 @@ public class LockHomeAutomation implements X3DHandler {
 		System.out.println("x3d command ok "+arg0);
 	}
 
-	public void isDayChanged(String isDay) {
+	public void isDayChanged(boolean isDay) {
 		System.out.println("is day changed "+isDay);
-		activated = !(isDay.equals("true"));
+		isNight = !isDay;
 		toggleActivation();
 	}
 
-	/*
+	
 	private static <T> List<T> optional(List<T> list) {
 		return list != null ? list : Collections.<T> emptyList();
 	}
-	*/
+
+	@Override
+	public void onSuccess(byte[] response) {
+		System.out.println("zigbee command ok ");
+	}
+
+	@Override
+	public void onFailure(ZigBeeException e) {
+		System.out.println("zigbee command failure ");
+	}
+	
 }

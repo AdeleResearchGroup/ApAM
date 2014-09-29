@@ -34,7 +34,9 @@ public class SecurityStateManager implements PropertyManager {
 				switch (event) {
 					case START_LOCK : return LOCKED;
 					case START_FIRE : return FIRE;
-					default 		: return NORMAL;
+					case END_LOCK 	: return NORMAL;
+					case END_FIRE 	: return NORMAL;
+					default 		: throw new IllegalArgumentException("Illegal transition");
 				}
 			}
 		},
@@ -42,8 +44,10 @@ public class SecurityStateManager implements PropertyManager {
 		LOCKED("locked"){
 			public State next(Event event) {
 				switch (event) {
+					case START_LOCK : return LOCKED;
 					case END_LOCK 	: return NORMAL;
 					case START_FIRE : return FIRE;
+					case END_FIRE 	: return LOCKED;
 					default 		: throw new IllegalArgumentException("Illegal transition");
 				}
 			}
@@ -52,6 +56,7 @@ public class SecurityStateManager implements PropertyManager {
 		FIRE("fire") {
 			public State next(Event event) {
 				switch (event) {
+					case START_FIRE : return FIRE;
 					case END_FIRE 	: return NORMAL;
 					case START_LOCK : return FIRE;
 					case END_LOCK 	: return FIRE;
