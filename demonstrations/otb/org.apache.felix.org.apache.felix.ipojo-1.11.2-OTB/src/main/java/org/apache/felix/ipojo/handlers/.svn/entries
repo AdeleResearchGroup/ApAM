@@ -1,46 +1,0 @@
-10
-
-dir
-1608687
-http://svn.apache.org/repos/asf/felix/releases/org.apache.felix.ipojo.runtime-project-1.11.2/core/src/main/java/org/apache/felix/ipojo/handlers
-http://svn.apache.org/repos/asf
-
-
-
-2014-03-09T19:42:46.814717Z
-1575742
-clement
-has-props
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-13f79535-47bb-0310-9956-ffa450edef68
-
-architecture
-dir
-
-configuration
-dir
-
-context
-dir
-
-dependency
-dir
-
-lifecycle
-dir
-
-providedservice
-dir
-
