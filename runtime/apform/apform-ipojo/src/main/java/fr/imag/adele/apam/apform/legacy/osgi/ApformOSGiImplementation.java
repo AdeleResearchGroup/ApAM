@@ -39,7 +39,7 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	public final static class Declaration extends ImplementationDeclaration {
 
 		protected Declaration(String name, SpecificationReference specification) {
-			super(name, specification);
+			super(name, specification.any());
 			setInstantiable(false);
 		}
 

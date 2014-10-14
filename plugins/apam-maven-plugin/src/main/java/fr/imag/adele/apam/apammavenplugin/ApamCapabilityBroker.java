@@ -1,411 +1,340 @@
 package fr.imag.adele.apam.apammavenplugin;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.declarations.*;
-import fr.imag.adele.apam.util.CoreMetadataParser;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
+import org.osgi.framework.Version;
+
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.encoding.Decoder;
+import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 
 /**
  * Created by thibaud on 11/08/2014.
  */
 public class ApamCapabilityBroker {
 
+	/**
+	 * This class is used to represent a fully qualified component reference, including name and version.
+	 * 
+	 * Two component version references are considered equals if their component and versions both exactly match. 
+	 * However, if the version is not specified, the reference matches any other version of the same component.
+	 * 
+	 * This class is intended to be used as the key of a map of component declarations (that are usually loaded
+	 * incrementally from a repository) that can be searched for specific version or some version in a range.
+	 * 
+	 * @author vega
+	 *
+	 */
+	private static class VersionReference {
+	
+		private final ComponentReference<?> component;
+		private final Version version;
+
+		public VersionReference(ComponentReference<?> component, Version version) {
+			this.component	= component;
+			this.version	= version;
+		}
+
+		public VersionReference(ComponentReference<?> component) {
+			this(component, (Version) null);
+		}
+		
+		public VersionReference(ComponentReference<?> component, String version) {
+			this(component, version != null ? new Version(version) : null);
+		}
+
+		public VersionReference(ComponentDeclaration component) {
+			this(component.getReference(), component.getProperties().get(CST.VERSION));
+		}
+		
+		public VersionReference(ComponentDeclaration component, String version) {
+			this(component.getReference(), version);
+		}
+
+		
+		@Override
+		public boolean equals(Object object) {
+			
+			if (object == null)
+				return false;
+			
+			if (this == object)
+				return true;
+			
+			if (! (object instanceof VersionReference))
+				return false;
+
+			/*
+			 * Otherwise, compare name and version, take into account the special case in which a version
+			 * is not specified
+			 */
+			VersionReference that = (VersionReference) object;
+			return this.component.equals(that.component) && (this.version == null || that.version == null || this.version.equals(that.version));
+		}
+
+		/**
+		 * Notice that the hash code only uses the component name. Although this may cause some reduced performance
+		 * for hashtables, it enables the use of ranges of versions {@link VersionRange} and references without 
+		 * explicit versions as keys to lookup maps indexed by objects of this class.
+		 */
+		@Override
+		public int hashCode() {
+			return component.hashCode();
+		}
+		
+	}
+
+
+	/**
+	 * This class is a simple evaluator for a version range specification that can be used as key to lookup a map
+	 * indexed by {@link VersionReference} keys.
+	 * 
+	 */
+	private static class VersionRange {
+	
+		private final ComponentReference<?> component;
+		
+		private final Version low;
+		private final boolean includeLow;
+		
+		private final Version up;
+		private final boolean includeUp;
+		
+		public VersionRange(ComponentReference<?> component, Version low, boolean includeLow, Version up, boolean includeUp) {
+			
+			this.component = component;
+			
+			this.low		= low;
+			this.includeLow	= includeLow;
+			this.up			= up;
+			this.includeUp	= includeUp;
+		}
+		
+		/**
+		 * We redefine equality to be able to use objects of this class as lookup keys for maps indexed
+		 * by {@link VersionReference}
+		 */
+		public boolean equals(Object object) {
+			
+			if (object == null)
+				return false;
+						
+			if (object == this)
+				return true;
+			
+			
+			if ( !(object instanceof VersionReference ) )
+				return false;
+			
+			/*
+			 * compare to a version reference
+			 */
+			VersionReference reference = (VersionReference) object;
+			
+			if (! this.component.equals(reference.component))
+				return false;
+			
+			if (reference.version == null)
+				return true;
+			
+			boolean greaterThanLower	= low != null ?	low.compareTo(reference.version) <= (includeLow ? 0 : -1) : true;
+			boolean lessThanUppper 		= up != null ?	up.compareTo(reference.version) >= (includeUp ? 0 : 1) : true;
+			
+			return greaterThanLower && lessThanUppper;
+		}
+
+		/**
+		 * Notice that the hash code only uses the component name. This is necessary to ensure equality is
+		 * well defined in the case this {@link VersionRange} is compared to a {@link VersionReference}
+		 */
+		@Override
+		public int hashCode() {
+			return component.hashCode();
+		}
+	}
+	
+	/**
+	 * Converts a versioned reference into a key that can be used to lookup in the different maps held by this
+	 * broker
+	 */
+	private static final Object key(ComponentReference<?>.Versioned reference) {
+	
+		String range = reference.getRange();
+
+		/*
+		 * No range is specified e match any version
+		 */
+    	if (range == null)
+    		return new VersionReference(reference.getComponent());
+		
+		boolean includeLow	= !range.startsWith("(");
+		boolean includeUp	= !range.endsWith(")");
+        
+        if (range.startsWith("(") || range.startsWith("["))
+        	range = range.substring(1);
+
+        if (range.endsWith(")") || range.endsWith("]"))
+        	range = range.substring(0,range.length()-1);
+
+        
+        int rangeSeparator 	= range.indexOf(",");
+        
+        /*
+         * A single version is specified, we match an exact revision
+         */
+        if(rangeSeparator == -1)
+        	return new VersionReference(reference.getComponent(),range);
+
+        /*
+         * A range is specified build a filter to evaluate
+         */
+       	String low	= range.substring(0,rangeSeparator).trim();
+       	String up	= range.substring(rangeSeparator+1,range.length()).trim();
+        
+       	Version lowVersion	= !low.isEmpty() ? new Version(low) : null;
+       	Version upVersion	= !up.isEmpty() ? new Version(up) : null;
+       	
+		return new VersionRange(reference.getComponent(),lowVersion,includeLow,upVersion,includeUp);
+		
+	}
+	
     /**
      * internal capabilities are the Apam components declared within the current built
      */
-    private static Map<String, ApamCapability> internalCapabilities = new HashMap<String, ApamCapability>();
+    private  final Map<VersionReference, ApamCapability> internalCapabilities = new HashMap<VersionReference,ApamCapability>();
+
+     /**
+     * external capabilities are the Apam components found in maven dependencies
+     * 
+     */
+    private  final Map<VersionReference, ApamCapability> externalCapabilities = new HashMap<VersionReference,ApamCapability>();
 
     /**
-     * external capabilities are the Apam components found in maven dependencies or in the ACR
+     * This is the cache of capabilities loaded from the repository
+     * 
      */
-    private static Map<String, ApamCapability> externalCapabilities = new HashMap<String, ApamCapability>();
+    private  final Map<VersionReference, WeakReference<ApamCapability>> cache = new HashMap<VersionReference, WeakReference<ApamCapability>>();
 
-    private static Map<String, List<String>> capabilityVersions = new HashMap<String, List<String>>();
-
-    private static Set<String> missing = new HashSet<String>();
-
-    public final static String VERSION_SEPARATOR = "/";
-
-
-    // Only to return a true value
-    public static ApamCapability trueCap = new ApamCapability();
-
-    private static StandaloneACRParser acrResolver;
-
-    public static void setStandaloneACRResolver(StandaloneACRParser acrResolver) {
-        ApamCapabilityBroker.acrResolver=acrResolver;
-    }
+    /**
+     * The ACR resolver used to load the capabilities
+     * 
+     */
+   private final ApamComponentRepository acrResolver;
 
 
-    private void ApamCapabilityBroker() {
-    }
-
-
-    public static void init(List<ComponentDeclaration> components,
-                            List<ComponentDeclaration> dependencies) {
-        internalCapabilities.clear();
-        externalCapabilities.clear();
-        capabilityVersions.clear();
-        missing.clear();
-        if(components!=null) {
-            for (ComponentDeclaration dcl : components) {
-                // For the internal component they represent the current built, the version seems useless
-                // because one bundle = one same version for all the components inside
-                internalCapabilities.put(dcl.getName(), new ApamCapability(dcl));
-                if(dcl.getProperty(CST.VERSION)!=null) {
-                    internalCapabilities.put(dcl.getName()+VERSION_SEPARATOR+dcl.getProperty(CST.VERSION),
-                            new ApamCapability(dcl));
-                }
-            }
+    public ApamCapabilityBroker(List<ComponentDeclaration> components, String version, List<ComponentDeclaration> dependencies, ApamComponentRepository acrResolver) {
+    	
+    	this.acrResolver = acrResolver;
+    	
+        for (ComponentDeclaration component : components) {
+            internalCapabilities.put(new VersionReference(component,version), new ApamCapability(this,component));
         }
 
-        if(dependencies!= null) {
-            for (ComponentDeclaration dcl : dependencies) {
-                System.out.println("Adding "+dcl.getName());
-                externalCapabilities.put(dcl.getName(),new ApamCapability(dcl));
-                if(dcl.getProperty(CST.VERSION)!=null) {
-                    externalCapabilities.put(dcl.getName()+VERSION_SEPARATOR+dcl.getProperty(CST.VERSION),
-                            new ApamCapability(dcl));
-                }
-
-            }
+        for (ComponentDeclaration component : dependencies) {
+             externalCapabilities.put(new VersionReference(component),new ApamCapability(this,component));
         }
     }
 
-    public void addExternalCapability(ApamCapability cap) {
-        externalCapabilities.put(cap.getName(),cap);
-        if(cap.getProperty(CST.VERSION)!=null) {
-            externalCapabilities.put(cap.getName() + cap.getProperty(CST.VERSION), cap);
-        }
-    }
-
-    public static ApamCapability get(String nameWithoutVersion) {
-        return getCompleteName(nameWithoutVersion);
-    }
-
-    public static ApamCapability get(String name, String version) {
-        if(version != null && version.length()>0) {
-            return getCompleteName(name + VERSION_SEPARATOR + version);
-        }else {
-            return getCompleteName(name);
-        }
-    }
-
-
-    private static ApamCapability getCompleteName(String completeName) {
-        if (completeName == null) {
+ 
+    public ApamCapability get(ComponentReference<?> reference) {
+        
+    	if (reference == null) {
             return null;
         }
-        String name = completeName;
-        String version = "";
+        
+        return get(reference.any());
+    }
 
-        int index = completeName.indexOf(VERSION_SEPARATOR);
-        if(index >0) {
-            name = completeName.substring(0,index);
-            version = completeName.substring(index+1);
+    public ApamCapability get(ComponentReference<?>.Versioned reference) {
+        
+    	if (reference == null) {
+            return null;
+        }
+        
+    	if (reference.getComponent().getName().equals(Decoder.UNDEFINED)) {
+            return null;
         }
 
-        // Step 1 : if the capability is declared inside the artifact being built
-        ApamCapability cap = internalCapabilities.get(name);
+        return getCapability(reference);
 
-        // Step 2 : if already declared outside (a dependency used several times
-        if(cap ==null) {
-            cap = externalCapabilities.get(name);
+    }
+    
+    public ApamCapability get(String name) {
+        return getCapability(new ComponentReference<ComponentDeclaration>(name).any());
+    }
+
+    public ApamCapability get(String name, String versionRange) {
+    	return getCapability(new ComponentReference<ComponentDeclaration>(name).range(versionRange));
+    }
+
+
+    private ApamCapability getCapability(ComponentReference<?>.Versioned reference) {
+
+    	/*
+    	 * Get the key to lookup the table
+    	 */
+    	Object key = key(reference);
+    	
+    	// Step 1 : if the capability is declared inside the artifact being built
+        ApamCapability capability = internalCapabilities.get(key);
+        
+        // Step 2 : if already declared outside (a dependency used several times)
+        if(capability == null) {
+        	capability = externalCapabilities.get(key);
         }
 
-        // Step 3 : try to find the dependency inside the OBR/ACR
-        if(cap ==null &&acrResolver!= null) {
-            for (ApamCapability singlecap : StandaloneACRParser.getApAMCapabilitiesFromACR(name, version)) {
-                externalCapabilities.put(singlecap.getName(), singlecap);
-                if(singlecap.getProperty(CST.VERSION)!=null) {
-                    externalCapabilities.put(singlecap.getName()+VERSION_SEPARATOR+ singlecap.getProperty(CST.VERSION),
-                            singlecap);
-                }
+        // Step 3 : try to find in the cache of ACR capabilities
+        if(capability == null) {
+        	WeakReference<ApamCapability> cachedReference = cache.get(key); 
+        	capability = cachedReference != null ? cachedReference.get() : null;
+        }
+        
+        // Step 4 : just search the repository and load the declaration
+        if(capability == null && acrResolver!= null) {
+        	
+        	ApamCapability loadedVersion = null;
+            for (ComponentDeclaration declaration : acrResolver.getComponents(reference)) {
+            	loadedVersion = new ApamCapability(this,declaration);
+                cache.put(new VersionReference(declaration), new WeakReference<ApamCapability>(loadedVersion));
             }
             
-            cap = externalCapabilities.get(completeName);
+            capability = loadedVersion;
         }
 
-        return cap;
+        return capability;
     }
 
-    public static ApamCapability get(ComponentReference<?> reference) {
-        if (reference == null) {
-            return null;
-        }
-        if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-            return null;
-        }
 
-        ApamCapability cap = get(reference.getName());
+    public ApamCapability getGroup(ApamCapability capability) {
 
 
-        //TODO, check the OBR there (plus simple et ça fait un endroit unique)
-        // TODO build capability from the obr metadata (plus chaud)
-
-        /**
-         * Dependencies checking removed from there
-         * They must be checked against the OBR
-         *
-         if (cap == null && !missing.contains(reference.getName())) {
-         missing.add(reference.getName());
-         CheckObr.error("Component " + reference.getName()
-         + " is not in your Maven dependencies.");
-         }
+        /*
+         * handle versioned group references
          */
-
-        return cap;
-    }
-
-    public static ComponentDeclaration getDcl(String name) {
-        if (name == null) {
-            return null;
+    	ComponentDeclaration component 			= capability.getDeclaration();
+        ComponentReference<?>.Versioned group	= null;
+        
+        if(component instanceof InstanceDeclaration) {
+        	group = ((InstanceDeclaration) component).getImplementationVersion();
+        } 
+        else if (component instanceof ImplementationDeclaration) {
+        	group = ((ImplementationDeclaration) component).getSpecificationVersion();
         }
-        if (name.equals(CoreMetadataParser.UNDEFINED)) {
-            return null;
+        else if (component instanceof SpecificationDeclaration) {
+        	group = null;
         }
-
-        if (get(name) != null) {
-            return get(name).getDcl();
-        }
-        return null;
-    }
-
-    public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
-        if (reference == null) {
-            return null;
-        }
-        if (reference.getName().equals(CoreMetadataParser.UNDEFINED)) {
-            return null;
-        }
-
-        if (get(reference.getName()) != null) {
-            return get(reference.getName()).getDcl();
-        }
-        return null;
-    }
-
-    public static ApamCapability getTrueCap() {
-        return trueCap;
+            
+        return get(group);
     }
 
 
-    public static ApamCapability getGroup(String declarationName) {
-        //WARNING of the infinite call because getgroup on a capability calls the Broker again
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if(dcl!=null
-                && dcl.getGroupReference() !=null
-                && dcl.getGroupReference().getName() !=null) {
-            String versionRange=null;
-            if(dcl instanceof InstanceDeclaration) {
-                versionRange = ((InstanceDeclaration) dcl).getImplementationVersionRange();
-            } else if (dcl instanceof ImplementationDeclaration) {
-                versionRange = ((ImplementationDeclaration) dcl).getSpecificationVersionRange();
-            }
-            return get(dcl.getGroupReference().getName(), versionRange);
-        }
-        return null;
-    }
-
-    /**
-     * Warning: should be used only once in generateProperty. finalProperties
-     * contains the attributes generated in OBR i.e. the right attributes.
-     * properties contains the attributes found in the xml, i.e. before to check
-     * and before to compute inheritance. At the end of the component processing
-     * we switch in order to use the right attributes if the component is used
-     * after its processing
-     *
-     * @param attr
-     * @param value
-     */
-    public boolean putAttr(String declarationName, String attr, String value) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.putAttr(attr, value);
-        } else {
-            return false;
-        }
-    }
-
-    public static void freeze(String declarationName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            cap.freeze();
-        }
-    }
-
-    public static boolean isFinalized(String declarationName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.isFinalized();
-        } else {
-            return false;
-        }
-    }
-
-    public static String getProperty(String declarationName, String attributeName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getProperty(attributeName);
-        } else {
-            return null;
-        }
-    }
-
-    public static Map<String, String> getProperties(String declarationName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getProperties();
-        } else {
-            return null;
-        }
-    }
-
-
-    // Return the definition at the current component level
-    public static String getLocalAttrDefinition(String declarationName, String attributeName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getLocalAttrDefinition(attributeName);
-        } else {
-            return null;
-        }
-    }
-
-    public static String getAttrDefinition(String declarationName, String attributeName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getAttrDefinition(attributeName);
-        } else {
-            return null;
-        }
-    }
-
-    public static String getAttrDefault(String declarationName, String attributeName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getAttrDefault(attributeName);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * returns all the attribute that can be found associated with this
-     * component members. i.e. all the actual attributes plus those defined on
-     * component, and those defined above.
-     *
-     * @return
-     */
-    public static Map<String, String> getValidAttrNames(String declarationName) {
-        ApamCapability cap = ApamCapabilityBroker.get(declarationName);
-
-        if(cap!=null) {
-            return cap.getValidAttrNames();
-        } else {
-            return null;
-        }
-    }
-
-    public static Set<InterfaceReference> getProvideInterfaces(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if(dcl!=null) {
-            return dcl.getProvidedResources(InterfaceReference.class);
-        }
-        return null;
-    }
-
-    public static Set<ResourceReference> getProvideResources(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if(dcl!=null) {
-            return dcl.getProvidedResources();
-        }
-        return null;
-    }
-
-    public static Set<MessageReference> getProvideMessages(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if(dcl!=null) {
-            return dcl.getProvidedResources(MessageReference.class);
-        }
-        return null;
-    }
-
-    public static String getImplementationClass(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if (dcl !=null && dcl instanceof AtomicImplementationDeclaration) {
-            return ((AtomicImplementationDeclaration) dcl).getClassName();
-        } else {
-            return null;
-        }
-    }
-
-
-    public static String getName(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-        if(dcl!=null) {
-            return dcl.getName();
-        }
-        return null;
-    }
-
-    /**
-     * return null if Shared is undefined, true of false if it is defined as
-     * true or false.
-     *
-     * @return
-     */
-    public static String shared(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if (dcl!=null &&dcl.isDefinedShared()) {
-            return Boolean.toString(dcl.isShared());
-        }
-        return null;
-    }
-
-    /**
-     * return null if Instantiable is undefined, true of false if it is defined
-     * as true or false.
-     *
-     * @return
-     */
-    public static String instantiable(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if (dcl != null &&dcl.isDefinedInstantiable()) {
-            return Boolean.toString(dcl.isInstantiable());
-        }
-        return null;
-    }
-
-    /**
-     * return null if Singleton is undefined, true of false if it is defined as
-     * true or false.
-     *
-     * @return
-     */
-    public static String singleton(String declarationName) {
-        ComponentDeclaration dcl = ApamCapabilityBroker.getDcl(declarationName);
-
-        if (dcl != null&&dcl.isDefinedSingleton()) {
-            return Boolean.toString(dcl.isSingleton());
-        }
-        return null;
-    }
 
 }

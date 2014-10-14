@@ -75,7 +75,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
      */
     public ApformOSGiInstance(Specification specification, ServiceReference reference) {
 
-        super(new InstanceDeclaration(generateImplementationName(specification,reference), generateInstanceName(specification,reference), null));
+        super(new InstanceDeclaration(generateImplementationName(specification,reference).any(), generateInstanceName(specification,reference), null));
         
         this.specification		= specification;
         

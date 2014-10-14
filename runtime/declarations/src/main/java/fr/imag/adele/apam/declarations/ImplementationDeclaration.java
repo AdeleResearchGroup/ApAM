@@ -26,23 +26,11 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	/**
 	 * The specification implemented by this implementation
 	 */
-	private final SpecificationReference specification;
+	private final SpecificationReference.Versioned specification;
 
-    /**
-     * The specification versionRange
-     */
-    private final String specificationVersionRange;
-
-	public ImplementationDeclaration(String name,
-			SpecificationReference specification) {
-		this(name, specification, null);
-	}
-
-    public ImplementationDeclaration(String name, SpecificationReference specification,
-                                     String specificationVersionRange) {
+    public ImplementationDeclaration(String name, SpecificationReference.Versioned specification) {
         super(name);
         this.specification = specification;
-        this.specificationVersionRange = specificationVersionRange;
     }
 
 	/**
@@ -69,17 +57,15 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	 * Get the specification implemented by this implementation
 	 */
 	public SpecificationReference getSpecification() {
-		return specification;
+		return specification != null ? (SpecificationReference) specification.getComponent() : null;
 	}
 
-    /**
-     * Specify which specification (related to the apam-component name) is applicable for this implementation
-     * if null, any spec with the correct name should be ok
-     * (WARNING in case of code dependency, to check consistency)
-     */
-    public String getSpecificationVersionRange() {
-        return specificationVersionRange;
-    }
+	/**
+	 * Get the specification implemented by this implementation
+	 */
+	public SpecificationReference.Versioned getSpecificationVersion() {
+		return specification;
+	}
 
 
 	@Override
@@ -93,8 +79,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	@Override
 	public String toString() {
 		String ret = "Implementation declaration " + super.toString();
-		String specificationName = (specification != null ? specification
-				.getIdentifier() : "null");
+		String specificationName = (specification != null ? getSpecification().getIdentifier() : "null");
 		ret += "\n   Specification: " + specificationName;
 		return ret;
 	}

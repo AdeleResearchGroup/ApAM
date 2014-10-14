@@ -6,7 +6,7 @@
 
     <implementation name="implem-server"
                     classname="fr.imag.adele.apam.tests.app.Dummy"
-            specification="spec-server" require-version="[2.0.0,3)">
+            specification="spec-server" require-version="(1.0.0,2]">
 
     </implementation>
 

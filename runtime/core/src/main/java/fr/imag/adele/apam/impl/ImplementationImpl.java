@@ -53,7 +53,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	private static class SystemRootImplementation extends BaseApformComponent<CompositeType, ImplementationDeclaration> implements ApformImplementation {
 
 		public SystemRootImplementation(String name) {
-			super(new CompositeDeclaration(name, (SpecificationReference) null, new ImplementationReference<ImplementationDeclaration>("Root Main Implem")));
+			super(new CompositeDeclaration(name, (SpecificationReference.Versioned) null, new ImplementationReference<ImplementationDeclaration>("Root Main Implem")));
 		}
 
 		@Override

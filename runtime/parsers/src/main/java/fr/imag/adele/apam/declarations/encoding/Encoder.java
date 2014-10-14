@@ -12,30 +12,27 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.declarations;
+package fr.imag.adele.apam.declarations.encoding;
+
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 /**
- * This class represents a reference to a particular service implementation.
+ * This class represents a tool being able to encode an APAM component declaration in one of the 
+ * different formats that can be used to store it.
  * 
- * Notice that atomic and composite references will be in the same namespace.
+ * Repository implementers should provide appropriate encoder implementations for the format that
+ * they handle internally. 
+ * 
+ * The encoder is parameterized by the class of the internal object used to represent the declaration  
  * 
  * @author vega
  * 
  */
-public class ImplementationReference<D extends ImplementationDeclaration>extends ComponentReference<D> {
+public interface Encoder<I> {
 
-	public ImplementationReference(String name) {
-		super(name);
-	}
 
-	@Override
-	public ComponentKind getKind() {
-		return ComponentKind.IMPLEMENTATION;
-	}
-
-	@Override
-	public String toString() {
-		return "Implementation " + getIdentifier();
-	}
-
+	/**
+	 * encode the declaration in the format internally handled by this encoder
+	 */
+	public I encode(ComponentDeclaration component, Reporter reporter);
 }

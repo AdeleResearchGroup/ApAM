@@ -159,7 +159,7 @@ public class RemoteMachine implements ApformInstance {
 
 	protected RemoteImplementationDeclaration(String name,
 		SpecificationReference specification) {
-	    super(name, specification);
+	    super(name, specification.any());
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public class RemoteMachine implements ApformInstance {
 	my_impl = daddy;
 	this.id = id;
 	my_declaration = new InstanceDeclaration(daddy.getDeclaration()
-		.getReference(), "RemoteMachine_" + RootURL, null);
+		.getReference().any(), "RemoteMachine_" + RootURL, null);
 	my_declaration.setInstantiable(false);
 
 	Apform2Apam.newInstance(this);

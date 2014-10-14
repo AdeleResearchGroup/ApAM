@@ -16,40 +16,54 @@ package fr.imag.adele.apam.apammavenplugin;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.util.Attribute;
-import fr.imag.adele.apam.util.CoreMetadataParser;
 
 public class ApamCapability {
 
-	private ComponentDeclaration dcl = null;
+	/**
+	 * The original declaration
+	 */
+	private final ComponentDeclaration dcl;
+	
+	/**
+	 * The broker that loaded this capability
+	 */
+	private final ApamCapabilityBroker broker;
+	
+	/**
+	 * The list of derived and inherited properties
+	 */
 	private boolean isFinalized = false;
+	private Map<String, String> finalProperties = new HashMap<String, String>();
 
+	/**
+	 * The originally defined properties
+	 */
 	private Map<String, String> properties;
 	private Map<String, String> propertiesTypes = new HashMap<String, String>();
 	private Map<String, String> propertiesDefaults = new HashMap<String, String>();
-	private Map<String, String> finalProperties = new HashMap<String, String>();
 
 	public ApamCapability() {
+		this.broker = null;
+		this.dcl 	= null;
 	}
-
-	public ApamCapability(ComponentDeclaration dcl) {
-		this.dcl = dcl;
+	
+	public ApamCapability(ApamCapabilityBroker broker, ComponentDeclaration dcl) {
+		this.broker = broker;
+		this.dcl 	= dcl;
+		
 		properties = dcl.getProperties();
 
 		for (PropertyDefinition definition : dcl.getPropertyDefinitions()) {
@@ -60,8 +74,24 @@ public class ApamCapability {
 		}
 	}
 
-	public ComponentDeclaration getDcl() {
+	public ComponentDeclaration getDeclaration() {
         return dcl;
+	}
+	
+	public ComponentKind getKind() {
+		return dcl.getReference().getKind();
+	}
+
+	public ApamCapability getGroup() {
+        return broker.getGroup(this);
+	}
+
+	public ComponentReference<?> getReference() {
+		return dcl.getReference();
+	}
+
+	public String getName() {
+		return dcl.getName();
 	}
 
 	/**
@@ -75,11 +105,10 @@ public class ApamCapability {
 	 * @param attr
 	 * @param value
 	 */
-	public boolean putAttr(String attr, String value) {
+	public boolean putAttr(String attr, String value, CheckObr validator) {
 		if ((finalProperties.get(attr) != null)
 				|| (finalProperties.get(CST.DEFINITION_PREFIX + attr) != null)) {
-			CheckObr.error("Attribute " + attr + " already set on "
-					+ dcl.getName());
+			validator.error("Attribute " + attr + " already set on "+ dcl.getName());
 			return false;
 		}
 		finalProperties.put(attr, value);
@@ -167,13 +196,6 @@ public class ApamCapability {
 		return ret;
 	}
 
-	public ApamCapability getGroup() {
-        return ApamCapabilityBroker.getGroup(getName());
-	}
-
-	public String getName() {
-		return dcl.getName();
-	}
 
 	/**
 	 * return null if Shared is undefined, true of false if it is defined as

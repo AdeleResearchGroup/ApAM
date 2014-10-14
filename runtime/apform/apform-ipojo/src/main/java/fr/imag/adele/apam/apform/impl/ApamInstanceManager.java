@@ -118,7 +118,7 @@ public class ApamInstanceManager extends InstanceManager implements
 		declaration = (InstanceDeclaration) configuration
 				.get(ApamInstanceManager.ATT_DECLARATION);
 		if (isApamCreated || (declaration == null)) {
-			declaration = new InstanceDeclaration(getFactory().getApform().getDeclaration().getReference(), instanceName, null);
+			declaration = new InstanceDeclaration(getFactory().getApform().getDeclaration().getReference().any(), instanceName, null);
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();
 				if (!Apform2Apam.isPlatformPrivateProperty(property))

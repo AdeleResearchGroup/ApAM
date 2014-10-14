@@ -27,46 +27,27 @@ import java.util.Set;
  */
 public class InstanceDeclaration extends ComponentDeclaration {
 
-	public static class RemoteDeclaration extends CompositeDeclaration {
-		public RemoteDeclaration(String name,
-				SpecificationReference specification,
-				ComponentReference<?> mainComponent) {
-			super(name, specification, mainComponent);
-		}
-	}
 
 	/**
 	 * A reference to the implementation
 	 */
-	private final ImplementationReference<?> implementation;
+	private final ImplementationReference<?>.Versioned implementation;
 
 	/**
 	 * The list of triggers that must be met to start this instance
 	 */
 	private final Set<ConstrainedReference> triggers;
 
-    /**
-     * The implementation versionRange
-     */
-    private final String implementationVersionRange;
 
-
-    public InstanceDeclaration(ImplementationReference<?> implementation, String name,
-                               Set<ConstrainedReference> triggers) {
-        this(implementation, name, triggers, null);
-    }
-
-	public InstanceDeclaration(ImplementationReference<?> implementation, String name,
-                               Set<ConstrainedReference> triggers,
-                               String implementationVersionRange) {
+    public InstanceDeclaration(ImplementationReference<?>.Versioned implementation, String name, Set<ConstrainedReference> triggers) {
+    	
 		super(name);
 
-        this.implementationVersionRange = implementationVersionRange;
 
 		assert implementation != null;
 
 		this.implementation = implementation;
-		this.triggers = triggers;
+		this.triggers 		= triggers;
 	}
 
 	@Override
@@ -82,18 +63,16 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	/**
 	 * The implementation of this instance
 	 */
-	public ImplementationReference<?> getImplementation() {
-		return implementation;
+	public final ImplementationReference<?> getImplementation() {
+		return (ImplementationReference<?>) implementation.getComponent();
 	}
 
-    /**
-     * Specify which Implmentation (related to the apam-component name) is applicable for this instance
-     * if null, any spec with the correct name should be ok
-     * (WARNING in case of code dependency, to check consistency)
-     */
-    public String getImplementationVersionRange() {
-        return implementationVersionRange;
-    }
+ 	/**
+	 * The implementation of this instance
+	 */
+	public final ImplementationReference<?>.Versioned getImplementationVersion() {
+		return implementation;
+	}
 
 	/**
 	 * The triggering specification
@@ -105,7 +84,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	@Override
 	public String toString() {
 		String ret = "Instance declaration " + super.toString();
-		ret += "\n    Implementation: " + implementation.getIdentifier();
+		ret += "\n    Implementation: " + getImplementation().getIdentifier();
 		return ret;
 	}
 }

@@ -116,15 +116,9 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	 */
 	private Map<Event, Set<CallbackDeclaration>> callbacks;
 
-    public AtomicImplementationDeclaration(String name,
-                                           SpecificationReference specification, CodeReflection reflection) {
-        this(name, specification,reflection,null);
-    }
 
-	public AtomicImplementationDeclaration(String name,
-			SpecificationReference specification, CodeReflection reflection,
-            String specificationversionRange) {
-		super(name, specification, specificationversionRange);
+	public AtomicImplementationDeclaration(String name, SpecificationReference.Versioned specification, CodeReflection reflection) {
+		super(name, specification);
 
 		assert reflection != null;
 

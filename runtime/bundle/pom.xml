@@ -34,6 +34,8 @@
                             fr.imag.adele.apam.impl,
                             <!-- TODO remove implementation package from exported packages -->
                             fr.imag.adele.apam.declarations,
+                            fr.imag.adele.apam.declarations.encoding,
+                            fr.imag.adele.apam.declarations.encoding.ipojo.*,
                             fr.imag.adele.apam.apform,
                             fr.imag.adele.apam.message,
                             fr.imag.adele.apam.util,

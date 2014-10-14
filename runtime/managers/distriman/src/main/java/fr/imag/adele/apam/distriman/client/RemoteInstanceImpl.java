@@ -31,7 +31,7 @@ public class RemoteInstanceImpl implements ApformInstance {
 	this.serviceObject = serviceObject;
 
 	declaration = new InstanceDeclaration(
-		new RemoteMachine.RemoteImplementationReference(getFullName()),
+		new RemoteMachine.RemoteImplementationReference(getFullName()).any(),
 		getFullName(), null);
     }
 

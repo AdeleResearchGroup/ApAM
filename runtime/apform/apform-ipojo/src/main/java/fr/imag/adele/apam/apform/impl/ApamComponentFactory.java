@@ -49,11 +49,12 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.encoding.Decoder;
+import fr.imag.adele.apam.declarations.encoding.Reporter;
+import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
+import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser.IntrospectionService;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
-import fr.imag.adele.apam.util.CoreMetadataParser;
-import fr.imag.adele.apam.util.CoreMetadataParser.IntrospectionService;
-import fr.imag.adele.apam.util.CoreParser;
 
 /**
  * This is the base class for all component factories that are used to represent APAM components at the iPojo
@@ -62,7 +63,7 @@ import fr.imag.adele.apam.util.CoreParser;
  * @author vega
  *
  */
-public abstract class ApamComponentFactory extends ComponentFactory implements IntrospectionService, CoreParser.ErrorHandler {
+public abstract class ApamComponentFactory extends ComponentFactory implements IntrospectionService, Reporter {
 
     /**
      * The name space of this factory
@@ -197,17 +198,10 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
     	
         /*
          *  Parse metadata to get APAM core declaration
-         *
-         *  TODO change parser to accept a single declaration instead of a list of
-         *  declarations
          */
 		try {
-			Element root = new Element("apam", APAM_NAMESPACE);
-			root.addElement(m_componentMetadata);
-
-			CoreParser parser = new CoreMetadataParser(root, this);
-			List<ComponentDeclaration> declarations = parser.getDeclarations(this);
-			this.declaration = declarations.get(0);
+			Decoder parser = new MetadataParser(this);
+			this.declaration = parser.decode(m_componentMetadata,this);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -251,9 +245,12 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      * Handle errors in parsing APAM declaration
      */
     @Override
-    public void error(Severity severity, String message) {
+    public void report(Severity severity, String message) {
         switch (severity) {
-            case SUSPECT:
+        	case INFO:
+        		getLogger().log(Logger.INFO,message);
+        		break;
+        	case SUSPECT:
             case WARNING:
                 getLogger().log(Logger.INFO,"Error parsing APAM declaration " + m_componentMetadata + " : " + message);
                 break;

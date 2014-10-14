@@ -40,16 +40,16 @@ public final class ProvideHelpers {
 	public static void checkMessages(ComponentDeclaration impl,
 			Set<MessageReference> messages,
 			Set<UndefinedReference> messagesUndefined,
-			Set<MessageReference> specMessages) {
+			Set<MessageReference> specMessages, CheckObr validator) {
 		if (!messages.containsAll(specMessages)) {
 			if (!messagesUndefined.isEmpty()) {
-				CheckObr.warning("Unable to verify message type at compilation time, this may cause errors at the runtime!"
+				validator.warning("Unable to verify message type at compilation time, this may cause errors at the runtime!"
 						+ "\n make sure that "
 						+ Util.toStringUndefinedResource(messagesUndefined)
 						+ " are of the following message types "
 						+ Util.toStringSetReference(specMessages));
 			} else {
-				CheckObr.error("Implementation " + impl.getName()
+				validator.error("Implementation " + impl.getName()
 						+ " must produce messages "
 						+ Util.toStringSetReference(specMessages));
 			}
@@ -65,16 +65,16 @@ public final class ProvideHelpers {
 	public static void checkInterfaces(ComponentDeclaration impl,
 			Set<InterfaceReference> interfaces,
 			Set<UndefinedReference> interfacesUndefined,
-			Set<InterfaceReference> specInterfaces) {
+			Set<InterfaceReference> specInterfaces, CheckObr validator) {
 		if (!interfaces.containsAll(specInterfaces)) {
 			if (!(interfacesUndefined.isEmpty())) {
-				CheckObr.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
+				validator.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
 						+ "\n make sure that "
 						+ Util.toStringUndefinedResource(interfacesUndefined)
 						+ " are of the following interface types "
 						+ Util.toStringSetReference(specInterfaces));
 			} else {
-				CheckObr.error("Implementation " + impl.getName()
+				validator.error("Implementation " + impl.getName()
 						+ " must implement interfaces "
 						+ Util.toStringSetReference(specInterfaces));
 			}

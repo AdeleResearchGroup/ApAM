@@ -20,8 +20,7 @@ package fr.imag.adele.apam.declarations;
  * @author vega
  * 
  */
-public class SpecificationReference extends
-		ComponentReference<SpecificationDeclaration> {
+public class SpecificationReference extends	ComponentReference<SpecificationDeclaration> {
 
 	public SpecificationReference(String name) {
 		super(name);

@@ -62,7 +62,7 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyComposite(ImplementationReference<?> implementation, String name, Map<String, String> initialProperties) {
 
-			super(new InstanceDeclaration(implementation, name, null));
+			super(new InstanceDeclaration(implementation.any(),name,null));
 			if (initialProperties != null) {
 				for (Map.Entry<String, String> property : initialProperties.entrySet()) {
 					if (!Attribute.isFinalAttribute(property.getKey())) {
@@ -98,7 +98,7 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String, String> properties) {
 
-			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? new SpecificationReference(specificationName) : null, new ComponentReference<ComponentDeclaration>(mainName)));
+			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? new SpecificationReference(specificationName).any() : null, new ComponentReference<ComponentDeclaration>(mainName)));
 			if (properties != null) {
 				declaration.getProperties().putAll(properties);
 			}

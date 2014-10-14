@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apammavenplugin.helpers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -11,36 +12,32 @@ import java.util.jar.Manifest;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.parser.ParseException;
-import org.apache.maven.plugin.logging.Log;
 
 import fr.imag.adele.apam.apammavenplugin.InvalidApamMetadataException;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.util.CoreMetadataParser;
-import fr.imag.adele.apam.util.CoreParser;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.encoding.Decoder;
+import fr.imag.adele.apam.declarations.encoding.Reporter;
+import fr.imag.adele.apam.declarations.encoding.Reporter.Severity;
+import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 
 public class JarHelper {
 
-	private final Log 			logger;
-	private final ErrorHandler 	m_ErrorHandler;
+	private final Reporter 		reporter;
 
 	private final File 			m_File;
 
 	private final Manifest 		m_Manifest;
 
-	public JarHelper(File file, ErrorHandler handler, Log logger) throws InvalidApamMetadataException {
+	public JarHelper(File file, Reporter reporter) throws InvalidApamMetadataException {
 
 		/*
 		 * Set logger and error handler
 		 */
-		this.logger = logger;
-
-		if (handler == null) {
-			throw new InvalidApamMetadataException("No ErrorHandlerProvided");
-		} else {
-			m_ErrorHandler = handler;
-		}
+		this.reporter = reporter;
 
 		/*
 		 * Refence original file
@@ -82,17 +79,51 @@ public class JarHelper {
 			return Collections.emptyList();
 		}
 
-		CoreParser parser = new CoreMetadataParser(metadata, null);
-		List<ComponentDeclaration> ret = parser.getDeclarations(m_ErrorHandler);
+		Decoder<Element> parser = new MetadataParser();
+		
+		/*
+		 * parse all the declared  components
+		 */
+		List<SpecificationDeclaration> specifications 	= new ArrayList<SpecificationDeclaration>();
+		List<ImplementationDeclaration> implementations = new ArrayList<ImplementationDeclaration>();
+		List<CompositeDeclaration> composites 			= new ArrayList<CompositeDeclaration>();
+		List<InstanceDeclaration> instances 			= new ArrayList<InstanceDeclaration>();
+		
+		
+		for (Element element : metadata.getElements()) {
+			ComponentDeclaration declaration = parser.decode(element,reporter);
+			
+			if (declaration == null)
+				continue;
+			
+			if (declaration instanceof SpecificationDeclaration)
+				specifications.add((SpecificationDeclaration)declaration);
+			else if (declaration instanceof CompositeDeclaration)
+				composites.add((CompositeDeclaration)declaration);
+			else if (declaration instanceof ImplementationDeclaration)
+				implementations.add((ImplementationDeclaration)declaration);
+			else if (declaration instanceof InstanceDeclaration)
+				instances.add((InstanceDeclaration)declaration);
+			
+		}
 
+		/*
+		 * add declared components in order of abstraction to ease cross-references
+		 */
+		List<ComponentDeclaration> components = new ArrayList<ComponentDeclaration>();
+		components.addAll(specifications);
+		components.addAll(implementations);
+		components.addAll(composites);
+		components.addAll(instances);
+		
 		String contains = "    contains components: ";
-		for (ComponentDeclaration comp : ret) {
+		for (ComponentDeclaration comp : components) {
 			contains += comp.getName() + " ";
 		}
 		
 		info(contains);
 
-		return ret;
+		return components;
 	}
 
 	public Element getiPojoMetadata() {
@@ -119,7 +150,7 @@ public class JarHelper {
 		try {
 			return new JarFile(m_File);
 		} catch (IOException e) {
-			error(e);
+			error("Error openinf metadata file for " + m_File,e);
 			return null;
 		}
 	}
@@ -128,17 +159,15 @@ public class JarHelper {
 		return m_Manifest;
 	}
 
-	private void error(Throwable cause) {
-		error(cause.getMessage(),cause);
+	private void error(String message, Throwable cause) {
+		reporter.report(Severity.ERROR,message);
+		for (StackTraceElement frame : cause.getStackTrace()) {
+			reporter.report(Severity.ERROR, frame.toString());
+		}
 	}
 
-	private void error(String message, Throwable cause) {
-		m_ErrorHandler.error(Severity.ERROR, message);
-		if (cause != null)
-			logger.error(cause);
-	}
 
 	private void info(String message) {
-		logger.info(message);
+		reporter.report(Severity.INFO, message);
 	}
 }

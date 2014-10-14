@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apammavenplugin.helpers;
+package fr.imag.adele.apam.declarations.encoding.acr;
 
 /**
  * Created by thibaud on 12/08/2014.
@@ -11,11 +11,11 @@ import fr.imag.adele.apam.declarations.ResourceReference;
  * This dummy CodeReflection must only be used if we have only the class name
  * In the case of ACR Parsing, the real class is not available
  */
-public class DummyCodeReflection implements AtomicImplementationDeclaration.CodeReflection {
+public class MinimalClassReflection implements AtomicImplementationDeclaration.CodeReflection {
 
     String className;
 
-    public DummyCodeReflection(String className) {
+    public MinimalClassReflection(String className) {
         this.className=className;
     }
 

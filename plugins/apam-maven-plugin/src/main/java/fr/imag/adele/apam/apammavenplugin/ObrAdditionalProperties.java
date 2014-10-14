@@ -16,7 +16,7 @@ import org.apache.felix.ipojo.plugin.MavenReporter;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
-import fr.imag.adele.apam.util.CoreMetadataParser;
+import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
 
 public class ObrAdditionalProperties {
 
@@ -58,7 +58,7 @@ public class ObrAdditionalProperties {
 					&& elt.getAttribute("name").equals("apam-component")) {
 				String componentName = null;
 //				List<Element> props = new ArrayList<Element>();
-				Element root = new Element("obr", CoreMetadataParser.APAM);
+				Element root = new Element("obr", ComponentParser.APAM);
 
 				for (Element subelt : elt.getElements("p")) {
 					String name = subelt.getAttribute("n");
@@ -99,17 +99,17 @@ public class ObrAdditionalProperties {
 		// TODO : add injected=internal
 		// maybe in the runtime parser (we know the fields in this part)
 		
-		Element def = new Element(CoreMetadataParser.DEFINITION,
-				CoreMetadataParser.APAM);
-		def.addAttribute(new Attribute(CoreMetadataParser.ATT_NAME, propertyName));
-		def.addAttribute(new Attribute(CoreMetadataParser.ATT_TYPE, propertyType));
+		Element def = new Element(ComponentParser.DEFINITION,
+				ComponentParser.APAM);
+		def.addAttribute(new Attribute(ComponentParser.ATT_NAME, propertyName));
+		def.addAttribute(new Attribute(ComponentParser.ATT_TYPE, propertyType));
 		root.addElement(def);
 	
 		
-		Element prop = new Element(CoreMetadataParser.PROPERTY,
-				CoreMetadataParser.APAM);
-		prop.addAttribute(new Attribute(CoreMetadataParser.ATT_NAME, propertyName));
-		prop.addAttribute(new Attribute(CoreMetadataParser.ATT_VALUE, propertyValue));
+		Element prop = new Element(ComponentParser.PROPERTY,
+				ComponentParser.APAM);
+		prop.addAttribute(new Attribute(ComponentParser.ATT_NAME, propertyName));
+		prop.addAttribute(new Attribute(ComponentParser.ATT_VALUE, propertyValue));
 		root.addElement(prop);
 	
 	}

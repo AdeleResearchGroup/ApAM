@@ -22,7 +22,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apammavenplugin.ApamCapability;
 import fr.imag.adele.apam.apammavenplugin.CheckObr;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.util.Attribute;
@@ -83,16 +83,16 @@ public final class AttributeCheckHelpers {
 	 * @return
 	 */
 	public static ApamCapability addAboveAttributes(Map<String, Object> ret,
-			ApamCapability entCap) {
+			ApamCapability entCap, CheckObr validator) {
 		/*
 		 * add the attribute coming from "above" if not already instantiated and
 		 * heritable
 		 */
 		ApamCapability group = entCap.getGroup();
 		if (group != null && group.getProperties() != null) {
-			if (group.getDcl() instanceof ImplementationDeclaration
+			if (group.getKind().equals(ComponentKind.IMPLEMENTATION) 
 					&& !group.getProperties().containsKey(CST.IMPLNAME)) {
-				group.putAttr(CST.IMPLNAME, group.getName());
+				group.putAttr(CST.IMPLNAME, group.getName(),validator);
 			}
 			group.freeze();
 			for (String prop : group.getProperties().keySet()) {
@@ -114,16 +114,16 @@ public final class AttributeCheckHelpers {
 	 * @return
 	 */
 	public static String checkDefAttr(ApamCapability ent, String attr,
-			String defAttr, String inheritedvalue, ApamCapability parent) {
+			String defAttr, String inheritedvalue, ApamCapability parent, CheckObr validator) {
 		if (defAttr == null) {
-			CheckObr.error("In " + ent.getName() + ", attribute \"" + attr
+			validator.error("In " + ent.getName() + ", attribute \"" + attr
 					+ "\" used but not defined.");
 			return null;
 		}
 
 		if (inheritedvalue != null
 				&& !inheritedvalue.equals(parent.getAttrDefault(attr))) {
-			CheckObr.error("Cannot redefine attribute \"" + attr + "\"");
+			validator.error("Cannot redefine attribute \"" + attr + "\"");
 			return null;
 		}
 
@@ -134,7 +134,7 @@ public final class AttributeCheckHelpers {
 	 * @param component
 	 * @param group
 	 */
-	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group) {
+	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group, CheckObr validator) {
 		
 		String name = definition.getName() ;
 		
@@ -145,12 +145,12 @@ public final class AttributeCheckHelpers {
 			// except if it is an external field attribute definition
 			if (definition.getField() != null && definition.getInjected() == InjectedPropertyPolicy.EXTERNAL) 
 				return true ;
-			CheckObr.error("Cannot redefine final attribute \"" + name + "\"");
+			validator.error("Cannot redefine final attribute \"" + name + "\"");
 			return false;
 		}
 
 		if (Attribute.isReservedAttributePrefix(name)) {
-			CheckObr.error("Attribute\"" + name + "\" is reserved");
+			validator.error("Attribute\"" + name + "\" is reserved");
 			return false;
 		}
 
@@ -162,22 +162,22 @@ public final class AttributeCheckHelpers {
 				PropertyDefinition propDef = component
 						.getPropertyDefinition(name);
 				if (propDef == null) {
-					CheckObr.error("Invalid property definition " + name);
+					validator.error("Invalid property definition " + name);
 					return false;
 				}
 				if (propDef.getField() == null) {
-					CheckObr.error("Property " + name
+					validator.error("Property " + name
 							+ " allready defined in the group.");
 					return false;
 				}
 				if (!propDef.getType().equals(groupType)) {
-					CheckObr.error("Cannot refine property definition " + name
+					validator.error("Cannot refine property definition " + name
 							+ " Not the same types : " + propDef.getType()
 							+ " not equal " + groupType);
 					return false;
 				}
 				if (group.getAttrDefault(name) != null && group.getAttrDefault(name).length()>0) {
-					CheckObr.error("Cannot refine property definition with a default value properties "
+					validator.error("Cannot refine property definition with a default value properties "
 							+ name + "=" + group.getAttrDefault(name));
 					return false;
 				}

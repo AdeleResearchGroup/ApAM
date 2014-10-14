@@ -40,10 +40,10 @@ public final class FilterCheckHelpers {
 	 */
 	public static boolean checkFilterOR(ApamFilter filt,
 			ComponentDeclaration component, Map<String, String> validAttr,
-			String f, String spec) {
+			String f, String spec, CheckObr validator) {
 		ApamFilter[] filters = (ApamFilter[]) filt.value;
 		for (ApamFilter filter : filters) {
-			if (!CheckObr.checkFilter(filter, component, validAttr, f, spec)) {
+			if (!validator.checkFilter(filter, component, validAttr, f, spec)) {
 				return false;
 			}
 		}
@@ -57,17 +57,17 @@ public final class FilterCheckHelpers {
 	 * @param f
 	 * @param spec
 	 */
-	public static boolean checkFilterPRESENT(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
+	public static boolean checkFilterPRESENT(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec, CheckObr validator) {
 		if (!Attribute.isFinalAttribute(filt.attr)
 				&& !validAttr.containsKey(filt.attr)) {
-			CheckObr.error("Members of component " + spec
+			validator.error("Members of component " + spec
 					+ " cannot have property " + filt.attr
 					+ ". Invalid constraint " + f);
 			return false;
 		}
 		if (validAttr.containsKey(filt.attr)) {
-			if (CheckObr.isSubstitute(component, filt.attr)) {
-				CheckObr.error("Filter attribute  " + filt.attr
+			if (validator.isSubstitute(component, filt.attr)) {
+				validator.error("Filter attribute  " + filt.attr
 						+ " is a substitution: .  Invalid constraint " + f);
 				return false;
 			}
@@ -78,7 +78,7 @@ public final class FilterCheckHelpers {
 			if (Attribute.checkAttrType(attribute, value, validAttr.get(attribute)) == null) {
 				return false;
 			}
-			return CheckObr.checkSubstitute(component, attribute, validAttr.get(attribute), value);
+			return validator.checkSubstitute(component, attribute, validAttr.get(attribute), value);
 
 		}
 		return true;

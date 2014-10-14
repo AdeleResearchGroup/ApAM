@@ -34,7 +34,6 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
@@ -44,8 +43,9 @@ import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.encoding.Reporter;
+import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 import fr.imag.adele.apam.util.ApamMavenProperties;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
 /**
  * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".
@@ -60,11 +60,7 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  * 
  * @author ApAM Team
  */
-public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
-
-	public static Map<String, VersionRange> versionRange = new HashMap<String, VersionRange>();
-
-	public static String thisBundleVersion;
+public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
 
     /**
      * ACR Repository (ApAM Component Repository)
@@ -115,21 +111,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
      */
     private ArtifactRepository localRepository;
 
-	/**
-	 * The project groupID
-	 */
-	public static String currentProjectGroupId;
-
-	/**
-	 * The project artifactID
-	 */
-	public static String currentProjectArtifactId;
-
-	/**
-	 * The project version
-	 */
-	public static String currentProjectVersion;
-
+	
 	/**
 	 * The project file
 	 * 
@@ -192,28 +174,13 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
         }
 
 
-        try {
-            StandaloneACRParser.setLogger(getLog());
-            StandaloneACRParser acrResolver = new StandaloneACRParser(tab_acr.toArray(new URL[0]));
-            ApamCapabilityBroker.setStandaloneACRResolver(acrResolver);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-            throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());
-        }
-
-
-		currentProjectArtifactId = project.getArtifact().getArtifactId();
-		currentProjectGroupId = project.getArtifact().getGroupId();
-		currentProjectVersion = project.getArtifact().getVersion();
-
-		thisBundleVersion = currentProjectVersion.replace('-', '.');
 		classpathDescriptor = new ClasspathDescriptor();
 
 		try {
 
 			super.execute();
 
-			JarHelper myHelper = new JarHelper(artifact.getFile(), this, getLog());
+			JarHelper myHelper = new JarHelper(artifact.getFile(), this);
 
 			getLog().info("ApAM metadata manipulator");
 
@@ -229,10 +196,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			 */
 			List<ComponentDeclaration> dependencies = new ArrayList<ComponentDeclaration>();
 
-			/*
-			 * Clear statics
-			 */
-			versionRange.clear();
 
 			/*
 			 * Get all COMPILE scope dependencies transitively
@@ -266,11 +229,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
                 getLog().info("includeMavenDependencies = true, adding ApAM components from maven dependencies");
                 for (Artifact requiredArtifact : requiredArtifacts) {
 
-                    VersionRange range = requiredArtifact.getVersionRange();
-
-                    OBRGeneratorMojo.versionRange.put(requiredArtifact.getArtifactId(), range);
-
-                    List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this, getLog()).getApAMComponents();
+                    List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this).getApAMComponents();
                     if (subcomponents != null)
                         dependencies.addAll(subcomponents);
 
@@ -280,10 +239,22 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
                 getLog().info("includeMavenDependencies = false, getting ApAM components only from inputAcr");
             }
 
-			CheckObr.setLogger(getLog());
-			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
-			StringBuffer obrContent = arb.writeOBRFile();
-			if (CheckObr.getFailedChecking()) {
+ 
+    		ApamCapabilityBroker broker = null;
+    		
+            try {
+          		String bundleVersion = project.getArtifact().getVersion().replace('-', '.');
+
+                ApamComponentRepository repository = new ApamComponentRepository(tab_acr.toArray(new URL[0]), this);
+                broker = new ApamCapabilityBroker(components, bundleVersion, dependencies, repository);
+            } catch (Exception exc) {
+                exc.printStackTrace();
+                throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());
+            }
+            
+			ApamRepoBuilder builder = new ApamRepoBuilder(broker,components, project.getArtifact(), getLog());
+			StringBuffer obrContent = builder.writeOBRFile();
+			if (builder.hasFailedChecking()) {
 				throw new MojoExecutionException(
 						"Metadata Apam compilation failed.");
 			}
@@ -330,7 +301,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
-			error(Severity.ERROR, e.getMessage());
+			report(Severity.ERROR, e.getMessage());
 			throw new MojoExecutionException(e.getMessage());
 		}
 
@@ -338,7 +309,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 	}
 
 	@Override
-	public void error(Severity severity, String message) {
+	public void report(Severity severity, String message) {
 		switch (severity) {
 		case ERROR : 
 			getLog().error("error parsing component declaration : " + message);
@@ -346,7 +317,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			break;
 		case WARNING : 
 		case SUSPECT :
-			getLog().info("warning parsing component declaration : " + message);
+			getLog().warn("warning parsing component declaration : " + message);
+			break;
+		case INFO :
+			getLog().info(message);
 			break;
 		}
 	}
@@ -388,7 +362,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 			newOutput.renameTo(artifact.getFile());
 		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
-			error(Severity.ERROR, e.getMessage());
+			report(Severity.ERROR, e.getMessage());
 			throw new MojoExecutionException(e.getMessage());
 		}
 
@@ -408,26 +382,22 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 		addedDefinitions.add(new PropertyDefinition(
 				new SpecificationDeclaration("Dummy"), "maven.groupId",
 				"string", null, null, null, null));
-		addedProperties.put("maven.groupId",
-				OBRGeneratorMojo.currentProjectGroupId);
+		addedProperties.put("maven.groupId",project.getArtifact().getGroupId());
 		
 		addedDefinitions.add(new PropertyDefinition(
 				new SpecificationDeclaration("Dummy"), "maven.artifactId",
 				"string", null, null, null, null));
-		addedProperties.put("maven.artifactId",
-				OBRGeneratorMojo.currentProjectArtifactId);
+		addedProperties.put("maven.artifactId",project.getArtifact().getArtifactId());
 		
 		addedDefinitions.add(new PropertyDefinition(
 				new SpecificationDeclaration("Dummy"), "maven.version",
 				"string", null, null, null, null));
-		addedProperties.put("maven.version",
-				OBRGeneratorMojo.currentProjectVersion);
+		addedProperties.put("maven.version", project.getArtifact().getVersion());
 		
 		addedDefinitions.add(new PropertyDefinition(
 				new SpecificationDeclaration("Dummy"), "version",
 				"version", null, null, null, null));
-		addedProperties.put("version",
-				OBRGeneratorMojo.thisBundleVersion);			
+		addedProperties.put("version",project.getArtifact().getVersion().replace('-', '.'));
 		
 	}
 

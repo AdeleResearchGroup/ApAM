@@ -62,7 +62,6 @@
         <ipojo.plugin.version>1.11.2</ipojo.plugin.version>
 
         <!-- Test dependencies version -->
-        <mockito.version>1.8.5</mockito.version>
         <junit.version>4.8.2</junit.version>
         <surefire.plugin.version>2.12.4</surefire.plugin.version>
 
@@ -71,9 +70,6 @@
 
         <!-- Sonar -->
         <sonar.plugin.version>2.0</sonar.plugin.version>
-
-        <mockito.version>1.9.5</mockito.version>
-
 
         <!-- Encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

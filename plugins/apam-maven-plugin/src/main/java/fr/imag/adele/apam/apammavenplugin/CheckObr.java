@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.bundlerepository.Resource;
 import org.apache.maven.plugin.logging.Log;
 
 import fr.imag.adele.apam.AttrType;
@@ -53,63 +52,65 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
+import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
-import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
 import fr.imag.adele.apam.util.Util;
 
 public final class CheckObr {
 
-	private static Log logger;
+	/**
+	 * An string value that will be used to represent mandatory attributes not
+	 * specified. From Decoder.
+	 */
+	public final static String UNDEFINED = "<undefined value>";
 
-	private static final Set<String> ALL_FIELDS = new HashSet<String>();
-	private static final Set<String> ALL_GRANTS = new HashSet<String>();
-	private static final String IN = "In ";
-	private static boolean failedChecking = false;
-
+	private final Set<String> ALL_FIELDS = new HashSet<String>();
+	private final Set<String> ALL_GRANTS = new HashSet<String>();
+	private final String IN = "In ";
+	
+	private final ApamCapabilityBroker broker;
+	private final Log logger;
+	
+	private boolean failedChecking = false;
 
 	/**
 	 * Private constructor protects creating instances from this class (only
 	 * static methods)
 	 */
-	private CheckObr() {
-
+	public CheckObr(ApamCapabilityBroker broker, Log logger) {
+		this.broker = broker;
+		this.logger = logger;
 	}
 
-	/**
-	 * An string value that will be used to represent mandatory attributes not
-	 * specified. From CoreParser.
-	 */
-	public final static String UNDEFINED = "<undefined value>";
-
-	public static boolean getFailedChecking() {
-		return CheckObr.failedChecking;
+	public final boolean hasFailedChecking() {
+		return failedChecking;
 	}
 
-	public static void setFailedParsing(boolean failed) {
-		CheckObr.failedChecking = failed;
-	}
 
-	public static void setLogger(Log logger) {
-		CheckObr.logger = logger;
-	}
-
-	public static void error(String msg) {
-		CheckObr.failedChecking = true;
+	public final void error(String msg) {
+		this.failedChecking = true;
 		if (logger != null) logger.error(msg);
 	}
 
-	public static void warning(String msg) {
+	public final void warning(String msg) {
 		if (logger != null) logger.warn(msg);
 	}
 
-	public static void info(String msg) {
+	public final void info(String msg) {
 		if (logger != null) logger.info(msg);
 	}
 
-
+	/**
+	 * Get the component associated with a Capability
+	 * 
+	 */
+	private ComponentDeclaration component(ApamCapability capability) {
+		return capability != null ? capability.getDeclaration() : null;
+	}
+	
 	/**
 	 * Checks if the constraints set on this relation are syntacticaly valid.
 	 * Only for specification dependencies. Checks if the attributes mentioned
@@ -118,8 +119,7 @@ public final class CheckObr {
 	 * @param dep
 	 *            a relation
 	 */
-	private static void checkConstraint(ComponentDeclaration component,
-			RelationDeclaration dep) {
+	private void checkConstraint(ComponentDeclaration component, RelationDeclaration dep) {
 
 		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference)) {
 			return;
@@ -133,8 +133,7 @@ public final class CheckObr {
 		}
 
 		// get the spec or impl definition
-		ApamCapability cap = ApamCapabilityBroker.get(dep.getTarget().as(
-				ComponentReference.class));
+		ApamCapability cap = broker.get(dep.getTarget().as(ComponentReference.class));
 		if (cap != null) {
 
 			// computes the attributes that can be associated with this spec or
@@ -159,22 +158,20 @@ public final class CheckObr {
 	 * @param component
 	 *            the component to check
 	 */
-	public static Map<String, Object> getValidProperties(
-			ComponentDeclaration component) {
+	public  Map<String, Object> getValidProperties(ComponentDeclaration component) {
 		// the attributes to return
 		Map<String, Object> ret = new HashMap<String, Object>();
 		// Properties of this component
 		Map<String, String> properties = component.getProperties();
 
-		ApamCapability entCap = ApamCapabilityBroker.get(component.getReference());
+		ApamCapability entCap = broker.get(component.getReference());
 		if (entCap == null) {
 			return ret; // should never happen.
 		}
 
 		getValidAttributes(component, ret, properties, entCap);
 
-		ApamCapability group = AttributeCheckHelpers.addAboveAttributes(ret,
-				entCap);
+		ApamCapability group = AttributeCheckHelpers.addAboveAttributes(ret,entCap,this);
 
 		AttributeCheckHelpers.addDefaultValues(ret, group);
 
@@ -189,7 +186,7 @@ public final class CheckObr {
 	 * @param properties
 	 * @param entCap
 	 */
-	private static void getValidAttributes(ComponentDeclaration component,
+	private void getValidAttributes(ComponentDeclaration component,
 			Map<String, Object> ret, Map<String, String> properties,
 			ApamCapability entCap) {
 		/*
@@ -203,7 +200,7 @@ public final class CheckObr {
 			Object val = Attribute.checkAttrType(attr, properties.get(attr),
 					defAttr);
 			if (val == null) {
-				setFailedParsing(true);
+				error("invalid attribute value "+attr);
 				continue;
 			}
 			// checkSubstitute (ComponentDeclaration component, String attr,
@@ -224,7 +221,7 @@ public final class CheckObr {
 
 	 * @return
 	 */
-	private static String getDefAttr(ApamCapability ent, String attr) {
+	private String getDefAttr(ApamCapability ent, String attr) {
 		if (Attribute.isFinalAttribute(attr)
 				|| !Attribute.validAttr(ent.getName(), attr)) {
 			return null;
@@ -246,19 +243,18 @@ public final class CheckObr {
 		}
 
 		return AttributeCheckHelpers.checkDefAttr(ent, attr, defAttr,
-				inheritedvalue, parent);
+				inheritedvalue, parent, this);
 	}
 
-	public static boolean checkProperty(ComponentDeclaration component, PropertyDefinition definition) {
+	public boolean checkProperty(ComponentDeclaration component, PropertyDefinition definition) {
 
 		String type = definition.getType();
 		String name = definition.getName();
 		String defaultValue = definition.getDefaultValue();
 
-		ApamCapability group = ApamCapabilityBroker
-				.get(component.getGroupReference());
+		ApamCapability group = broker.get(component.getGroupReference());
 
-		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group)) {
+		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group,this)) {
 			return false;
 		}
 
@@ -267,21 +263,21 @@ public final class CheckObr {
 			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
 				return checkSubstitute(component, name, type, defaultValue);
 			} else {
-				setFailedParsing(true);
+				error("invalid default value "+name);
 				return false;
 			}
 		}
 
 		// no default value. Only check if the type is valid
 		if (!Attribute.validAttrType(type)) {
-			CheckObr.setFailedParsing(true);
+			error("invalid attrobute type "+name);
 			return false;
 		}
 
 		return true;
 	}
 
-	private static boolean checkFunctionSubst(ComponentDeclaration component,
+	private boolean checkFunctionSubst(ComponentDeclaration component,
 			String type, String defaultValue) {
 
 		if (!(component instanceof AtomicImplementationDeclaration)) {
@@ -317,7 +313,7 @@ public final class CheckObr {
 	 * @param filter
 	 * @return
 	 */
-	private static boolean checkSyntaxFilter(String filter) {
+	private boolean checkSyntaxFilter(String filter) {
 		try {
 			ApamFilter parsedFilter = ApamFilter.newInstance(filter);
 			return parsedFilter != null;
@@ -326,7 +322,7 @@ public final class CheckObr {
 		}
 	}
 
-	public static boolean isSubstitute(ComponentDeclaration component,
+	public boolean isSubstitute(ComponentDeclaration component,
 			String attr) {
 		PropertyDefinition def = component.getPropertyDefinition(attr);
 		return (def != null && def.getDefaultValue() != null && (def
@@ -334,12 +330,12 @@ public final class CheckObr {
 				.indexOf('@') == 0));
 	}
 
-	public static boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
+	public boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
 		switch (filt.op) {
 		case ApamFilter.AND:
 		case ApamFilter.OR: {
 			return FilterCheckHelpers.checkFilterOR(filt, component, validAttr,
-					f, spec);
+					f, spec, this);
 		}
 
 		case ApamFilter.NOT: {
@@ -356,12 +352,14 @@ public final class CheckObr {
 		case ApamFilter.SUPERSET:
 		case ApamFilter.PRESENT:
 			return FilterCheckHelpers.checkFilterPRESENT(filt, component,
-					validAttr, f, spec);
+					validAttr, f, spec, this);
 		}
 		return true;
 	}
 
-	public static boolean checkSubstitute(ComponentDeclaration component,
+	private final ApamCapability RUNTIME_COMPONET = new ApamCapability();
+	
+	public boolean checkSubstitute(ComponentDeclaration component,
 			String attr, String type, String defaultValue) {
 		// If it is a function substitution
 		if (defaultValue.charAt(0) == '@') {
@@ -385,10 +383,10 @@ public final class CheckObr {
 
 		AttrType st = new AttrType(type);
 
-		ApamCapability source = ApamCapabilityBroker.get(component.getName());
+		ApamCapability source = broker.get(component.getName());
 		if (!sub.sourceName.equals("this")) {
 			// Look for the source component
-			source = ApamCapabilityBroker.get(sub.sourceName);
+			source = broker.get(sub.sourceName);
 			if (source == null) {
 				error("Component " + sub.sourceName
 						+ " not found in substitution : " + defaultValue
@@ -404,7 +402,7 @@ public final class CheckObr {
 		if (source == null) {
 			return false;
 		}
-		if (source == ApamCapabilityBroker.getTrueCap()) {
+		if (source == RUNTIME_COMPONET) {
 			return true;
 		}
 
@@ -422,7 +420,7 @@ public final class CheckObr {
 			return true;
 		}
 
-		setFailedParsing(true);
+		error("substitution navigation error "+st);
 		return false;
 
 	}
@@ -435,24 +433,21 @@ public final class CheckObr {
 	 * @param source
 	 * @return
 	 */
-	private static ApamCapability buildDummyImplem(ApamCapability source) {
-		if (source.getDcl() instanceof SpecificationDeclaration) {
-			AtomicImplementationDeclaration bidon = new AtomicImplementationDeclaration(
-					"void-" + source.getName(),
-					((SpecificationReference) source.getDcl().getReference()), null);
-			return new ApamCapability(bidon);
-		}
-		return null;
+	private ApamCapability buildDummyImplem(ApamCapability source) {
+		
+		SpecificationDeclaration specification = (SpecificationDeclaration) component(source);
+		
+		AtomicImplementationDeclaration bidon = new AtomicImplementationDeclaration("void-" + specification.getName(),
+														specification.getReference().any(), null);
+		return new ApamCapability(broker,bidon);
 	}
 
-	private static ApamCapability buildDummyInst(ApamCapability source) {
-		if (source.getDcl() instanceof ImplementationDeclaration) {
-			InstanceDeclaration bidon = new InstanceDeclaration(
-					((ImplementationReference<?>) source.getDcl().getReference()),
-					source.getName() + "-01", null);
-			return new ApamCapability(bidon);
-		}
-		return null;
+	private ApamCapability buildDummyInst(ApamCapability source) {
+
+		ImplementationDeclaration implementation = (ImplementationDeclaration) component(source);
+		InstanceDeclaration bidon = new InstanceDeclaration(implementation.getReference().any(),
+											source.getName() + "-01", null);
+		return new ApamCapability(broker,bidon);
 	}
 
 	/**
@@ -465,61 +460,82 @@ public final class CheckObr {
 	 * @param depName
 	 * @return
 	 */
-	private static ApamCapability getCapFinalRelation(ApamCapability source,
-			String depName) {
+	private ApamCapability getCapFinalRelation(ApamCapability source, String depName) {
 		if (!CST.isFinalRelation(depName))
 			return null;
 
 		if (depName.equals(CST.REL_SPEC)) {
-			if (source.getDcl() instanceof SpecificationDeclaration)
-				return source;
-			if (source.getDcl() instanceof ImplementationDeclaration)
-				return source.getGroup();
-			if (source.getDcl() instanceof InstanceDeclaration)
-				return source.getGroup().getGroup();
+			switch (source.getKind()) {
+				case SPECIFICATION:
+					return source;
+				case IMPLEMENTATION:
+					return source.getGroup();
+				case INSTANCE:
+					return source.getGroup().getGroup();
+				default:
+					return null;
+			}
 		}
+		
 		if (depName.equals(CST.REL_IMPL)) {
-			if (source.getDcl() instanceof ImplementationDeclaration)
-				return source;
-			if (source.getDcl() instanceof InstanceDeclaration)
-				return source.getGroup();
-			return null;
+			switch (source.getKind()) {
+				case IMPLEMENTATION:
+					return source;
+				case INSTANCE:
+					return source.getGroup();
+				default:
+					return null;
+			}
 		}
+			
 		if (depName.equals(CST.REL_INST)) {
-			if (source.getDcl() instanceof InstanceDeclaration)
-				return source.getGroup();
-			return null;
+			switch (source.getKind()) {
+				case INSTANCE:
+					return source;
+				default:
+					return null;
+			}
 		}
 
 		if (depName.equals(CST.REL_IMPLS)) {
-			if (source.getDcl() instanceof SpecificationDeclaration)
-				return buildDummyImplem(source);
-			if (source.getDcl() instanceof ImplementationDeclaration)
-				return source;
-			if (source.getDcl() instanceof InstanceDeclaration)
-				return source.getGroup();
+			switch (source.getKind()) {
+				case SPECIFICATION:
+					return buildDummyImplem(source);
+				case IMPLEMENTATION:
+					return source;
+				case INSTANCE:
+					return source.getGroup();
+				default:
+					return null;
+			}
 		}
 
 		if (depName.equals(CST.REL_INSTS)) {
-			if (source.getDcl() instanceof ImplementationDeclaration)
-				return buildDummyInst(source);
-			if (source.getDcl() instanceof InstanceDeclaration)
-				return source;
-			return null;
+			switch (source.getKind()) {
+				case IMPLEMENTATION:
+					return buildDummyInst(source);
+				case INSTANCE:
+					return source;
+				default:
+					return null;
+			}
 		}
 
 		if (depName.equals(CST.REL_COMPOSITE)) {
 			// cannot compute staticaly
-			return ApamCapabilityBroker.getTrueCap();
+			return RUNTIME_COMPONET;
 		}
+		
 		if (depName.equals(CST.REL_COMPOTYPE)) {
 			// cannot compute staticaly
-			return ApamCapabilityBroker.getTrueCap();
+			return RUNTIME_COMPONET;
 		}
+		
 		if (depName.equals(CST.REL_CONTAINS)) {
 			// cannot compute staticaly
-			return ApamCapabilityBroker.getTrueCap();
+			return RUNTIME_COMPONET;
 		}
+		
 		return null;
 	}
 
@@ -531,7 +547,7 @@ public final class CheckObr {
 	 * @return null if false, ApamCapability.trueCap if not possible to check,
 	 *         the last ApamCompoent in the navigation if successfull
 	 */
-	private static ApamCapability getTargetNavigation(ApamCapability source,
+	private ApamCapability getTargetNavigation(ApamCapability source,
 			List<String> navigation, String defaultValue) {
 		if (navigation == null || navigation.isEmpty()) {
 			return source;
@@ -541,16 +557,16 @@ public final class CheckObr {
 			if (CST.isFinalRelation(rel)) {
 				source = getCapFinalRelation(source, rel);
 				if (source == null) {
-					return ApamCapabilityBroker.getTrueCap();
+					return RUNTIME_COMPONET;
 				}
 				continue;
 			}
 
-			RelationDeclaration depDcl = getRelationDefinition(source.getDcl(), rel);
+			RelationDeclaration depDcl = getRelationDefinition(source, rel);
 			if (depDcl == null) {
 				error("Relation " + rel + " undefined for "
-						+ source.getDcl().getReference().getKind() + " "
-						+ source.getDcl().getName() + " in substitution : \""
+						+ source.getKind() + " "
+						+ source.getName() + " in substitution : \""
 						+ defaultValue + "\"");
 				return null;
 			}
@@ -562,10 +578,10 @@ public final class CheckObr {
 				warning(depDcl.getTarget().getName()
 						+ " is an interface or message. Substitution \""
 						+ defaultValue + "\" cannot be checked");
-				return ApamCapabilityBroker.getTrueCap();
+				return RUNTIME_COMPONET;
 			}
 
-			source = ApamCapabilityBroker.get(targetComponent.getName());
+			source = broker.get(targetComponent.getName());
 			if (source == null) {
 				error("Component " + targetComponent.getName()
 						+ " not found in substitution : \"" + defaultValue
@@ -588,20 +604,22 @@ public final class CheckObr {
 	 *            = "{M1, M2, M3}" or M1 or null
 	 * @return
 	 */
-	public static boolean checkImplProvide(ComponentDeclaration impl,
-			String spec, Set<InterfaceReference> interfaces,
+	public boolean checkImplProvide(ComponentDeclaration component,
+			Set<InterfaceReference> interfaces,
 			Set<MessageReference> messages,
 			Set<UndefinedReference> interfacesUndefined,
 			Set<UndefinedReference> messagesUndefined) {
-		if (!(impl instanceof AtomicImplementationDeclaration)) {
+		
+		if (!(component instanceof AtomicImplementationDeclaration)) {
 			return true;
 		}
+		AtomicImplementationDeclaration impl = (AtomicImplementationDeclaration) component;
+		SpecificationReference.Versioned spec = impl.getSpecificationVersion();
 
 		if (spec == null) {
 			return true;
 		}
-		ApamCapability cap = ApamCapabilityBroker
-				.get(new SpecificationReference(spec).getName(), ((AtomicImplementationDeclaration) impl).getSpecificationVersionRange());
+		ApamCapability cap = broker.get(spec.getComponent().getName(), spec.getRange());
 		if (cap == null) {
 			return false;
 		}
@@ -610,38 +628,25 @@ public final class CheckObr {
 		Set<InterfaceReference> specInterfaces = cap.getProvideInterfaces();
 
 		ProvideHelpers.checkMessages(impl, messages, messagesUndefined,
-				specMessages);
+				specMessages, this);
 
 		ProvideHelpers.checkInterfaces(impl, interfaces, interfacesUndefined,
-				specInterfaces);
+				specInterfaces, this);
 
 		return true;
 	}
 
-	private static Set<ResourceReference> getAllProvidedResources(
-			ImplementationDeclaration composite) {
-		ComponentDeclaration spec = null;
-		Set<ResourceReference> specResources = null;
-		Set<ResourceReference> returnResources;
-		if (composite.getSpecification() != null) {
-			spec = ApamCapabilityBroker.getDcl(composite.getSpecification());
-		}
-		if (spec != null) {
-			specResources = spec.getProvidedResources();
-		}
+	private Set<ResourceReference> getAllProvidedResources(ImplementationDeclaration implementation) {
+		
+		ApamCapability specification 	=  broker.get(implementation.getSpecificationVersion());
+		Set<ResourceReference> provided = new HashSet<ResourceReference>();
 
-		Set<ResourceReference> compoResources = composite
-				.getProvidedResources();
-		if (specResources != null) {
-			returnResources = new HashSet<ResourceReference>(specResources);
-		} else {
-			returnResources = new HashSet<ResourceReference>();
+		if (specification != null) {
+			provided.addAll(specification.getProvideResources());
 		}
-
-		if (compoResources != null) {
-			returnResources.addAll(compoResources);
-		}
-		return returnResources;
+		provided.addAll(implementation.getProvidedResources());
+		
+		return provided;
 	}
 
 	/**
@@ -656,7 +661,7 @@ public final class CheckObr {
 	 * runtime.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends ResourceReference> Set<T> getProvidedResources(
+	public <T extends ResourceReference> Set<T> getProvidedResources(
 			Set<ResourceReference> resources, Class<T> kind) {
 		Set<T> res = new HashSet<T>();
 		for (ResourceReference resourceReference : resources) {
@@ -667,7 +672,7 @@ public final class CheckObr {
 		return res;
 	}
 
-	public static void checkCompoMain(CompositeDeclaration composite) {
+	public void checkCompoMain(CompositeDeclaration composite) {
 		String name = composite.getName();
 
 		Set<ResourceReference> allProvidedResources = getAllProvidedResources(composite);
@@ -684,7 +689,7 @@ public final class CheckObr {
 		}
 
 		String implName = composite.getMainComponent().getName();
-		ApamCapability cap = ApamCapabilityBroker.get(composite.getMainComponent());
+		ApamCapability cap = broker.get(composite.getMainComponent());
 		if (cap == null) {
 			return;
 		}
@@ -692,7 +697,7 @@ public final class CheckObr {
 			String spec = composite.getSpecification().getName();
 			String capSpec = cap.getProperty(CST.PROVIDE_SPECIFICATION);
 			if ((capSpec != null) && !spec.equals(capSpec)) {
-				CheckObr.error(IN + name + " Invalid main implementation. "
+				error(IN + name + " Invalid main implementation. "
 						+ implName + " must implement specification " + spec);
 			}
 		}
@@ -701,7 +706,7 @@ public final class CheckObr {
 		Set<MessageReference> compositeMessages = getProvidedResources(
 				allProvidedResources, MessageReference.class);
 		if (!mainMessages.containsAll(compositeMessages)) {
-			CheckObr.error(IN + name + " Invalid main implementation. "
+			error(IN + name + " Invalid main implementation. "
 					+ implName + " produces messages " + mainMessages
 					+ " instead of " + compositeMessages);
 		}
@@ -710,7 +715,7 @@ public final class CheckObr {
 		Set<InterfaceReference> compositeInterfaces = getProvidedResources(
 				allProvidedResources, InterfaceReference.class);
 		if (!mainInterfaces.containsAll(compositeInterfaces)) {
-			CheckObr.error(IN + name + " Invalid main implementation. "
+			error(IN + name + " Invalid main implementation. "
 					+ implName + " implements " + mainInterfaces
 					+ " instead of " + compositeInterfaces);
 		}
@@ -723,7 +728,7 @@ public final class CheckObr {
 	 * @param interf
 	 * @return
 	 */
-	public static boolean checkInterfaceExist(String interf) {
+	public boolean checkInterfaceExist(String interf) {
 		// Checking if the interface is existing
 		// Can be "<Unavalable>" for generic collections, since it is not
 		// possible to get the type at compile time
@@ -731,7 +736,7 @@ public final class CheckObr {
 			return true;
 		}
 		if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(interf) == null) {
-			CheckObr.error("Provided Interface " + interf
+			error("Provided Interface " + interf
 					+ " does not exist in your Maven dependencies");
 			return false;
 		}
@@ -744,27 +749,27 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	public static void checkRelations(ComponentDeclaration component) {
+	public void checkRelations(ComponentDeclaration component) {
 		Set<RelationDeclaration> deps = component.getDependencies();
 		if (deps == null || deps.isEmpty()) {
 			return;
 		}
 
-		CheckObr.ALL_FIELDS.clear();
+		ALL_FIELDS.clear();
 		Set<String> depIds = new HashSet<String>();
 
 		for (RelationDeclaration dep : deps) {
 
 			// Checking for predefined relations. Cannot be redefined
 			if (CST.isFinalRelation(dep.getIdentifier())) {
-				CheckObr.error("relation " + dep.getIdentifier()
+				error("relation " + dep.getIdentifier()
 						+ " is predefined.");
 				continue;
 			}
 
 			// Checking for double relation Id
 			if (depIds.contains(dep.getIdentifier())) {
-				CheckObr.error("relation " + dep.getIdentifier()
+				error("relation " + dep.getIdentifier()
 						+ " allready defined.");
 				continue;
 			}
@@ -775,16 +780,16 @@ public final class CheckObr {
 			dep = computeGroupRelation(component, dep);
 
 			// validating relation constraints and preferences..
-			CheckObr.checkConstraint(component, dep);
+			checkConstraint(component, dep);
 
 			// Checking fields and complex dependencies
-			CheckObr.checkFieldTypeDep(dep);
+			checkFieldTypeDep(dep);
 
 			// eager and hide cannot be defined here
 			// TODO relation, attention! this block was removed since now with
 			// relation, the eager can be define in this stage
 			// if (dep.isEager() != null || dep.isHide() != null) {
-			// CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a relation "
+			// error("Cannot set flags \"eager\" or \"hide\" on a relation "
 			// + dep.getIdentifier());
 			// }
 
@@ -814,19 +819,42 @@ public final class CheckObr {
 		}
 	}
 
-	public static RelationDeclaration getRelationDefinition(
-			ComponentDeclaration depComponent, String relName) {
+	
+	public RelationDeclaration getRelationDefinition(ApamCapability source, String relName) {
 		// look for that relation declaration
 		// ComponentDeclaration group =
 		// ApamCapability.getDcl(depComponent.getGroupReference()) ;
-		ComponentDeclaration group = depComponent;
+		ApamCapability group = source;
 		RelationDeclaration relDef = null;
-		while (group != null && (relDef == null)) {
-			relDef = group.getLocalRelation(relName);
-			group = ApamCapabilityBroker.getDcl(group.getGroupReference());
+		while (group != null && relDef == null) {
+			relDef = group.getDeclaration().getLocalRelation(relName);
+			group = group.getGroup();
 		}
 		return relDef;
 	}
+	
+    public ComponentDeclaration getGroup(ComponentDeclaration component) {
+
+
+        /*
+         * handle versioned group references
+         */
+        ComponentReference<?>.Versioned group	= null;
+        
+        if(component instanceof InstanceDeclaration) {
+        	group = ((InstanceDeclaration) component).getImplementationVersion();
+        } 
+        else if (component instanceof ImplementationDeclaration) {
+        	group = ((ImplementationDeclaration) component).getSpecificationVersion();
+        }
+        else if (component instanceof SpecificationDeclaration) {
+        	group = null;
+        }
+            
+        return group != null ? broker.get(group).getDeclaration() : null;
+    }
+
+	
 
 	/**
 	 * Provided a relation declaration, compute the effective relation, adding
@@ -838,16 +866,14 @@ public final class CheckObr {
 	 * @param relation
 	 * @return
 	 */
-	public static RelationDeclaration computeGroupRelation(
-			ComponentDeclaration depComponent, RelationDeclaration relation) {
+	public RelationDeclaration computeGroupRelation(ComponentDeclaration source, RelationDeclaration relation) {
 		String relName = relation.getIdentifier();
 
 		/*
 		 * Iterate over all ancestor groups, and complete missing information in
 		 * order to get the full relation declaration
 		 */
-		ComponentDeclaration group = ApamCapabilityBroker.getDcl(depComponent
-				.getGroupReference());
+		ComponentDeclaration group = getGroup(source);
 		while (group != null) {
 
 			RelationDeclaration groupDep = group.getLocalRelation(relName);
@@ -856,14 +882,14 @@ public final class CheckObr {
 			 * skip group levels that do not refine the definition
 			 */
 			if (groupDep == null) {
-				group = ApamCapabilityBroker.getDcl(group.getGroupReference());
+				group = getGroup(group);
 				continue;
 			}
 
 			boolean relationTargetDefined = !relation.getTarget().getName()
-					.equals(CoreMetadataParser.UNDEFINED);
+					.equals(ComponentParser.UNDEFINED);
 			boolean groupTargetdefined = !groupDep.getTarget().getName()
-					.equals(CoreMetadataParser.UNDEFINED);
+					.equals(ComponentParser.UNDEFINED);
 
 			/*
 			 * If the target are defined at several levels they must be
@@ -871,15 +897,11 @@ public final class CheckObr {
 			 */
 			if (relationTargetDefined && groupTargetdefined) {
 
-				ResourceReference relationTargetResource = relation.getTarget()
-						.as(ResourceReference.class);
-				ComponentReference<?> relationTargetComponent = relation
-						.getTarget().as(ComponentReference.class);
+				ResourceReference relationTargetResource = relation.getTarget().as(ResourceReference.class);
+				ComponentReference<?> relationTargetComponent = relation.getTarget().as(ComponentReference.class);
 
-				ResourceReference groupTargetResource = groupDep.getTarget()
-						.as(ResourceReference.class);
-				ComponentReference<?> groupTargetComponent = groupDep
-						.getTarget().as(ComponentReference.class);
+				ResourceReference groupTargetResource = groupDep.getTarget().as(ResourceReference.class);
+				ComponentReference<?> groupTargetComponent = groupDep.getTarget().as(ComponentReference.class);
 
 				/*
 				 * The relation declared in the group targets a resource, the
@@ -888,8 +910,8 @@ public final class CheckObr {
 				if (relationTargetResource != null
 						&& groupTargetResource != null) {
 					if (!relationTargetResource.equals(groupTargetResource)) {
-						CheckObr.error("Invalid target for " + relation
-								+ " in component " + depComponent.getName()
+						error("Invalid target for " + relation
+								+ " in component " + source.getName()
 								+ " expected " + groupTargetResource
 								+ " as specified in " + group.getName());
 					}
@@ -903,12 +925,10 @@ public final class CheckObr {
 				if (relationTargetResource != null
 						&& groupTargetComponent != null) {
 
-					ComponentDeclaration groupTarget = ApamCapabilityBroker
-							.getDcl(groupTargetComponent);
-					if (!groupTarget.getProvidedResources().contains(
-							relationTargetResource)) {
-						CheckObr.error("Invalid target for " + relation
-								+ " in component " + depComponent.getName()
+					ComponentDeclaration groupTarget = broker.get(groupTargetComponent).getDeclaration();
+					if (!groupTarget.getProvidedResources().contains(relationTargetResource)) {
+						error("Invalid target for " + relation
+								+ " in component " + source.getName()
 								+ " expected one of the provided resources of "
 								+ groupTargetComponent + " as specified in "
 								+ group.getName());
@@ -923,21 +943,17 @@ public final class CheckObr {
 				if (relationTargetComponent != null
 						&& groupTargetComponent != null) {
 
-					ComponentDeclaration groupTarget = ApamCapabilityBroker
-							.getDcl(groupTargetComponent);
-					ComponentDeclaration relationTarget = ApamCapabilityBroker
-							.getDcl(relationTargetComponent);
+					ComponentDeclaration groupTarget = broker.get(groupTargetComponent).getDeclaration();
+					ComponentDeclaration relationTarget = broker.get(relationTargetComponent).getDeclaration();
 
 					while (relationTarget != null
-							&& !relationTarget.getReference().equals(
-									groupTarget.getReference()))
-						relationTarget = ApamCapabilityBroker.getDcl(relationTarget
-								.getGroupReference());
+							&& !relationTarget.getReference().equals(groupTarget.getReference()))
+						relationTarget = getGroup(relationTarget);
 
 					if (relationTarget == null) {
-						CheckObr.error("Invalid target for " + relation
-								+ " in component " + depComponent.getName()
-								+ " expected an memeber of "
+						error("Invalid target for " + relation
+								+ " in component " + source.getName()
+								+ " expected an member of "
 								+ groupTargetComponent + " as specified in "
 								+ group.getName());
 					}
@@ -950,12 +966,11 @@ public final class CheckObr {
 				 */
 				if (relationTargetComponent != null
 						&& groupTargetResource != null) {
-					ComponentDeclaration relationTarget = ApamCapabilityBroker
-							.getDcl(relationTargetComponent);
+					ComponentDeclaration relationTarget = broker.get(relationTargetComponent).getDeclaration();
 					if (!relationTarget.getProvidedResources().contains(
 							groupTargetResource)) {
-						CheckObr.error("Invalid target for " + relation
-								+ " in component " + depComponent.getName()
+						error("Invalid target for " + relation
+								+ " in component " + source.getName()
 								+ " expected a component providing "
 								+ groupTargetResource + " as specified in "
 								+ group.getName());
@@ -965,7 +980,7 @@ public final class CheckObr {
 			}
 
 			relation = groupDep.refinedBy(relation);
-			group = ApamCapabilityBroker.getDcl(group.getGroupReference());
+			group = getGroup(group);
 		}
 
 		return relation;
@@ -979,7 +994,7 @@ public final class CheckObr {
 	 * @param dep
 	 *            : a relation
 	 */
-	private static void checkFieldTypeDep(RelationDeclaration dep) {
+	private void checkFieldTypeDep(RelationDeclaration dep) {
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the specification.
 
@@ -1002,7 +1017,7 @@ public final class CheckObr {
 		if (targetComponent == null) {
 			allowedTypes.add(dep.getTarget().as(ResourceReference.class));
 		} else {
-			ApamCapability cap = ApamCapabilityBroker.get(targetComponent);
+			ApamCapability cap = broker.get(targetComponent);
             if(cap != null ) {
                 allowedTypes.addAll(cap.getProvideResources());
 
@@ -1013,7 +1028,7 @@ public final class CheckObr {
                             implementationClass));
 
             } else {
-				CheckObr.error("relation " + dep.getIdentifier()
+				error("relation " + dep.getIdentifier()
 						+ " : the target of the reference doesn' exists "
 						+ targetComponent);
 			}
@@ -1024,14 +1039,14 @@ public final class CheckObr {
 		for (RequirerInstrumentation innerDep : dep.getInstrumentations()) {
 
 			if (!innerDep.isValidInstrumentation())
-				CheckObr.error(dep.getComponent().getName()
+				error(dep.getComponent().getName()
 						+ " : invalid type for field " + innerDep.getName());
 
 			String type = innerDep.getRequiredResource().getJavaType();
 			if (!(type.startsWith("fr.imag.adele.apam.")) // For links
 					&& !(innerDep.getRequiredResource() instanceof UndefinedReference)
 					&& !(allowedTypes.contains(innerDep.getRequiredResource()))) {
-				CheckObr.error("Field "
+				error("Field "
 						+ innerDep.getName()
 						+ " is of type "
 						+ type
@@ -1055,7 +1070,7 @@ public final class CheckObr {
 	 * implements this class. In that case we can move this class to the core of
 	 * APAM.
 	 */
-	private static class ImplementatioClassReference extends ResourceReference {
+	private class ImplementatioClassReference extends ResourceReference {
 
 		protected ImplementatioClassReference(String type) {
 			super(type);
@@ -1076,14 +1091,14 @@ public final class CheckObr {
 	 * @param component
 	 * @return
 	 */
-	public static boolean isFieldMultiple(RequirerInstrumentation dep,
+	public boolean isFieldMultiple(RequirerInstrumentation dep,
 			ComponentDeclaration component) {
-		if (CheckObr.ALL_FIELDS.contains(dep.getName())
-				&& !dep.getName().equals(CheckObr.UNDEFINED)) {
-			CheckObr.error(IN + component.getName() + " field/method "
+		if (ALL_FIELDS.contains(dep.getName())
+				&& !dep.getName().equals(UNDEFINED)) {
+			error(IN + component.getName() + " field/method "
 					+ dep.getName() + " allready declared");
 		} else {
-			CheckObr.ALL_FIELDS.add(dep.getName());
+			ALL_FIELDS.add(dep.getName());
 		}
 
 		return dep.acceptMultipleProviders();
@@ -1096,8 +1111,8 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	public static void checkComponentHeader(ComponentDeclaration component) {
-		ApamCapability cap = ApamCapabilityBroker.get(component.getReference());
+	public void checkComponentHeader(ComponentDeclaration component) {
+		ApamCapability cap = broker.get(component.getReference());
 		if (cap == null)
 			return;
 		ApamCapability group = cap.getGroup();
@@ -1128,7 +1143,7 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	public static void checkCompositeContent(CompositeDeclaration component) {
+	public void checkCompositeContent(CompositeDeclaration component) {
 
 		checkStart(component);
 		checkState(component);
@@ -1144,14 +1159,14 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	private static void checkStart(CompositeDeclaration component) {
+	private void checkStart(CompositeDeclaration component) {
 		for (InstanceDeclaration start : component.getInstanceDeclarations()) {
 			ImplementationReference<?> implRef = start.getImplementation();
 			if (implRef == null) {
 				error("Implementation name cannot be null");
 				continue;
 			}
-			ApamCapability cap = ApamCapabilityBroker.get(implRef);
+			ApamCapability cap = broker.get(implRef);
 			if (cap == null) {
 				continue;
 			}
@@ -1171,7 +1186,7 @@ public final class CheckObr {
 		}
 	}
 
-	private static boolean checkFilters(ComponentDeclaration component,	Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
+	private boolean checkFilters(ComponentDeclaration component,	Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
 		if (filters != null) {
 			for (String f : filters) {
 				ApamFilter parsedFilter = ApamFilter.newInstance(f);
@@ -1191,7 +1206,7 @@ public final class CheckObr {
 		return true;
 	}
 
-	private static void checkTrigger(InstanceDeclaration start) {
+	private void checkTrigger(InstanceDeclaration start) {
 		Set<ConstrainedReference> trig = start.getTriggers();
 		for (ConstrainedReference ref : trig) {
 			ResolvableReference target = ref.getTarget();
@@ -1201,7 +1216,7 @@ public final class CheckObr {
 				error("Start trigger not related to a valid component");
 				continue;
 			}
-			ApamCapability cap = ApamCapabilityBroker.get(compoRef);
+			ApamCapability cap = broker.get(compoRef);
 			if (cap == null) {
 				// error ("Unknown component " + target.getName()) ;
 				continue;
@@ -1224,7 +1239,7 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	private static Set<String> checkState(CompositeDeclaration component) {
+	private Set<String> checkState(CompositeDeclaration component) {
 		PropertyDefinition.Reference ref = component.getStateProperty();
 		if (ref == null) {
 			return null;
@@ -1235,7 +1250,7 @@ public final class CheckObr {
 			error("A state must be associated with an implementation.");
 			return null;
 		}
-		ApamCapability implCap = ApamCapabilityBroker.get(compo);
+		ApamCapability implCap = broker.get(compo);
 		if (implCap == null) {
 			error("Implementation for state unavailable: " + compo.getName());
 			return null;
@@ -1258,7 +1273,7 @@ public final class CheckObr {
 		return values;
 	}
 
-	private static boolean visibilityExpression(String expr) {
+	private boolean visibilityExpression(String expr) {
 		if (expr == null) {
 			return true;
 		}
@@ -1270,7 +1285,7 @@ public final class CheckObr {
 		return checkSyntaxFilter(expr);
 	}
 
-	private static void checkVisibility(CompositeDeclaration component) {
+	private void checkVisibility(CompositeDeclaration component) {
 		VisibilityDeclaration visiDcl = component.getVisibility();
 		if (!visibilityExpression(visiDcl.getApplicationInstances())) {
 			error("bad expression in ExportApp visibility: "
@@ -1298,7 +1313,7 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	private static void checkOwn(CompositeDeclaration component) {
+	private void checkOwn(CompositeDeclaration component) {
 		Set<OwnedComponentDeclaration> owned = component.getOwnedComponents();
 
 		if (owned.isEmpty()) {
@@ -1307,24 +1322,22 @@ public final class CheckObr {
 
 		// The composite must be a singleton
 		if (!component.isSingleton()) {
-			CheckObr.error("To define \"own\" clauses, composite "
+			error("To define \"own\" clauses, composite "
 					+ component.getName() + " must be a singleton.");
 		}
 		// check that a single own clause is defined for a component and its
 		// members
 		Set<String> compRef = new HashSet<String>();
 		for (OwnedComponentDeclaration own : owned) {
-			ApamCapability ownCap = ApamCapabilityBroker.get(own.getComponent());
+			ApamCapability ownCap = broker.get(own.getComponent());
 			if (ownCap == null) {
 				error("Unknown component in own expression : "
 						+ own.getComponent().getName());
 				continue;
 			}
 
-			ComponentReference<?> foundReference = ApamCapabilityBroker.getDcl(
-					own.getComponent()).getReference();
-			if (!own.getComponent().getClass()
-					.isAssignableFrom(foundReference.getClass())) {
+			ComponentReference<?> foundReference = broker.get(own.getComponent()).getReference();
+			if (!own.getComponent().getClass().isAssignableFrom(foundReference.getClass())) {
 				error("Component in own expression is of the wrong type, expecting "
 						+ own.getComponent() + " found " + foundReference);
 				continue;
@@ -1391,7 +1404,7 @@ public final class CheckObr {
 		}
 	}
 
-	private static void checkGrant(CompositeDeclaration component,
+	private void checkGrant(CompositeDeclaration component,
 			OwnedComponentDeclaration own) {
 		// Get state definition
 		Set<String> stateDefinition = checkState(component);
@@ -1409,10 +1422,8 @@ public final class CheckObr {
 
 		// List<GrantDeclaration> grants = own.getGrants();
 		for (GrantDeclaration grant : own.getGrants()) {
-			ApamCapability grantComponent = ApamCapabilityBroker.get(grant
-					.getRelation().getDeclaringComponent());
-			ComponentDeclaration ownedComp = ApamCapabilityBroker.getDcl(own
-					.getComponent());
+			ApamCapability grantComponent	= broker.get(grant.getRelation().getDeclaringComponent());
+			ApamCapability ownedComp 		= broker.get(own.getComponent());
 
 			// Check that the granted component exists
 			if (grantComponent == null) {
@@ -1425,7 +1436,7 @@ public final class CheckObr {
 			// Check that the component is a singleton
 			if (!CST.SINGLETON
 					.equals(grantComponent.getProperty(CST.SINGLETON))) {
-				CheckObr.warning("In Grant clause, Component "
+				warning("In Grant clause, Component "
 						+ grantComponent.getName() + " is not a singleton");
 			}
 
@@ -1452,7 +1463,7 @@ public final class CheckObr {
 
 			// Check that the relation exists and has as target the OWN
 			// resource
-			ComponentDeclaration granted = grantComponent.getDcl();
+			ComponentDeclaration granted = grantComponent.getDeclaration();
 			String id = grant.getRelation().getIdentifier();
 			ComponentReference<?> owned = own.getComponent();
 			boolean found = false;
@@ -1472,9 +1483,7 @@ public final class CheckObr {
 					// If the relation is an implem check if its spec is the
 					// owned one
 					if (depend.getTarget() instanceof ImplementationReference) {
-						ApamCapability depSpec = ApamCapabilityBroker
-								.get((ImplementationReference<?>) depend
-										.getTarget());
+						ApamCapability depSpec = broker.get((ImplementationReference<?>) depend.getTarget());
 						if (depSpec != null
 								&& depSpec.getGroup().equals(owned.getName())) {
 							break;
@@ -1484,19 +1493,19 @@ public final class CheckObr {
 					// Check if the relation resource are provided by the
 					// owned component
 					if ((depend.getTarget() instanceof ResourceReference)
-							&& (ownedComp.getProvidedResources()
+							&& (ownedComp.getDeclaration().getProvidedResources()
 									.contains(depend.getTarget()))) {
 						break;
 					}
 
 					// This id does not lead to the owned component
-					CheckObr.error("The relation of the grant clause " + grant
+					error("The relation of the grant clause " + grant
 							+ " does not refers to the owned component "
 							+ owned);
 				}
 			}
 			if (!found) {
-				CheckObr.error("The relation id of the grant clause " + grant
+				error("The relation id of the grant clause " + grant
 						+ " is undefined for component "
 						+ grant.getRelation().getDeclaringComponent().getName());
 			}
@@ -1510,7 +1519,7 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	private static void checkContextualDependencies(
+	private void checkContextualDependencies(
 			CompositeDeclaration component) {
 		for (RelationDeclaration pol : component.getContextualDependencies()) {
 
@@ -1543,13 +1552,12 @@ public final class CheckObr {
 	 *
 	 * @param composite
 	 */
-	private static void checkPromote(CompositeDeclaration composite) {
+	private void checkPromote(CompositeDeclaration composite) {
 		if (composite.getPromotions() == null)
 			return;
 
 		for (RelationPromotion promo : composite.getPromotions()) {
-			ComponentDeclaration internalComp = ApamCapabilityBroker.getDcl(promo
-					.getContentRelation().getDeclaringComponent());
+			ComponentDeclaration internalComp = broker.get(promo.getContentRelation().getDeclaringComponent()).getDeclaration();
 			if (internalComp == null) {
 				error("Invalid promotion: unknown component "
 						+ promo.getContentRelation().getDeclaringComponent()
@@ -1600,7 +1608,7 @@ public final class CheckObr {
 	}
 
 	// Copy paste of the Util class ! too bad, this one uses ApamCapability
-	private static boolean checkRelationMatch(RelationDeclaration clientDep,
+	private boolean checkRelationMatch(RelationDeclaration clientDep,
 			RelationDeclaration compoDep) {
 		boolean multiple = clientDep.isMultiple();
 		// Look for same relation: the same specification, the same
@@ -1625,8 +1633,7 @@ public final class CheckObr {
 		// Look if the client requires one of the resources provided by the
 		// specification
 		if (compoDep.getTarget() instanceof SpecificationReference) {
-			SpecificationDeclaration spec = (SpecificationDeclaration) ApamCapabilityBroker
-					.getDcl(((SpecificationReference) compoDep.getTarget()));
+			SpecificationDeclaration spec = (SpecificationDeclaration) broker.get(((SpecificationReference) compoDep.getTarget())).getDeclaration();
 
 			if ((spec != null)
 					&& spec.getProvidedResources().contains(
@@ -1639,9 +1646,7 @@ public final class CheckObr {
 			// and the client requires a resource provided by that
 			// implementation
 			if (compoDep.getTarget() instanceof ImplementationReference) {
-				ImplementationDeclaration impl = (ImplementationDeclaration) ApamCapabilityBroker
-						.getDcl(((ImplementationReference<?>) compoDep
-								.getTarget()));
+				ImplementationDeclaration impl = (ImplementationDeclaration) broker.get(((ImplementationReference<?>) compoDep.getTarget())).getDeclaration();
 				if (impl != null) {
 					// The client requires the specification implemented by that
 					// implementation

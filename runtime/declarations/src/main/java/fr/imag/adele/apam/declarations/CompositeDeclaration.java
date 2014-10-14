@@ -83,16 +83,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final List<RelationPromotion> promotions;
 
-    public CompositeDeclaration(String name,
-                                SpecificationReference specification,
-                                ComponentReference<?> mainComponent) {
-        this(name, specification, mainComponent, null);
-    }
-	public CompositeDeclaration(String name,
-			SpecificationReference specification,
-			ComponentReference<?> mainComponent,
-            String specificationVersionRange) {
-		super(name, specification, specificationVersionRange);
+	public CompositeDeclaration(String name, SpecificationReference.Versioned specification, ComponentReference<?> mainComponent) {
+		super(name, specification);
 
 		this.mainComponent = mainComponent;
 

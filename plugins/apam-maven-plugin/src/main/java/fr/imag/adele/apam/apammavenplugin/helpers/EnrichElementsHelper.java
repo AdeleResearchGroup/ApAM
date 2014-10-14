@@ -12,7 +12,7 @@ import fr.imag.adele.apam.apammavenplugin.InvalidApamMetadataException;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.util.CoreMetadataParser;
+import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
 
 /**
  * Helper class to add properties to an ApAM Component using its iPOJO metadata
@@ -49,7 +49,7 @@ public class EnrichElementsHelper {
 			 * Ignore not APAM elements
 			 */
 			if (element.getNameSpace() == null
-					|| !CoreMetadataParser.APAM.equals(element.getNameSpace())) {
+					|| !ComponentParser.APAM.equals(element.getNameSpace())) {
 				continue;
 			}
 
@@ -103,35 +103,35 @@ public class EnrichElementsHelper {
 
 		// Finally we can add definitions
 		for (PropertyDefinition def : mapAddedDefinitions.values()) {
-			Element toAdd = new Element(CoreMetadataParser.DEFINITION,
-					CoreMetadataParser.APAM);
+			Element toAdd = new Element(ComponentParser.DEFINITION,
+					ComponentParser.APAM);
 
-			toAdd.addAttribute(new Attribute(CoreMetadataParser.ATT_NAME, def
+			toAdd.addAttribute(new Attribute(ComponentParser.ATT_NAME, def
 					.getName()));
 			
 			if(def.getType()!= null) {
-			toAdd.addAttribute(new Attribute(CoreMetadataParser.ATT_TYPE, def
+			toAdd.addAttribute(new Attribute(ComponentParser.ATT_TYPE, def
 					.getType()));
 			}
 			
 			if(def.getDefaultValue()!= null) {
-			toAdd.addAttribute(new Attribute(CoreMetadataParser.ATT_DEFAULT,
+			toAdd.addAttribute(new Attribute(ComponentParser.ATT_DEFAULT,
 					def.getDefaultValue()));
 			}
 			
 			if(def.getField()!=null) {
-			toAdd.addAttribute(new Attribute(CoreMetadataParser.ATT_FIELD, def
+			toAdd.addAttribute(new Attribute(ComponentParser.ATT_FIELD, def
 					.getField()));
 			}
 			
 			if(def.getCallback()!=null) {
-				toAdd.addAttribute(new Attribute(CoreMetadataParser.ATT_METHOD, def
+				toAdd.addAttribute(new Attribute(ComponentParser.ATT_METHOD, def
 					.getCallback()));
 			}
 			
 			if (def.getInjected() != null) {
 				toAdd.addAttribute(new Attribute(
-						CoreMetadataParser.ATT_INJECTED, def.getInjected()
+						ComponentParser.ATT_INJECTED, def.getInjected()
 								.toString()));
 			}
 
@@ -140,16 +140,16 @@ public class EnrichElementsHelper {
 
 		// And add the properties
 		for (String name : addedProperties.keySet()) {
-			Element prop = new Element(CoreMetadataParser.PROPERTY,
-					CoreMetadataParser.APAM);
-			prop.addAttribute(new Attribute(CoreMetadataParser.ATT_NAME, name));
-			prop.addAttribute(new Attribute(CoreMetadataParser.ATT_VALUE,
+			Element prop = new Element(ComponentParser.PROPERTY,
+					ComponentParser.APAM);
+			prop.addAttribute(new Attribute(ComponentParser.ATT_NAME, name));
+			prop.addAttribute(new Attribute(ComponentParser.ATT_VALUE,
 					addedProperties.get(name)));
 
 			element.addElement(prop);
 		}
 
-		// addProperty("apam.version", "Version",
+		// addProperty("apam.version", "Versioned",
 		// ApamMavenProperties.mavenVersion.replace('-', '.'), element);
 
 	}
@@ -169,21 +169,21 @@ public class EnrichElementsHelper {
 		
 		Set<String> definitions = new HashSet<String>();
 
-		Element[] tabElt = element.getElements(CoreMetadataParser.DEFINITION,
-				CoreMetadataParser.APAM);
+		Element[] tabElt = element.getElements(ComponentParser.DEFINITION,
+				ComponentParser.APAM);
 
 		if (tabElt == null) {
 			return definitions;
 		}
 		for (Element subElement : tabElt) {
-			String name = subElement.getAttribute(CoreMetadataParser.ATT_NAME,
-					CoreMetadataParser.APAM);
+			String name = subElement.getAttribute(ComponentParser.ATT_NAME,
+					ComponentParser.APAM);
 			definitions.add(name);
 			if (name != null & mapAddedDefinitions.containsKey(name)) {
 
 				InjectedPropertyPolicy injectPolicy = InjectedPropertyPolicy
 						.valueOf(subElement
-								.getAttribute(CoreMetadataParser.ATT_INJECTED));
+								.getAttribute(ComponentParser.ATT_INJECTED));
 				if (injectPolicy != null
 						&& !injectPolicy
 								.equals(InjectedPropertyPolicy.EXTERNAL))
@@ -192,7 +192,7 @@ public class EnrichElementsHelper {
 									+ name);
 
 				String type = subElement
-						.getAttribute(CoreMetadataParser.ATT_TYPE);
+						.getAttribute(ComponentParser.ATT_TYPE);
 				if (type != null
 						&& !type.equals(mapAddedDefinitions.get(name).getType()))
 					throw new InvalidApamMetadataException(
@@ -200,7 +200,7 @@ public class EnrichElementsHelper {
 									+ name);
 
 				String defaultVal = subElement
-						.getAttribute(CoreMetadataParser.ATT_DEFAULT);
+						.getAttribute(ComponentParser.ATT_DEFAULT);
 				if (defaultVal != null
 						&& !defaultVal.equals(mapAddedDefinitions.get(name)
 								.getDefaultValue()))
@@ -209,9 +209,9 @@ public class EnrichElementsHelper {
 									+ name);
 
 				String field = subElement
-						.getAttribute(CoreMetadataParser.ATT_FIELD);
+						.getAttribute(ComponentParser.ATT_FIELD);
 				String callback = subElement
-						.getAttribute(CoreMetadataParser.ATT_METHOD);
+						.getAttribute(ComponentParser.ATT_METHOD);
 
 				element.removeElement(subElement);
 				PropertyDefinition updatedDef = new PropertyDefinition(
@@ -246,13 +246,13 @@ public class EnrichElementsHelper {
 		// "Some properties are not defined at this level");
 		// }
 
-		Element[] tabElt = element.getElements(CoreMetadataParser.PROPERTY,
-				CoreMetadataParser.APAM);
+		Element[] tabElt = element.getElements(ComponentParser.PROPERTY,
+				ComponentParser.APAM);
 
 		if (tabElt != null) {
 			for (Element subElement : tabElt) {
 				String name = subElement.getAttribute(
-						CoreMetadataParser.ATT_NAME, CoreMetadataParser.APAM);
+						ComponentParser.ATT_NAME, ComponentParser.APAM);
 				if (name != null & addedProperties.containsKey(name)) {
 					throw new InvalidApamMetadataException(
 							"Property already defined : " + name);

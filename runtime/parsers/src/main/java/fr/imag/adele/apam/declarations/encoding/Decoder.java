@@ -12,36 +12,23 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.util;
-
-import java.util.List;
+package fr.imag.adele.apam.declarations.encoding;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 /**
- * This class represents a tool being able to parse one of the different APAM
- * Core representations
+ * This class represents a tool being able to decode one of the different formats that can be used
+ * to represent APAM component declarations.
+ * 
+ * Repository implementers should provide appropriate decoder implementations for the format that
+ * they handle internally. 
+ * 
+ * The decoder is parameterized by the class of the internal object used to encode the declaration  
  * 
  * @author vega
  * 
  */
-public interface CoreParser {
-
-	/**
-	 * This interface allow parser users to be notified of all errors found
-	 * during parsing
-	 */
-	public interface ErrorHandler {
-
-		public enum Severity {
-			SUSPECT, WARNING, ERROR;
-		}
-
-		/**
-		 * Notifies of an error in a declaration
-		 */
-		public void error(Severity severity, String message);
-	}
+public interface Decoder<I> {
 
 	/**
 	 * An string value that will be used to represent mandatory attributes not
@@ -50,8 +37,7 @@ public interface CoreParser {
 	public final static String UNDEFINED = new String("<undefined value>");
 
 	/**
-	 * Get the list of all the declared components
+	 * parses the encoded representation of the declaration
 	 */
-	public List<ComponentDeclaration> getDeclarations(ErrorHandler errorHandler);
-
+	public ComponentDeclaration decode(I encodedDeclaration, Reporter reporter);
 }
