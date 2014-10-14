@@ -288,7 +288,7 @@ public class DeployableComponent {
 			 */
 			try {
 
-				resolver.deploy(Resolver.START);
+				resolver.deploy(Resolver.START+Resolver.NO_OPTIONAL_RESOURCES);
 
 				retrying = false;
 				deployed = true;
@@ -303,7 +303,6 @@ public class DeployableComponent {
 				
 				deployedResources.addAll(Arrays.asList(resolver.getAddedResources()));
 				deployedResources.addAll(Arrays.asList(resolver.getRequiredResources()));
-				deployedResources.addAll(Arrays.asList(resolver.getOptionalResources()));
 				
 
 				for (Resource deployedResource : deployedResources) {
@@ -355,7 +354,6 @@ public class DeployableComponent {
 		
 		deployedResources.addAll(Arrays.asList(resolver.getAddedResources()));
 		deployedResources.addAll(Arrays.asList(resolver.getRequiredResources()));
-		deployedResources.addAll(Arrays.asList(resolver.getOptionalResources()));
 		
 		for (Resource deployedResource : deployedResources) {
 			logger.debug("	required resource: " + deployedResource+(getBundle(deployedResource) != null ? " (installed) ":" (not installed) "));
