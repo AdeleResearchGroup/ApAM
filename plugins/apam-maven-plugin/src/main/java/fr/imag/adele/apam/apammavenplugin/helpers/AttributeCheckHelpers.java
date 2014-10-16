@@ -157,7 +157,7 @@ public final class AttributeCheckHelpers {
 		if (group != null) {
 			String groupType = group.getAttrDefinition(name);
 			if (groupType != null) {
-				// Allowed only if defining a field, and it types are the same.
+				// Allowed only if defining a field, and if types are the same.
 				// Default values are not allowed above in that case.
 				PropertyDefinition propDef = component
 						.getPropertyDefinition(name);

@@ -40,10 +40,15 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	protected abstract ImplementationReference<?> generateReference();
 
 	@Override
-	public ComponentReference<?> getGroupReference() {
-		return getSpecification();
+	public SpecificationReference.Versioned getGroupVersioned() {
+		return specification;
 	}
 
+	@Override
+	public SpecificationReference getGroup() {
+		return specification != null ? (SpecificationReference) specification.getComponent() : null;
+	}
+	
 	/**
 	 * Override the return type to a most specific class in order to avoid
 	 * unchecked casting when used
@@ -58,13 +63,6 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	 */
 	public SpecificationReference getSpecification() {
 		return specification != null ? (SpecificationReference) specification.getComponent() : null;
-	}
-
-	/**
-	 * Get the specification implemented by this implementation
-	 */
-	public SpecificationReference.Versioned getSpecificationVersion() {
-		return specification;
 	}
 
 

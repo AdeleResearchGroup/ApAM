@@ -56,7 +56,7 @@ public final class ACRInstallMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private List supportedProjectTypes = Arrays.asList(new String[]
+    private List<String> supportedProjectTypes = Arrays.asList(new String[]
             {"jar", "bundle"});
 
     /**

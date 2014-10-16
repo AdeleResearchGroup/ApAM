@@ -159,16 +159,16 @@ public class ApamRepoBuilder {
 			generateProperty(obrContent, component, CST.IMPLNAME,
 					component.getName());
 
-            SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
+            SpecificationReference.Versioned spec = ((ImplementationDeclaration) component).getGroupVersioned();
             if(spec != null ) {
-                String versionRange = ((ImplementationDeclaration) component).getSpecificationVersion().getRange();
+                String versionRange = spec.getRange();
 
                 if(versionRange!=null && versionRange.length()>0) {
                     generateProperty(obrContent, component, CST.REQUIRE_VERSION,
                             versionRange);
                 }
 
-                if(broker.get(spec.getName(), versionRange)==null) {
+                if(broker.get(spec)==null) {
                     validator.error("Implementation "+component.getName()
                             +" require specification "+spec.getName()+" with version "+versionRange
                             +", which is not available !");
@@ -294,7 +294,7 @@ public class ApamRepoBuilder {
 		}
 		if (component instanceof ImplementationDeclaration) {
 			ImplementationDeclaration impl = (ImplementationDeclaration) component;
-			SpecificationReference.Versioned spec = impl.getSpecificationVersion();
+			SpecificationReference.Versioned spec = impl.getGroupVersioned();
 			if ((spec != null) && !spec.getComponent().getName().isEmpty()) {
 				generateProperty(obrContent, component,CST.PROVIDE_SPECIFICATION, spec.getComponent().getName());
 				bundleRequiresSpecifications.add(spec);
@@ -341,8 +341,8 @@ public class ApamRepoBuilder {
     }
 
 
-	private void printProperties(StringBuffer obrContent,
-			ComponentDeclaration component) {
+	private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
+		
 		Map<String, Object> properties = validator.getValidProperties(component);
 		for (String attr : properties.keySet()) {
 			generateProperty(obrContent, component, attr, properties.get(attr)
@@ -350,8 +350,7 @@ public class ApamRepoBuilder {
 		}
 
 		// definition attributes
-		List<PropertyDefinition> definitions = component
-				.getPropertyDefinitions();
+		List<PropertyDefinition> definitions = component.getPropertyDefinitions();
 		for (PropertyDefinition definition : definitions) {
 			if (validator.checkProperty(component, definition)) {
 				generateTypedProperty(obrContent, component,

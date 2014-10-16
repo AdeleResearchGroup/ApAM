@@ -252,9 +252,9 @@ public final class CheckObr {
 		String name = definition.getName();
 		String defaultValue = definition.getDefaultValue();
 
-		ApamCapability group = broker.get(component.getGroupReference());
+		ApamCapability group = component.getGroupVersioned() != null ? broker.get(component.getGroupVersioned()) : null;
 
-		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group,this)) {
+		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group, this)) {
 			return false;
 		}
 
@@ -614,12 +614,13 @@ public final class CheckObr {
 			return true;
 		}
 		AtomicImplementationDeclaration impl = (AtomicImplementationDeclaration) component;
-		SpecificationReference.Versioned spec = impl.getSpecificationVersion();
+		SpecificationReference.Versioned spec = impl.getGroupVersioned();
 
 		if (spec == null) {
 			return true;
 		}
-		ApamCapability cap = broker.get(spec.getComponent().getName(), spec.getRange());
+		
+		ApamCapability cap = broker.get(spec);
 		if (cap == null) {
 			return false;
 		}
@@ -638,12 +639,13 @@ public final class CheckObr {
 
 	private Set<ResourceReference> getAllProvidedResources(ImplementationDeclaration implementation) {
 		
-		ApamCapability specification 	=  broker.get(implementation.getSpecificationVersion());
+		SpecificationDeclaration specification 	=  (SpecificationDeclaration) getGroup(implementation);
 		Set<ResourceReference> provided = new HashSet<ResourceReference>();
 
 		if (specification != null) {
-			provided.addAll(specification.getProvideResources());
+			provided.addAll(specification.getProvidedResources());
 		}
+		
 		provided.addAll(implementation.getProvidedResources());
 		
 		return provided;
@@ -834,27 +836,9 @@ public final class CheckObr {
 	}
 	
     public ComponentDeclaration getGroup(ComponentDeclaration component) {
-
-
-        /*
-         * handle versioned group references
-         */
-        ComponentReference<?>.Versioned group	= null;
-        
-        if(component instanceof InstanceDeclaration) {
-        	group = ((InstanceDeclaration) component).getImplementationVersion();
-        } 
-        else if (component instanceof ImplementationDeclaration) {
-        	group = ((ImplementationDeclaration) component).getSpecificationVersion();
-        }
-        else if (component instanceof SpecificationDeclaration) {
-        	group = null;
-        }
-            
+        ComponentReference<?>.Versioned group	= component.getGroupVersioned();
         return group != null ? broker.get(group).getDeclaration() : null;
     }
-
-	
 
 	/**
 	 * Provided a relation declaration, compute the effective relation, adding

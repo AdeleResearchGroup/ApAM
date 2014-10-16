@@ -124,8 +124,14 @@ public abstract class ComponentDeclaration {
 	/**
 	 * Get the reference to the parent group of this declaration
 	 */
-	public abstract ComponentReference<?> getGroupReference();
+	public abstract ComponentReference<? extends ComponentDeclaration> getGroup();
 
+	/**
+	 * Get the reference to the parent group of this declaration, including the specific
+	 * range of versions
+	 */
+	public abstract ComponentReference<? extends ComponentDeclaration>.Versioned getGroupVersioned();
+	
 	/**
 	 * Get a relation declaration by name
 	 */

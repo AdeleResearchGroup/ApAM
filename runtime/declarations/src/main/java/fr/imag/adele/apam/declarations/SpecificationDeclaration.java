@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.declarations;
 
+
 /**
  * This class represents the declaration of a service provider specification.
  * 
@@ -37,10 +38,6 @@ public class SpecificationDeclaration extends ComponentDeclaration {
 		return new SpecificationReference(getName());
 	}
 
-	@Override
-	public ComponentReference<?> getGroupReference() {
-		return null;
-	}
 
 	/**
 	 * Override the return type to a most specific class in order to avoid
@@ -51,6 +48,16 @@ public class SpecificationDeclaration extends ComponentDeclaration {
 		return (SpecificationReference) super.getReference();
 	}
 
+	@Override
+	public ComponentReference<?> getGroup() {
+		return null;
+	}
+
+	@Override
+	public ComponentReference<?>.Versioned getGroupVersioned() {
+		return null;
+	}
+	
 	@Override
 	public boolean resolves(RelationDeclaration relation) {
 		return super.resolves(relation)

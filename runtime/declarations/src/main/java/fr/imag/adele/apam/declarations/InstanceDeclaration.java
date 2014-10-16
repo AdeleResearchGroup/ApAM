@@ -56,9 +56,15 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	}
 
 	@Override
-	public ComponentReference<?> getGroupReference() {
-		return getImplementation();
+	public ImplementationReference<?>.Versioned getGroupVersioned() {
+		return implementation;
 	}
+
+	@Override
+	public ImplementationReference<?> getGroup() {
+		return (ImplementationReference<?>) implementation.getComponent();
+	}
+	
 
 	/**
 	 * The implementation of this instance

@@ -87,6 +87,10 @@ public class ComponentReference<D extends ComponentDeclaration> extends	Referenc
 			this.range = range;
 		}
 		
+		public String getName() {
+			return ComponentReference.this.getName();
+		}
+
 		public ComponentReference<D> getComponent() {
 			return ComponentReference.this;
 		}

@@ -10,9 +10,6 @@ import org.osgi.framework.Version;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 
@@ -314,27 +311,7 @@ public class ApamCapabilityBroker {
 
 
     public ApamCapability getGroup(ApamCapability capability) {
-
-
-        /*
-         * handle versioned group references
-         */
-    	ComponentDeclaration component 			= capability.getDeclaration();
-        ComponentReference<?>.Versioned group	= null;
-        
-        if(component instanceof InstanceDeclaration) {
-        	group = ((InstanceDeclaration) component).getImplementationVersion();
-        } 
-        else if (component instanceof ImplementationDeclaration) {
-        	group = ((ImplementationDeclaration) component).getSpecificationVersion();
-        }
-        else if (component instanceof SpecificationDeclaration) {
-        	group = null;
-        }
-            
-        return get(group);
+        return get(capability.getDeclaration().getGroupVersioned());
     }
-
-
 
 }
