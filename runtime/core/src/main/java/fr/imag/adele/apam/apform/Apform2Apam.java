@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 
 public class Apform2Apam {
 

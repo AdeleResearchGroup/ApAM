@@ -3,5 +3,15 @@
 	xsi:schemaLocation="fr.imag.adele.apam https://raw.github.com/AdeleResearchGroup/ApAM/master/runtime/core/src/main/resources/xsd/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-    <specification name="spec-server" interfaces="java.lang.Runnable,java.lang.Comparable"/>
+    <specification name="spec-server" interfaces="java.lang.Runnable,java.lang.Comparable">
+    	<definition name="spec-self-property" type="string"/>
+    	<definition name="implem-property" type="string" default="implem-property-default"/>
+    	<definition name="instance-property" type="string" default="instance-property-default"/>
+    	
+    	<property name="spec-self-property" value="spec-server-v2-property-value"/>
+    	
+    </specification>
+    
+    <specification name="other-spec-in-bundle"/>
+    
 </apam>

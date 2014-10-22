@@ -10,4 +10,10 @@
 
     </implementation>
 
+   <implementation name="implem-server"
+                    specification="spec-server" require-version="1.0.0"
+                    classname="fr.imag.adele.apam.tests.app.Dummy">
+	<property name="version" value="1.0.1"/>
+    </implementation>
+
 </apam>

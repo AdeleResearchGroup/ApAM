@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.logging.Log;
+import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
@@ -31,28 +32,26 @@ import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.InstanceReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.PackageReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
@@ -67,11 +66,12 @@ public final class CheckObr {
 	 */
 	public final static String UNDEFINED = "<undefined value>";
 
-	private final Set<String> ALL_FIELDS = new HashSet<String>();
-	private final Set<String> ALL_GRANTS = new HashSet<String>();
-	private final String IN = "In ";
-	
 	private final ApamCapabilityBroker broker;
+	private final ClasspathDescriptor classpath;
+	
+	private final Set<String> allFields = new HashSet<String>();
+	private final Set<String> allGrants = new HashSet<String>();
+	
 	private final Log logger;
 	
 	private boolean failedChecking = false;
@@ -80,15 +80,33 @@ public final class CheckObr {
 	 * Private constructor protects creating instances from this class (only
 	 * static methods)
 	 */
-	public CheckObr(ApamCapabilityBroker broker, Log logger) {
-		this.broker = broker;
-		this.logger = logger;
+	public CheckObr(ClasspathDescriptor classpath, ApamCapabilityBroker broker, Log logger) {
+		this.broker 	= broker;
+		this.classpath	= classpath;
+		this.logger 	= logger;
 	}
 
+	/**
+	 * Get the capability associated to the declaration in the broker
+	 */
+	private ApamCapability capability(ComponentDeclaration declaration) {
+		return broker.get(declaration);
+	}
+
+	/**
+	 * Get the declaration of a capability
+	 */
+	private static ComponentDeclaration declaration(ApamCapability capability) {
+		return capability != null ? capability.getDeclaration() : null;
+	}
+	
 	public final boolean hasFailedChecking() {
 		return failedChecking;
 	}
 
+	public final void error(ComponentDeclaration component, String msg) {
+		error("In "+ component.getName() + " "+msg);
+	}
 
 	public final void error(String msg) {
 		this.failedChecking = true;
@@ -103,12 +121,23 @@ public final class CheckObr {
 		if (logger != null) logger.info(msg);
 	}
 
+
 	/**
-	 * Get the component associated with a Capability
+	 * Get the component representing the target of a relation.
+	 * 
+	 * Returns null either if the target is not a component or it is not
+	 * available in the repository
 	 * 
 	 */
-	private ComponentDeclaration component(ApamCapability capability) {
-		return capability != null ? capability.getDeclaration() : null;
+	private ApamCapability target(RelationDeclaration relation) {
+		return broker.getTargetComponent(relation);
+	}
+
+	/**
+	 * Whether the target of a relation is a component
+	 */
+	private static boolean targetIsComponent(RelationDeclaration relation) {
+		return relation.getTarget().as(ComponentReference.class) != null;
 	}
 	
 	/**
@@ -119,33 +148,33 @@ public final class CheckObr {
 	 * @param dep
 	 *            a relation
 	 */
-	private void checkConstraint(ComponentDeclaration component, RelationDeclaration dep) {
+	private void checkConstraint(ComponentDeclaration component, RelationDeclaration relation) {
 
-		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference)) {
+		if ((relation == null) || !targetIsComponent(relation)) {
 			return;
 		}
 
-		if (dep.isMultiple()
-				&& (!dep.getImplementationPreferences().isEmpty() || !dep
-						.getInstancePreferences().isEmpty())) {
+		if (relation.isMultiple() && 
+			(!relation.getImplementationPreferences().isEmpty() || !relation.getInstancePreferences().isEmpty())) {
 			error("Preferences cannot be defined for a relation with multiple cardinality: "
-					+ dep.getIdentifier());
+					+ relation.getIdentifier());
 		}
 
 		// get the spec or impl definition
-		ApamCapability cap = broker.get(dep.getTarget().as(ComponentReference.class));
-		if (cap != null) {
+		ApamCapability target = target(relation);
+		if (target != null) {
 
 			// computes the attributes that can be associated with this spec or
 			// implementations members
-			Map<String, String> validAttrs = cap.getValidAttrNames();
+			Map<String, String> validAttrs = target.getValidAttrNames();
 
-			checkFilters(component, dep.getImplementationConstraints(),
-					dep.getImplementationPreferences(), validAttrs, dep
-							.getTarget().getName());
-			checkFilters(component, dep.getInstanceConstraints(),
-					dep.getInstancePreferences(), validAttrs, dep.getTarget()
-							.getName());
+			checkFilters(component, relation.getImplementationConstraints(),
+					relation.getImplementationPreferences(), validAttrs,
+					relation.getTarget().getName());
+			
+			checkFilters(component, relation.getInstanceConstraints(),
+					relation.getInstancePreferences(), validAttrs,
+					relation.getTarget().getName());
 		}
 
 	}
@@ -164,7 +193,7 @@ public final class CheckObr {
 		// Properties of this component
 		Map<String, String> properties = component.getProperties();
 
-		ApamCapability entCap = broker.get(component.getReference());
+		ApamCapability entCap = capability(component);
 		if (entCap == null) {
 			return ret; // should never happen.
 		}
@@ -252,7 +281,7 @@ public final class CheckObr {
 		String name = definition.getName();
 		String defaultValue = definition.getDefaultValue();
 
-		ApamCapability group = component.getGroupVersioned() != null ? broker.get(component.getGroupVersioned()) : null;
+		ApamCapability group = capability(component).getGroup();
 
 		if (!AttributeCheckHelpers.checkPropertyDefinition(component, definition, group, this)) {
 			return false;
@@ -383,10 +412,10 @@ public final class CheckObr {
 
 		AttrType st = new AttrType(type);
 
-		ApamCapability source = broker.get(component.getName());
+		ApamCapability source = capability(component);
 		if (!sub.sourceName.equals("this")) {
 			// Look for the source component
-			source = broker.get(sub.sourceName);
+			source = broker.getByName(sub.sourceName);
 			if (source == null) {
 				error("Component " + sub.sourceName
 						+ " not found in substitution : " + defaultValue
@@ -435,19 +464,19 @@ public final class CheckObr {
 	 */
 	private ApamCapability buildDummyImplem(ApamCapability source) {
 		
-		SpecificationDeclaration specification = (SpecificationDeclaration) component(source);
+		SpecificationDeclaration specification = (SpecificationDeclaration) declaration(source);
 		
 		AtomicImplementationDeclaration bidon = new AtomicImplementationDeclaration("void-" + specification.getName(),
-														specification.getReference().any(), null);
-		return new ApamCapability(broker,bidon);
+														Versioned.any(specification.getReference()), null);
+		return new ApamCapability(broker,bidon,Version.emptyVersion);
 	}
 
 	private ApamCapability buildDummyInst(ApamCapability source) {
 
-		ImplementationDeclaration implementation = (ImplementationDeclaration) component(source);
-		InstanceDeclaration bidon = new InstanceDeclaration(implementation.getReference().any(),
-											source.getName() + "-01", null);
-		return new ApamCapability(broker,bidon);
+		ImplementationDeclaration implementation = (ImplementationDeclaration) declaration(source);
+		Versioned<? extends ImplementationDeclaration> versionImplem = Versioned.any(implementation.getReference());
+		InstanceDeclaration bidon = new InstanceDeclaration(versionImplem,source.getName() + "-01", null);
+		return new ApamCapability(broker,bidon,Version.emptyVersion);
 	}
 
 	/**
@@ -571,9 +600,7 @@ public final class CheckObr {
 				return null;
 			}
 
-			ComponentReference<?> targetComponent = depDcl.getTarget().as(
-					ComponentReference.class);
-			if (targetComponent == null) { // it is an interface or message
+			if (!targetIsComponent(depDcl)) { // it is an interface or message
 				// target. Cannot check.
 				warning(depDcl.getTarget().getName()
 						+ " is an interface or message. Substitution \""
@@ -581,9 +608,9 @@ public final class CheckObr {
 				return RUNTIME_COMPONET;
 			}
 
-			source = broker.get(targetComponent.getName());
+			source = target(depDcl);
 			if (source == null) {
-				error("Component " + targetComponent.getName()
+				error("Component " + depDcl.getTarget().getName()
 						+ " not found in substitution : \"" + defaultValue
 						+ "\"");
 				return null;
@@ -595,131 +622,78 @@ public final class CheckObr {
 	}
 
 	/**
-	 * An implementation has the following provide; check if consistent with the
-	 * list of provides found in "cap".
-	 *
-	 * @param interfaces
-	 *            = "{I1, I2, I3}" or I1 or null
-	 * @param messages
-	 *            = "{M1, M2, M3}" or M1 or null
-	 * @return
+	 * Whether implementation actually provides the resources of the specification
 	 */
-	public boolean checkImplProvide(ComponentDeclaration component,
-			Set<InterfaceReference> interfaces,
-			Set<MessageReference> messages,
-			Set<UndefinedReference> interfacesUndefined,
-			Set<UndefinedReference> messagesUndefined) {
+	public boolean checkImplProvide(ImplementationDeclaration implementation) {
 		
-		if (!(component instanceof AtomicImplementationDeclaration)) {
-			return true;
-		}
-		AtomicImplementationDeclaration impl = (AtomicImplementationDeclaration) component;
-		SpecificationReference.Versioned spec = impl.getGroupVersioned();
-
-		if (spec == null) {
-			return true;
-		}
-		
-		ApamCapability cap = broker.get(spec);
-		if (cap == null) {
+		if (! capability(implementation).isGroupReferenceValid()) {
 			return false;
 		}
+		
+		ApamCapability specification = capability(implementation).getGroup();
+		
+		if (specification == null) {
+			return true;
+		}
 
-		Set<MessageReference> specMessages = cap.getProvideMessages();
-		Set<InterfaceReference> specInterfaces = cap.getProvideInterfaces();
-
-		ProvideHelpers.checkMessages(impl, messages, messagesUndefined,
-				specMessages, this);
-
-		ProvideHelpers.checkInterfaces(impl, interfaces, interfacesUndefined,
-				specInterfaces, this);
+		ProvideHelpers.checkResources(implementation,declaration(specification),MessageReference.class,this);
+		ProvideHelpers.checkResources(implementation,declaration(specification),InterfaceReference.class,this);
 
 		return true;
 	}
 
-	private Set<ResourceReference> getAllProvidedResources(ImplementationDeclaration implementation) {
+	private Set<ResourceReference> getAllProvidedResources(ImplementationDeclaration implementation, Class<? extends ResourceReference> kind) {
 		
-		SpecificationDeclaration specification 	=  (SpecificationDeclaration) getGroup(implementation);
-		Set<ResourceReference> provided = new HashSet<ResourceReference>();
+		SpecificationDeclaration specification 	=  (SpecificationDeclaration) declaration(capability(implementation).getGroup());
+		Set<ResourceReference> provided 		= new HashSet<ResourceReference>();
 
 		if (specification != null) {
-			provided.addAll(specification.getProvidedResources());
+			provided.addAll(specification.getProvidedResources(kind));
 		}
 		
-		provided.addAll(implementation.getProvidedResources());
+		provided.addAll(implementation.getProvidedResources(kind));
 		
 		return provided;
 	}
 
-	/**
-	 * Get the provided resources of a given kind, for example Services or
-	 * Messages.
-	 *
-	 * We use subclasses of ResourceReference as tags to identify kinds of
-	 * resources. To add a new kind of resource a new subclass must be added.
-	 *
-	 * Notice that we return a set of resource references but typed to
-	 * particular subtype of references, the unchecked downcast is then safe at
-	 * runtime.
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends ResourceReference> Set<T> getProvidedResources(
-			Set<ResourceReference> resources, Class<T> kind) {
-		Set<T> res = new HashSet<T>();
-		for (ResourceReference resourceReference : resources) {
-			if (kind.isInstance(resourceReference)) {
-				res.add((T) resourceReference);
-			}
-		}
-		return res;
-	}
 
 	public void checkCompoMain(CompositeDeclaration composite) {
-		String name = composite.getName();
 
-		Set<ResourceReference> allProvidedResources = getAllProvidedResources(composite);
-		// Abstract composite have no main implem, but must not provide any
-		// resource
+		Set<ResourceReference> allProvidedResources = getAllProvidedResources(composite,ResourceReference.class);
+		// Abstract composite have no main implem, but must not provide any resource
 		if (composite.getMainComponent() == null) {
-			if (!getAllProvidedResources(composite).isEmpty()) {
+			if (!allProvidedResources.isEmpty()) {
 				error("Composite "
-						+ name
+						+ composite.getName()
 						+ " does not declare a main implementation, but provides resources "
-						+ getAllProvidedResources(composite));
+						+ Util.list(allProvidedResources,true));
 			}
 			return;
 		}
 
-		String implName = composite.getMainComponent().getName();
-		ApamCapability cap = broker.get(composite.getMainComponent());
-		if (cap == null) {
+		String mainName 			= composite.getMainComponent().getName();
+		ComponentDeclaration main 	= declaration(broker.getByName(mainName));
+		
+		if (main == null) {
 			return;
 		}
-		if (composite.getSpecification() != null) {
-			String spec = composite.getSpecification().getName();
-			String capSpec = cap.getProperty(CST.PROVIDE_SPECIFICATION);
-			if ((capSpec != null) && !spec.equals(capSpec)) {
-				error(IN + name + " Invalid main implementation. "
-						+ implName + " must implement specification " + spec);
-			}
+		
+		if (composite.getGroup() != null && main.getGroup() != null && !composite.getGroupVersioned().equals(main.getGroupVersioned()) ) {
+			error(composite,"Invalid main implementation. "+ mainName + " must implement specification " + composite.getGroup().getName());
 		}
 
-		Set<MessageReference> mainMessages = cap.getProvideMessages();
-		Set<MessageReference> compositeMessages = getProvidedResources(
-				allProvidedResources, MessageReference.class);
+		Set<MessageReference> mainMessages 		= main.getProvidedResources(MessageReference.class);
+		Set<MessageReference> compositeMessages = composite.getProvidedResources(MessageReference.class);
 		if (!mainMessages.containsAll(compositeMessages)) {
-			error(IN + name + " Invalid main implementation. "
-					+ implName + " produces messages " + mainMessages
-					+ " instead of " + compositeMessages);
+			error(composite, "Invalid main implementation. "+ 
+					mainName + " produces messages " + mainMessages + " instead of " + compositeMessages);
 		}
 
-		Set<InterfaceReference> mainInterfaces = cap.getProvideInterfaces();
-		Set<InterfaceReference> compositeInterfaces = getProvidedResources(
-				allProvidedResources, InterfaceReference.class);
+		Set<InterfaceReference> mainInterfaces		= main.getProvidedResources(InterfaceReference.class);
+		Set<InterfaceReference> compositeInterfaces	= composite.getProvidedResources(InterfaceReference.class);
 		if (!mainInterfaces.containsAll(compositeInterfaces)) {
-			error(IN + name + " Invalid main implementation. "
-					+ implName + " implements " + mainInterfaces
-					+ " instead of " + compositeInterfaces);
+			error(composite, "Invalid main implementation. "+
+					mainName + " implements " + mainInterfaces + " instead of " + compositeInterfaces);
 		}
 	}
 
@@ -730,16 +704,26 @@ public final class CheckObr {
 	 * @param interf
 	 * @return
 	 */
-	public boolean checkInterfaceExist(String interf) {
-		// Checking if the interface is existing
-		// Can be "<Unavalable>" for generic collections, since it is not
-		// possible to get the type at compile time
-		if (interf == null || interf.startsWith("<Unavailable")) {
+	public boolean checkResourceExists(ResourceReference resource) {
+		
+		/*
+		 *  Can be unknown if the resource is defined by the type of a generic collection, since it is not
+		 *  possible to get the type at compile time
+		 */
+		
+		if (resource == null || resource instanceof UnknownReference) {
 			return true;
 		}
-		if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(interf) == null) {
-			error("Provided Interface " + interf
-					+ " does not exist in your Maven dependencies");
+		
+		/*
+		 * TODO check that the package is exported by some bundle in the classpath
+		 */
+		if (resource.as(PackageReference.class) != null) {
+			return true;
+		}
+		
+		if (classpath.getElementsHavingClass(resource.getJavaType()) == null) {
+			error("Java class " + resource.getJavaType() + " does not exist in your build dependencies");
 			return false;
 		}
 		return true;
@@ -752,40 +736,38 @@ public final class CheckObr {
 	 * @param component
 	 */
 	public void checkRelations(ComponentDeclaration component) {
-		Set<RelationDeclaration> deps = component.getDependencies();
-		if (deps == null || deps.isEmpty()) {
+		Set<RelationDeclaration> relations = component.getRelations();
+		if (relations == null || relations.isEmpty()) {
 			return;
 		}
 
-		ALL_FIELDS.clear();
-		Set<String> depIds = new HashSet<String>();
+		allFields.clear();
+		Set<String> relationIds = new HashSet<String>();
 
-		for (RelationDeclaration dep : deps) {
+		for (RelationDeclaration relation : relations) {
 
 			// Checking for predefined relations. Cannot be redefined
-			if (CST.isFinalRelation(dep.getIdentifier())) {
-				error("relation " + dep.getIdentifier()
-						+ " is predefined.");
+			if (CST.isFinalRelation(relation.getIdentifier())) {
+				error("relation " + relation.getIdentifier() + " is predefined.");
 				continue;
 			}
 
 			// Checking for double relation Id
-			if (depIds.contains(dep.getIdentifier())) {
-				error("relation " + dep.getIdentifier()
-						+ " allready defined.");
+			if (relationIds.contains(relation.getIdentifier())) {
+				error("relation " + relation.getIdentifier() + " allready defined.");
 				continue;
 			}
-			depIds.add(dep.getIdentifier());
+			relationIds.add(relation.getIdentifier());
 
 			// replace the definition by the effective relation (adding group
 			// definition)
-			dep = computeGroupRelation(component, dep);
+			relation = computeGroupRelation(component, relation);
 
 			// validating relation constraints and preferences..
-			checkConstraint(component, dep);
+			checkConstraint(component, relation);
 
 			// Checking fields and complex dependencies
-			checkFieldTypeDep(dep);
+			checkFieldTypeDep(relation);
 
 			// eager and hide cannot be defined here
 			// TODO relation, attention! this block was removed since now with
@@ -796,49 +778,39 @@ public final class CheckObr {
 			// }
 
 			// Checking if the exception is existing
-			String except = dep.getMissingException();
+			String except = relation.getMissingException();
 			if (except != null
-					&& OBRGeneratorMojo.classpathDescriptor
-							.getElementsHavingClass(except) == null) {
-				error("Exception " + except + " undefined in " + dep);
+					&& classpath.getElementsHavingClass(except) == null) {
+				error("Exception " + except + " undefined in " + relation);
 			}
 
 			// Checking if the interface is existing
-			if (dep.getTarget() instanceof InterfaceReference
-					|| dep.getTarget() instanceof MessageReference) {
-				checkInterfaceExist(dep.getTarget().getName());
+			if (! targetIsComponent(relation)) {
+				checkResourceExists((ResourceReference)relation.getTarget());
 			} else {
 
 				// checking that the targetKind is not higher than the target
-				if ((dep.getTarget() instanceof ImplementationReference && dep
-						.getTargetKind() == ComponentKind.SPECIFICATION)
-						|| (dep.getTarget() instanceof InstanceReference && dep
-								.getTargetKind() != ComponentKind.INSTANCE)) {
-					error("TargetKind " + dep.getTargetKind()
-							+ " is higher than the target " + dep.getTarget());
+				ComponentKind targetKind = relation.getTargetKind() != null ? relation.getTargetKind() : ComponentKind.INSTANCE; 
+				if (targetKind.isMoreAbstractThan(relation.getTarget().as(ComponentReference.class).getKind())) {
+					error("TargetKind " + relation.getTargetKind()
+							+ " is higher than the target " + relation.getTarget());
 				}
 			}
 		}
 	}
 
 	
-	public RelationDeclaration getRelationDefinition(ApamCapability source, String relName) {
+	private static RelationDeclaration getRelationDefinition(ApamCapability source, String relName) {
 		// look for that relation declaration
-		// ComponentDeclaration group =
-		// ApamCapability.getDcl(depComponent.getGroupReference()) ;
-		ApamCapability group = source;
-		RelationDeclaration relDef = null;
-		while (group != null && relDef == null) {
-			relDef = group.getDeclaration().getLocalRelation(relName);
-			group = group.getGroup();
+		ApamCapability declaring = source;
+		RelationDeclaration declaration = null;
+		while (declaring != null && declaration == null) {
+			declaration = declaring.getDeclaration().getRelation(relName);
+			declaring 	= declaring.getGroup();
 		}
-		return relDef;
+		return declaration;
 	}
 	
-    public ComponentDeclaration getGroup(ComponentDeclaration component) {
-        ComponentReference<?>.Versioned group	= component.getGroupVersioned();
-        return group != null ? broker.get(group).getDeclaration() : null;
-    }
 
 	/**
 	 * Provided a relation declaration, compute the effective relation, adding
@@ -857,23 +829,21 @@ public final class CheckObr {
 		 * Iterate over all ancestor groups, and complete missing information in
 		 * order to get the full relation declaration
 		 */
-		ComponentDeclaration group = getGroup(source);
+		ApamCapability group = capability(source).getGroup();
 		while (group != null) {
 
-			RelationDeclaration groupDep = group.getLocalRelation(relName);
+			RelationDeclaration inheritedRelation = declaration(group).getRelation(relName);
 
 			/*
 			 * skip group levels that do not refine the definition
 			 */
-			if (groupDep == null) {
-				group = getGroup(group);
+			if (inheritedRelation == null) {
+				group = group.getGroup();
 				continue;
 			}
 
-			boolean relationTargetDefined = !relation.getTarget().getName()
-					.equals(ComponentParser.UNDEFINED);
-			boolean groupTargetdefined = !groupDep.getTarget().getName()
-					.equals(ComponentParser.UNDEFINED);
+			boolean relationTargetDefined	= !relation.getTarget().getName().equals(ComponentParser.UNDEFINED);
+			boolean groupTargetdefined 		= !inheritedRelation.getTarget().getName().equals(ComponentParser.UNDEFINED);
 
 			/*
 			 * If the target are defined at several levels they must be
@@ -881,22 +851,15 @@ public final class CheckObr {
 			 */
 			if (relationTargetDefined && groupTargetdefined) {
 
-				ResourceReference relationTargetResource = relation.getTarget().as(ResourceReference.class);
-				ComponentReference<?> relationTargetComponent = relation.getTarget().as(ComponentReference.class);
-
-				ResourceReference groupTargetResource = groupDep.getTarget().as(ResourceReference.class);
-				ComponentReference<?> groupTargetComponent = groupDep.getTarget().as(ComponentReference.class);
-
 				/*
 				 * The relation declared in the group targets a resource, the
 				 * refined relation must target the same
 				 */
-				if (relationTargetResource != null
-						&& groupTargetResource != null) {
-					if (!relationTargetResource.equals(groupTargetResource)) {
+				if (!targetIsComponent(relation) && !targetIsComponent(inheritedRelation)) {
+					if (!relation.getTarget().equals(inheritedRelation.getTarget())) {
 						error("Invalid target for " + relation
 								+ " in component " + source.getName()
-								+ " expected " + groupTargetResource
+								+ " expected " + inheritedRelation.getTarget().getName()
 								+ " as specified in " + group.getName());
 					}
 				}
@@ -906,15 +869,13 @@ public final class CheckObr {
 				 * refinement may target a provided resource, but we keep the
 				 * more general definition
 				 */
-				if (relationTargetResource != null
-						&& groupTargetComponent != null) {
-
-					ComponentDeclaration groupTarget = broker.get(groupTargetComponent).getDeclaration();
-					if (!groupTarget.getProvidedResources().contains(relationTargetResource)) {
+				if (!targetIsComponent(relation) && targetIsComponent(inheritedRelation)) {
+					ApamCapability inheritedTarget = target(inheritedRelation);
+					if ( inheritedTarget != null && !inheritedTarget.provides(relation.getTarget().as(ResourceReference.class),true)) {
 						error("Invalid target for " + relation
 								+ " in component " + source.getName()
 								+ " expected one of the provided resources of "
-								+ groupTargetComponent + " as specified in "
+								+ inheritedRelation.getTarget().getName() + " as specified in "
 								+ group.getName());
 					}
 				}
@@ -924,21 +885,16 @@ public final class CheckObr {
 				 * refinement may target any component that is in the group of
 				 * the target, but we keep the more general definition
 				 */
-				if (relationTargetComponent != null
-						&& groupTargetComponent != null) {
+				if (targetIsComponent(relation) && targetIsComponent(inheritedRelation)) {
 
-					ComponentDeclaration groupTarget = broker.get(groupTargetComponent).getDeclaration();
-					ComponentDeclaration relationTarget = broker.get(relationTargetComponent).getDeclaration();
+					ApamCapability inheritedTarget	= target(inheritedRelation);
+					ApamCapability relationTarget 	= target(relation);
 
-					while (relationTarget != null
-							&& !relationTarget.getReference().equals(groupTarget.getReference()))
-						relationTarget = getGroup(relationTarget);
-
-					if (relationTarget == null) {
+					if (relationTarget != null && inheritedTarget != null && !inheritedTarget.isAncestorOf(relationTarget, true)) {
 						error("Invalid target for " + relation
 								+ " in component " + source.getName()
 								+ " expected an member of "
-								+ groupTargetComponent + " as specified in "
+								+ inheritedRelation.getTarget().getName() + " as specified in "
 								+ group.getName());
 					}
 				}
@@ -948,23 +904,21 @@ public final class CheckObr {
 				 * refinement may target a component that provides this
 				 * resource, but we keep the more general definition
 				 */
-				if (relationTargetComponent != null
-						&& groupTargetResource != null) {
-					ComponentDeclaration relationTarget = broker.get(relationTargetComponent).getDeclaration();
-					if (!relationTarget.getProvidedResources().contains(
-							groupTargetResource)) {
+				if (targetIsComponent(relation) && !targetIsComponent(inheritedRelation)) {
+					ApamCapability relationTarget = target(relation);
+					if ( relationTarget != null && !relationTarget.provides(inheritedRelation.getTarget().as(ResourceReference.class),true)) {
 						error("Invalid target for " + relation
 								+ " in component " + source.getName()
 								+ " expected a component providing "
-								+ groupTargetResource + " as specified in "
+								+ inheritedRelation.getTarget().getName() + " as specified in "
 								+ group.getName());
 					}
 				}
 
 			}
 
-			relation = groupDep.refinedBy(relation);
-			group = getGroup(group);
+			relation	= inheritedRelation.refinedBy(relation);
+			group 		= group.getGroup();
 		}
 
 		return relation;
@@ -978,7 +932,7 @@ public final class CheckObr {
 	 * @param dep
 	 *            : a relation
 	 */
-	private void checkFieldTypeDep(RelationDeclaration dep) {
+	private void checkFieldTypeDep(RelationDeclaration relation) {
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the specification.
 
@@ -989,53 +943,46 @@ public final class CheckObr {
 
 		// possible if only the dep ID is provided. Target will be computed
 		// later
-		if (dep.getTarget() == null) {
+		if (relation.getTarget() == null) {
 			return;
 		}
 
-		ComponentReference<?> targetComponent = dep.getTarget().as(
-				ComponentReference.class);
-
 		// If not explicit component target, it must be an interface/message
 		// reference
-		if (targetComponent == null) {
-			allowedTypes.add(dep.getTarget().as(ResourceReference.class));
+		if (!targetIsComponent(relation)) {
+			allowedTypes.add(relation.getTarget().as(ResourceReference.class));
 		} else {
-			ApamCapability cap = broker.get(targetComponent);
-            if(cap != null ) {
-                allowedTypes.addAll(cap.getProvideResources());
+			ComponentDeclaration target = declaration(target(relation));
+            if(target != null ) {
+                allowedTypes.addAll(target.getProvidedResources());
 
                 // check target's implementation class
-                String implementationClass = cap.getImplementationClass();
-                if (implementationClass != null)
-                    allowedTypes.add(new ImplementatioClassReference(
-                            implementationClass));
+                if (target instanceof AtomicImplementationDeclaration) {
+                	allowedTypes.add(new ImplementatioClassReference(((AtomicImplementationDeclaration)target).getClassName()));
+                }
 
             } else {
-				error("relation " + dep.getIdentifier()
-						+ " : the target of the reference doesn' exists "
-						+ targetComponent);
+				error("relation " + relation.getIdentifier() + " : the target of the reference doesn' exists " + relation.getTarget().getName());
 			}
 
 
 		}
 
-		for (RequirerInstrumentation innerDep : dep.getInstrumentations()) {
+		for (RequirerInstrumentation instrumentation : relation.getInstrumentations()) {
 
-			if (!innerDep.isValidInstrumentation())
-				error(dep.getComponent().getName()
-						+ " : invalid type for field " + innerDep.getName());
+			if (!instrumentation.isValidInstrumentation())
+				error(relation.getComponent().getName()	+ " : invalid type for field " + instrumentation.getName());
 
-			String type = innerDep.getRequiredResource().getJavaType();
-			if (!(type.startsWith("fr.imag.adele.apam.")) // For links
-					&& !(innerDep.getRequiredResource() instanceof UndefinedReference)
-					&& !(allowedTypes.contains(innerDep.getRequiredResource()))) {
+			ComponentKind targetKind = relation.getTargetKind() != null ? relation.getTargetKind() : ComponentKind.INSTANCE; 
+			if (!(instrumentation.getRequiredResource() instanceof UnknownReference) &&
+				!(targetKind.isAssignableTo(instrumentation.getRequiredResource().getJavaType())) && 
+				!(allowedTypes.contains(instrumentation.getRequiredResource()))) {
 				error("Field "
-						+ innerDep.getName()
+						+ instrumentation.getName()
 						+ " is of type "
-						+ type
+						+ instrumentation.getRequiredResource().getJavaType()
 						+ " which is not implemented by specification or implementation "
-						+ dep.getTarget().getName());
+						+ relation.getTarget().getName());
 			}
 		}
 
@@ -1048,7 +995,7 @@ public final class CheckObr {
 	 * This class represents the main class of an implementation.
 	 *
 	 * TODO Right now this class is only used to verify the type of a field in
-	 * an implementation dependnecy. We could think of generalizing the concept
+	 * an implementation relation. We could think of generalizing the concept
 	 * of "interface relation" to "class relation" and allow APAM to resolve a
 	 * field of a given class to an instance of some implementation that
 	 * implements this class. In that case we can move this class to the core of
@@ -1077,12 +1024,11 @@ public final class CheckObr {
 	 */
 	public boolean isFieldMultiple(RequirerInstrumentation dep,
 			ComponentDeclaration component) {
-		if (ALL_FIELDS.contains(dep.getName())
+		if (allFields.contains(dep.getName())
 				&& !dep.getName().equals(UNDEFINED)) {
-			error(IN + component.getName() + " field/method "
-					+ dep.getName() + " allready declared");
+			error(component,"field/method "	+ dep.getName() + " allready declared");
 		} else {
-			ALL_FIELDS.add(dep.getName());
+			allFields.add(dep.getName());
 		}
 
 		return dep.acceptMultipleProviders();
@@ -1096,7 +1042,7 @@ public final class CheckObr {
 	 * @param component
 	 */
 	public void checkComponentHeader(ComponentDeclaration component) {
-		ApamCapability cap = broker.get(component.getReference());
+		ApamCapability cap = capability(component);
 		if (cap == null)
 			return;
 		ApamCapability group = cap.getGroup();
@@ -1145,12 +1091,12 @@ public final class CheckObr {
 	 */
 	private void checkStart(CompositeDeclaration component) {
 		for (InstanceDeclaration start : component.getInstanceDeclarations()) {
-			ImplementationReference<?> implRef = start.getImplementation();
+			ComponentReference<?> implRef = start.getImplementation();
 			if (implRef == null) {
 				error("Implementation name cannot be null");
 				continue;
 			}
-			ApamCapability cap = broker.get(implRef);
+			ApamCapability cap = broker.getByReference(implRef);
 			if (cap == null) {
 				continue;
 			}
@@ -1191,29 +1137,26 @@ public final class CheckObr {
 	}
 
 	private void checkTrigger(InstanceDeclaration start) {
-		Set<ConstrainedReference> trig = start.getTriggers();
-		for (ConstrainedReference ref : trig) {
-			ResolvableReference target = ref.getTarget();
-			ComponentReference<?> compoRef = target
-					.as(ComponentReference.class);
-			if (compoRef == null) {
+		for (ConstrainedReference trigger : start.getTriggers()) {
+
+			if (trigger.getTarget().as(ComponentReference.class) == null) {
 				error("Start trigger not related to a valid component");
 				continue;
 			}
-			ApamCapability cap = broker.get(compoRef);
-			if (cap == null) {
+			
+			ApamCapability target = broker.getTargetComponent(trigger);
+			if (target == null) {
 				// error ("Unknown component " + target.getName()) ;
 				continue;
 			}
 
-			Map<String, String> validAttrs = cap.getValidAttrNames();
+			Map<String, String> validAttrs = target.getValidAttrNames();
 
-			checkFilters(start, ref.getImplementationConstraints(),
-					ref.getImplementationPreferences(), validAttrs, ref
-							.getTarget().getName());
-			checkFilters(start, ref.getInstanceConstraints(),
-					ref.getInstancePreferences(), validAttrs, ref.getTarget()
-							.getName());
+			checkFilters(start, trigger.getImplementationConstraints(), trigger.getImplementationPreferences(), 
+					validAttrs, trigger.getTarget().getName());
+			
+			checkFilters(start, trigger.getInstanceConstraints(),trigger.getInstancePreferences(),
+					validAttrs, trigger.getTarget().getName());
 		}
 	}
 
@@ -1224,33 +1167,34 @@ public final class CheckObr {
 	 * @param component
 	 */
 	private Set<String> checkState(CompositeDeclaration component) {
-		PropertyDefinition.Reference ref = component.getStateProperty();
-		if (ref == null) {
+		PropertyDefinition.Reference stateProperty = component.getStateProperty();
+		
+		if (stateProperty == null) {
 			return null;
 		}
 
-		ComponentReference<?> compo = ref.getDeclaringComponent();
-		if (!(compo instanceof ImplementationReference)) {
+		if (! stateProperty.getDeclaringComponent().getKind().equals(ComponentKind.IMPLEMENTATION)) {
 			error("A state must be associated with an implementation.");
 			return null;
 		}
-		ApamCapability implCap = broker.get(compo);
-		if (implCap == null) {
-			error("Implementation for state unavailable: " + compo.getName());
+		
+		ApamCapability implementation = broker.getDeclaringComponent(stateProperty);
+		if (implementation == null) {
+			error("Implementation for state unavailable: " + stateProperty.getDeclaringComponent().getName());
 			return null;
 		}
 		// Attribute state must be defined on the implementation.
-		String type = implCap.getLocalAttrDefinition(ref.getIdentifier());
+		String type = implementation.getLocalAttrDefinition(stateProperty.getIdentifier());
 		if (type == null) {
-			error("The state attribute " + ref.getIdentifier()
-					+ " on implementation " + compo.getName()
+			error("The state attribute " + stateProperty.getIdentifier()
+					+ " on implementation " + stateProperty.getDeclaringComponent().getName()
 					+ " is undefined.");
 			return null;
 		}
 
 		Set<String> values = Util.splitSet(type);
 		if (values.isEmpty()) {
-			error("State attribute " + ref.getIdentifier()
+			error("State attribute " + stateProperty.getIdentifier()
 					+ " is not an enumeration. Invalid state attribute");
 			return null;
 		}
@@ -1297,72 +1241,67 @@ public final class CheckObr {
 	 *
 	 * @param component
 	 */
-	private void checkOwn(CompositeDeclaration component) {
-		Set<OwnedComponentDeclaration> owned = component.getOwnedComponents();
+	private void checkOwn(CompositeDeclaration composite) {
 
-		if (owned.isEmpty()) {
-			return;
+		// The composite must be a singleton to define owns
+		if (!composite.getOwnedComponents().isEmpty() && !composite.isSingleton()) {
+			error(composite,"To define \"own\" clauses, composite must be a singleton.");
 		}
 
-		// The composite must be a singleton
-		if (!component.isSingleton()) {
-			error("To define \"own\" clauses, composite "
-					+ component.getName() + " must be a singleton.");
-		}
+
 		// check that a single own clause is defined for a component and its
 		// members
 		Set<String> compRef = new HashSet<String>();
-		for (OwnedComponentDeclaration own : owned) {
-			ApamCapability ownCap = broker.get(own.getComponent());
-			if (ownCap == null) {
-				error("Unknown component in own expression : "
-						+ own.getComponent().getName());
+		for (OwnedComponentDeclaration ownDeclaration : composite.getOwnedComponents()) {
+			
+			ApamCapability owned = broker.getByReference(ownDeclaration.getComponent());
+			if (owned == null) {
+				error("Unknown component in own expression : " + ownDeclaration.getComponent().getName());
 				continue;
 			}
 
-			ComponentReference<?> foundReference = broker.get(own.getComponent()).getReference();
-			if (!own.getComponent().getClass().isAssignableFrom(foundReference.getClass())) {
+			if (!ownDeclaration.getComponent().getKind().equals(owned.getReference().getKind())) {
 				error("Component in own expression is of the wrong type, expecting "
-						+ own.getComponent() + " found " + foundReference);
+						+ ownDeclaration.getComponent() + " found " + owned.getReference());
 				continue;
 
 			}
 
 			// computes the attributes that can be associated with this spec or
 			// implementations members
-			if (own.getProperty() != null) {
-				String prop = own.getProperty().getIdentifier();
-				String type = ownCap.getAttrDefinition(prop);
+			if (ownDeclaration.getProperty() != null) {
+				String prop = ownDeclaration.getProperty().getIdentifier();
+				String type = owned.getAttrDefinition(prop);
 				if (type == null) {
 					error("Undefined attribute "
-							+ own.getProperty().getIdentifier()
-							+ " for component " + own.getComponent().getName()
+							+ ownDeclaration.getProperty().getIdentifier()
+							+ " for component " + ownDeclaration.getComponent().getName()
 							+ " in own expression");
 					continue;
 				}
 				Set<String> values = Util.splitSet(type);
 				if (values.size() == 1) {
 					error("Attribute "
-							+ own.getProperty().getIdentifier()
+							+ ownDeclaration.getProperty().getIdentifier()
 							+ " for component "
-							+ own.getComponent().getName()
+							+ ownDeclaration.getComponent().getName()
 							+ " is not an enumeration. Invalid in own expression");
 					continue;
 				}
 
-				if (own.getValues().isEmpty()) {
+				if (ownDeclaration.getValues().isEmpty()) {
 					error("In own clause, values not specified for attribute "
 							+ prop + " \n    for component "
-							+ own.getComponent().getName() + ". Expected "
+							+ ownDeclaration.getComponent().getName() + ". Expected "
 							+ Util.toStringResources(values));
 				}
 
-				if (!values.containsAll(own.getValues())) {
+				if (!values.containsAll(ownDeclaration.getValues())) {
 					error("In own clause, invalid values : "
-							+ Util.toStringResources(own.getValues())
+							+ Util.toStringResources(ownDeclaration.getValues())
 							+ " for attribute " + prop
 							+ " \n    for component "
-							+ own.getComponent().getName() + ". Expected "
+							+ ownDeclaration.getComponent().getName() + ". Expected "
 							+ Util.toStringResources(values));
 				}
 			}
@@ -1373,126 +1312,101 @@ public final class CheckObr {
 			 * clauses in other composites for that component or its members:
 			 * -It must be the same property -It must be different values
 			 */
-			if (compRef.contains(own.getComponent().getName())) {
+			if (compRef.contains(ownDeclaration.getComponent().getName())) {
 				error("Another Own clause exists for "
-						+ own.getComponent().getName()
+						+ ownDeclaration.getComponent().getName()
 						+ " in this composite declaration");
 				continue;
 			}
-			compRef.add(own.getComponent().getName());
-			if (ownCap.getGroup() != null) {
-				compRef.add(ownCap.getGroup().getName());
+			compRef.add(ownDeclaration.getComponent().getName());
+			if (owned.getGroup() != null) {
+				compRef.add(owned.getGroup().getName());
 			}
 
-			checkGrant(component, own);
+			checkGrant(composite, owned, ownDeclaration);
 		}
 	}
 
-	private void checkGrant(CompositeDeclaration component,
-			OwnedComponentDeclaration own) {
+	private void checkGrant(CompositeDeclaration composite, ApamCapability owned, OwnedComponentDeclaration ownDeclaration) {
+
 		// Get state definition
-		Set<String> stateDefinition = checkState(component);
+		Set<String> stateDefinition = checkState(composite);
 		if (stateDefinition == null || stateDefinition.isEmpty()) { // No valid
 			// state declaration.
 			// No valid grants.
 
-			if (!own.getGrants().isEmpty()) {
-				error("In Grant expression, state is not defined in component "
-						+ component.getName());
+			if (!ownDeclaration.getGrants().isEmpty()) {
+				error(composite,"Error in grant expression, state is not defined in component");
 			}
 
 			return;
 		}
 
+		
+		
 		// List<GrantDeclaration> grants = own.getGrants();
-		for (GrantDeclaration grant : own.getGrants()) {
-			ApamCapability grantComponent	= broker.get(grant.getRelation().getDeclaringComponent());
-			ApamCapability ownedComp 		= broker.get(own.getComponent());
+		for (GrantDeclaration grantDeclaration : ownDeclaration.getGrants()) {
+			ApamCapability granted	= broker.getDeclaringComponent(grantDeclaration.getRelation());
 
 			// Check that the granted component exists
-			if (grantComponent == null) {
+			if (granted == null) {
 				error("Unknown component "
-						+ grant.getRelation().getDeclaringComponent().getName()
-						+ " in grant expression : " + grant);
+						+ grantDeclaration.getRelation().getDeclaringComponent().getName()
+						+ " in grant expression : " + grantDeclaration);
 				continue;
 			}
 
 			// Check that the component is a singleton
-			if (!CST.SINGLETON
-					.equals(grantComponent.getProperty(CST.SINGLETON))) {
+			if (granted.singleton() != null && granted.singleton()) {
 				warning("In Grant clause, Component "
-						+ grantComponent.getName() + " is not a singleton");
+						+ granted.getName() + " is not a singleton");
 			}
 
 			// Check that grant state values are valid
-			Set<String> grantStates = grant.getStates();
-			if (!stateDefinition.containsAll(grant.getStates())) {
+			Set<String> grantStates = grantDeclaration.getStates();
+			if (!stateDefinition.containsAll(grantStates)) {
 				error("In Grant expression, invalid values "
-						+ Util.toStringResources(grant.getStates())
+						+ Util.toStringResources(grantStates)
 						+ " for state="
 						+ Util.toStringResources(stateDefinition));
 			}
 
 			// Check that a single grant for a given state.
 			for (String def : grantStates) {
-				String completedef = component.getStateProperty()
-						.getIdentifier() + def;
-				if (ALL_GRANTS.contains(completedef)) {
-					error("Component " + own.getComponent().getName()
+				String completedef = composite.getStateProperty().getIdentifier() + def;
+				if (allGrants.contains(completedef)) {
+					error("Component " + owned.getName()
 							+ " already granted when state is " + def);
 					continue;
 				}
-				ALL_GRANTS.add(completedef);
+				allGrants.add(completedef);
 			}
 
-			// Check that the relation exists and has as target the OWN
-			// resource
-			ComponentDeclaration granted = grantComponent.getDeclaration();
-			String id = grant.getRelation().getIdentifier();
-			ComponentReference<?> owned = own.getComponent();
-			boolean found = false;
-			// OWN is a specification or an implem
-			// granted dep can be anything
-			for (RelationDeclaration depend : granted.getDependencies()) {
-				if (depend.getIdentifier().equals(id)) {
-					found = true;
+			// Check that the relation exists and has as target the OWN resource
+			// OWN is a specification or an implem but the granted relation can be anything
+			
+			RelationDeclaration  grantedRelation = declaration(granted).getRelation(grantDeclaration.getRelation().getIdentifier());
 
-					// Check if the relation leads to the OWNed component
-					if (depend.getTarget().getClass().equals(owned.getClass())
-					/* same type spec or implem */
-					&& (depend.getTarget().getName().equals(owned.getName()))) {
-						break;
-					}
-
-					// If the relation is an implem check if its spec is the
-					// owned one
-					if (depend.getTarget() instanceof ImplementationReference) {
-						ApamCapability depSpec = broker.get((ImplementationReference<?>) depend.getTarget());
-						if (depSpec != null
-								&& depSpec.getGroup().equals(owned.getName())) {
-							break;
-						}
-					}
-
-					// Check if the relation resource are provided by the
-					// owned component
-					if ((depend.getTarget() instanceof ResourceReference)
-							&& (ownedComp.getDeclaration().getProvidedResources()
-									.contains(depend.getTarget()))) {
-						break;
-					}
-
-					// This id does not lead to the owned component
-					error("The relation of the grant clause " + grant
-							+ " does not refers to the owned component "
-							+ owned);
-				}
+			if (grantedRelation == null) {
+				error("The relation id of the grant clause " + grantDeclaration	+ " is undefined for component " + granted.getName());
 			}
-			if (!found) {
-				error("The relation id of the grant clause " + grant
-						+ " is undefined for component "
-						+ grant.getRelation().getDeclaringComponent().getName());
+			
+			boolean ownedSatisfiesGrantedRelation = true;
+			if (grantedRelation != null && targetIsComponent(grantedRelation)) {
+				ApamCapability grantedTarget = target(grantedRelation);
+				ownedSatisfiesGrantedRelation = owned.isAncestorOf(grantedTarget, true);
 			}
+
+			if (grantedRelation != null && !targetIsComponent(grantedRelation)) {
+				ownedSatisfiesGrantedRelation = owned.provides(grantedRelation.getTarget().as(ResourceReference.class),true);
+			}				
+
+			if (! ownedSatisfiesGrantedRelation) {
+				// This id does not lead to the owned component
+				error("The relation of the grant clause " + grantDeclaration +
+					  " does not refers to the owned component " + owned.getName());
+			}
+			
 		}
 	}
 
@@ -1523,8 +1437,7 @@ public final class CheckObr {
 			// Checking if the exception is existing
 			String except = pol.getMissingException();
 			if (except != null
-					&& OBRGeneratorMojo.classpathDescriptor
-							.getElementsHavingClass(except) == null) {
+					&& classpath.getElementsHavingClass(except) == null) {
 				error("Exception " + except + " undefined in " + pol);
 			}
 		}
@@ -1540,121 +1453,58 @@ public final class CheckObr {
 		if (composite.getPromotions() == null)
 			return;
 
-		for (RelationPromotion promo : composite.getPromotions()) {
-			ComponentDeclaration internalComp = broker.get(promo.getContentRelation().getDeclaringComponent()).getDeclaration();
-			if (internalComp == null) {
+		for (RelationPromotion promotion : composite.getPromotions()) {
+			ApamCapability promotionSource = broker.getDeclaringComponent(promotion.getContentRelation());
+			if (promotionSource == null) {
 				error("Invalid promotion: unknown component "
-						+ promo.getContentRelation().getDeclaringComponent()
-								.getName());
+						+ promotion.getContentRelation().getDeclaringComponent().getName());
 			}
-			RelationDeclaration internalDep = null;
-			if (internalComp.getDependencies() != null)
-				for (RelationDeclaration intDep : internalComp
-						.getDependencies()) {
-					if (intDep.getIdentifier().equals(
-							promo.getContentRelation().getIdentifier())) {
-						internalDep = intDep;
-						break;
-					}
-				}
+			
+			RelationDeclaration promotedRelation = declaration(promotionSource).getRelation(promotion.getContentRelation());
 			// Check if the dependencies are compatible
-			if (internalDep == null) {
-				error("Component " + internalComp.getName()
-						+ " does not define a relation with id="
-						+ promo.getContentRelation().getIdentifier());
+			if (promotedRelation == null) {
+				error("Component " + promotionSource.getName()
+						+ " does not define a relation with id="+ promotion.getContentRelation().getIdentifier());
 				continue;
 			}
 
-			RelationDeclaration compositeDep = null;
-			if (composite.getDependencies() != null)
-				for (RelationDeclaration dep : composite.getDependencies()) {
-					if (dep.getIdentifier().equals(
-							promo.getCompositeRelation().getIdentifier())) {
-						compositeDep = dep;
-						break;
-					}
-				}
-			if (compositeDep == null) {
-				error("Undefined composite relation: "
-						+ promo.getCompositeRelation().getIdentifier());
+			RelationDeclaration compositeRelation = composite.getRelation(promotion.getCompositeRelation());
+			if (compositeRelation == null) {
+				error("Undefined composite relation: "+ promotion.getCompositeRelation().getIdentifier());
 				continue;
 			}
 
 			// Both the composite and the component have a relation with the
 			// right id.
 			// Check if the targets are compatible
-			if (!checkRelationMatch(internalDep, compositeDep)) {
-				error("relation " + internalDep
-						+ " does not match the composite relation "
-						+ compositeDep);
+			if (!checkRelationMatch(promotedRelation, compositeRelation)) {
+				error("relation " + promotedRelation
+						+ " does not match the composite relation "	+ compositeRelation);
 			}
 		}
 	}
 
 	// Copy paste of the Util class ! too bad, this one uses ApamCapability
-	private boolean checkRelationMatch(RelationDeclaration clientDep,
-			RelationDeclaration compoDep) {
-		boolean multiple = clientDep.isMultiple();
-		// Look for same relation: the same specification, the same
-		// implementation or same resource name
-		// Constraints are not taken into account
+	private boolean checkRelationMatch(RelationDeclaration promotedRelation, RelationDeclaration compositeRelation) {
 
-		if (compoDep.getTarget().getClass()
-				.equals(clientDep.getTarget().getClass())) { // same nature
-			if (compoDep.getTarget().equals(clientDep.getTarget())) {
-				if (!multiple || compoDep.isMultiple()) {
-					return true;
-				}
-			}
+		boolean match = false;
+		
+		if (!targetIsComponent(promotedRelation) && !targetIsComponent(compositeRelation)) {
+			match = compositeRelation.getTarget().equals(promotedRelation.getTarget());
 		}
 
-		// Look for a compatible relation.
-		// Stop at the first relation matching only based on same name (same
-		// resource or same component)
-		// No provision for : cardinality, constraints or characteristics
-		// (missing, eager)
-		// for (relationDeclaration compoDep : compoDeps) {
-		// Look if the client requires one of the resources provided by the
-		// specification
-		if (compoDep.getTarget() instanceof SpecificationReference) {
-			SpecificationDeclaration spec = (SpecificationDeclaration) broker.get(((SpecificationReference) compoDep.getTarget())).getDeclaration();
-
-			if ((spec != null)
-					&& spec.getProvidedResources().contains(
-							clientDep.getTarget())
-					&& (!multiple || compoDep.isMultiple())) {
-				return true;
-			}
-		} else {
-			// If the composite has a relation toward an implementation
-			// and the client requires a resource provided by that
-			// implementation
-			if (compoDep.getTarget() instanceof ImplementationReference) {
-				ImplementationDeclaration impl = (ImplementationDeclaration) broker.get(((ImplementationReference<?>) compoDep.getTarget())).getDeclaration();
-				if (impl != null) {
-					// The client requires the specification implemented by that
-					// implementation
-					if (clientDep.getTarget() instanceof SpecificationReference) {
-						String clientReqSpec = ((SpecificationReference) clientDep
-								.getTarget()).getName();
-						SpecificationReference spec = impl.getSpecification();
-						if ( spec!= null && spec.getName().equals(clientReqSpec)
-								&& (!multiple || compoDep.isMultiple())) {
-							return true;
-						}
-					} else {
-						// The client requires a resource provided by that
-						// implementation
-						if (impl.getProvidedResources().contains(
-								clientDep.getTarget())
-								&& (!multiple || compoDep.isMultiple())) {
-							return true;
-						}
-					}
-				}
-			}
+		if (!targetIsComponent(promotedRelation) && targetIsComponent(compositeRelation)) {
+			ApamCapability compositeTarget = target(compositeRelation);
+			match = compositeTarget.provides(promotedRelation.getTarget().as(ResourceReference.class),true);
 		}
-		return false;
 
+		if (targetIsComponent(promotedRelation) && targetIsComponent(compositeRelation)) {
+			ApamCapability promotedTarget 	= target(promotedRelation);
+			ApamCapability compositeTarget	= target(compositeRelation);
+			
+			match = promotedTarget.isAncestorOf(compositeTarget,true);
+		}
+		
+		return  match && ( !promotedRelation.isMultiple() || compositeRelation.isMultiple());
 	}
 }

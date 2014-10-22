@@ -21,10 +21,8 @@ import java.util.Set;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-//import org.osgi.framework.Filter;
-//import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 
 public interface ComponentBroker {
 

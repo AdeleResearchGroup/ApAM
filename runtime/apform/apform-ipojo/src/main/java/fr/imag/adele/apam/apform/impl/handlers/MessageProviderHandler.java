@@ -41,8 +41,8 @@ import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ProviderInstrumentation;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.Util;
 

@@ -22,8 +22,9 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
@@ -39,7 +40,7 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	public final static class Declaration extends ImplementationDeclaration {
 
 		protected Declaration(String name, SpecificationReference specification) {
-			super(name, specification.any());
+			super(name, Versioned.any(specification));
 			setInstantiable(false);
 		}
 

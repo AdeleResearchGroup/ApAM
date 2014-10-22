@@ -4,4 +4,7 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
     <specification name="spec-server" interfaces="java.lang.Runnable"/>
+    
+    <specification name="other-spec-in-bundle"/>
+    
 </apam>

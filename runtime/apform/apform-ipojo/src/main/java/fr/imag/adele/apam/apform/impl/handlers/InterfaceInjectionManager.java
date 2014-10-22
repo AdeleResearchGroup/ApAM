@@ -33,7 +33,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
-import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 
 /**
  * This class keeps track of an APAM interface relation, it handles the

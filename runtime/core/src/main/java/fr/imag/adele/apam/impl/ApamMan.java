@@ -33,11 +33,11 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.ImplementationReference;
-import fr.imag.adele.apam.declarations.InstanceReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.InstanceReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements RelationManager {

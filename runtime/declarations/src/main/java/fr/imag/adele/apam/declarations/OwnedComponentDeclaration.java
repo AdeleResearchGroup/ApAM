@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+
 public class OwnedComponentDeclaration {
 
 	/**

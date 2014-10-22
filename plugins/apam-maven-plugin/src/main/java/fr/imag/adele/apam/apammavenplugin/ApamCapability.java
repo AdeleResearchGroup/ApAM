@@ -17,17 +17,15 @@ package fr.imag.adele.apam.apammavenplugin;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
+import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.util.Attribute;
 
 public class ApamCapability {
@@ -36,6 +34,7 @@ public class ApamCapability {
 	 * The original declaration
 	 */
 	private final ComponentDeclaration dcl;
+	private final Version version;
 	
 	/**
 	 * The broker that loaded this capability
@@ -56,13 +55,19 @@ public class ApamCapability {
 	private Map<String, String> propertiesDefaults = new HashMap<String, String>();
 
 	public ApamCapability() {
-		this.broker = null;
-		this.dcl 	= null;
+		this.broker 	= null;
+		this.dcl 		= null;
+		this.version	= null;
+	}
+
+	public ApamCapability(ApamCapabilityBroker broker, ComponentDeclaration dcl) {
+		this(broker,dcl, dcl.getProperty(CST.VERSION) != null ? Version.parseVersion(dcl.getProperty(CST.VERSION)): Version.emptyVersion);
 	}
 	
-	public ApamCapability(ApamCapabilityBroker broker, ComponentDeclaration dcl) {
-		this.broker = broker;
-		this.dcl 	= dcl;
+	public ApamCapability(ApamCapabilityBroker broker, ComponentDeclaration dcl, Version version) {
+		this.broker 	= broker;
+		this.dcl 		= dcl;
+		this.version	= version;
 		
 		properties = dcl.getProperties();
 
@@ -77,23 +82,68 @@ public class ApamCapability {
 	public ComponentDeclaration getDeclaration() {
         return dcl;
 	}
-	
+
 	public ComponentKind getKind() {
 		return dcl.getReference().getKind();
 	}
+	
+	public String getName() {
+		return dcl.getName();
+	}
 
-	public ApamCapability getGroup() {
-        return broker.getGroup(this);
+	public Version getVersion() {
+		return version;
 	}
 
 	public ComponentReference<?> getReference() {
 		return dcl.getReference();
 	}
 
-	public String getName() {
-		return dcl.getName();
+
+	/**
+	 * A reference to a capability representing the group of this component.
+	 * 
+	 * We keep a direct reference to be sure to always reuse the same group component 
+	 * (specially in the case there are multiple versions of the group component)
+	 */
+	private ApamCapability group;
+	private boolean isGroupCached = false;
+	
+	public ApamCapability getGroup() {
+		if (isGroupCached)
+			return this.group;
+		
+		
+	    this.group 			= broker.getGroup(this);
+	    this.isGroupCached	= true;
+	    
+        return group;
 	}
 
+	public boolean isGroupReferenceValid() {
+		return getDeclaration().getGroup() != null ? getGroup() != null : true;
+	}
+	
+	/**
+	 * Verifies if this component is an ancestor of (or equals to) the specified component
+	 */
+	public boolean isAncestorOf(ApamCapability that, boolean orEquals) {
+		ApamCapability ancestor = orEquals ? that : that.getGroup();
+		while (ancestor != null) {
+			if (this.equals(ancestor))
+				return true;
+			
+			ancestor = ancestor.getGroup();
+		}
+		
+		return false;
+	}
+
+	public boolean provides(ResourceReference resource, boolean includeAncestors) {
+		boolean provided = this.dcl.getProvidedResources().contains(resource);
+		return provided || (includeAncestors && getGroup() != null && getGroup().provides(resource,includeAncestors));
+	}
+	
 	/**
 	 * Warning: should be used only once in generateProperty. finalProperties
 	 * contains the attributes generated in OBR i.e. the right attributes.
@@ -130,26 +180,6 @@ public class ApamCapability {
 
 	public Map<String, String> getProperties() {
 		return Collections.unmodifiableMap(properties);
-	}
-
-	public Set<InterfaceReference> getProvideInterfaces() {
-		return dcl.getProvidedResources(InterfaceReference.class);
-	}
-
-	public Set<ResourceReference> getProvideResources() {
-		return dcl.getProvidedResources();
-	}
-
-	public Set<MessageReference> getProvideMessages() {
-		return dcl.getProvidedResources(MessageReference.class);
-	}
-
-	public String getImplementationClass() {
-		if (dcl instanceof AtomicImplementationDeclaration) {
-			return ((AtomicImplementationDeclaration) dcl).getClassName();
-		} else {
-			return null;
-		}
 	}
 
 	// Return the definition at the current component level
@@ -203,9 +233,9 @@ public class ApamCapability {
 	 * 
 	 * @return
 	 */
-	public String shared() {
+	public Boolean shared() {
 		if (dcl.isDefinedShared()) {
-			return Boolean.toString(dcl.isShared());
+			return dcl.isShared();
 		}
 		return null;
 	}
@@ -216,9 +246,9 @@ public class ApamCapability {
 	 * 
 	 * @return
 	 */
-	public String instantiable() {
+	public Boolean instantiable() {
 		if (dcl.isDefinedInstantiable()) {
-			return Boolean.toString(dcl.isInstantiable());
+			return dcl.isInstantiable();
 		}
 		return null;
 	}
@@ -229,9 +259,9 @@ public class ApamCapability {
 	 * 
 	 * @return
 	 */
-	public String singleton() {
+	public Boolean singleton() {
 		if (dcl.isDefinedSingleton()) {
-			return Boolean.toString(dcl.isSingleton());
+			return dcl.isSingleton();
 		}
 		return null;
 	}

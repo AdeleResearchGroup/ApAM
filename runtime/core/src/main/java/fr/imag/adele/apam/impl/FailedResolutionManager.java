@@ -345,7 +345,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 			Component declaringComponent = source;
 			while (declaringComponent != null) {
 
-				RelationDeclaration declaration = declaringComponent.getDeclaration().getLocalRelation(relToResolve.getName());
+				RelationDeclaration declaration = declaringComponent.getDeclaration().getRelation(relToResolve.getName());
 				if (declaration != null && declaration.getMissingException() != null && declaration.getMissingException().equals(exceptionName)) {
 					break;
 				}

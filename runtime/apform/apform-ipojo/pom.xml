@@ -38,7 +38,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-parsers</artifactId>
+			<artifactId>apam-repositories</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

@@ -30,10 +30,10 @@ import fr.imag.adele.apam.apform.impl.RelationCallback;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 
 public class RelationInjectionHandler extends ApformHandler {
 
@@ -59,7 +59,7 @@ public class RelationInjectionHandler extends ApformHandler {
 	 */
 	public static boolean isRequired(AtomicImplementationDeclaration componentDeclaration) {
 		
-    	for (RelationDeclaration relation : componentDeclaration.getDependencies()) {
+    	for (RelationDeclaration relation : componentDeclaration.getRelations()) {
     		
     		if (!relation.getInstrumentations().isEmpty())
     			return true;
@@ -139,7 +139,7 @@ public class RelationInjectionHandler extends ApformHandler {
         /*
          * Load callback into the ApamInstanceManager
          */
-        for (RelationDeclaration relation : primitive.getDependencies()) {
+        for (RelationDeclaration relation : primitive.getRelations()) {
         	for (RelationDeclaration.Event trigger : RelationDeclaration.Event.values()) {
         		Set<CallbackDeclaration> callbacks = relation.getCallback(trigger);
         		

@@ -44,15 +44,15 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
-import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.Reporter;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser.IntrospectionService;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
@@ -414,8 +414,8 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
                 componentDescription.addElement(providesDescription);
 
                 Element relationsDescription = new Element("dependencies", APAM_NAMESPACE);;
-                for (RelationDeclaration relationDeclaration : declaration.getDependencies()) {
-                    Element relationDescription = new Element("dependency", APAM_NAMESPACE);
+                for (RelationDeclaration relationDeclaration : declaration.getRelations()) {
+                    Element relationDescription = new Element("relation", APAM_NAMESPACE);
                     relationDescription.addAttribute(new Attribute("id", relationDeclaration.getIdentifier()));
                     relationDescription.addAttribute(new Attribute("resource", relationDeclaration.getTarget().toString()));
                     relationDescription.addAttribute(new Attribute("multiple", Boolean.toString(relationDeclaration.isMultiple())));

@@ -36,9 +36,8 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.util.Visible;
 
 public class ImplementationImpl extends ComponentImpl implements Implementation {
@@ -53,7 +52,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	private static class SystemRootImplementation extends BaseApformComponent<CompositeType, ImplementationDeclaration> implements ApformImplementation {
 
 		public SystemRootImplementation(String name) {
-			super(new CompositeDeclaration(name, (SpecificationReference.Versioned) null, new ImplementationReference<ImplementationDeclaration>("Root Main Implem")));
+			super(new CompositeDeclaration(name, null, new ImplementationReference<ImplementationDeclaration>("Root Main Implem")));
 		}
 
 		@Override

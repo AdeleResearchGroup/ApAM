@@ -26,10 +26,10 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
-import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 

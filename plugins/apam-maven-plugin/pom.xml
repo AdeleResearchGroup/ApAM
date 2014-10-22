@@ -16,6 +16,10 @@
 	<description>An maven plugin that extends an OSGi Bundle Repository (compliant with OSGi RFC 0112)
    for the management of ApAM components.</description>
 
+	<properties>
+		<java.version>1.7</java.version>
+	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -35,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-parsers</artifactId>
+			<artifactId>apam-repositories</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

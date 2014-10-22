@@ -12,14 +12,12 @@
 
 
 	<build>
-		<plugins>
+	  <plugins>
             <plugin>
                 <groupId>fr.imag.adele.apam</groupId>
                 <artifactId>apam-maven-plugin</artifactId>
                 <version>0.0.8-SNAPSHOT</version>
-                <extensions>true</extensions>
             </plugin>
-
-		</plugins>
+  	   </plugins>
 	</build>
 </project>

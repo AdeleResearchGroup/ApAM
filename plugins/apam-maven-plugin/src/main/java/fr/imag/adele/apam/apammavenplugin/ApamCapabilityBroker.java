@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.apammavenplugin;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,309 +8,219 @@ import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.encoding.Decoder;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.ConstrainedReference;
+import fr.imag.adele.apam.declarations.FeatureReference;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.repository.ComponentIndex;
+import fr.imag.adele.apam.declarations.repository.Repository;
+import fr.imag.adele.apam.declarations.repository.RepositoryChain;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 
 /**
- * Created by thibaud on 11/08/2014.
+ * 
+ * This class handles a list of APAM Capabilities that are loaded during the current build.
+ * 
+ * TODO we should try to eliminate ApamCapability and use directly component declarations, 
+ * this will simplify considerably the plugin.
+ * 
+ * NOTE notice that this broker keeps strong references to loaded declarations, in order to
+ * keep the association to apam capabilities through out the build 
  */
 public class ApamCapabilityBroker {
 
-	/**
-	 * This class is used to represent a fully qualified component reference, including name and version.
-	 * 
-	 * Two component version references are considered equals if their component and versions both exactly match. 
-	 * However, if the version is not specified, the reference matches any other version of the same component.
-	 * 
-	 * This class is intended to be used as the key of a map of component declarations (that are usually loaded
-	 * incrementally from a repository) that can be searched for specific version or some version in a range.
-	 * 
-	 * @author vega
-	 *
-	 */
-	private static class VersionReference {
-	
-		private final ComponentReference<?> component;
-		private final Version version;
-
-		public VersionReference(ComponentReference<?> component, Version version) {
-			this.component	= component;
-			this.version	= version;
-		}
-
-		public VersionReference(ComponentReference<?> component) {
-			this(component, (Version) null);
-		}
-		
-		public VersionReference(ComponentReference<?> component, String version) {
-			this(component, version != null ? new Version(version) : null);
-		}
-
-		public VersionReference(ComponentDeclaration component) {
-			this(component.getReference(), component.getProperties().get(CST.VERSION));
-		}
-		
-		public VersionReference(ComponentDeclaration component, String version) {
-			this(component.getReference(), version);
-		}
-
-		
-		@Override
-		public boolean equals(Object object) {
-			
-			if (object == null)
-				return false;
-			
-			if (this == object)
-				return true;
-			
-			if (! (object instanceof VersionReference))
-				return false;
-
-			/*
-			 * Otherwise, compare name and version, take into account the special case in which a version
-			 * is not specified
-			 */
-			VersionReference that = (VersionReference) object;
-			return this.component.equals(that.component) && (this.version == null || that.version == null || this.version.equals(that.version));
-		}
-
-		/**
-		 * Notice that the hash code only uses the component name. Although this may cause some reduced performance
-		 * for hashtables, it enables the use of ranges of versions {@link VersionRange} and references without 
-		 * explicit versions as keys to lookup maps indexed by objects of this class.
-		 */
-		@Override
-		public int hashCode() {
-			return component.hashCode();
-		}
-		
-	}
-
-
-	/**
-	 * This class is a simple evaluator for a version range specification that can be used as key to lookup a map
-	 * indexed by {@link VersionReference} keys.
-	 * 
-	 */
-	private static class VersionRange {
-	
-		private final ComponentReference<?> component;
-		
-		private final Version low;
-		private final boolean includeLow;
-		
-		private final Version up;
-		private final boolean includeUp;
-		
-		public VersionRange(ComponentReference<?> component, Version low, boolean includeLow, Version up, boolean includeUp) {
-			
-			this.component = component;
-			
-			this.low		= low;
-			this.includeLow	= includeLow;
-			this.up			= up;
-			this.includeUp	= includeUp;
-		}
-		
-		/**
-		 * We redefine equality to be able to use objects of this class as lookup keys for maps indexed
-		 * by {@link VersionReference}
-		 */
-		public boolean equals(Object object) {
-			
-			if (object == null)
-				return false;
-						
-			if (object == this)
-				return true;
-			
-			
-			if ( !(object instanceof VersionReference ) )
-				return false;
-			
-			/*
-			 * compare to a version reference
-			 */
-			VersionReference reference = (VersionReference) object;
-			
-			if (! this.component.equals(reference.component))
-				return false;
-			
-			if (reference.version == null)
-				return true;
-			
-			boolean greaterThanLower	= low != null ?	low.compareTo(reference.version) <= (includeLow ? 0 : -1) : true;
-			boolean lessThanUppper 		= up != null ?	up.compareTo(reference.version) >= (includeUp ? 0 : 1) : true;
-			
-			return greaterThanLower && lessThanUppper;
-		}
-
-		/**
-		 * Notice that the hash code only uses the component name. This is necessary to ensure equality is
-		 * well defined in the case this {@link VersionRange} is compared to a {@link VersionReference}
-		 */
-		@Override
-		public int hashCode() {
-			return component.hashCode();
-		}
-	}
-	
-	/**
-	 * Converts a versioned reference into a key that can be used to lookup in the different maps held by this
-	 * broker
-	 */
-	private static final Object key(ComponentReference<?>.Versioned reference) {
-	
-		String range = reference.getRange();
-
-		/*
-		 * No range is specified e match any version
-		 */
-    	if (range == null)
-    		return new VersionReference(reference.getComponent());
-		
-		boolean includeLow	= !range.startsWith("(");
-		boolean includeUp	= !range.endsWith(")");
-        
-        if (range.startsWith("(") || range.startsWith("["))
-        	range = range.substring(1);
-
-        if (range.endsWith(")") || range.endsWith("]"))
-        	range = range.substring(0,range.length()-1);
-
-        
-        int rangeSeparator 	= range.indexOf(",");
-        
-        /*
-         * A single version is specified, we match an exact revision
-         */
-        if(rangeSeparator == -1)
-        	return new VersionReference(reference.getComponent(),range);
-
-        /*
-         * A range is specified build a filter to evaluate
-         */
-       	String low	= range.substring(0,rangeSeparator).trim();
-       	String up	= range.substring(rangeSeparator+1,range.length()).trim();
-        
-       	Version lowVersion	= !low.isEmpty() ? new Version(low) : null;
-       	Version upVersion	= !up.isEmpty() ? new Version(up) : null;
-       	
-		return new VersionRange(reference.getComponent(),lowVersion,includeLow,upVersion,includeUp);
-		
-	}
 	
     /**
-     * internal capabilities are the Apam components declared within the current built
+     * The repository chain to lookup for components : internals, dependencies, externals
      */
-    private  final Map<VersionReference, ApamCapability> internalCapabilities = new HashMap<VersionReference,ApamCapability>();
-
-     /**
-     * external capabilities are the Apam components found in maven dependencies
-     * 
-     */
-    private  final Map<VersionReference, ApamCapability> externalCapabilities = new HashMap<VersionReference,ApamCapability>();
-
-    /**
-     * This is the cache of capabilities loaded from the repository
-     * 
-     */
-    private  final Map<VersionReference, WeakReference<ApamCapability>> cache = new HashMap<VersionReference, WeakReference<ApamCapability>>();
-
-    /**
-     * The ACR resolver used to load the capabilities
-     * 
-     */
-   private final ApamComponentRepository acrResolver;
-
-
-    public ApamCapabilityBroker(List<ComponentDeclaration> components, String version, List<ComponentDeclaration> dependencies, ApamComponentRepository acrResolver) {
-    	
-    	this.acrResolver = acrResolver;
-    	
-        for (ComponentDeclaration component : components) {
-            internalCapabilities.put(new VersionReference(component,version), new ApamCapability(this,component));
-        }
-
-        for (ComponentDeclaration component : dependencies) {
-             externalCapabilities.put(new VersionReference(component),new ApamCapability(this,component));
-        }
-    }
-
- 
-    public ApamCapability get(ComponentReference<?> reference) {
-        
-    	if (reference == null) {
-            return null;
-        }
-        
-        return get(reference.any());
-    }
-
-    public ApamCapability get(ComponentReference<?>.Versioned reference) {
-        
-    	if (reference == null) {
-            return null;
-        }
-        
-    	if (reference.getComponent().getName().equals(Decoder.UNDEFINED)) {
-            return null;
-        }
-
-        return getCapability(reference);
-
-    }
+    private final Repository repository;
     
-    public ApamCapability get(String name) {
-        return getCapability(new ComponentReference<ComponentDeclaration>(name).any());
-    }
-
-    public ApamCapability get(String name, String versionRange) {
-    	return getCapability(new ComponentReference<ComponentDeclaration>(name).range(versionRange));
-    }
+    /**
+     * The capabilities loaded in the current build
+     */
+    private final Map<ComponentDeclaration,ApamCapability> capabilities;
 
 
-    private ApamCapability getCapability(ComponentReference<?>.Versioned reference) {
+    public ApamCapabilityBroker(List<ComponentDeclaration> components, String version, List<ComponentDeclaration> dependencies, ApamComponentRepository acr) {
+    	
+    	this.capabilities	= new HashMap<ComponentDeclaration, ApamCapability>();
+    	
+    	/*
+    	 * load internals cache
+    	 * 
+    	 */
+    	Version internalVersion = Version.parseVersion(version);
+    	ComponentIndex internalIndex = new ComponentIndex();
+    	for (ComponentDeclaration internal : components) {
+			internalIndex.put(internal,internalVersion);
+			addCapability(internal,internalVersion);
+		}
 
     	/*
-    	 * Get the key to lookup the table
+    	 * load dependencies cache
+    	 * 
+    	 * TODO we should take the default version from the corresponding maven artifact
     	 */
-    	Object key = key(reference);
+    	ComponentIndex dependenciesIndex = new ComponentIndex();
+    	for (ComponentDeclaration dependency : dependencies) {
+    		dependenciesIndex.put(dependency);
+    		addCapability(dependency);
+		}
+    
+    	this.repository 	= new RepositoryChain(internalIndex,dependenciesIndex,acr);
+    }
+
+    /**
+     * Look for an already loaded capability
+     */
+    public ApamCapability get(ComponentDeclaration declaration) {
+    	return capabilities.get(declaration);
+    }
+
+    /**
+     * associates a new capability for a recently loaded component declaration
+     */
+    private ApamCapability addCapability(ComponentDeclaration component, Version version) {
     	
-    	// Step 1 : if the capability is declared inside the artifact being built
-        ApamCapability capability = internalCapabilities.get(key);
-        
-        // Step 2 : if already declared outside (a dependency used several times)
-        if(capability == null) {
-        	capability = externalCapabilities.get(key);
-        }
+    	/*
+    	 * create a capability an map it to the declaration
+    	 */
+    	ApamCapability capability = version == null ? new ApamCapability(this,component) : new ApamCapability(this,component,version);
+		capabilities.put(component,capability);
+		
+		/*
+		 * special treatment for instance declarations that are embedded inside a composite
+		 * 
+		 * TODO this is a workaround to make validation uniform, however there are problems 
+		 */
+		if (component instanceof CompositeDeclaration) {
+			Version compositeVersion = component.getProperty(CST.VERSION) != null ? Version.parseVersion(component.getProperty(CST.VERSION)) : version;
+			for (InstanceDeclaration start : ((CompositeDeclaration)component).getInstanceDeclarations()) {
+				addCapability(start,compositeVersion);
+			}		
+		}
 
-        // Step 3 : try to find in the cache of ACR capabilities
-        if(capability == null) {
-        	WeakReference<ApamCapability> cachedReference = cache.get(key); 
-        	capability = cachedReference != null ? cachedReference.get() : null;
-        }
-        
-        // Step 4 : just search the repository and load the declaration
-        if(capability == null && acrResolver!= null) {
-        	
-        	ApamCapability loadedVersion = null;
-            for (ComponentDeclaration declaration : acrResolver.getComponents(reference)) {
-            	loadedVersion = new ApamCapability(this,declaration);
-                cache.put(new VersionReference(declaration), new WeakReference<ApamCapability>(loadedVersion));
-            }
-            
-            capability = loadedVersion;
-        }
-
-        return capability;
+		return capability;
     }
 
-
-    public ApamCapability getGroup(ApamCapability capability) {
-        return get(capability.getDeclaration().getGroupVersioned());
+    private ApamCapability addCapability(ComponentDeclaration component) {
+    	return addCapability(component,null);
     }
+    
+	public ApamCapability getGroup(ApamCapability apamCapability) {
+		Versioned<?> groupReference = apamCapability.getDeclaration().getGroupVersioned();
+		return groupReference != null ? getCapability(groupReference) : null;
+	}
+
+	public ApamCapability getTargetComponent(ConstrainedReference reference) {
+		ComponentReference<?> target = reference.getTarget().as(ComponentReference.class);
+		return target != null ? getCapability(Versioned.any(target)) : null;
+	}
+
+	public ApamCapability getDeclaringComponent(FeatureReference feature) {
+		ComponentReference<?> declaring = feature.getDeclaringComponent();
+		return declaring != null ? getCapability(Versioned.any(declaring)) : null;
+	}
+	
+	public ApamCapability getByName(String name) {
+		ComponentReference<?> reference = new ComponentReference<ComponentDeclaration>(name);
+		return getCapability(Versioned.any(reference));
+	}
+
+	public ApamCapability getByReference(ComponentReference<?> reference) {
+		return getCapability(Versioned.any(reference));
+	}
+
+    private ApamCapability getCapability(Versioned<?> referenceRange) {
+    	
+    	/*
+    	 * Try to find one of the loaded capabilities
+    	 */
+    	for (ApamCapability loadedCapability : capabilities.values()) {
+			
+    		if (! loadedCapability.getDeclaration().getReference().equals(referenceRange.getComponent()))
+    			continue;
+
+    		if (match(referenceRange.getRange(),loadedCapability.getVersion()))
+    			return loadedCapability;
+		}
+    	
+    	
+		/*
+    	 * If not found, load the declaration from the repository chain and create the APAM capability
+    	 */
+		ComponentDeclaration component = repository.getComponent(referenceRange);
+		
+    	if (component != null) {
+    		return addCapability(component);
+    	}
+    	
+   		return null;
+    }
+
+    /*
+     * TODO this should be in class Versioned, but this will introduce a dependency on OSGi classes
+     */
+    private static boolean match(String range, Version version) {
+
+    	Version floor 			= null;
+		Version ceiling			= null;
+		
+		boolean includeFloor	= true;
+		boolean includeCeiling	= true;
+		
+		/*
+		 * parse range specification
+		 */
+	   	if (range != null) {
+	   		
+	   		includeFloor	= !range.startsWith("(");
+	   		includeCeiling	= !range.endsWith(")");
+	   		
+	        if (range.startsWith("(") || range.startsWith("["))
+	        	range = range.substring(1).trim();
+
+	        if (range.endsWith(")") || range.endsWith("]"))
+	        	range = range.substring(0,range.length()-1).trim();
+
+	        
+	        int limitSeparator 	= range.indexOf(",");
+
+	        if (limitSeparator == -1) {
+	        	floor = ceiling = new Version(range);
+	        }
+	        else {
+		       	String encodedFloor		= range.substring(0,limitSeparator).trim();
+		       	String encodedCeiling	= range.substring(limitSeparator+1,range.length()).trim();
+		        
+		       	floor	= !encodedFloor.isEmpty() 	? new Version(encodedFloor) 	: null;
+		       	ceiling	= !encodedCeiling.isEmpty() ? new Version(encodedCeiling) 	: null;
+	        }
+	        
+	   	}
+
+	   	/*
+	   	 * Get the filtered view of the map to navigate the range
+	   	 */
+	   	
+	   	boolean greaterThanFloor 	= true;
+	   	boolean lessThanCeiling 	= true;
+	   	
+	   	if (ceiling != null) {
+	   		int compare = version.compareTo(ceiling);
+	   		lessThanCeiling =  includeCeiling ? compare <= 0 : compare < 0;
+	   	}
+	   	
+	   	if (floor != null) {
+	   		int compare = version.compareTo(floor);
+	   		greaterThanFloor = includeFloor ? compare >= 0 : compare > 0;
+	   	} 
+	   	
+	   	return greaterThanFloor && lessThanCeiling;
+    	
+    }
+
 
 }

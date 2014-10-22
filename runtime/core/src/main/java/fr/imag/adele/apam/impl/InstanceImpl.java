@@ -32,6 +32,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -45,7 +46,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	private static class SystemRootInstance extends BaseApformComponent<Instance, InstanceDeclaration> implements ApformInstance {
 
 		public SystemRootInstance(Implementation rootImplementation, String name) {
-			super(new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference().any(),name, null));
+			super(new InstanceDeclaration(Versioned.any(rootImplementation.getImplDeclaration().getReference()),name, null));
 		}
 
 		@Override

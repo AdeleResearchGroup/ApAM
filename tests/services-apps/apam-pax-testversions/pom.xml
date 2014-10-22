@@ -7,7 +7,6 @@
 		<version>0.0.8-SNAPSHOT</version>
 	</parent>
 
-	<groupId>fr.imag.adele.apam.tests.app</groupId>
 	<artifactId>apam-pax-test-version</artifactId>
 	<packaging>pom</packaging>
 

@@ -31,8 +31,8 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.PackageReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.PackageReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.tests.app.relationpack1.ClientClass;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 

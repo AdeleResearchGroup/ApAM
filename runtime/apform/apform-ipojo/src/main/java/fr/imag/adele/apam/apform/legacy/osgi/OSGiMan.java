@@ -41,8 +41,8 @@ import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 

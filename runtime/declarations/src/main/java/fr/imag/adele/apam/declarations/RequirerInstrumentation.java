@@ -15,11 +15,14 @@
 package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 
 /**
- * The declaration of a code instrumentation (injection, interception,
- * invocation, ...) that must be performed at runtime to implement the actual
- * execution semantics of the the requiring end of a dependency.
+ * The declaration of a code instrumentation (injection, interception, invocation, ...) that must be performed at runtime
+ * to implement the actual execution semantics of the the requiring end of a dependency.
  * 
  * @author vega
  * 
@@ -31,13 +34,13 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static abstract class InjectedField extends RequirerInstrumentation {
 
-		protected final ResourceReference field;
+		protected final String field;
 
-		private final Lazy<ResourceReference> fieldType = new Lazy<ResourceReference>() {
+		private final Lazy<String> fieldType = new Lazy<String>() {
 			@Override
-			protected ResourceReference evaluate(CodeReflection reflection) {
+			protected String evaluate(CodeReflection reflection) {
 				try {
-					return reflection.getFieldType(field.getName());
+					return reflection.getFieldType(field);
 				} catch (NoSuchFieldException e) {
 					return null;
 				}
@@ -49,7 +52,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 			@Override
 			protected Boolean evaluate(CodeReflection reflection) {
 				try {
-					return reflection.isCollectionField(field.getName());
+					return reflection.isCollectionField(field);
 				} catch (NoSuchFieldException e) {
 					return false;
 				}
@@ -57,8 +60,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		};
 
-		protected InjectedField(AtomicImplementationDeclaration implementation,
-				ResourceReference field) {
+		protected InjectedField(AtomicImplementationDeclaration implementation,	String field) {
 			super(implementation);
 			this.field = field;
 		}
@@ -70,15 +72,20 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		@Override
 		public String getName() {
-			return field.getName();
+			return field;
 		}
 
 		@Override
 		public ResourceReference getRequiredResource() {
-			ResourceReference target = fieldType.get();
-			return target != null ? target : new UndefinedReference(field);
+			String target = fieldType.get();
+			return target != null && !target.equals(CodeReflection.UNKNOWN_TYPE)? generateReference(target) : new UnknownReference(generateReference(this.toString()));
 		}
 
+		/**
+		 * Generates a new reference of the appropriate class for the specified, required resource 
+		 */
+		protected abstract ResourceReference generateReference(String type);
+		
 		@Override
 		public boolean isValidInstrumentation() {
 			return fieldType.get() != null;
@@ -98,12 +105,11 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		private final String methodName;
 
-		private final Lazy<MessageReference> argumentType = new Lazy<MessageReference>() {
+		private final Lazy<String> argumentType = new Lazy<String>() {
 			@Override
-			protected MessageReference evaluate(CodeReflection reflection) {
+			protected String evaluate(CodeReflection reflection) {
 				try {
-					return new MessageReference(
-							reflection.getMethodParameterType(methodName, true));
+					return reflection.getMethodParameterType(methodName, true);
 				} catch (NoSuchMethodException e) {
 					return null;
 				}
@@ -111,9 +117,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		};
 
-		public MessageConsumerCallback(
-				AtomicImplementationDeclaration implementation,
-				String methodName) {
+		public MessageConsumerCallback(AtomicImplementationDeclaration implementation, String methodName) {
 			super(implementation);
 			this.methodName = methodName;
 		}
@@ -130,8 +134,8 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 		@Override
 		public ResourceReference getRequiredResource() {
-			MessageReference target = argumentType.get();
-			return target != null ? target : new MessageReference(methodName);
+			String target = argumentType.get();
+			return target != null && !target.equals(CodeReflection.UNKNOWN_TYPE)? new MessageReference(target) : new UnknownReference(new MessageReference(this.toString()));
 		}
 
 		@Override
@@ -152,9 +156,13 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static class MessageQueueField extends InjectedField {
 
-		public MessageQueueField(
-				AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, new MessageReference(fieldName));
+		public MessageQueueField(AtomicImplementationDeclaration implementation, String fieldName) {
+			super(implementation,fieldName);
+		}
+		
+		@Override
+		protected ResourceReference generateReference(String type) {
+			return  new MessageReference(type);
 		}
 
 		@Override
@@ -169,19 +177,22 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static class RequiredServiceField extends InjectedField {
 
-		public RequiredServiceField(
-				AtomicImplementationDeclaration implementation, String fieldName) {
-			super(implementation, new InterfaceReference(fieldName));
+		public RequiredServiceField(AtomicImplementationDeclaration implementation, String fieldName) {
+			super(implementation,fieldName);
+		}
+
+		@Override
+		protected ResourceReference generateReference(String type) {
+			return new InterfaceReference(type);
 		}
 
 		public boolean isWire() {
 			String type = getRequiredResource().getJavaType();
 
-			boolean isApamComponent = "fr.imag.adele.apam.Component"
-					.equals(type)
-					|| "fr.imag.adele.apam.Specification".equals(type)
-					|| "fr.imag.adele.apam.Implementation".equals(type)
-					|| "fr.imag.adele.apam.Instance".equals(type);
+			boolean isApamComponent = 	"fr.imag.adele.apam.Component".equals(type)	||
+										"fr.imag.adele.apam.Specification".equals(type)	||
+										"fr.imag.adele.apam.Implementation".equals(type)||
+										"fr.imag.adele.apam.Instance".equals(type);
 
 			return !isApamComponent;
 		}
@@ -193,8 +204,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	protected RelationDeclaration relation;
 
-	protected RequirerInstrumentation(
-			AtomicImplementationDeclaration implementation) {
+	protected RequirerInstrumentation(AtomicImplementationDeclaration implementation) {
 		super(implementation);
 		this.implementation.getRequirerInstrumentation().add(this);
 	}

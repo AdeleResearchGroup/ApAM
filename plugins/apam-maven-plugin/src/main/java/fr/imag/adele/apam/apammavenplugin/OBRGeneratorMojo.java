@@ -128,10 +128,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
 
 	private boolean parsingFailed = false;
 
-	/**
-	 * Contains all classes and resources
-	 */
-	public static ClasspathDescriptor classpathDescriptor;
 
     public static final String DEFAULT_OBR_XML = "repository.xml";
 
@@ -174,7 +170,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
         }
 
 
-		classpathDescriptor = new ClasspathDescriptor();
+        ClasspathDescriptor classpathDescriptor = new ClasspathDescriptor();
 
 		try {
 
@@ -252,7 +248,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
                 throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());
             }
             
-			ApamRepoBuilder builder = new ApamRepoBuilder(broker,components, project.getArtifact(), getLog());
+			ApamRepoBuilder builder = new ApamRepoBuilder(broker,classpathDescriptor,components, project.getArtifact(), getLog());
 			StringBuffer obrContent = builder.writeOBRFile();
 			if (builder.hasFailedChecking()) {
 				throw new MojoExecutionException(

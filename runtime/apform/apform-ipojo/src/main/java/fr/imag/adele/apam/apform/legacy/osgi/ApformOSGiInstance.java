@@ -26,9 +26,10 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
@@ -75,7 +76,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
      */
     public ApformOSGiInstance(Specification specification, ServiceReference reference) {
 
-        super(new InstanceDeclaration(generateImplementationName(specification,reference).any(), generateInstanceName(specification,reference), null));
+        super(new InstanceDeclaration(Versioned.any(generateImplementationName(specification,reference)), generateInstanceName(specification,reference), null));
         
         this.specification		= specification;
         

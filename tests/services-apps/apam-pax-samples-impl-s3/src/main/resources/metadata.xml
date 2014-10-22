@@ -50,7 +50,7 @@
 			specification="eletronic-device-private" resolve="internal" />
 		<relation field="c" resolve="internal" />
 	</implementation>
-
+<!-- 
 	<implementation name="group-b-specification"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
@@ -60,7 +60,7 @@
 		<relation field="e" specification="eletronic-device"
 			multiple="false" resolve="internal" />
 	</implementation>
-
+ -->
 	<implementation name="group-b"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">

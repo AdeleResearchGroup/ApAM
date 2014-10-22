@@ -27,23 +27,23 @@ import org.apache.maven.plugin.logging.Log;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.PackageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.PackageReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 import fr.imag.adele.apam.util.ApamMavenProperties;
+import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
@@ -51,8 +51,8 @@ public class ApamRepoBuilder {
 	 * Metadata (in internal format).
 	 */
 
-	private final Set<ComponentReference<?>.Versioned> 	bundleRequiresSpecifications 	= new HashSet<ComponentReference<?>.Versioned>();
-	private final Set<ComponentReference<?>.Versioned> 	bundleRequiresImplementations 		= new HashSet<ComponentReference<?>.Versioned>();
+	private final Set<Versioned<?>> 	bundleRequiresSpecifications 	= new HashSet<>();
+	private final Set<Versioned<?>> 	bundleRequiresImplementations 	= new HashSet<>();
 
 	private final ApamCapabilityBroker	broker;
 	private final Artifact artifact;
@@ -65,10 +65,10 @@ public class ApamRepoBuilder {
 	private static final String END_M = "' >\n";
 	private static final String ATT_V = "' v='";
 
-	public ApamRepoBuilder(ApamCapabilityBroker broker, List<ComponentDeclaration> components, Artifact artifact, Log logger) {
-		this.broker = broker;
+	public ApamRepoBuilder(ApamCapabilityBroker broker, ClasspathDescriptor classpath, List<ComponentDeclaration> components, Artifact artifact, Log logger) {
+		this.broker 	= broker;
 		this.components = components;
-		this.validator = new CheckObr(broker, logger);
+		this.validator 	= new CheckObr(classpath,broker, logger);
 		
 		this.artifact 	= artifact;
 	}
@@ -77,6 +77,11 @@ public class ApamRepoBuilder {
 		return validator.hasFailedChecking();
 	}
 
+	private ApamCapability capability(ComponentDeclaration declaration) {
+		assert components.contains(declaration);
+		return broker.get(declaration);
+	}
+	
 	public StringBuffer writeOBRFile() {
 
 		// if a component is defined twice, or error is name space, remove the
@@ -159,7 +164,8 @@ public class ApamRepoBuilder {
 			generateProperty(obrContent, component, CST.IMPLNAME,
 					component.getName());
 
-            SpecificationReference.Versioned spec = ((ImplementationDeclaration) component).getGroupVersioned();
+            Versioned<SpecificationDeclaration> spec = ((ImplementationDeclaration) component).getGroupVersioned();
+            
             if(spec != null ) {
                 String versionRange = spec.getRange();
 
@@ -168,7 +174,7 @@ public class ApamRepoBuilder {
                             versionRange);
                 }
 
-                if(broker.get(spec)==null) {
+                if(! capability(component).isGroupReferenceValid()) {
                     validator.error("Implementation "+component.getName()
                             +" require specification "+spec.getName()+" with version "+versionRange
                             +", which is not available !");
@@ -187,7 +193,7 @@ public class ApamRepoBuilder {
 			generateProperty(obrContent, component, CST.INSTNAME,
 					component.getName());
 
-            ComponentReference<?>.Versioned impl = ((InstanceDeclaration) component).getImplementationVersion();
+			Versioned<? extends ImplementationDeclaration> impl = ((InstanceDeclaration) component).getGroupVersioned();
             if(impl!= null ) {
                 String versionRange = impl.getRange();
 
@@ -196,9 +202,9 @@ public class ApamRepoBuilder {
                             versionRange);
                 }
 
-                if(broker.get(impl.getComponent().getName(), versionRange)==null) {
+                if(! capability(component).isGroupReferenceValid()) {
                     validator.error("Instance "+component.getName()
-                            +" require specification "+impl.getComponent().getName()+" with version "+versionRange
+                            +" require specification "+impl.getName()+" with version "+versionRange
                             +", which is not available !");
                 }
             }
@@ -251,22 +257,23 @@ public class ApamRepoBuilder {
 				+ ATT_V + ApamMavenProperties.mavenVersion.replace('-', '.')
 				+ END_P);
 
-        broker.get(component.getReference()).freeze();
+        capability(component).freeze();
 		obrContent.append("   </capability>\n");
 	}
 
 	private void printProvided(StringBuffer obrContent,	ComponentDeclaration component) {
 		if (component instanceof InstanceDeclaration) {
-			ImplementationReference<?>.Versioned impl = ((InstanceDeclaration) component).getImplementationVersion();
-			if ((impl != null) && !impl.getComponent().getName().isEmpty()) {
+			Versioned<? extends ImplementationDeclaration> impl = ((InstanceDeclaration) component).getGroupVersioned();
+			if ((impl != null) && !impl.getName().isEmpty()) {
 				bundleRequiresImplementations.add(impl);
 			}
 			return;
 		}
-		Set<UndefinedReference> undefinedMessages = new HashSet<UndefinedReference>();
-		Set<UndefinedReference> undefinedInterfaces = new HashSet<UndefinedReference>();
+		
+		Set<UnknownReference> undefinedMessages 	= new HashSet<UnknownReference>();
+		Set<UnknownReference> undefinedInterfaces 	= new HashSet<UnknownReference>();
 
-		for (UndefinedReference undefinedReference : component.getProvidedResources(UndefinedReference.class)) {
+		for (UnknownReference undefinedReference : component.getProvidedResources(UnknownReference.class)) {
 			if (undefinedReference.isKind(MessageReference.class)) {
 				undefinedMessages.add(undefinedReference);
 			} else if (undefinedReference.isKind(InterfaceReference.class)) {
@@ -276,37 +283,34 @@ public class ApamRepoBuilder {
 
 		Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
 		for (InterfaceReference ref : interfaces) {
-			validator.checkInterfaceExist(ref.getName());
+			validator.checkResourceExists(ref);
 		}
-		String val = setReference2String(interfaces);
-		if (val != null) {
-			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES,
-					setReference2String(interfaces));
+		
+		if (!interfaces.isEmpty()) {
+			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES,Util.list(interfaces));
 		}
 
 		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
 		for (MessageReference ref : messages) {
-			validator.checkInterfaceExist(ref.getName());
+			validator.checkResourceExists(ref);
 		}
-		val = setReference2String(messages);
-		if (val != null) {
-			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
+
+		if (!messages.isEmpty()) {
+			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, Util.list(messages));
 		}
+		
 		if (component instanceof ImplementationDeclaration) {
-			ImplementationDeclaration impl = (ImplementationDeclaration) component;
-			SpecificationReference.Versioned spec = impl.getGroupVersioned();
-			if ((spec != null) && !spec.getComponent().getName().isEmpty()) {
-				generateProperty(obrContent, component,CST.PROVIDE_SPECIFICATION, spec.getComponent().getName());
-				bundleRequiresSpecifications.add(spec);
-				validator.checkImplProvide(component, interfaces, messages, undefinedInterfaces,
-						undefinedMessages);
+			ImplementationDeclaration implementation = (ImplementationDeclaration) component;
+			if (implementation.getGroup() != null) {
+				generateProperty(obrContent, component,CST.PROVIDE_SPECIFICATION, implementation.getGroup().getName());
+				bundleRequiresSpecifications.add(implementation.getGroupVersioned());
+				validator.checkImplProvide(implementation);
 			}
 		}
 	}
 
-    private void printRelations(StringBuffer obrContent,
-                                 ComponentDeclaration component) {
-        Set<RelationDeclaration> relations = component.getDependencies();
+    private void printRelations(StringBuffer obrContent, ComponentDeclaration component) {
+        Set<RelationDeclaration> relations = component.getRelations();
         if(relations !=null && relations.size()>0) {
             for (RelationDeclaration rel : relations) {
             	
@@ -325,10 +329,10 @@ public class ApamRepoBuilder {
             	else if (target instanceof PackageReference) {
             		encodedTarget = "{"+ComponentParser.PACKAGE+"}"+encodedTarget;
             	}
-            	else if (target instanceof UndefinedReference && target.as(InterfaceReference.class) != null) {
+            	else if (target instanceof UnknownReference && target.as(InterfaceReference.class) != null) {
             		encodedTarget = "{"+ComponentParser.INTERFACE+"}";
             	}
-            	else if (target instanceof UndefinedReference && target.as(MessageReference.class) != null) {
+            	else if (target instanceof UnknownReference && target.as(MessageReference.class) != null) {
             		encodedTarget ="{"+ComponentParser.MESSAGE+"}";
             	}
             	
@@ -360,34 +364,14 @@ public class ApamRepoBuilder {
 		}
 	}
 
-	/**
-	 * provided a set of resources references (interface or messages)
-	 * fr.mag....A , B, C references produces a string "[;fr.imag....A;B;C;]"
-	 * 
-	 * @param refs
-	 * @return
-	 */
-
-	private String setReference2String(Set<? extends ResolvableReference> refs) {
-		if (refs.isEmpty()) {
-			return null;
-		}
-		String val = "";
-		for (ResolvableReference mess : refs) {
-			val += mess.getName() + ",";
-		}
-		// remove last ","
-		return val.substring(0, val.length() - 1);
-	}
-
 	private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
 		// We do not generate dependencies for specification to remain lazy
 		// the spec version is mentionned in the implementations that implement
 		// that spec.
 		if (component instanceof ImplementationDeclaration) {
-			for (RelationDeclaration dep : component.getDependencies()) {
+			for (RelationDeclaration dep : component.getRelations()) {
 				if (dep.getTarget().as(SpecificationReference.class) != null) {
-					bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class).any());
+					bundleRequiresSpecifications.add(Versioned.any(dep.getTarget().as(SpecificationReference.class)));
 				}
 			}
 		}
@@ -401,18 +385,17 @@ public class ApamRepoBuilder {
 		 * Generate filters for all provided specifications
 		 */
 		// VersionRange version ;
-		for (ComponentReference<?>.Versioned res : bundleRequiresSpecifications) {
+		for (Versioned<?> res : bundleRequiresSpecifications) {
 			generateRequire(obrContent, res);
 		}
-		for (ComponentReference<?>.Versioned res : bundleRequiresImplementations) {
+		for (Versioned<?> res : bundleRequiresImplementations) {
 			generateRequire(obrContent, res);
 		}
 	}
 
-	private void generateProperty(StringBuffer obrContent,
-			ComponentDeclaration component, String attr, String value) {
+	private void generateProperty(StringBuffer obrContent, ComponentDeclaration component, String attr, String value) {
 
-		if (broker.get(component.getName(),component.getProperty(CST.VERSION)).putAttr(attr, value,validator)) {
+		if (broker.get(component).putAttr(attr, value,validator)) {
 			obrContent.append(BEGIN_P + attr + ATT_V + value + END_P);
 			return;
 		}
@@ -420,14 +403,13 @@ public class ApamRepoBuilder {
 		// component.getName()) ;
 	}
 
-	private void generateTypedProperty(StringBuffer obrContent,
-			ComponentDeclaration component, String attr, String type,
+	private void generateTypedProperty(StringBuffer obrContent,	ComponentDeclaration component, String attr, String type,
 			String value) {
 		if (value == null) {
 			value = "";
 		}
 
-		if (broker.get(component.getReference()).putAttr(attr, value, validator)) {
+		if (capability(component).putAttr(attr, value, validator)) {
 			obrContent.append(BEGIN_P + attr + "' t='" + type + ATT_V + value
 					+ END_P);
 			return;
@@ -436,9 +418,9 @@ public class ApamRepoBuilder {
 		// component.getName()) ;
 	}
 
-	private void generateRequire(StringBuffer obrContent, ComponentReference<?>.Versioned required) {
+	private void generateRequire(StringBuffer obrContent, Versioned<?> required) {
 		
-		String target 	= required.getComponent().getName();
+		String target 	= required.getName();
 		String version	= required.getRange();
 		
 		if (version == null) {
@@ -453,7 +435,7 @@ public class ApamRepoBuilder {
 					.append("   <require name='apam-component' filter='(&amp;(name="
 							+ target
 							+ ")"
-							+ filter(version)
+							+ filter(required)
 							+ ")' extend='false' multiple='false' optional='false'>"
 							+ " specification relation toward "
 							+ target
@@ -462,9 +444,9 @@ public class ApamRepoBuilder {
 	}
 
 
-	private static String filter(String range) {
+	private static String filter(Versioned<?> required) {
 		try {
-			String filter = ApamComponentRepository.filter(range);
+			String filter = ApamComponentRepository.filter(required);
 			return filter.replace("<", "&lt;").replace(">","&gt;");
 		}
 		catch(Exception parseException) {
@@ -498,10 +480,9 @@ public class ApamRepoBuilder {
 		 * NOTE this causes problems because a lot of information is kept in
 		 * static variables that are shared in the same build execution.
 		 */
-		for (ComponentDeclaration comp : new ArrayList<ComponentDeclaration>(
-				components)) {
+		for (ComponentDeclaration comp : new ArrayList<ComponentDeclaration>(components)) {
 
-			ApamCapability existingDefinition = broker.get(comp.getReference());
+			ApamCapability existingDefinition = capability(comp);
 
 			/*
 			 * never built is OK to process

@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,14 +52,8 @@ public class ClasspathDescriptor {
 			Pattern.compile("META-INF/SPRING\\.SCHEMAS"),
 			Pattern.compile("META-INF/SPRING\\.TOOLING") };
 	@SuppressWarnings("rawtypes")
-	private static final Set IGNORED_LOCAL_DIRECTORIES = new HashSet();
+	private static final Set IGNORED_LOCAL_DIRECTORIES = new HashSet(Arrays.asList(".GIT",".SVN",".HG",".BZR"));
 
-	static {
-		IGNORED_LOCAL_DIRECTORIES.add(".GIT");
-		IGNORED_LOCAL_DIRECTORIES.add(".SVN");
-		IGNORED_LOCAL_DIRECTORIES.add(".HG");
-		IGNORED_LOCAL_DIRECTORIES.add(".BZR");
-	}
 
 	@SuppressWarnings("rawtypes")
 	private Map classesWithElements = new TreeMap();

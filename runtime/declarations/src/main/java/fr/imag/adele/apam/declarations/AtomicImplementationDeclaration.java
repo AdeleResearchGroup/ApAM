@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+
 /**
  * This class represents the declaration of a java implementation of a service
  * provider
@@ -40,39 +43,44 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		String getClassName();
 
 		/**
-		 * The type of the specified java field
+		 * Whether the specified java field is one of the supported collections
 		 */
-		ResourceReference getFieldType(String fieldName)
-				throws NoSuchFieldException;
+		boolean isCollectionField(String fieldName) throws NoSuchFieldException;
 
+		/**
+		 * Whether the specified java field is one of the supported message queues
+		 */
+		boolean isMessageQueueField(String fieldName) throws NoSuchFieldException;
+
+		/**
+		 * The type of the specified java field, for collections is the type of the element type
+		 */
+		String getFieldType(String fieldName) throws NoSuchFieldException;
+		
+		/**
+		 * A special type to signal an unknown field type
+		 */
+		public static final String UNKNOWN_TYPE = new String("<UNKNOWN_TYPE>");
+		
 		/**
 		 * The number of parameters of the specified java method
 		 */
-		int getMethodParameterNumber(String methodName, boolean includeInherited)
-				throws NoSuchMethodException;
+		int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException;
 
 		/**
 		 * The type of of the specified single-paramterjava method
 		 */
-		String getMethodParameterType(String methodName,
-				boolean includeInherited) throws NoSuchMethodException;
+		String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException;
 
 		/**
 		 * The list of parameter types
 		 */
-		String[] getMethodParameterTypes(String methodName,
-				boolean includeInherited) throws NoSuchMethodException;
+		String[] getMethodParameterTypes(String methodName,	boolean includeInherited) throws NoSuchMethodException;
 
 		/**
 		 * The type of return of the specified java method
 		 */
-		String getMethodReturnType(String methodName, String signature,
-				boolean includeInherited) throws NoSuchMethodException;
-
-		/**
-		 * The cardinality of the specified java field
-		 */
-		boolean isCollectionField(String fieldName) throws NoSuchFieldException;
+		String getMethodReturnType(String methodName, String signature,	boolean includeInherited) throws NoSuchMethodException;
 
 	}
 
@@ -86,8 +94,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	/**
 	 * A reference to an atomic implementation
 	 */
-	private static class Reference extends
-			ImplementationReference<AtomicImplementationDeclaration> {
+	private static class Reference extends ImplementationReference<AtomicImplementationDeclaration> {
 
 		public Reference(String name) {
 			super(name);
@@ -117,7 +124,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	private Map<Event, Set<CallbackDeclaration>> callbacks;
 
 
-	public AtomicImplementationDeclaration(String name, SpecificationReference.Versioned specification, CodeReflection reflection) {
+	public AtomicImplementationDeclaration(String name, Versioned<SpecificationDeclaration> specification, CodeReflection reflection) {
 		super(name, specification);
 
 		assert reflection != null;
@@ -129,6 +136,20 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		this.callbacks = new HashMap<Event, Set<CallbackDeclaration>>();
 	}
 
+	/**
+	 * Generates the reference to this implementation
+	 */
+	@Override
+	protected ImplementationReference<AtomicImplementationDeclaration> generateReference() {
+		return new Reference(getName());
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ImplementationReference<AtomicImplementationDeclaration> getReference() {
+		return (ImplementationReference<AtomicImplementationDeclaration>) super.getReference();
+	}
+
 	public void addCallback(Event trigger, CallbackDeclaration callback) {
 
 		if (callbacks.get(trigger) == null) {
@@ -137,14 +158,6 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
 		callbacks.get(trigger).add(callback);
 
-	}
-
-	/**
-	 * Generates the reference to this implementation
-	 */
-	@Override
-	protected ImplementationReference<AtomicImplementationDeclaration> generateReference() {
-		return new Reference(getName());
 	}
 
 	public Set<CallbackDeclaration> getCallback(Event trigger) {
@@ -183,7 +196,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
 	@Override
 	public String toString() {
-		StringBuffer ret = new StringBuffer();
+		StringBuffer ret = new StringBuffer(super.toString());
 		if (callbacks.size() != 0) {
 			ret = ret.append("\n    callback methods : ");
 			for (Event trigger : callbacks.keySet()) {
@@ -205,6 +218,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		}
 
 		ret = ret.append("\n   Class Name: " + getClassName());
+
 		return ret.toString();
 	}
 

@@ -10,11 +10,11 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 /**

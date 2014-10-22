@@ -28,7 +28,7 @@
 		<module>apform</module>
 		<module>bundle</module>
 		<module>managers</module>
-		<module>parsers</module>
+		<module>repositories</module>
 	</modules>
 	 
 </project>

@@ -15,6 +15,9 @@
 package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 
 /**
  * The declaration of a code instrumentation (injection, interception,
@@ -97,8 +100,7 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 		@Override
 		public ResourceReference getProvidedResource() {
 			MessageReference target = methodReturnType.get();
-			return target != null ? target : new UndefinedReference(
-					new MessageReference(methodName));
+			return target != null ? target : new UnknownReference(new MessageReference(methodName));
 		}
 
 		@Override

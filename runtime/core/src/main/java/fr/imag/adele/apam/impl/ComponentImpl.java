@@ -43,7 +43,7 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
@@ -859,7 +859,7 @@ implements Component, Comparable<Component> {
 		Component group = this;
 		while (group != null) {
 
-			for (RelationDeclaration relationDeclaration : group.getDeclaration().getDependencies()) {
+			for (RelationDeclaration relationDeclaration : group.getDeclaration().getRelations()) {
 
 				/*
 				 * Ignore relations already processed at a lower level

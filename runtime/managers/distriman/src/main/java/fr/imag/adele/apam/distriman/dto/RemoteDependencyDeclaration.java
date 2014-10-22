@@ -25,13 +25,13 @@ import org.codehaus.jackson.type.TypeReference;
 
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.InstanceReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.InstanceReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 
 /**
  * The RemoteDependency is a DependencyDeclaration that aims to be resolved by a

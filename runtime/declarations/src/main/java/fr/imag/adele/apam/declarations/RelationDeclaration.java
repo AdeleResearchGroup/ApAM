@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+
 /**
  * This class represents the declaration of a required resources needed by a
  * component, that will be resolved at runtime by APAM.
@@ -42,24 +46,10 @@ public class RelationDeclaration extends ConstrainedReference {
 	 * must be only unique in the context of their defining component
 	 * declaration.
 	 */
-	public static class Reference extends
-			fr.imag.adele.apam.declarations.Reference {
+	public static class Reference extends FeatureReference {
 
-		private final String identifier;
-
-		public Reference(ComponentReference<?> definingComponent,
-				String identifier) {
-			super(definingComponent);
-			this.identifier = identifier;
-		}
-
-		public ComponentReference<?> getDeclaringComponent() {
-			return (ComponentReference<?>) namespace;
-		}
-
-		@Override
-		public String getIdentifier() {
-			return identifier;
+		public Reference(ComponentReference<?> definingComponent, String identifier) {
+			super(definingComponent, identifier);
 		}
 
 	}
@@ -131,8 +121,7 @@ public class RelationDeclaration extends ConstrainedReference {
 	private final ResolvePolicy resolvePolicy;
 	private final CreationPolicy creationPolicy;
 
-	public RelationDeclaration(ComponentReference<?> component, String id,
-			ResolvableReference target, boolean isMultiple) {
+	public RelationDeclaration(ComponentReference<?> component, String id, ResolvableReference target, boolean isMultiple) {
 		this(component, id, null, ComponentKind.INSTANCE, target,
 				ComponentKind.INSTANCE, CreationPolicy.MANUAL,
 				ResolvePolicy.EXIST, isMultiple, MissingPolicy.OPTIONAL, null,
@@ -150,9 +139,7 @@ public class RelationDeclaration extends ConstrainedReference {
 
 		assert component != null && target != null;
 
-		id = (id == null) ? getTarget().as(
-				fr.imag.adele.apam.declarations.Reference.class)
-				.getIdentifier() : id;
+		id = (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.references.Reference.class).getIdentifier() : id;
 		this.reference = new Reference(component, id);
 
 		this.sourceName = sourceName;

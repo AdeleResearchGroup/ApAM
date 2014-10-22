@@ -43,8 +43,8 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
-import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
 

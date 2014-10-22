@@ -29,10 +29,10 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.MessageReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 
 /**

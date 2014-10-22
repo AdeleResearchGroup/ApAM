@@ -36,7 +36,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;

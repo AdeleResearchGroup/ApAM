@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.ResolvableReference;
+
 /**
  * This class is a marker for all declarations that add constraints to a
  * component target reference

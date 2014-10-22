@@ -16,13 +16,13 @@
  */
 package fr.imag.adele.apam.apammavenplugin.helpers;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import fr.imag.adele.apam.apammavenplugin.CheckObr;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.InterfaceReference;
-import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.UndefinedReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.util.Util;
 
 /**
@@ -31,54 +31,33 @@ import fr.imag.adele.apam.util.Util;
  */
 public final class ProvideHelpers {
 
-	/**
-	 * @param impl
-	 * @param messages
-	 * @param messagesUndefined
-	 * @param specMessages
-	 */
-	public static void checkMessages(ComponentDeclaration impl,
-			Set<MessageReference> messages,
-			Set<UndefinedReference> messagesUndefined,
-			Set<MessageReference> specMessages, CheckObr validator) {
-		if (!messages.containsAll(specMessages)) {
-			if (!messagesUndefined.isEmpty()) {
-				validator.warning("Unable to verify message type at compilation time, this may cause errors at the runtime!"
-						+ "\n make sure that "
-						+ Util.toStringUndefinedResource(messagesUndefined)
-						+ " are of the following message types "
-						+ Util.toStringSetReference(specMessages));
+	public static void checkResources(ComponentDeclaration implementation, ComponentDeclaration specification, Class<? extends ResourceReference> kind, CheckObr validator) {
+		Set<? extends ResourceReference> expected	= specification.getProvidedResources(kind);
+		Set<? extends ResourceReference> declared	= implementation.getProvidedResources(kind);
+	
+		Set<? extends ResourceReference> unknown	= unknowns(implementation.getProvidedResources(UnknownReference.class), kind);
+		
+		if (! declared.containsAll(expected)) {
+			if (! unknown.isEmpty()) {
+				validator.warning("Unable to verify type of provided resources at compilation time, this may cause errors at the runtime!"
+						+ "\n make sure that " + Util.list(unknown,true)	+ " are of the following types "+ Util.list(expected,true));
 			} else {
-				validator.error("Implementation " + impl.getName()
-						+ " must produce messages "
-						+ Util.toStringSetReference(specMessages));
+				validator.error("Implementation " + implementation.getName() + " must provide " + Util.list(expected,true));
 			}
 		}
 	}
 
-	/**
-	 * @param impl
-	 * @param interfaces
-	 * @param interfacesUndefined
-	 * @param specInterfaces
-	 */
-	public static void checkInterfaces(ComponentDeclaration impl,
-			Set<InterfaceReference> interfaces,
-			Set<UndefinedReference> interfacesUndefined,
-			Set<InterfaceReference> specInterfaces, CheckObr validator) {
-		if (!interfaces.containsAll(specInterfaces)) {
-			if (!(interfacesUndefined.isEmpty())) {
-				validator.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
-						+ "\n make sure that "
-						+ Util.toStringUndefinedResource(interfacesUndefined)
-						+ " are of the following interface types "
-						+ Util.toStringSetReference(specInterfaces));
-			} else {
-				validator.error("Implementation " + impl.getName()
-						+ " must implement interfaces "
-						+ Util.toStringSetReference(specInterfaces));
+	public static <R extends ResourceReference> Set<R> unknowns(Set<UnknownReference> unknowns, Class<R> kind) {
+		
+		Set<R> result = new HashSet<R>();
+		for (UnknownReference unknown : unknowns) {
+			
+			R cast = unknown.as(kind);
+			if (cast != null) {
+				result.add(cast);
 			}
 		}
-	}
 
+		return result;
+	}
 }

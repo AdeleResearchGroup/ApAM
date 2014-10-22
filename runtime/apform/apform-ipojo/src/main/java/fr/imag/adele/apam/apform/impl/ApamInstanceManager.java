@@ -50,6 +50,7 @@ import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -115,10 +116,11 @@ public class ApamInstanceManager extends InstanceManager implements
 
 		String instanceName = (String) configuration.get("instance.name");
 
-		declaration = (InstanceDeclaration) configuration
-				.get(ApamInstanceManager.ATT_DECLARATION);
+		declaration = (InstanceDeclaration) configuration.get(ApamInstanceManager.ATT_DECLARATION);
 		if (isApamCreated || (declaration == null)) {
-			declaration = new InstanceDeclaration(getFactory().getApform().getDeclaration().getReference().any(), instanceName, null);
+			
+			declaration = new InstanceDeclaration(Versioned.any(getFactory().getApform().getDeclaration().getReference()), instanceName, null);
+			
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();
 				if (!Apform2Apam.isPlatformPrivateProperty(property))

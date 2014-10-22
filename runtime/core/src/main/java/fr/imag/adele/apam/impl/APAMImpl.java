@@ -43,11 +43,11 @@ import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
@@ -55,14 +55,15 @@ import fr.imag.adele.apam.util.Util;
 public class APAMImpl implements Apam {
 
 	/**
-	 * An special apform instance created only for those composites that do not
-	 * exist in the Apform ipojo layer. Creates a minimal definition structure.
+	 * An special apform instance created only for those composites that do not exist in the Apform ipojo layer. 
+	 * Creates a minimal definition structure.
 	 */
 	private static class ApamOnlyComposite extends BaseApformComponent<Composite, InstanceDeclaration> implements ApformInstance {
 
-		public ApamOnlyComposite(ImplementationReference<?> implementation, String name, Map<String, String> initialProperties) {
+		public ApamOnlyComposite(ComponentReference<CompositeDeclaration> implementation, String name, Map<String, String> initialProperties) {
 
-			super(new InstanceDeclaration(implementation.any(),name,null));
+			super(new InstanceDeclaration(Versioned.any(implementation),name,null));
+			
 			if (initialProperties != null) {
 				for (Map.Entry<String, String> property : initialProperties.entrySet()) {
 					if (!Attribute.isFinalAttribute(property.getKey())) {
@@ -98,7 +99,8 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String, String> properties) {
 
-			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? new SpecificationReference(specificationName).any() : null, new ComponentReference<ComponentDeclaration>(mainName)));
+			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? Versioned.any(new SpecificationReference(specificationName)) : null, new ComponentReference<ComponentDeclaration>(mainName)));
+			
 			if (properties != null) {
 				declaration.getProperties().putAll(properties);
 			}

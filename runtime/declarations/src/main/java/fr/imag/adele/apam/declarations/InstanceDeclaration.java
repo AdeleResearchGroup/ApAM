@@ -16,6 +16,11 @@ package fr.imag.adele.apam.declarations;
 
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.InstanceReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+
 /**
  * The declaration of an instance.
  * 
@@ -31,7 +36,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	/**
 	 * A reference to the implementation
 	 */
-	private final ImplementationReference<?>.Versioned implementation;
+	private final Versioned<? extends ImplementationDeclaration> implementation;
 
 	/**
 	 * The list of triggers that must be met to start this instance
@@ -39,7 +44,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	private final Set<ConstrainedReference> triggers;
 
 
-    public InstanceDeclaration(ImplementationReference<?>.Versioned implementation, String name, Set<ConstrainedReference> triggers) {
+    public InstanceDeclaration(Versioned<? extends ImplementationDeclaration> implementation, String name, Set<ConstrainedReference> triggers) {
     	
 		super(name);
 
@@ -51,36 +56,33 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	}
 
 	@Override
-	protected ComponentReference<InstanceDeclaration> generateReference() {
+	protected InstanceReference generateReference() {
 		return new InstanceReference(getName());
 	}
 
 	@Override
-	public ImplementationReference<?>.Versioned getGroupVersioned() {
-		return implementation;
+	public InstanceReference getReference() {
+		return (InstanceReference) super.getReference();
 	}
 
 	@Override
-	public ImplementationReference<?> getGroup() {
-		return (ImplementationReference<?>) implementation.getComponent();
+	public ComponentReference<? extends ImplementationDeclaration> getGroup() {
+		return getImplementation();
 	}
 	
+	@Override
+	public Versioned<? extends ImplementationDeclaration> getGroupVersioned() {
+		return implementation;
+	}
 
 	/**
 	 * The implementation of this instance
 	 */
-	public final ImplementationReference<?> getImplementation() {
+	public final ComponentReference<? extends ImplementationDeclaration> getImplementation() {
 		return (ImplementationReference<?>) implementation.getComponent();
 	}
 
  	/**
-	 * The implementation of this instance
-	 */
-	public final ImplementationReference<?>.Versioned getImplementationVersion() {
-		return implementation;
-	}
-
-	/**
 	 * The triggering specification
 	 */
 	public Set<ConstrainedReference> getTriggers() {
@@ -90,7 +92,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	@Override
 	public String toString() {
 		String ret = "Instance declaration " + super.toString();
-		ret += "\n    Implementation: " + getImplementation().getIdentifier();
+		ret += "\n    Implementation: " + getImplementation().getName();
 		return ret;
 	}
 }

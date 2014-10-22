@@ -58,7 +58,7 @@ import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
@@ -792,7 +792,7 @@ public class ApamCommand {
 	    out.println(indent + "      " + res);
 	}
 
-	out.println(specification.getDeclaration().getDependencies());
+	out.println(specification.getDeclaration().getRelations());
 
 	// out.println(indent + "Effective Required specs:");
 	// for (Specification spec : specification.getRequires()) {

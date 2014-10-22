@@ -55,8 +55,7 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 @Component(name = "Apam::Distriman::MachineFactory")
 @Instantiate
 @Provides
-public class ApamMachineFactoryImpl implements ApamMachineFactory,
-	ApformCompositeType {
+public class ApamMachineFactoryImpl implements ApamMachineFactory, ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;

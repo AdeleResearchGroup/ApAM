@@ -15,7 +15,15 @@
 
     <apam-instance implementation="implem-server" name="testingInstanceSpecificVersion"
                    require-version="1.0.0"></apam-instance>
+                   
     <apam-instance implementation="implem-server" name="testingInstanceSpecificVersion2"
-                   require-version="2.0.0"></apam-instance>
+                   require-version="2.0.0">
+                 
+        <definition name="instance-defined-property" type="string"/>  
+        <property name="instance-implem-server-v2-property" value="testingInstanceSpecificVersion2-value"/>
+    	<property name="instance-property" value="testingInstanceSpecificVersion2-value"/>
+    	<property name="instance-defined-property" value="testingInstanceSpecificVersion2-value"/>
+    	
+     </apam-instance>
 
 </apam>

@@ -7,7 +7,13 @@
     <implementation name="implem-server"
                     classname="fr.imag.adele.apam.tests.app.Dummy"
             specification="spec-server" require-version="(1.0.0,2]">
-
+            
+            <definition name="implem-server-property" type="string"/>
+            <definition name="instance-implem-server-v2-property" type="string" default="instance-implem-server-default"/>
+            
+            <property name="implem-property" value="implem-server-v2-value"/>
+            <property name="implem-server-property" value="implem-server-v2-self-property-value"/>
+		
     </implementation>
 
 </apam>

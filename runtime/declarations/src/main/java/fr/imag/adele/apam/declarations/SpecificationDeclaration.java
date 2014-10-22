@@ -14,6 +14,10 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+
 
 /**
  * This class represents the declaration of a service provider specification.
@@ -49,21 +53,15 @@ public class SpecificationDeclaration extends ComponentDeclaration {
 	}
 
 	@Override
-	public ComponentReference<?> getGroup() {
+	public ComponentReference<ComponentDeclaration> getGroup() {
 		return null;
 	}
 
 	@Override
-	public ComponentReference<?>.Versioned getGroupVersioned() {
+	public Versioned<ComponentDeclaration> getGroupVersioned() {
 		return null;
 	}
 	
-	@Override
-	public boolean resolves(RelationDeclaration relation) {
-		return super.resolves(relation)
-				|| relation.getTarget().equals(this.getReference());
-	}
-
 	@Override
 	public String toString() {
 		return "Specification " + super.toString();

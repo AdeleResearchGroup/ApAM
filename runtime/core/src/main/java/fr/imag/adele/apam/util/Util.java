@@ -29,8 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.UndefinedReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 
 /**
  * The static Class Util provides a set of static method for the iPOJO service
@@ -251,28 +250,31 @@ public final class Util {
 		return ret.toString().substring(0, ret.length() - 2) + "}";
 	}
 
-	public static String toStringSetReference(Set<? extends ResourceReference> setRef) {
-		StringBuffer ret = new StringBuffer();
-		ret.append("{");
-		for (ResourceReference ref : setRef) {
-			ret.append(ref.getJavaType() + ", ");
-		}
-		String rets = ret.toString();
-		int i = rets.lastIndexOf(',');
-		return rets.substring(0, i) + "}";
+	public static String list(Set<? extends ResourceReference> references) {
+		return list(references,false);
 	}
 
-	public static String toStringUndefinedResource(Set<UndefinedReference> undefinedReferences) {
-		if ((undefinedReferences == null) || (undefinedReferences.size() == 0)) {
-			return null;
+	public static String list(Set<? extends ResourceReference> references, boolean delimited) {
+		
+		boolean first 		= true;
+		StringBuffer result = new StringBuffer();
+		
+		if (delimited) result.append("{");
+		
+		for (ResourceReference reference : references) {
+			
+			if (!first)
+				result.append(", ");
+			
+			result.append(reference.getJavaType());
+			first = false;
 		}
-		StringBuffer ret = new StringBuffer();
-		ret.append("{");
-		for (UndefinedReference undfinedReference : undefinedReferences) {
-			ret.append(undfinedReference.getSubject() + ", ");
-		}
-		return ret.substring(0, ret.length() - 2) + "}";
+		
+		if (delimited) result.append("}");
+		
+		return result.toString();
 	}
+
 
 	// cannot be instantiated
 	private Util() {

@@ -30,8 +30,8 @@ import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 
 /**
  * This class is used to represent the pending requests that are waiting for

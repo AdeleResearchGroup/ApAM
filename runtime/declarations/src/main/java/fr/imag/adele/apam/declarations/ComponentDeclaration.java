@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+
 /**
  * This class represents the common description of a component at all levels of
  * abstraction (specification, implementation, composite or instance)
@@ -91,51 +95,98 @@ public abstract class ComponentDeclaration {
 		assert name != null;
 
 		this.name = name;
-
-		this.isInstantiable = true;
-		this.isExclusive = false;
-		this.isSingleton = false;
-		this.isShared = true;
-		this.isDefinedInstantiable = false;
-		this.isDefinedExclusive = false;
-		this.isDefinedSingleton = false;
-		this.isDefinedShared = false;
-
 		reference = generateReference();
-		properties = new HashMap<String, String>();
+
+		/*
+		 * provided resources
+		 */
 		providedResources = new HashSet<ResourceReference>();
-		relations = new HashSet<RelationDeclaration>();
-		predefinedLinks = new HashSet<LinkDeclaration>();
+
+		/*
+		 * declarations
+		 */
+		relations 	= new HashSet<RelationDeclaration>();
 		definitions = new ArrayList<PropertyDefinition>();
+
+		/*
+		 * links and property values
+		 */
+		properties 		= new HashMap<String, String>();
+		predefinedLinks = new HashSet<LinkDeclaration>();
+
+		/*
+		 * Initialize default value for global properties
+		 */
+		this.isInstantiable 		= true;
+		this.isExclusive 			= false;
+		this.isSingleton 			= false;
+		this.isShared 				= true;
+		
+		this.isDefinedInstantiable 	= false;
+		this.isDefinedExclusive 	= false;
+		this.isDefinedSingleton 	= false;
+		this.isDefinedShared 		= false;
+
 	}
 
 	/**
-	 * Generates a unique resource identifier to reference this declaration
+	 * Generates a unique resource identifier to reference this declaration.
+	 * 
+	 * 
+	 * NOTE IMPORTANT this method is invoked at the beginning of the constructor when only
+	 * the name filed is available.
+	 * 
+	 * The generated reference must have the appropriate kind to reflect the abstraction level
+	 * of the component, and the generic type of the reference must be the class of the defining
+	 * declaration. 
 	 */
 	protected abstract ComponentReference<?> generateReference();
 
 	/**
-	 * Get the declared dependencies of this component
+	 * Get the reference to this declaration
 	 */
-	public Set<RelationDeclaration> getDependencies() {
-		return relations;
+	public ComponentReference<?> getReference() {
+		return reference;
+	}
+	
+	/**
+	 * Get the name of the provider
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * The kind of this component
+	 */
+	public final ComponentKind getKind() {
+		return getReference().getKind();
 	}
 
 	/**
 	 * Get the reference to the parent group of this declaration
 	 */
-	public abstract ComponentReference<? extends ComponentDeclaration> getGroup();
+	public abstract ComponentReference<?> getGroup();
 
 	/**
 	 * Get the reference to the parent group of this declaration, including the specific
 	 * range of versions
 	 */
-	public abstract ComponentReference<? extends ComponentDeclaration>.Versioned getGroupVersioned();
+	public abstract Versioned<?> getGroupVersioned();
+	
+	
+	/**
+	 * Get the declared dependencies of this component
+	 */
+	public Set<RelationDeclaration> getRelations() {
+		return relations;
+	}
+
 	
 	/**
 	 * Get a relation declaration by name
 	 */
-	public RelationDeclaration getLocalRelation(String id) {
+	public RelationDeclaration getRelation(String id) {
 		for (RelationDeclaration relation : relations) {
 			if (relation.getIdentifier().equals(id)) {
 				return relation;
@@ -146,12 +197,16 @@ public abstract class ComponentDeclaration {
 	}
 
 	/**
-	 * Get the name of the provider
+	 * Get a relation declaration by reference
 	 */
-	public String getName() {
-		return name;
-	}
+	public RelationDeclaration getRelation(RelationDeclaration.Reference relation) {
+		if (!this.getReference().equals(relation.getDeclaringComponent())) {
+			return null;
+		}
 
+		return getRelation(relation.getIdentifier());
+	}
+	
 	/**
 	 * Get the declared predefined links
 	 */
@@ -173,20 +228,14 @@ public abstract class ComponentDeclaration {
 		return properties.get(property);
 	}
 
+
 	/**
-	 * Get the named property definition, if declared
+	 * Get the property definitions defined by this component
 	 */
-	public PropertyDefinition getPropertyDefinition(
-			PropertyDefinition.Reference property) {
-
-		if (!this.getReference().equals(property.getDeclaringComponent())) {
-			return null;
-		}
-
-		return getPropertyDefinition(property.getIdentifier());
-
+	public List<PropertyDefinition> getPropertyDefinitions() {
+		return definitions;
 	}
-
+	
 	/**
 	 * Get the named property definition, if declared
 	 */
@@ -200,11 +249,24 @@ public abstract class ComponentDeclaration {
 	}
 
 	/**
-	 * Get the property definitions defined by this component
+	 * Get the named property definition, if declared
 	 */
-	public List<PropertyDefinition> getPropertyDefinitions() {
-		return definitions;
+	public PropertyDefinition getPropertyDefinition(PropertyDefinition.Reference property) {
+		if (!this.getReference().equals(property.getDeclaringComponent())) {
+			return null;
+		}
+
+		return getPropertyDefinition(property.getIdentifier());
 	}
+	
+	
+	/**
+	 * Whether the specified property is defined in this component
+	 */
+	public boolean isDefined(String propertyName) {
+		return getPropertyDefinition(propertyName) != null;
+	}
+
 
 	/**
 	 * Get the provided resources
@@ -224,8 +286,7 @@ public abstract class ComponentDeclaration {
 	 * particular subtype of references, the unchecked downcast is then safe at
 	 * runtime.
 	 */
-	public <T extends ResourceReference> Set<T> getProvidedResources(
-			Class<T> kind) {
+	public <T extends ResourceReference> Set<T> getProvidedResources(Class<T> kind) {
 		Set<T> resources = new HashSet<T>();
 		for (ResourceReference resourceReference : providedResources) {
 			if (kind.isInstance(resourceReference)) {
@@ -233,29 +294,6 @@ public abstract class ComponentDeclaration {
 			}
 		}
 		return resources;
-	}
-
-	/**
-	 * Get the reference to this declaration
-	 */
-	public ComponentReference<?> getReference() {
-		return reference;
-	}
-
-	/**
-	 * Get a relation declaration by reference
-	 */
-	public RelationDeclaration getRelation(
-			RelationDeclaration.Reference relation) {
-		if (!this.getReference().equals(relation.getDeclaringComponent())) {
-			return null;
-		}
-
-		return getLocalRelation(relation.getIdentifier());
-	}
-
-	public boolean isDefined(String propertyName) {
-		return getPropertyDefinition(propertyName) != null;
 	}
 
 	public boolean isDefinedExclusive() {
@@ -288,18 +326,6 @@ public abstract class ComponentDeclaration {
 		return isInstantiable;
 	}
 
-	/**
-	 * Check if this component requires the specified resource
-	 */
-	public boolean isRequired(ResourceReference resource) {
-		for (RelationDeclaration relation : relations) {
-			if (relation.getTarget().equals(resource)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	/**
 	 * Whether the component is shared
@@ -356,33 +382,6 @@ public abstract class ComponentDeclaration {
 		return ret.toString();
 	}
 
-	/**
-	 * Check if the specified resource is provided by this component
-	 * 
-	 */
-	public boolean resolves(RelationDeclaration relation) {
-		return providedResources.contains(relation.getTarget());
-	}
-
-	// Warning : should be called ONLY by CoreMetadataParser
-	public void setDefinedExclusive(boolean isExclusive) {
-		this.isDefinedExclusive = isExclusive;
-	}
-
-	// Warning : should be called ONLY by CoreMetadataParser
-	public void setDefinedInstantiable(boolean isInstantiable) {
-		this.isDefinedInstantiable = isInstantiable;
-	}
-
-	// Warning : should be called ONLY by CoreMetadataParser
-	public void setDefinedShared(boolean isShared) {
-		this.isDefinedShared = isShared;
-	}
-
-	// Warning : should be called ONLY by CoreMetadataParser
-	public void setDefinedSingleton(boolean isSingleton) {
-		this.isDefinedSingleton = isSingleton;
-	}
 
 	public void setExclusive(boolean isExclusive) {
 		this.isExclusive = isExclusive;

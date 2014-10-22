@@ -14,6 +14,8 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+
 /**
  * This class represents a property declaration.
  * 
@@ -29,23 +31,10 @@ public class PropertyDefinition {
 	 * identifiers must be only unique in the context of their defining
 	 * component declaration.
 	 */
-	public static class Reference extends
-			fr.imag.adele.apam.declarations.Reference {
-
-		private final String name;
+	public static class Reference extends FeatureReference {
 
 		public Reference(ComponentReference<?> definingComponent, String name) {
-			super(definingComponent);
-			this.name = name;
-		}
-
-		public ComponentReference<?> getDeclaringComponent() {
-			return (ComponentReference<?>) namespace;
-		}
-
-		@Override
-		public String getIdentifier() {
-			return name;
+			super(definingComponent, name);
 		}
 
 	}

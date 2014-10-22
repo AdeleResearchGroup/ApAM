@@ -26,8 +26,7 @@ public class RelationPromotion {
 	 */
 	private final RelationDeclaration.Reference target;
 
-	public RelationPromotion(RelationDeclaration.Reference source,
-			RelationDeclaration.Reference target) {
+	public RelationPromotion(RelationDeclaration.Reference source, RelationDeclaration.Reference target) {
 		this.source = source;
 		this.target = target;
 	}

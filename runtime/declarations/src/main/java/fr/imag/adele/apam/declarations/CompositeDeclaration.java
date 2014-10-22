@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
+
 /**
  * This class represents the declaration of a composite implementation
  * 
@@ -30,8 +34,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	/**
 	 * A reference to a composite implementation
 	 */
-	private static class Reference extends
-			ImplementationReference<CompositeDeclaration> {
+	private static class Reference extends ImplementationReference<CompositeDeclaration> {
 
 		public Reference(String name) {
 			super(name);
@@ -83,7 +86,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final List<RelationPromotion> promotions;
 
-	public CompositeDeclaration(String name, SpecificationReference.Versioned specification, ComponentReference<?> mainComponent) {
+	public CompositeDeclaration(String name, Versioned<SpecificationDeclaration> specification, ComponentReference<?> mainComponent) {
 		super(name, specification);
 
 		this.mainComponent = mainComponent;
@@ -106,6 +109,16 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 		return new Reference(getName());
 	}
 
+	/**
+	 * Override the return type to a most specific class in order to avoid
+	 * unchecked casting when used
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public ImplementationReference<CompositeDeclaration> getReference() {
+		return (ImplementationReference<CompositeDeclaration>) super.getReference();
+	}
+	
 	/**
 	 * The list of contextual dependencies
 	 */
@@ -155,16 +168,6 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 		return promotions;
 	}
 
-	/**
-	 * Override the return type to a most specific class in order to avoid
-	 * unchecked casting when used
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	public ImplementationReference<CompositeDeclaration> getReference() {
-		return (ImplementationReference<CompositeDeclaration>) super
-				.getReference();
-	}
 
 	/**
 	 * The property that specifies the state of the composite
@@ -191,8 +194,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	@Override
 	public String toString() {
 		String ret = "\nComposite declaration " + super.toString();
-		ret += "\n   Main Implementation: " + mainComponent != null ? mainComponent
-				.getIdentifier() : "";
+		ret += "\n   Main Implementation: " + (mainComponent != null ? mainComponent.getName() : "");
 		return ret;
 	}
 

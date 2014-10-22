@@ -45,7 +45,7 @@
     </implementation>
 
     <composite name="S2Impl-composite-eager"
-        main="fr.imag.adele.apam.pax.test.implS2.S2Impl">
+        main="fr.imag.adele.apam.pax.test.implS2.S2Impl" >
         <contentMngt>
             <override name=".*" interface=".*Eletronic"
                 creation="eager" >

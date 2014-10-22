@@ -1,5 +1,7 @@
 package fr.imag.adele.apam.declarations;
 
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+
 /**
  * The declaration of an static wire
  * 

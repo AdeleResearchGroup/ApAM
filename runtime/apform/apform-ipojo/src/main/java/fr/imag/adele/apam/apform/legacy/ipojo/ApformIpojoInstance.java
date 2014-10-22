@@ -25,6 +25,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 
 public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
@@ -40,8 +41,7 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
      * @param ipojoInstance
      */
     public ApformIpojoInstance(ComponentInstance ipojoInstance) {
-    	super( new InstanceDeclaration(
-    					new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName()).any(),
+    	super( new InstanceDeclaration(Versioned.any(new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName())),
     					ipojoInstance.getInstanceName(),
     					null)
     	);
