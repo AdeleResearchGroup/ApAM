@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.declarations.encoding;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.Reporter;
 
 /**
  * This class represents a tool being able to decode one of the different formats that can be used

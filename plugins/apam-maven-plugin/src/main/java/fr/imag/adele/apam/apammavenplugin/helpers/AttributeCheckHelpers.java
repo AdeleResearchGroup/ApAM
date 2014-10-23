@@ -113,21 +113,19 @@ public final class AttributeCheckHelpers {
 	 * @param parent
 	 * @return
 	 */
-	public static String checkDefAttr(ApamCapability ent, String attr,
-			String defAttr, String inheritedvalue, ApamCapability parent, CheckObr validator) {
-		if (defAttr == null) {
-			validator.error("In " + ent.getName() + ", attribute \"" + attr
+	public static String checkDefAttr(ApamCapability component, String attr, ApamCapability declaring, String inheritedvalue,  CheckObr validator) {
+		if (declaring == null) {
+			validator.error("In " + component.getName() + ", attribute \"" + attr
 					+ "\" used but not defined.");
 			return null;
 		}
 
-		if (inheritedvalue != null
-				&& !inheritedvalue.equals(parent.getAttrDefault(attr))) {
-			validator.error("Cannot redefine attribute \"" + attr + "\"");
+		if (inheritedvalue != null && !inheritedvalue.equals(declaring.getAttrDefault(attr))) {
+			validator.error("In " + component.getName() + ", cannot redefine attribute \"" + attr + "\"");
 			return null;
 		}
 
-		return defAttr;
+		return declaring.getAttrDefinition(attr);
 	}
 
 	/**
@@ -154,7 +152,7 @@ public final class AttributeCheckHelpers {
 			return false;
 		}
 
-		if (group != null) {
+		if (group != null && Attribute.isInheritedAttribute(name)) {
 			String groupType = group.getAttrDefinition(name);
 			if (groupType != null) {
 				// Allowed only if defining a field, and if types are the same.

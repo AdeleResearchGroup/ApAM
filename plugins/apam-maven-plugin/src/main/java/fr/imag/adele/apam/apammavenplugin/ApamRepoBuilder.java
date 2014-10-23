@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.logging.Log;
+import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
@@ -42,7 +43,7 @@ import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
-import fr.imag.adele.apam.util.ApamMavenProperties;
+import fr.imag.adele.apam.declarations.repository.maven.Classpath;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
@@ -51,8 +52,8 @@ public class ApamRepoBuilder {
 	 * Metadata (in internal format).
 	 */
 
-	private final Set<Versioned<?>> 	bundleRequiresSpecifications 	= new HashSet<>();
-	private final Set<Versioned<?>> 	bundleRequiresImplementations 	= new HashSet<>();
+	private final Set<Versioned<?>> 	bundleRequiresSpecifications 	= new HashSet<Versioned<?>>();
+	private final Set<Versioned<?>> 	bundleRequiresImplementations 	= new HashSet<Versioned<?>>();
 
 	private final ApamCapabilityBroker	broker;
 	private final Artifact artifact;
@@ -65,7 +66,7 @@ public class ApamRepoBuilder {
 	private static final String END_M = "' >\n";
 	private static final String ATT_V = "' v='";
 
-	public ApamRepoBuilder(ApamCapabilityBroker broker, ClasspathDescriptor classpath, List<ComponentDeclaration> components, Artifact artifact, Log logger) {
+	public ApamRepoBuilder(ApamCapabilityBroker broker, Classpath classpath, List<ComponentDeclaration> components, Artifact artifact, Log logger) {
 		this.broker 	= broker;
 		this.components = components;
 		this.validator 	= new CheckObr(classpath,broker, logger);
@@ -134,9 +135,7 @@ public class ApamRepoBuilder {
 
 	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component) {
 		
-   		String bundleVersion = this.artifact.getVersion().replace('-', '.');
-
-		String type = "undefine";
+ 		String type = "undefine";
 		if (component instanceof ImplementationDeclaration) {
 			type = "implementation ";
 		}
@@ -156,8 +155,7 @@ public class ApamRepoBuilder {
 		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT
 				+ END_M);
 		generateProperty(obrContent, component, CST.NAME, component.getName());
-        generateTypedProperty(obrContent, component, "version", "version",bundleVersion);
-
+ 
 		if (component instanceof ImplementationDeclaration) {
 			generateProperty(obrContent, component, CST.COMPONENT_TYPE,
 					CST.IMPLEMENTATION);
@@ -245,17 +243,6 @@ public class ApamRepoBuilder {
 
 		// Require, fields and constraints
 		printRequire(obrContent, component);
-
-		obrContent.append(BEGIN_P + "maven.groupId" + "' t='" + "string"
-				+ ATT_V + this.artifact.getGroupId() + END_P);
-		obrContent.append(BEGIN_P + "maven.artifactId" + "' t='" + "string"
-				+ ATT_V + this.artifact.getArtifactId() + END_P);
-		obrContent.append(BEGIN_P + "maven.version" + "' t='" + "string"
-				+ ATT_V + this.artifact.getVersion() + END_P);
-		
-		obrContent.append(BEGIN_P + "apam.version" + "' t='" + "version"
-				+ ATT_V + ApamMavenProperties.mavenVersion.replace('-', '.')
-				+ END_P);
 
         capability(component).freeze();
 		obrContent.append("   </capability>\n");
@@ -349,8 +336,7 @@ public class ApamRepoBuilder {
 		
 		Map<String, Object> properties = validator.getValidProperties(component);
 		for (String attr : properties.keySet()) {
-			generateProperty(obrContent, component, attr, properties.get(attr)
-					.toString());
+			generateProperty(obrContent, component, attr, properties.get(attr));
 		}
 
 		// definition attributes
@@ -393,10 +379,17 @@ public class ApamRepoBuilder {
 		}
 	}
 
-	private void generateProperty(StringBuffer obrContent, ComponentDeclaration component, String attr, String value) {
-
-		if (broker.get(component).putAttr(attr, value,validator)) {
-			obrContent.append(BEGIN_P + attr + ATT_V + value + END_P);
+	private void generateProperty(StringBuffer obrContent, ComponentDeclaration component, String attr, Object value) {
+		/*
+		 * First we map from APAM property types to corresponding OBR types
+		 */
+		String type = null;
+		if (value instanceof Version) {
+			type ="version";
+		}
+		
+		if (broker.get(component).putAttr(attr, value.toString(),validator)) {
+			obrContent.append(BEGIN_P + attr + (type != null ? "' t='" + type : "") + ATT_V + value + END_P);
 			return;
 		}
 		// validator.error ("Property " + attr + " already defined for  " +

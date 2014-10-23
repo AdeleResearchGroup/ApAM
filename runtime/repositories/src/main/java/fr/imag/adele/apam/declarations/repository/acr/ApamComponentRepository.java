@@ -23,9 +23,10 @@ import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.Reporter;
+import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
-import fr.imag.adele.apam.declarations.encoding.Reporter;
-import fr.imag.adele.apam.declarations.encoding.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.capability.CapabilityParser;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.Versioned;
@@ -219,13 +220,39 @@ public class ApamComponentRepository implements Repository {
             	if (!CapabilityParser.isComponent(capability))
             		continue;
 
-               	cache.put(parser.decode(capability,reporter), resource.getVersion());
+            	ComponentDeclaration component = parser.decode(capability,reporter);
+            	addProperty(component,CST.VERSION, "version", resource.getVersion().toString());
+               	cache.put(component);
             }
             
         }
         
     }
-	
+
+	/**
+	 * Add a property to an existing component
+	 * 
+	 * NOTE We may be modifying a component that has already version information attached (either because the
+	 * component has already been built, and we are loading it as a dependency, or because the user has added
+	 * the information manually) so we need to be careful not to override it
+	 * 
+	 */
+	private static final void addProperty(ComponentDeclaration component, String property, String type, String value) {
+		
+		/*
+		 */
+		PropertyDefinition defintition = component.getPropertyDefinition(property);
+		if (defintition == null) {
+			defintition = new PropertyDefinition(component, property, type, null, null, null, null);
+			component.getPropertyDefinitions().add(defintition);
+		}
+
+		String currentValue = component.getProperty(property);
+		if (currentValue == null) {
+			component.getProperties().put(property, value);
+		}
+	}
+
 
     /**
      * Mock some of the OSGi context to allow using the repository at build time

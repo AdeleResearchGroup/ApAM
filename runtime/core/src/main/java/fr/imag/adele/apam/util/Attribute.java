@@ -358,7 +358,7 @@ public class Attribute {
 	}
 
 	public static boolean isInheritedAttribute(String attr) {
-		if (isReservedAttributePrefix(attr)) {
+		if (isReservedAttributePrefix(attr) || isBuiltAttribute(attr)) {
 			return false;
 		}
 		for (String pred : CST.notInheritedAttribute) {

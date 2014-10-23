@@ -125,7 +125,7 @@ public class ComponentIndex implements Repository {
 	 * if it has not been specified is possible to give a default value to use.
 	 * 
 	 */
-	public void put(ComponentDeclaration component, Version defaultVersion) {
+	public void put(ComponentDeclaration component) {
 		
 		ConcurrentNavigableMap<Version,WeakReference<ComponentDeclaration>> revisions = index.get(component.getReference());
 		
@@ -139,13 +139,10 @@ public class ComponentIndex implements Repository {
 		
 		String encodedVersion = component.getProperty(CST.VERSION);
 		
-		Version version = encodedVersion != null ?  new Version(encodedVersion) : defaultVersion != null ? defaultVersion : Version.emptyVersion;
+		Version version = encodedVersion != null ?  new Version(encodedVersion) : Version.emptyVersion;
 		revisions.put(version, new WeakReference<ComponentDeclaration>(component));
 	}
 
-	public void put(ComponentDeclaration component) {
-		put(component,null);
-	}
 	
 	/**
 	 * Select one revision from the available versions in the index, and purges all garbage collected entries.

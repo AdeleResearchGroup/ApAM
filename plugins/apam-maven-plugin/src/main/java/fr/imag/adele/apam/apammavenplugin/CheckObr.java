@@ -52,6 +52,7 @@ import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
+import fr.imag.adele.apam.declarations.repository.maven.Classpath;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
@@ -67,7 +68,7 @@ public final class CheckObr {
 	public final static String UNDEFINED = "<undefined value>";
 
 	private final ApamCapabilityBroker broker;
-	private final ClasspathDescriptor classpath;
+	private final Classpath classpath;
 	
 	private final Set<String> allFields = new HashSet<String>();
 	private final Set<String> allGrants = new HashSet<String>();
@@ -80,7 +81,7 @@ public final class CheckObr {
 	 * Private constructor protects creating instances from this class (only
 	 * static methods)
 	 */
-	public CheckObr(ClasspathDescriptor classpath, ApamCapabilityBroker broker, Log logger) {
+	public CheckObr(Classpath classpath, ApamCapabilityBroker broker, Log logger) {
 		this.broker 	= broker;
 		this.classpath	= classpath;
 		this.logger 	= logger;
@@ -250,29 +251,30 @@ public final class CheckObr {
 
 	 * @return
 	 */
-	private String getDefAttr(ApamCapability ent, String attr) {
+	private String getDefAttr(ApamCapability component, String attr) {
 		if (Attribute.isFinalAttribute(attr)
-				|| !Attribute.validAttr(ent.getName(), attr)) {
+				|| !Attribute.validAttr(component.getName(), attr)) {
 			return null;
 		}
 
-		String defAttr = null;
-		String inheritedvalue = null;
 
-		ApamCapability parent = ent;
+		ApamCapability declaring 	= null;
+		String inheritedvalue 		= null;
 
-		while (parent != null && inheritedvalue == null) {
-			if (defAttr == null) {
-				defAttr = parent.getAttrDefinition(attr);
+		ApamCapability ancestor = component;
+		while (ancestor != null && declaring == null) {
+
+			if (!ancestor.equals(component) && (inheritedvalue == null)) {
+				inheritedvalue = ancestor.getProperty(attr);
 			}
-			if (!parent.equals(ent)) {
-				inheritedvalue = parent.getProperty(attr);
+			
+			if (ancestor.getAttrDefinition(attr) != null) {
+				declaring = ancestor;
 			}
-			parent = parent.getGroup();
+			ancestor = ancestor.getGroup();
 		}
 
-		return AttributeCheckHelpers.checkDefAttr(ent, attr, defAttr,
-				inheritedvalue, parent, this);
+		return AttributeCheckHelpers.checkDefAttr(component, attr, declaring, inheritedvalue, this);
 	}
 
 	public boolean checkProperty(ComponentDeclaration component, PropertyDefinition definition) {
@@ -722,7 +724,7 @@ public final class CheckObr {
 			return true;
 		}
 		
-		if (classpath.getElementsHavingClass(resource.getJavaType()) == null) {
+		if (! classpath.contains(resource.getJavaType())) {
 			error("Java class " + resource.getJavaType() + " does not exist in your build dependencies");
 			return false;
 		}
@@ -779,8 +781,7 @@ public final class CheckObr {
 
 			// Checking if the exception is existing
 			String except = relation.getMissingException();
-			if (except != null
-					&& classpath.getElementsHavingClass(except) == null) {
+			if (except != null	&& !classpath.contains(except)) {
 				error("Exception " + except + " undefined in " + relation);
 			}
 
@@ -1436,8 +1437,7 @@ public final class CheckObr {
 
 			// Checking if the exception is existing
 			String except = pol.getMissingException();
-			if (except != null
-					&& classpath.getElementsHavingClass(except) == null) {
+			if (except != null && !classpath.contains(except)) {
 				error("Exception " + except + " undefined in " + pol);
 			}
 		}

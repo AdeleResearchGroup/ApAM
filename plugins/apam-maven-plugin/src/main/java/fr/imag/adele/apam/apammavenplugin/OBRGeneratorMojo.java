@@ -16,35 +16,35 @@ package fr.imag.adele.apam.apammavenplugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.felix.ipojo.manipulator.render.MetadataRenderer;
 import org.apache.felix.ipojo.manipulator.store.JarFileResourceStore;
 import org.apache.felix.ipojo.manipulator.store.builder.DefaultManifestBuilder;
 import org.apache.felix.ipojo.metadata.Element;
+import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apammavenplugin.helpers.EnrichElementsHelper;
-import fr.imag.adele.apam.apammavenplugin.helpers.JarHelper;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.encoding.Reporter;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
+import fr.imag.adele.apam.declarations.repository.maven.MavenProjectRepository;
 import fr.imag.adele.apam.util.ApamMavenProperties;
 
 /**
@@ -113,15 +113,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
 
 	
 	/**
-	 * The project file
-	 * 
-	 * @parameter default-value="${project.artifact}"
-	 * @required
-	 * @readonly
-	 */
-	private Artifact artifact;
-
-	/**
 	 * @parameter default-value="${basedir}
 	 */
 	private File baseDirectory;
@@ -170,85 +161,31 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
         }
 
 
-        ClasspathDescriptor classpathDescriptor = new ClasspathDescriptor();
-
-		try {
+        try {
 
 			super.execute();
 
-			JarHelper myHelper = new JarHelper(artifact.getFile(), this);
+			MavenProjectRepository projectRepository = new MavenProjectRepository(project, includeMavenDependencies, ApamMavenProperties.mavenVersion, this);
 
 			getLog().info("ApAM metadata manipulator");
 
+			
 			// The jar to compile
-			List<ComponentDeclaration> components = myHelper.getApAMComponents();
-			if (components.isEmpty()) {
+			if (projectRepository.getComponents().isEmpty()) {
 				throw new InvalidApamMetadataException("No Apam metadata");
 			}
 
-			classpathDescriptor.add(artifact.getFile());
-			/*
-			 * Get the definition of the components needed to compile
-			 */
-			List<ComponentDeclaration> dependencies = new ArrayList<ComponentDeclaration>();
-
-
-			/*
-			 * Get all COMPILE scope dependencies transitively
-			 * 
-			 */
-			Set<Artifact> requiredArtifacts = new HashSet<Artifact>();
-			for (Object artifact : project.getArtifacts()) {
-				if (artifact instanceof Artifact) {
-					requiredArtifacts.add((Artifact) artifact);
-				}				
-			}
-
-			/*
-			 * Add also directly referenced SYSTEM scope dependencies, as they may
-			 * contain required declarations or classes
-			 */
-			for (Object dependency : project.getDependencyArtifacts()) {
-				if (artifact instanceof Artifact) {
-					Artifact artifact = (Artifact) dependency;
-					if ("system".equalsIgnoreCase(artifact.getScope())) {
-						requiredArtifacts.add((Artifact) artifact);
-					}
-				}				
-			}
-			
-			/*
-			 * Load APAM declarations from required artifacts and calculate a classpath to look for
-			 * referenced classes
-			 */
-            if(includeMavenDependencies) {
-                getLog().info("includeMavenDependencies = true, adding ApAM components from maven dependencies");
-                for (Artifact requiredArtifact : requiredArtifacts) {
-
-                    List<ComponentDeclaration> subcomponents = new JarHelper(requiredArtifact.getFile(), this).getApAMComponents();
-                    if (subcomponents != null)
-                        dependencies.addAll(subcomponents);
-
-                    classpathDescriptor.add(requiredArtifact.getFile());
-                }
-            } else {
-                getLog().info("includeMavenDependencies = false, getting ApAM components only from inputAcr");
-            }
-
- 
     		ApamCapabilityBroker broker = null;
     		
             try {
-          		String bundleVersion = project.getArtifact().getVersion().replace('-', '.');
-
-                ApamComponentRepository repository = new ApamComponentRepository(tab_acr.toArray(new URL[0]), this);
-                broker = new ApamCapabilityBroker(components, bundleVersion, dependencies, repository);
+                ApamComponentRepository acr = new ApamComponentRepository(tab_acr.toArray(new URL[0]), this);
+                broker = new ApamCapabilityBroker(projectRepository,acr);
             } catch (Exception exc) {
                 exc.printStackTrace();
                 throw new MojoExecutionException("Exception during initialize of OBR/ACR repositories "+exc.getMessage());
             }
             
-			ApamRepoBuilder builder = new ApamRepoBuilder(broker,classpathDescriptor,components, project.getArtifact(), getLog());
+			ApamRepoBuilder builder = new ApamRepoBuilder(broker,projectRepository.getClasspath(),projectRepository.getComponents(), project.getArtifact(), getLog());
 			StringBuffer obrContent = builder.writeOBRFile();
 			if (builder.hasFailedChecking()) {
 				throw new MojoExecutionException(
@@ -293,7 +230,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
 			// System.err.println("Obr file : " + obrFile.getAbsolutePath());
 			obr.close();
 
-			updateJarFile(myHelper);
+			updateJarFile();
 
 		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
@@ -321,80 +258,115 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements Reporter {
 		}
 	}
 
-	public void updateJarFile(JarHelper myHelper) throws MojoExecutionException {
+	public void updateJarFile() throws MojoExecutionException {
+			
+		File newOutput = new File(baseDirectory.getAbsolutePath()+ File.separator + "target" + File.separator + "_temp.jar");
+		if (newOutput.exists()) {
+			newOutput.delete();
+		}
+
+		JarFile bundle				= null; 
+		JarFileResourceStore store 	= null;
+		
 		try {
-			File newOutput = new File(baseDirectory.getAbsolutePath()
-					+ File.separator + "target" + File.separator + "_temp.jar");
-			if (newOutput.exists()) {
-				newOutput.delete();
+		
+			Artifact artifact 	= project.getArtifact();
+			if (artifact.getFile() == null || !artifact.getFile().exists() || !artifact.getFile().isFile()) {
+				throw new IOException("Error loading jar file for maven artifact "+artifact.getId());
 			}
 
-			JarFileResourceStore store = new JarFileResourceStore(myHelper.getJarFile(), newOutput);
-			store.setManifest(myHelper.getManifest());
+			bundle	= new JarFile(artifact.getFile());
+			store 	= new JarFileResourceStore(bundle,newOutput);
+			
+			Manifest manifest = bundle.getManifest();
+			String componentHeader = manifest.getMainAttributes().getValue("iPOJO-Components");
+			if (componentHeader == null) {
+				return;
+			}
+
+			Element metadata = ManifestMetadataParser.parseHeaderMetadata(componentHeader);
+			store.setManifest(bundle.getManifest());
+
+			
+			ComponentDeclaration template = getVersionedComponentTemplate(artifact); 
+			EnrichElementsHelper.addPropertiesToChildrenApAMComponents(metadata, template.getPropertyDefinitions(), template.getProperties());
 
 			DefaultManifestBuilder builder = new DefaultManifestBuilder();
 			builder.setMetadataRenderer(new MetadataRenderer());
-
-			Element metadata = myHelper.getiPojoMetadata();
-			Set<PropertyDefinition> addedDefinitions = new HashSet<PropertyDefinition>();
-			Map<String, String> addedProperties = new HashMap<String, String>();
-
-			additionalProperties(addedDefinitions,addedProperties);
 			
-
-			EnrichElementsHelper.addPropertiesToChildrenApAMComponents(
-					metadata, addedDefinitions, addedProperties);
-
-			@SuppressWarnings("unchecked")
-			Collection<Element> myCollec = Arrays
-					.asList(metadata.getElements());
-
-			builder.addMetada(myCollec);
+			builder.addMetada(Arrays.asList(metadata.getElements()));
+			
 			store.setManifestBuilder(builder);
-			store.close();
 
-			artifact.getFile().delete();
-
-			newOutput.renameTo(artifact.getFile());
 		} catch (Exception e) {
 			getLog().error(e.getMessage(), e);
 			report(Severity.ERROR, e.getMessage());
 			throw new MojoExecutionException(e.getMessage());
 		}
+		finally {
+			try {
+				if (store != null)
+					store.close();
+			}
+			catch(Exception ignored) {
+			}
+			try {
+				if (bundle != null)
+					bundle.close();
+			}
+			catch(Exception ignored) {
+			}
+			
+		}
 
+		project.getArtifact().getFile().delete();
+		newOutput.renameTo(project.getArtifact().getFile());
+		
+	}
+
+	
+	public static final String PROPERTY_VERSION_APAM 			= "apam.version";
+	public static final String PROPERTY_VERSION_MAVEN_GROUP 	= "maven.groupId";
+	public static final String PROPERTY_VERSION_MAVEN_ARTIFACT 	= "maven.artifactId";
+	public static final String PROPERTY_VERSION_MAVEN_VERSION	= "maven.version";
+	
+	private static final ComponentDeclaration getVersionedComponentTemplate(Artifact artifact) {
+		
+		SpecificationDeclaration template = new SpecificationDeclaration("template");
+		
+		addProperty(template,PROPERTY_VERSION_APAM,"version",ApamMavenProperties.mavenVersion.replace('-', '.'));
+
+		addProperty(template,PROPERTY_VERSION_MAVEN_GROUP,"string",artifact.getGroupId());
+		addProperty(template,PROPERTY_VERSION_MAVEN_ARTIFACT,"string",artifact.getArtifactId());
+		addProperty(template,PROPERTY_VERSION_MAVEN_VERSION,"string",artifact.getVersion());
+		
+		addProperty(template,CST.VERSION,"version",artifact.getVersion().replace('-', '.'));
+		
+		return template;
 	}
 	
-	private void additionalProperties(Set<PropertyDefinition> addedDefinitions,
-			Map<String, String> addedProperties) {
+	/**
+	 * Add a property to an existing component
+	 * 
+	 * NOTE We may be modifying a component that has already version information attached (either because the
+	 * component has already been built, and we are loading it as a dependency, or because the user has added
+	 * the information manually) so we need to be careful not to override it
+	 * 
+	 */
+	private static final void addProperty(ComponentDeclaration component, String property, String type, String value) {
 		
-		//TODO Ugly hardcoded way to add built properties, check another way
-		
-		addedDefinitions.add(new PropertyDefinition(
-				new SpecificationDeclaration("Dummy"), "apam.version",
-				"version", null, null, null, null));
-		addedProperties.put("apam.version",
-				ApamMavenProperties.mavenVersion.replace('-', '.'));
+		/*
+		 */
+		PropertyDefinition defintition = component.getPropertyDefinition(property);
+		if (defintition == null) {
+			defintition = new PropertyDefinition(component, property, type, null, null, null, null);
+			component.getPropertyDefinitions().add(defintition);
+		}
 
-		addedDefinitions.add(new PropertyDefinition(
-				new SpecificationDeclaration("Dummy"), "maven.groupId",
-				"string", null, null, null, null));
-		addedProperties.put("maven.groupId",project.getArtifact().getGroupId());
-		
-		addedDefinitions.add(new PropertyDefinition(
-				new SpecificationDeclaration("Dummy"), "maven.artifactId",
-				"string", null, null, null, null));
-		addedProperties.put("maven.artifactId",project.getArtifact().getArtifactId());
-		
-		addedDefinitions.add(new PropertyDefinition(
-				new SpecificationDeclaration("Dummy"), "maven.version",
-				"string", null, null, null, null));
-		addedProperties.put("maven.version", project.getArtifact().getVersion());
-		
-		addedDefinitions.add(new PropertyDefinition(
-				new SpecificationDeclaration("Dummy"), "version",
-				"version", null, null, null, null));
-		addedProperties.put("version",project.getArtifact().getVersion().replace('-', '.'));
-		
+		String currentValue = component.getProperty(property);
+		if (currentValue == null) {
+			component.getProperties().put(property, value);
+		}
 	}
-
+	
 }

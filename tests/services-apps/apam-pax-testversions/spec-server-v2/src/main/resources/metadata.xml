@@ -9,7 +9,8 @@
     	<definition name="instance-property" type="string" default="instance-property-default"/>
     	
     	<property name="spec-self-property" value="spec-server-v2-property-value"/>
-    	
+    	<relation name="test" specification="other-spec-in-bundle"/> 
+    	<relation name="run" interface="java.lang.Runnable"/> 
     </specification>
     
     <specification name="other-spec-in-bundle"/>

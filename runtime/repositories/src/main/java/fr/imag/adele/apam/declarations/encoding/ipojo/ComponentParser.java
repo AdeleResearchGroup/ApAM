@@ -14,6 +14,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
@@ -31,13 +32,12 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
+import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
-import fr.imag.adele.apam.declarations.encoding.Reporter;
-import fr.imag.adele.apam.declarations.encoding.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser.IntrospectionService;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
@@ -592,9 +592,9 @@ public class ComponentParser implements Decoder<Element> {
 	/**
 	 * Get an implementation reference coded in an attribute
 	 */
-	private <I extends ImplementationDeclaration> ImplementationReference<I> parseImplementationReference(String inComponent, Element element, String attribute, boolean mandatory) {
+	private ImplementationReference<ImplementationDeclaration> parseImplementationReference(String inComponent, Element element, String attribute, boolean mandatory) {
 		String implementation = parseString(inComponent, element, attribute, mandatory);
-		return ((implementation == null) && !mandatory) ? null : new ImplementationReference<I>(implementation);
+		return ((implementation == null) && !mandatory) ? null : new ImplementationReference<ImplementationDeclaration>(implementation);
 	}
 
 	/**

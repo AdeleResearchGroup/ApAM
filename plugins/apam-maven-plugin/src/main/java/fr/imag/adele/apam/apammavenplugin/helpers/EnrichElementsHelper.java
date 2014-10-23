@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apammavenplugin.helpers;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class EnrichElementsHelper {
 	 *            existing value.
 	 */
 	public static void addPropertiesToChildrenApAMComponents(
-			Element rootElement, Set<PropertyDefinition> addedDefinitions,
+			Element rootElement, List<PropertyDefinition> addedDefinitions,
 			Map<String, String> addedProperties)
 			throws InvalidApamMetadataException {
 
@@ -77,7 +78,7 @@ public class EnrichElementsHelper {
 	 *            existing value.
 	 */
 	public static void addPropertiesToSingleApAMComponent(Element element,
-			Set<PropertyDefinition> addedDefinitions,
+			List<PropertyDefinition> addedDefinitions,
 			Map<String, String> addedProperties)
 			throws InvalidApamMetadataException {
 		Map<String, PropertyDefinition> mapAddedDefinitions = new HashMap<String, PropertyDefinition>();

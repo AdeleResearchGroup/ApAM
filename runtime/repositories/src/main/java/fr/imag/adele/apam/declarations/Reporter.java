@@ -1,9 +1,10 @@
-package fr.imag.adele.apam.declarations.encoding;
+package fr.imag.adele.apam.declarations;
 
 
 /**
- * This interface allow coder/decoder to signal errors and other messages found
- * during encoding/decoding
+ * This interface allow different tools that manipulate component declarations 
+ * to report errors and debug information
+ * 
  */
 public interface Reporter {
 

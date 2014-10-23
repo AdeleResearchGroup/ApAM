@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.apammavenplugin;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.osgi.framework.Version;
@@ -14,10 +13,10 @@ import fr.imag.adele.apam.declarations.FeatureReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.Versioned;
-import fr.imag.adele.apam.declarations.repository.ComponentIndex;
 import fr.imag.adele.apam.declarations.repository.Repository;
 import fr.imag.adele.apam.declarations.repository.RepositoryChain;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
+import fr.imag.adele.apam.declarations.repository.maven.MavenProjectRepository;
 
 /**
  * 
@@ -33,7 +32,7 @@ public class ApamCapabilityBroker {
 
 	
     /**
-     * The repository chain to lookup for components : internals, dependencies, externals
+     * The repository chain to lookup for components : project (internal and dependencies), externals
      */
     private final Repository repository;
     
@@ -43,7 +42,7 @@ public class ApamCapabilityBroker {
     private final Map<ComponentDeclaration,ApamCapability> capabilities;
 
 
-    public ApamCapabilityBroker(List<ComponentDeclaration> components, String version, List<ComponentDeclaration> dependencies, ApamComponentRepository acr) {
+    public ApamCapabilityBroker(MavenProjectRepository project, ApamComponentRepository acr) {
     	
     	this.capabilities	= new HashMap<ComponentDeclaration, ApamCapability>();
     	
@@ -51,25 +50,19 @@ public class ApamCapabilityBroker {
     	 * load internals cache
     	 * 
     	 */
-    	Version internalVersion = Version.parseVersion(version);
-    	ComponentIndex internalIndex = new ComponentIndex();
-    	for (ComponentDeclaration internal : components) {
-			internalIndex.put(internal,internalVersion);
-			addCapability(internal,internalVersion);
+    	for (ComponentDeclaration internal : project.getComponents()) {
+			addCapability(internal);
 		}
 
     	/*
     	 * load dependencies cache
     	 * 
-    	 * TODO we should take the default version from the corresponding maven artifact
     	 */
-    	ComponentIndex dependenciesIndex = new ComponentIndex();
-    	for (ComponentDeclaration dependency : dependencies) {
-    		dependenciesIndex.put(dependency);
+    	for (ComponentDeclaration dependency : project.getDependencies()) {
     		addCapability(dependency);
 		}
     
-    	this.repository 	= new RepositoryChain(internalIndex,dependenciesIndex,acr);
+    	this.repository 	= new RepositoryChain(project,acr);
     }
 
     /**
