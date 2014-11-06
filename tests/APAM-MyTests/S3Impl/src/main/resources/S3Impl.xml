@@ -14,9 +14,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="fr.imag.adele.apam  http://repository-apam.forge.cloudbees.com/release/schema/ApamCore-0.0.5.xsd " >    
 
 	<implementation name="S3Impl"
-		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3">
+		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3" shared="false">
 <!-- 		<property name="test" value="bof"/> -->
-		<property name="shared" value="false"  />
 		<relation field="s5" />
 		<definition name="S3Impl-Attr" type="string" />
 		<property name="OS" value="Android" />

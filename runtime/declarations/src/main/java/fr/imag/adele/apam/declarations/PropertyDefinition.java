@@ -39,7 +39,7 @@ public class PropertyDefinition {
 
 	}
 
-	private static String isSetAttrType(String type) {
+	private static String getCollectionElementType(String type) {
 		type = type.trim();
 		if ((type == null) || (type.isEmpty()) || type.charAt(0) != '{') {
 			return null;
@@ -50,7 +50,7 @@ public class PropertyDefinition {
 	/**
 	 * The component in which this property definition is declared
 	 */
-	private final ComponentDeclaration component;
+	private final ComponentReference<?> component;
 
 	/**
 	 * The name of the property
@@ -92,64 +92,38 @@ public class PropertyDefinition {
 	 */
 	private final InjectedPropertyPolicy injected;
 
-	public PropertyDefinition(ComponentDeclaration component, String name,
-			String type, String defaultValue, String field, String callback,
-			InjectedPropertyPolicy injected) {
+	public PropertyDefinition(ComponentReference<?> component, String name, String type, String defaultValue) {
+		this(component, name, type, defaultValue, null, null, InjectedPropertyPolicy.INTERNAL);
+	}
+	
+	public PropertyDefinition(ComponentReference<?> component, String name, String type, String defaultValue, 
+					String field, String callback, InjectedPropertyPolicy injected) {
 
 		assert component != null;
 		assert name != null;
 
-		this.component = component;
-		this.name = name;
-		this.reference = new Reference(component.getReference(), name);
+		this.component 		= component;
+		this.name			= name;
+		this.reference 		= new Reference(component, name);
 
-		String baseType = isSetAttrType(type);
-		this.type = type;
-		this.baseType = baseType != null ? baseType : type;
-		this.isSet = baseType != null;
-		this.defaultValue = defaultValue;
-		this.field = field;
-		this.callback = callback;
-		this.injected = injected;
-	}
+		
+		this.type 			= type;
 
-	public String getBaseType() {
-		return baseType;
-	}
-
-	/**
-	 * Get the update callback, if specified
-	 */
-	public String getCallback() {
-		return callback;
+		String elementType	= getCollectionElementType(type);
+		this.baseType		= elementType != null ? elementType : type;
+		this.isSet 			= elementType != null;
+		
+		this.defaultValue 	= defaultValue;
+		this.field 			= field;
+		this.callback 		= callback;
+		this.injected 		= injected;
 	}
 
 	/**
 	 * The defining component
 	 */
-	public ComponentDeclaration getComponent() {
+	public ComponentReference<?> getComponent() {
 		return component;
-	}
-
-	/**
-	 * Get the default value of the property
-	 */
-	public String getDefaultValue() {
-		return defaultValue;
-	}
-
-	/**
-	 * get the injected field, if specified
-	 */
-	public String getField() {
-		return field;
-	}
-
-	/**
-	 * get the internal property
-	 */
-	public InjectedPropertyPolicy getInjected() {
-		return injected;
 	}
 
 	/**
@@ -173,8 +147,58 @@ public class PropertyDefinition {
 		return type;
 	}
 
+	public String getBaseType() {
+		return baseType;
+	}
+	
 	public boolean isSet() {
 		return isSet;
+	}
+	
+	/**
+	 * Get the default value of the property
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
+	/**
+	 * Whether a defualt value was specified
+	 */
+	public boolean hasDefaultValue() {
+		return defaultValue != null && !defaultValue.isEmpty();
+	}
+	
+	/**
+	 * get the injected field, if specified
+	 */
+	public String getField() {
+		return field;
+	}
+
+	/**
+	 * Get the update callback, if specified
+	 */
+	public String getCallback() {
+		return callback;
+	}
+	
+	/**
+	 * get the internal property
+	 */
+	public InjectedPropertyPolicy getInjected() {
+		return injected;
+	}
+
+	/**
+	 * Computes the effective declaration that is the result of applying the specified refinement
+	 * to this declaration.
+	 * 
+	 * We can only refine the instrumentation of the property 
+	 */
+	public PropertyDefinition refinedBy(PropertyDefinition refinement) {
+		return new PropertyDefinition(this.getComponent(),this.getName(), this.getType(), this.getDefaultValue(),
+						refinement.getField(), refinement.getCallback(), refinement.getInjected());
 	}
 
 	@Override

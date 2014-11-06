@@ -28,7 +28,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<state implementation="S5Impl" property="state"/>
 			
 			<start implementation="S3Impl" name="s3Impl-int">
-				<property name="MyBool" value="true"/>
+				<!-- <property name="MyBool" value="true"/>  -->
 				<relation specification="S4" name="S4">
 					<constraints>
 						<implementation filter="(b=true)"/>

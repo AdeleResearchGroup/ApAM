@@ -849,9 +849,8 @@ implements Component, Comparable<Component> {
 		 */
 		Set<RelationDeclaration> overrides = null;
 		if (this instanceof Instance) {
-			overrides = ((Instance) this).getComposite().getCompType()
-					.getCompoDeclaration().getOverridenDependencies();
-		} else overrides = Collections.<RelationDeclaration> emptySet() ;
+			overrides = ((Instance) this).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
+		} else overrides = Collections.emptySet() ;
 
 		Set<RelationDeclaration> localRelations = new HashSet<RelationDeclaration>();
 		Set<String> processed = new HashSet<String>();
@@ -925,6 +924,38 @@ implements Component, Comparable<Component> {
 	}
 
 	/**
+	 * Given a relation declared in this component, checks if the provided
+	 * override relation matches the relation declaration.
+	 * 
+	 * To be applied on a component C, the override must be such that : id
+	 * matches the override id source must be the name of C or of an ancestor of
+	 * C. target must be the same type (resource of component, and its name must
+	 * match).
+	 * 
+	 */
+	public boolean matchOverride(RelationDeclaration relation,	RelationDeclaration override) {
+
+		// Overrides are currently only valid for instance
+		boolean match = (this instanceof Instance);
+		if (!match) {
+			return false;
+		}
+
+
+		// Check if override source matches this component or one of its
+		// ancestors
+
+		match 			= false;
+		Component group = this;
+		while (group != null && !match) {
+			match = override.refines(group.getDeclaration().getReference(), relation);
+			group = group.getGroup();
+		}
+
+		return match;
+	}
+	
+	/**
 	 * to be called once the Apam entity is fully initialized. 
 	 * Computes all its attributes, including inheritance.
 	 * Checks if initial properties are consistent with the declarations.
@@ -981,16 +1012,12 @@ implements Component, Comparable<Component> {
 		}
 
 		/*
-		 * Add the default values specified in the group for properties not
-		 * explicitly specified
+		 * Add the default values specified in the group for properties not explicitly specified
 		 */
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
-				if (definition.getDefaultValue() != null
-						&& get(definition.getName()) == null
-						&& definition.getInjected() != InjectedPropertyPolicy.INTERNAL) {
-					Object val = Attribute.checkAttrType(definition.getName(),
-							definition.getDefaultValue(), definition.getType());
+				if (definition.hasDefaultValue() && get(definition.getName()) == null && definition.getInjected() != InjectedPropertyPolicy.INTERNAL) {
+					Object val = Attribute.checkAttrType(definition.getName(),definition.getDefaultValue(), definition.getType());
 					if (val != null) {
 						put(definition.getName(), val);
 					}
@@ -1133,8 +1160,7 @@ implements Component, Comparable<Component> {
 
 	public boolean isSubstitute(String attr) {
 		PropertyDefinition def = getDeclaration().getPropertyDefinition(attr);
-		return (def != null && (def.getDefaultValue().charAt(0) == '$' || def
-				.getDefaultValue().charAt(0) == '@'));
+		return (def != null && def.hasDefaultValue() && (def.getDefaultValue().charAt(0) == '$' || def.getDefaultValue().charAt(0) == '@'));
 	}
 
 	/**
@@ -1172,59 +1198,6 @@ implements Component, Comparable<Component> {
 			return false;
 		}
 		return goal == null || f.match(this.getAllProperties());
-	}
-
-	/**
-	 * Given a relation declared in this component, checks if the provided
-	 * override relation matches the relation declaration.
-	 * 
-	 * To be applied on a component C, the override must be such that : id
-	 * matches the override id source must be the name of C or of an ancestor of
-	 * C. target must be the same type (resource of component, and its name must
-	 * match).
-	 * 
-	 */
-	public boolean matchOverride(RelationDeclaration relation,
-			RelationDeclaration override) {
-
-		// Overrides are currently only valid for instance
-		boolean match = (this instanceof Instance);
-		if (!match) {
-			return false;
-		}
-
-		// Check if Ids are compatible
-		match = relation.getIdentifier().matches(override.getIdentifier());
-		if (!match) {
-			return false;
-		}
-
-		// Check if override source matches this component or one of its
-		// ancestors
-		// If no source id is specified in the override it is considered to
-		// always
-		// match
-
-		match = (override.getSourceName() == null);
-		Component group = this;
-		while (group != null && !match) {
-			match = group.getName().matches(override.getSourceName());
-			group = group.getGroup();
-		}
-
-		if (!match) {
-			return false;
-		}
-
-		/*
-		 * Check if targets are compatible Same target: the same specification,
-		 * the same implementation or same resource name with a matching
-		 */
-		// same nature: direct comparison
-		match = relation.getTarget().getClass().equals(override.getTarget().getClass()) && 
-				relation.getTarget().getName().matches(override.getTarget().getName());
-
-		return match;
 	}
 
 	@Override
@@ -1554,8 +1527,7 @@ implements Component, Comparable<Component> {
 		/*
 		 * Internal field attributes cannot be set
 		 */
-		if (definition.getInjected() == InjectedPropertyPolicy.INTERNAL
-				&& !forced) {
+		if (definition.getInjected() == InjectedPropertyPolicy.INTERNAL	&& !forced) {
 			logger.error("In " + this + ", attribute \"" + attr
 					+ "\" is an internal field attribute and cannot be set.");
 			return null;
@@ -1566,11 +1538,16 @@ implements Component, Comparable<Component> {
 		 */
 		ComponentImpl group = (ComponentImpl) this.getGroup();
 		if (group != null && group.get(attr) != null) {
-			// If the attribute above is the default value, it is allowed to
-			// change it
-			if (!group.get(attr).equals(definition.getDefaultValue()) && !Attribute.isBuiltAttribute(attr)) {
-				logger.error("In " + this + ", cannot redefine attribute \""
-						+ attr + "\"");
+			
+			Object groupValue 	= group.get(attr);
+			String defaultValue	= definition.getDefaultValue();
+			
+			boolean isDefault 	= 	defaultValue != null &&
+									groupValue.equals(Attribute.checkAttrType(attr,defaultValue,definition.getType()));
+			
+			// If the attribute above is the default value, it is allowed to change it
+			if (!isDefault && !Attribute.isBuiltAttribute(attr)) {
+				logger.error("In " + this + ", cannot redefine attribute \"" + attr + "\"");
 				return null;
 			}
 		}

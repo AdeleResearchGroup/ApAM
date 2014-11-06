@@ -22,6 +22,7 @@ import fr.imag.adele.apam.ApamComponent;
 //import fr.imag.adele.apam.test.s2.S2;
 //import fr.imag.adele.apam.test.s5.S5;
 
+
 public class S5Impl implements S5, ApamComponent {
 //    S2 s2_inv;
     String state;

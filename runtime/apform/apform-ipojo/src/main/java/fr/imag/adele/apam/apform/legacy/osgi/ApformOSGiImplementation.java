@@ -37,13 +37,20 @@ public class ApformOSGiImplementation extends BaseApformComponent<Implementation
 	/**
 	 * A legacy implementation declaration
 	 */
-	public final static class Declaration extends ImplementationDeclaration {
+	private final static class Declaration extends ImplementationDeclaration {
 
 		protected Declaration(String name, SpecificationReference specification) {
 			super(name, Versioned.any(specification));
 			setInstantiable(false);
 		}
 
+		/**
+		 * Clone declaration
+		 */
+		protected Declaration(Declaration original) {
+			super(original);
+		}
+		
 		@Override
 		protected ImplementationReference<?> generateReference() {
 			return new Reference(getName());

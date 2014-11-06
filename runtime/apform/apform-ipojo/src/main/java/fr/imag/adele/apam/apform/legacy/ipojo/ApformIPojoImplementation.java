@@ -26,7 +26,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
@@ -49,10 +48,18 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 			super(name, null);
 		}
 
+		/**
+		 * Clone declaration
+		 */
+		protected Declaration(Declaration original) {
+			super(original);
+		}
+		
 		@Override
 		protected ImplementationReference<?> generateReference() {
 			return new Reference(getName());
 		}
+
 		
 	}
 	
@@ -89,8 +96,7 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 		 */
 		for(PropertyDescription  property : factory.getComponentDescription().getProperties()) {
 			if (property.isImmutable()) {
-				declaration.getPropertyDefinitions().add(
-						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, InjectedPropertyPolicy.INTERNAL));
+				declaration.getPropertyDefinitions().add( new PropertyDefinition(declaration.getReference(), property.getName(),"string", null));
 				declaration.getProperties().put(property.getName(), property.getValue());
 			}
 		}

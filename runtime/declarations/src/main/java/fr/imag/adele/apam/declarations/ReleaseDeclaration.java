@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ReleaseDeclaration {
@@ -22,12 +23,15 @@ public class ReleaseDeclaration {
 
 	public final Set<String> states;
 
-	public ReleaseDeclaration(RelationDeclaration.Reference relation,
-			Set<String> states) {
+	public ReleaseDeclaration(RelationDeclaration.Reference relation, Set<String> states) {
 		this.relation = relation;
 		this.states = states;
 	}
 
+	public ReleaseDeclaration(ReleaseDeclaration original) {
+		this(original.relation, new HashSet<String>(original.states));
+	}
+	
 	public RelationDeclaration.Reference getrelation() {
 		return relation;
 	}

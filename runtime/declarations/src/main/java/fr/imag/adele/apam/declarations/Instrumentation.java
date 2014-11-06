@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 
 /**
  * The base class of all declarations that require instrumenting (injecting,
@@ -33,28 +34,40 @@ public abstract class Instrumentation {
 				return value;
 			}
 
-			value = evaluate(implementation.getReflection());
+			value = evaluate(reflection);
 			isEvaluated = true;
 			return value;
 		}
 	}
 
 	/**
-	 * The implementation associated to this instrumentation
+	 * The implementation associated with this component
 	 */
-	protected final AtomicImplementationDeclaration implementation;
+	protected final ComponentReference<AtomicImplementationDeclaration> implementation;
+	
+	/**
+	 * The code reflection associated with this instrumentation
+	 */
+	protected final CodeReflection reflection;
 
-	protected Instrumentation(AtomicImplementationDeclaration implementation) {
+	protected Instrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, CodeReflection reflection) {
 		this.implementation = implementation;
+		this.reflection		= reflection;
 	}
 
 	/**
 	 * The component declaring this instrumentation
 	 */
-	public AtomicImplementationDeclaration getImplementation() {
+	public ComponentReference<AtomicImplementationDeclaration> getImplementation() {
 		return implementation;
 	}
 
+	/**
+	 * An unique identifier for this injection, within the scope of the
+	 * declaring implementation
+	 */
+	public abstract String getName();
+	
 	/**
 	 * Whether the instrumentation declaration is valid in the instrumented code
 	 */

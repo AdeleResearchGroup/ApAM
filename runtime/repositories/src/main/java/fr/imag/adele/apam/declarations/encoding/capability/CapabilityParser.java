@@ -35,12 +35,21 @@ import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.util.Attribute;
 
+/**
+ * Parses a component declaration encoded in a capability in an OSGi Bundle Repository.
+ * 
+ * This is the format used by the Apam Component Repository at build time, and the OBR
+ * manager at runtime.
+ * 
+ * @author vega
+ *
+ */
 public class CapabilityParser implements Decoder<Capability> {
 
-	private Reporter reporter;
+	private Reporter 				reporter;
 	
-	private ComponentDeclaration component;
-	private Map<String, Property>  properties;
+	private ComponentDeclaration 	component;
+	private Map<String, Property>	properties;
 	
 	
 	
@@ -76,7 +85,7 @@ public class CapabilityParser implements Decoder<Capability> {
 		String componentName 	= property(CST.NAME);
 		String componentkind	= property(CST.COMPONENT_TYPE);
             
-		info("parsing OBR for : " + componentName + " of type " + componentkind);
+		info("parsing ACR capability for component : " + componentName + " of type " + componentkind);
 
 		switch(kind(componentkind)) {
 			case SPECIFICATION:
@@ -108,7 +117,7 @@ public class CapabilityParser implements Decoder<Capability> {
 	        	String range 														= property(CST.REQUIRE_VERSION);
 	           	Versioned<ImplementationDeclaration> implementationVersion			= Versioned.range(implementation,range);
 
-	        	component = new InstanceDeclaration(implementationVersion, componentName, null);
+	        	component = new InstanceDeclaration(implementationVersion, componentName);
 				break;
 			default:
 		}
@@ -137,7 +146,7 @@ public class CapabilityParser implements Decoder<Capability> {
         	component.setInstantiable(flag(CST.INSTANTIABLE));
         }
 
-        if(isDefined(CST.VERSION)) { // get the OSGi Versioned of the component
+        if(isDefined(CST.VERSION)) {
             component.getProperties().put(CST.VERSION, property(CST.VERSION));
         }
 
@@ -159,23 +168,18 @@ public class CapabilityParser implements Decoder<Capability> {
         for (String propertyName : properties.keySet()) {
             
         	if (isPropertyDefinition(propertyName)) {
-            	info("Property "+propertyName+" is a definition of property");
                 component.getPropertyDefinitions().add(definition(propertyName));
         	}
 
         	if (isRelationDefinition(propertyName)) {
-        		info("Relation "+propertyName+" is a definition of relation");
                 component.getRelations().add(relation(propertyName));
         	}
         
         	if (! isPredefinedProperty(propertyName)) {
-                info("Property " + propertyName + " is not a reserved keyword, it must be an user defined property");
                 component.getProperties().put(propertyName, property(propertyName));
         	}
         }
                 
-        info("Capability matching found : "+component.getName());
-        
         return (result());
 	}
 
@@ -185,7 +189,7 @@ public class CapabilityParser implements Decoder<Capability> {
 
 	private final PropertyDefinition definition(String propertyName) {
     	String property = propertyName.substring(CST.DEFINITION_PREFIX.length());
-    	return new PropertyDefinition(component,property,type(propertyName),property(propertyName),null,null,null);
+    	return new PropertyDefinition(component.getReference(),property,type(propertyName),property(propertyName));
 	}
 
 
@@ -299,15 +303,15 @@ public class CapabilityParser implements Decoder<Capability> {
     	return component != null ? (T) kind.createReference(component) : null;
 	}
 	
-	public final void error(String message) {
+	private final void error(String message) {
 		reporter.report(Severity.ERROR, message);
 	}
 	
-	public final void warning(String message) {
+	private final void warning(String message) {
 		reporter.report(Severity.WARNING, message);
 	}
 
-	public final void info(String message) {
+	private final void info(String message) {
 		reporter.report(Severity.INFO, message);
 	}
 
@@ -337,7 +341,7 @@ public class CapabilityParser implements Decoder<Capability> {
 	}
 	
 	/**
-	 * Convert a component kind as represented internal
+	 * Convert a component kind from its internal representation
 	 */
 	private static ComponentKind kind(String componentkind) {
 		

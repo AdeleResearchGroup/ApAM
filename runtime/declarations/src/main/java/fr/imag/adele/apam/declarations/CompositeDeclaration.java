@@ -76,10 +76,6 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final Set<RelationDeclaration> contextualOverrides;
 
-	/**
-	 * The list of contextual link declarations in this composite
-	 */
-	private final List<LinkDeclaration> contextualLinks;
 
 	/**
 	 * The list of dependencies promotions of this composite
@@ -89,16 +85,51 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	public CompositeDeclaration(String name, Versioned<SpecificationDeclaration> specification, ComponentReference<?> mainComponent) {
 		super(name, specification);
 
-		this.mainComponent = mainComponent;
-
-		this.visibility = new VisibilityDeclaration();
-		this.ownedComponents = new HashSet<OwnedComponentDeclaration>();
-		this.instances = new ArrayList<InstanceDeclaration>();
+		this.mainComponent 		= mainComponent;
+		
+		this.visibility 		= new VisibilityDeclaration();
+		
+		this.ownedComponents 	= new HashSet<OwnedComponentDeclaration>();
+		this.instances 			= new ArrayList<InstanceDeclaration>();
+		
 		this.contextualDependencies = new HashSet<RelationDeclaration>();
-		this.contextualOverrides = new HashSet<RelationDeclaration>();
-		this.contextualLinks = new ArrayList<LinkDeclaration>();
-		this.promotions = new ArrayList<RelationPromotion>();
+		this.contextualOverrides 	= new HashSet<RelationDeclaration>();
+		
+		this.promotions 		= new ArrayList<RelationPromotion>();
 
+	}
+
+	/**
+	 * Clone this declaration
+	 */
+	protected CompositeDeclaration(CompositeDeclaration original) {
+		super(original);
+
+		this.mainComponent 		= original.mainComponent;
+
+		this.visibility 		= new VisibilityDeclaration(original.visibility);
+		
+		this.ownedComponents 	= new HashSet<OwnedComponentDeclaration>();
+		for (OwnedComponentDeclaration ownedDeclaration : original.ownedComponents) {
+			this.ownedComponents.add(new OwnedComponentDeclaration(ownedDeclaration));
+		}
+		
+		this.instances = new ArrayList<InstanceDeclaration>();
+		for (InstanceDeclaration instance : original.instances) {
+			this.instances.add(new InstanceDeclaration(instance));
+		}
+		
+		this.contextualDependencies = new HashSet<RelationDeclaration>();
+		for (RelationDeclaration relation : original.contextualDependencies) {
+			this.contextualDependencies.add(new RelationDeclaration(relation));
+		}
+		
+		this.contextualOverrides = new HashSet<RelationDeclaration>();
+		for (RelationDeclaration override : original.contextualOverrides) {
+			this.contextualOverrides.add(new RelationDeclaration(override));
+		}
+		
+		this.promotions = new ArrayList<RelationPromotion>(original.promotions);
 	}
 
 	/**
@@ -120,17 +151,25 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	}
 	
 	/**
-	 * The list of contextual dependencies
+	 * The list of contextual dependencies, these declarations either refine a matching
+	 * declaration or are added to components inside this composite.
+	 * 
+	 * see {@link RelationDeclaration#refinedBy(RelationDeclaration)} for a description of
+	 * the allowed refinements
 	 */
 	public Set<RelationDeclaration> getContextualDependencies() {
 		return contextualDependencies;
 	}
 
 	/**
-	 * The list of contextual link declarations
+	 * The list of override dependencies, these declaration override matching declarations for
+	 * components inside this composite
+	 * 
+	 * see {@link RelationDeclaration#overriddenBy(RelationDeclaration)} for a description of
+	 * the allowed overrides
 	 */
-	public List<LinkDeclaration> getContextualLinks() {
-		return contextualLinks;
+	public Set<RelationDeclaration> getOverridenDependencies() {
+		return contextualOverrides;
 	}
 
 	/**
@@ -145,13 +184,6 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	public ComponentReference<?> getMainComponent() {
 		return mainComponent;
-	}
-
-	/**
-	 * The list of contextual dependencies
-	 */
-	public Set<RelationDeclaration> getOverridenDependencies() {
-		return contextualOverrides;
 	}
 
 	/**

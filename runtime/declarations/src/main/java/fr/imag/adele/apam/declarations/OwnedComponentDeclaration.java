@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.declarations;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,16 +47,28 @@ public class OwnedComponentDeclaration {
 	 */
 	private final List<GrantDeclaration> denies;
 
-	public OwnedComponentDeclaration(ComponentReference<?> component,
-			String property, Set<String> values) {
-		this.component = component;
-		this.property = property != null ? new PropertyDefinition.Reference(
-				component, property) : null;
-		this.values = values;
-		this.grants = new ArrayList<GrantDeclaration>();
-		this.denies = new ArrayList<GrantDeclaration>();
+	public OwnedComponentDeclaration(ComponentReference<?> component, String property, Set<String> values) {
+		this.component	= component;
+		this.property 	= property != null ? new PropertyDefinition.Reference(component, property) : null;
+		this.values 	= values;
+		this.grants 	= new ArrayList<GrantDeclaration>();
+		this.denies 	= new ArrayList<GrantDeclaration>();
 	}
 
+	public OwnedComponentDeclaration(OwnedComponentDeclaration original) {
+		
+		this(original.component, original.property != null ? original.property.getIdentifier() : null, new HashSet<String>(original.values));
+
+		for (GrantDeclaration grant : original.grants) {
+			this.grants.add(new GrantDeclaration(grant));
+		}
+		
+		for (GrantDeclaration deny : original.denies) {
+			this.denies.add(new GrantDeclaration(deny));
+		}
+		
+	}
+	
 	/**
 	 * The owned component
 	 */

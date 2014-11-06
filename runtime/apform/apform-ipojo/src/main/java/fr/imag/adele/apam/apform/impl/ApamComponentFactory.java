@@ -471,7 +471,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
                     Element definitionDescription = new Element("property", APAM_NAMESPACE);
                     definitionDescription.addAttribute(new Attribute("name", propertyDeclaration.getName()));
                     definitionDescription.addAttribute(new Attribute("type", propertyDeclaration.getType()));
-                    if (propertyDeclaration.getDefaultValue() != null)
+                    if (propertyDeclaration.hasDefaultValue())
                         definitionDescription.addAttribute(new Attribute("value", propertyDeclaration.getDefaultValue().toString()));
                     definitionsDescription.addElement(definitionDescription);
                 }

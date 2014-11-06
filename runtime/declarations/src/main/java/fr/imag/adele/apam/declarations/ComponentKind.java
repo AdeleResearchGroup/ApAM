@@ -9,7 +9,7 @@ import fr.imag.adele.apam.declarations.references.components.SpecificationRefere
  * The different levels of component abstractions.
  * 
  * NOTE Notice that kinds are specified in order of increasing abstraction, to be able to 
- * use the natural order of enumerations (that is based on declaration order)to compare 
+ * use the natural order of enumerations (that is based on declaration order) to compare 
  * abstraction levels
  * 
  * @author vega
@@ -84,6 +84,6 @@ public enum ComponentKind implements Comparable<ComponentKind> {
 	 * Whether this kind is more abstract than the specified one
 	 */
 	public boolean isMoreAbstractThan(ComponentKind that) {
-		return this.compareTo(that) >= 0;
+		return this.compareTo(that) > 0;
 	}
 }

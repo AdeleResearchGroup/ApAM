@@ -14,17 +14,17 @@
  *
  * AttributeCheckHelpers.java - 7 nov. 2013
  */
-package fr.imag.adele.apam.apammavenplugin.helpers;
+package fr.imag.adele.apam.maven.plugin.helpers;
 
 import java.util.Map;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apammavenplugin.ApamCapability;
-import fr.imag.adele.apam.apammavenplugin.CheckObr;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.maven.plugin.ApamCapability;
+import fr.imag.adele.apam.maven.plugin.validation.Validator;
 import fr.imag.adele.apam.util.Attribute;
 
 /**
@@ -83,7 +83,7 @@ public final class AttributeCheckHelpers {
 	 * @return
 	 */
 	public static ApamCapability addAboveAttributes(Map<String, Object> ret,
-			ApamCapability entCap, CheckObr validator) {
+			ApamCapability entCap, Validator validator) {
 		/*
 		 * add the attribute coming from "above" if not already instantiated and
 		 * heritable
@@ -113,7 +113,7 @@ public final class AttributeCheckHelpers {
 	 * @param parent
 	 * @return
 	 */
-	public static String checkDefAttr(ApamCapability component, String attr, ApamCapability declaring, String inheritedvalue,  CheckObr validator) {
+	public static String checkDefAttr(ApamCapability component, String attr, ApamCapability declaring, String inheritedvalue,  Validator validator) {
 		if (declaring == null) {
 			validator.error("In " + component.getName() + ", attribute \"" + attr
 					+ "\" used but not defined.");
@@ -132,7 +132,7 @@ public final class AttributeCheckHelpers {
 	 * @param component
 	 * @param group
 	 */
-	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group, CheckObr validator) {
+	public static boolean checkPropertyDefinition(ComponentDeclaration component, PropertyDefinition definition, ApamCapability group, Validator validator) {
 		
 		String name = definition.getName() ;
 		

@@ -25,7 +25,6 @@ import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.LinkDeclaration;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
@@ -349,7 +348,6 @@ public class ComponentParser implements Decoder<Element> {
 		parsePropertyDefinitions(element, component);
 		parseProperties(element, component);
 		parseRelations(element, component);
-		parseLinks(element, component);
 
 
 		/*
@@ -507,7 +505,6 @@ public class ComponentParser implements Decoder<Element> {
 		parseContextualRelations(content, declaration);
 
 		parseOwnedInstances(content, declaration);
-		parseContextualLinks(content, declaration);
 	}
 
 	/**
@@ -526,24 +523,6 @@ public class ComponentParser implements Decoder<Element> {
 			if (constraint.getName().equals(INSTANCE)) {
 				reference.getInstanceConstraints().add(filter);
 			}
-
-		}
-
-	}
-
-	/**
-	 * parse the contextual links defined in a composite
-	 */
-	private void parseContextualLinks(Element element, CompositeDeclaration composite) {
-
-		/*
-		 * Iterate over all sub elements looking for link declarations
-		 */
-		for (Element link : optional(element.getElements(LINK, APAM))) {
-			/*
-			 * Add to component declaration
-			 */
-			composite.getContextualLinks().add(parseLink(link, composite, true));
 
 		}
 
@@ -574,15 +553,6 @@ public class ComponentParser implements Decoder<Element> {
 
 			if (!declarations.add(relationDeclaration)) {
 				errorHandler.report(Severity.ERROR, "Duplicate relation identifier " + relationDeclaration);
-			}
-
-			/*
-			 * If the relation explicitly defines a target, an implicit link is
-			 * being defined
-			 */
-			String target = parseString(composite.getName(), element, ATT_TARGET, false);
-			if (target != null) {
-				composite.getContextualLinks().add(parseLink(relation, composite, true));
 			}
 
 		}
@@ -720,46 +690,6 @@ public class ComponentParser implements Decoder<Element> {
 
 		errorHandler.report(Severity.ERROR, "in component " + componentName + " invalid value for component kind : \"" + encodedKind + "\",  accepted values are " + KIND_VALUES.toString());
 		return null;
-	}
-
-	/**
-	 * parse a link declaration
-	 */
-	private LinkDeclaration parseLink(Element element, ComponentDeclaration component) {
-		return parseLink(element, component, false);
-	}
-
-	/**
-	 * parse a link declaration
-	 */
-	private LinkDeclaration parseLink(Element element, ComponentDeclaration component, boolean isContextual) {
-
-		String id = parseString(component.getName(), element, ATT_NAME, true);
-		String source = parseString(component.getName(), element, ATT_SOURCE, isContextual);
-		String target = parseString(component.getName(), element, ATT_TARGET, true);
-
-		ComponentReference<?> sourceReference = source != null ? new ComponentReference<ComponentDeclaration>(source) : component.getReference();
-		ComponentReference<?> targetReference = new ComponentReference<ComponentDeclaration>(target);
-
-		return new LinkDeclaration(id, sourceReference, targetReference);
-	}
-
-	/**
-	 * parse the declared links of a component
-	 */
-	private void parseLinks(Element element, ComponentDeclaration component) {
-
-		/*
-		 * Iterate over all sub elements looking for link declarations
-		 */
-		for (Element link : optional(element.getElements(LINK, APAM))) {
-			/*
-			 * Add to component declaration
-			 */
-			component.getPredefinedLinks().add(parseLink(link, component));
-
-		}
-
 	}
 
 	/**
@@ -949,7 +879,13 @@ public class ComponentParser implements Decoder<Element> {
 				methodName = methodName.substring(0, methodName.indexOf("(") - 1);
 			}
 
-			declaration.getProviderInstrumentation().add(new ProviderInstrumentation.MessageProviderMethodInterception(declaration, methodName, methodSignature));
+			ProviderInstrumentation instrumentation = new ProviderInstrumentation.MessageProviderMethodInterception(declaration, methodName, methodSignature);
+
+			if (!instrumentation.isValidInstrumentation()) {
+				errorHandler.report(Severity.ERROR, name + " : the specified method \"" + ATT_PUSH + "\" in \"" + ATT_PUSH + "\" is invalid or not found");
+			}
+
+			declaration.getProviderInstrumentation().add(instrumentation);
 		}
 
 		/*
@@ -1130,7 +1066,7 @@ public class ComponentParser implements Decoder<Element> {
 
 			}
 
-			component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, defaultValue, field, callback, injected));
+			component.getPropertyDefinitions().add(new PropertyDefinition(component.getReference(), name, type, defaultValue, field, callback, injected));
 
 		}
 	}
@@ -1204,12 +1140,10 @@ public class ComponentParser implements Decoder<Element> {
 		ComponentKind targetKind = parseKind(component.getName(), element, ATT_TARGET_KIND, false, null);
 
 		/*
-		 * For atomic components, dependency declarations may optionally have a
-		 * number of nested instrumentation declarations.
+		 * For atomic components, dependency declarations may optionally have a number of nested instrumentation declarations.
 		 * 
-		 * These are parsed first, as a number of attributes of the relation
-		 * that are not explicitly declared can be inferred from the
-		 * instrumentation metadata.
+		 * These are parsed first, as a number of attributes of the relation that are not explicitly declared can be inferred
+		 * from the instrumentation metadata.
 		 */
 
 		List<RequirerInstrumentation> instrumentations = new ArrayList<RequirerInstrumentation>();
@@ -1250,41 +1184,17 @@ public class ComponentParser implements Decoder<Element> {
 
 		}
 
-		/*
-		 * If a target kind is explicitly declared, the specified
-		 * instrumentation fields or method types must match.
-		 */
-		if (targetKind != null) {
-			for (RequirerInstrumentation instrumentation : instrumentations) {
-
-				String javaType = instrumentation.getRequiredResource().getJavaType();
-				ResourceReference resource = targetDef != null ? targetDef.as(ResourceReference.class) : null;
-
-				/*
-				 * NOTE For target kind INSTANCE we can only verify if an
-				 * explicit target resource is specified, otherwise we accept
-				 * the definition and it must be checked at the semantic level.
-				 */
-				boolean match = targetKind.isAssignableTo(javaType) || (targetKind.equals(INSTANCE) && resource != null ? javaType.equals(resource) : true);
-				if (!match) {
-					errorHandler.report(Severity.ERROR, "relation target doesn't match the type of the field or method " + instrumentation.getName() + " in " + element);
-				}
-
-			}
-		}
 
 		/*
-		 * If no ID was explicitly specified, but a single instrumentation was
-		 * declared the the name of the field or method becomes the ID of the
-		 * relation.
+		 * If no ID was explicitly specified, but a single instrumentation was declared the the name of the field or 
+		 * method becomes the ID of the relation.
 		 */
 		if (id == null && instrumentations.size() == 1) {
 			id = instrumentations.get(0).getName();
 		}
 
 		/*
-		 * If no target was explicitly specified, sometimes we can infer it from
-		 * the instrumentation metadata.
+		 * If no target was explicitly specified, sometimes we can infer it from the instrumentation metadata.
 		 */
 		if (!instrumentations.isEmpty() && (targetDef == null || targetKind == null)) {
 
@@ -1347,12 +1257,6 @@ public class ComponentParser implements Decoder<Element> {
 			errorHandler.report(Severity.ERROR, "relation name or target must be specified " + element);
 		}
 
-		/*
-		 * No target was explicitly specified, record this fact
-		 */
-		if (targetDef == null) {
-			targetDef = new ComponentReference<ComponentDeclaration>(Decoder.UNDEFINED);
-		}
 
 		/*
 		 * Get the resolution policies
@@ -1377,14 +1281,24 @@ public class ComponentParser implements Decoder<Element> {
 		/*
 		 * Create the relation and add the declared instrumentation
 		 */
-//		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, sourceName, sourceKind, targetDef, targetKind, creationPolicy, (resolvePolicy != null ? resolvePolicy : ResolvePolicy.EXIST), isMultiple, missingPolicy, missingException, isOverride, mustHide != null ? Boolean.valueOf(mustHide) : null);
-		RelationDeclaration relation = new RelationDeclaration(component.getReference(), id, sourceName, sourceKind, targetDef, targetKind, creationPolicy, resolvePolicy, 
-				isMultiple, missingPolicy, missingException, isOverride, mustHide != null ? Boolean.valueOf(mustHide) : null);
+		RelationDeclaration relation;
+		if (! isContextual) {
+			relation = new RelationDeclaration(component.getReference(), id, sourceKind, targetDef, targetKind, isMultiple,
+								creationPolicy, resolvePolicy, 
+								missingPolicy, missingException, mustHide != null ? Boolean.valueOf(mustHide) : null); 
+		}
+		else {
+			relation = new RelationDeclaration(component.getReference(), id, sourceKind, targetDef, targetKind, isMultiple,
+					creationPolicy, resolvePolicy, 
+					missingPolicy, missingException, mustHide != null ? Boolean.valueOf(mustHide) : null,
+					true, sourceName, isOverride);
+		}
+					
 
 		for (RequirerInstrumentation instrumentation : instrumentations) {
-			instrumentation.setRelation(relation);
+			relation.getInstrumentations().add(instrumentation);
 		}
-
+		
 		/*
 		 * look for bind and unbind callbacks
 		 */
@@ -1506,14 +1420,6 @@ public class ComponentParser implements Decoder<Element> {
 				errorHandler.report(Severity.ERROR, "Duplicate relation identifier " + relationDeclaration);
 			}
 
-			/*
-			 * If the relation explicitly defines a target, an implicit link is
-			 * being defined
-			 */
-			String target = parseString(component.getName(), element, ATT_TARGET, false);
-			if (target != null) {
-				component.getPredefinedLinks().add(parseLink(relation, component));
-			}
 		}
 
 	}
@@ -1550,7 +1456,7 @@ public class ComponentParser implements Decoder<Element> {
 
 		if (attribute.equals(Decoder.UNDEFINED) && mandatory) {
 			errorHandler.report(Severity.ERROR, "component name or resource must be specified in " + element.getName());
-			return new ComponentReference<ComponentDeclaration>(Decoder.UNDEFINED);
+			return new UnknownReference(new ResourceReference(Decoder.UNDEFINED));
 		}
 
 		if (attribute.equals(Decoder.UNDEFINED) && !mandatory) {
@@ -1577,7 +1483,7 @@ public class ComponentParser implements Decoder<Element> {
 
 		if (mandatory) {
 			errorHandler.report(Severity.ERROR, "component name or resource must be specified in " + element.getName());
-			return new ComponentReference<ComponentDeclaration>(Decoder.UNDEFINED);
+			return  new UnknownReference(new ResourceReference(Decoder.UNDEFINED));
 		}
 
 		return null;

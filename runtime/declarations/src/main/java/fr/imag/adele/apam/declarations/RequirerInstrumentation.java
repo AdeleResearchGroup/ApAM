@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
@@ -61,7 +62,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		};
 
 		protected InjectedField(AtomicImplementationDeclaration implementation,	String field) {
-			super(implementation);
+			super(implementation.getReference(), implementation.getReflection());
 			this.field = field;
 		}
 
@@ -96,6 +97,26 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 			return "field " + getName();
 		}
 
+		@Override
+		public int hashCode() {
+			return field.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object object) {
+			
+			if (this == object)
+				return true;
+			
+			if (object == null)
+				return false;
+			
+			if (!(object instanceof InjectedField))
+				return false;
+			
+			InjectedField that = (InjectedField) object;
+			return this.field.equals(that.field);
+		}
 	}
 
 	/**
@@ -118,7 +139,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 		};
 
 		public MessageConsumerCallback(AtomicImplementationDeclaration implementation, String methodName) {
-			super(implementation);
+			super(implementation.getReference(), implementation.getReflection());
 			this.methodName = methodName;
 		}
 
@@ -177,7 +198,7 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 	 */
 	public static class RequiredServiceField extends InjectedField {
 
-		public RequiredServiceField(AtomicImplementationDeclaration implementation, String fieldName) {
+		public RequiredServiceField(AtomicImplementationDeclaration implementation,String fieldName) {
 			super(implementation,fieldName);
 		}
 
@@ -199,50 +220,21 @@ public abstract class RequirerInstrumentation extends Instrumentation {
 
 	}
 
-	/**
-	 * The relation used to satisfy the requirement.
-	 */
-	protected RelationDeclaration relation;
 
-	protected RequirerInstrumentation(AtomicImplementationDeclaration implementation) {
-		super(implementation);
-		this.implementation.getRequirerInstrumentation().add(this);
+	protected RequirerInstrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, CodeReflection reflection) {
+		super(implementation,reflection);
 	}
-
+	
 	/**
 	 * Whether this instrumentation can handle multi-valued relations
 	 */
 	public abstract boolean acceptMultipleProviders();
 
-	/**
-	 * An unique identifier for this injection, within the scope of the
-	 * declaring implementation and relation
-	 */
-	public abstract String getName();
-
-	/**
-	 * Get the relation that will be used to satisfy the requirement.
-	 */
-	public RelationDeclaration getRelation() {
-		return relation;
-	}
 
 	/**
 	 * The type of the java resource that needs to be provided by the target
 	 * component at runtime to perform this instrumentation
 	 */
 	public abstract ResourceReference getRequiredResource();
-
-	/**
-	 * Sets the relation that will be used to satisfy the requirement.
-	 */
-	public void setRelation(RelationDeclaration relation) {
-
-		assert relation.getComponent() == implementation.getReference();
-
-		// bidirectional reference to relation
-		this.relation = relation;
-		this.relation.getInstrumentations().add(this);
-	}
 
 }

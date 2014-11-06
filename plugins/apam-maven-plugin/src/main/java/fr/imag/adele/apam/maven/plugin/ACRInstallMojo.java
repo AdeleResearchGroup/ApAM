@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.apammavenplugin;
+package fr.imag.adele.apam.maven.plugin;
 
 import org.apache.felix.obrplugin.Config;
 import org.apache.felix.obrplugin.ObrUpdate;
@@ -87,10 +87,6 @@ public final class ACRInstallMojo extends AbstractMojo {
      */
     private Artifact m_docArtifact;
 
-    /**
-     * Remote repository id, used to lookup authentication settings.
-     */
-    private String repositoryId;
 
     private static final String DOT_XML = ".xml";
     public static final String REPO_XML = "acr_repository.xml";
@@ -135,7 +131,6 @@ public final class ACRInstallMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         getLog().info("execute(), outputAcr : " + outputAcr);
         URI repoXML = getTargetACR(outputAcr);
-        repositoryId = localRepository.getId();
 
         if (repoXML != null) {
             String projectType = project.getPackaging();

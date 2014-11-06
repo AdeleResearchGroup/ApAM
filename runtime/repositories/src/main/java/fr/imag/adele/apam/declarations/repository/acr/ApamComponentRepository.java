@@ -1,24 +1,13 @@
 package fr.imag.adele.apam.declarations.repository.acr;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
-import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
-import org.apache.felix.utils.log.Logger;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.ServiceListener;
 import org.osgi.framework.Version;
 
 import fr.imag.adele.apam.CST;
@@ -53,18 +42,14 @@ public class ApamComponentRepository implements Repository {
     private final RepositoryAdmin 	manager;
     private final ComponentIndex	cache;
     
-    public ApamComponentRepository(URL[] repositories, Reporter reporter) throws Exception {
-    	this(mockManager(repositories), repositories, reporter);
-        info("RepositoryAdmin created successfully (with mocked BundleContext)");
-    }
-    
-    public ApamComponentRepository(RepositoryAdmin manager, URL[] repositories, Reporter reporter) throws Exception {
+     
+    public ApamComponentRepository(RepositoryAdmin manager, List<URL> repositories, Reporter reporter) throws Exception {
     	
     	this.reporter 	= reporter;
         this.cache 		= new ComponentIndex();
 
     	
-        if (repositories == null || repositories.length == 0) {
+        if (repositories == null || repositories.isEmpty()) {
         	info("No repository URLs specified");
         	this.manager = null;
         	return;
@@ -76,6 +61,7 @@ public class ApamComponentRepository implements Repository {
         for (URL repository : repositories) {
             try {
             	manager.addRepository(repository);
+            	info("Repository location "+repository+ " added to ACR");
             } catch (Exception exc) {
                 warning("Error when adding repository " + repository + ", reason " + exc.getMessage());
             }
@@ -87,41 +73,60 @@ public class ApamComponentRepository implements Repository {
 
     }
 
+    /**
+     * Get the bundle repository manager used by this component repository 
+     */
+    public RepositoryAdmin getManager() {
+    	return manager;
+    }
+    
 	/**
 	 * Get the OBR filter corresponding to a given version range specification
 	 */
 	public static String filter(Versioned<?> referenceRange) throws ParseException {
         
-		String range			= referenceRange.getRange();
-		
-		if (range == null)
-			throw new ParseException("Version is empty ",0);
+		String name		= referenceRange.getName();
+		String range	= referenceRange.getRange();
 		
 		StringBuilder filter	= new StringBuilder();
-        	
-        int rangeSeparator 	= range.indexOf(",");
-        if(rangeSeparator != -1) {
+		
+		
+		if (range == null) {
+			filter.append("(name=").append(name).append(")");
+		}
+		else {
+			
+			filter.append("(& ");
+			
+			filter.append("(name=").append(name).append(")");
+			
+			
+	        int rangeSeparator 	= range.indexOf(",");
+	        if(rangeSeparator != -1) {
 
-        	if ( !range.startsWith("(") && !range.startsWith("["))
-            	throw new ParseException("Versioned range does not start with a correct  delimiter",1);
-            	
-        	if ( !range.endsWith(")") && !range.endsWith("]"))
-        		throw new ParseException("Versioned range does not end with a correct  delimiter",range.length());
+	        	if ( !range.startsWith("(") && !range.startsWith("["))
+	            	throw new ParseException("Versioned range does not start with a correct  delimiter",1);
+	            	
+	        	if ( !range.endsWith(")") && !range.endsWith("]"))
+	        		throw new ParseException("Versioned range does not end with a correct  delimiter",range.length());
 
-        	String start 	= range.substring(1,rangeSeparator);
-        	String end		= range.substring(rangeSeparator+1,range.length()-1);
-            	
-        	version(start);
-        	version(end);
-            	
-            limit(filter,start,true,range.startsWith("["));
-            limit(filter,end,false,range.endsWith("]"));
-                
-        } else {
-        	version(range);
-        	filter.append("("+CST.VERSION+"=").append(range).append(")");
-        }
-
+	        	String start 	= range.substring(1,rangeSeparator).trim();
+	        	String end		= range.substring(rangeSeparator+1,range.length()-1).trim();
+	            	
+	        	version(start);
+	        	version(end);
+	            	
+	            limit(filter,start,true,range.startsWith("["));
+	            limit(filter,end,false,range.endsWith("]"));
+	                
+	        } else {
+	        	version(range);
+	        	filter.append("("+CST.VERSION+"=").append(range).append(")");
+	        }
+			
+	        filter.append(")");
+		}
+		
         return filter.toString();
 	}
 	
@@ -150,7 +155,7 @@ public class ApamComponentRepository implements Repository {
     
 	@Override
 	public <C extends ComponentDeclaration> C getComponent(ComponentReference<C> reference) {
-		return getComponent(Versioned.any(reference));
+		return reference != null? getComponent(Versioned.any(reference)) : null;
 	}
 
 	@Override
@@ -177,33 +182,22 @@ public class ApamComponentRepository implements Repository {
 	}
 
     /**
-     * Loads in the cache all declarations found in ACR containing the specified versions of the component.
+     * Loads in the cache all declarations found in resources of ACR that contain the specified 
+     * component version.
      */
 	private void loadResources(Versioned<?> referenceRange) throws Exception {
 
-		String name 		= referenceRange.getName();
-		String versionRange = referenceRange.getRange();
 		
-        info("loading resources containing apam-component : "+name+", version range :"+versionRange);
+        info("loading resources containing apam-component : "+referenceRange.getName()+", version range :"+referenceRange.getRange());
 
         if(manager == null || manager.listRepositories() == null || manager.listRepositories().length == 0) {
             info("No valid repository, returning empty capability list");
             return;
         }
 
-        String requirement;
-
-        if(versionRange != null && !versionRange.isEmpty()) {
-            requirement= "(&(name="+name+")";
-            requirement+=filter(referenceRange);
-            requirement+=")";
-        } else {
-            requirement= "(name="+name+")";
-        }
-
-        info("requirement research (ldap filter) "+ requirement);
+        info("requirement research (ldap filter) "+ filter(referenceRange));
         Resource[] resources = manager.discoverResources(new Requirement[] {
-        							manager.getHelper().requirement("apam-component", requirement)}
+        							manager.getHelper().requirement("apam-component", filter(referenceRange))}
         						);
 
         if(resources == null || resources.length<1) {
@@ -221,7 +215,33 @@ public class ApamComponentRepository implements Repository {
             		continue;
 
             	ComponentDeclaration component = parser.decode(capability,reporter);
+
+        		/*
+        		 * Components coming from the ACR have inherited properties and default values added
+        		 * at build time, and the declaration stored in the repository is actually effective.
+        		 * 
+        		 * However, we must allow members of a group to define properties that are not valued
+        		 * in the group, sowe remove then automatically the default values
+        		 * 
+        		 * TODO We need a way to distinguish default values added at build time, from explicitly
+        		 * defined properties that happen to have the same value
+        		 */
+    			for (PropertyDefinition property : component.getPropertyDefinitions()) {
+    				
+    				String defaultValue = property.getDefaultValue();
+    				String value		= component.getProperty(property.getName());
+    				
+    				if (value != null &&  defaultValue != null && defaultValue.equals(value)) {
+    					component.getProperties().remove(property.getName());
+    				}
+    			}
+            	
+            	/*
+            	 * Add version if not specified
+            	 */
             	addProperty(component,CST.VERSION, "version", resource.getVersion().toString());
+            	
+            	
                	cache.put(component);
             }
             
@@ -232,7 +252,7 @@ public class ApamComponentRepository implements Repository {
 	/**
 	 * Add a property to an existing component
 	 * 
-	 * NOTE We may be modifying a component that has already version information attached (either because the
+	 * NOTE We may be modifying a component that has already property information attached (either because the
 	 * component has already been built, and we are loading it as a dependency, or because the user has added
 	 * the information manually) so we need to be careful not to override it
 	 * 
@@ -243,7 +263,7 @@ public class ApamComponentRepository implements Repository {
 		 */
 		PropertyDefinition defintition = component.getPropertyDefinition(property);
 		if (defintition == null) {
-			defintition = new PropertyDefinition(component, property, type, null, null, null, null);
+			defintition = new PropertyDefinition(component.getReference(), property, type, null);
 			component.getPropertyDefinitions().add(defintition);
 		}
 
@@ -252,44 +272,6 @@ public class ApamComponentRepository implements Repository {
 			component.getProperties().put(property, value);
 		}
 	}
-
-
-    /**
-     * Mock some of the OSGi context to allow using the repository at build time
-     */
-
-    private static RepositoryAdmin mockManager(URL[] repositories) throws Exception {
-    	
-    	if (repositories == null || repositories.length == 0)
-    		return null;
-    	
-        BundleContext bundleContext = mock(BundleContext.class);
-        Bundle systemBundle = mock(Bundle.class);
-
-        // TODO: Change this one
-        when(bundleContext.getProperty(RepositoryAdminImpl.REPOSITORY_URL_PROP))
-                .thenReturn(repositories[0].toExternalForm());
-
-        when(bundleContext.getProperty(anyString())).thenReturn(null);
-        when(bundleContext.getBundle(0)).thenReturn(systemBundle);
-        when(systemBundle.getHeaders()).thenReturn(new Hashtable<String,String>());
-        when(systemBundle.getRegisteredServices()).thenReturn(null);
-        when(new Long(systemBundle.getBundleId())).thenReturn(new Long(0));
-        when(systemBundle.getBundleContext()).thenReturn(bundleContext);
-        bundleContext.addBundleListener((BundleListener) anyObject());
-        bundleContext.addServiceListener((ServiceListener) anyObject());
-        when(bundleContext.getBundles()).thenReturn(new Bundle[]{systemBundle});
-
-        RepositoryAdminImpl repoAdmin = new RepositoryAdminImpl(bundleContext, new Logger(bundleContext));
-
-        // force initialization && remove all initial repositories
-        org.apache.felix.bundlerepository.Repository[] repos = repoAdmin.listRepositories();
-        for (int i = 0; repos != null && i < repos.length; i++) {
-            repoAdmin.removeRepository(repos[i].getURI());
-        }
-
-        return repoAdmin;
-    }
 
 	public final void error(String message) {
 		reporter.report(Severity.ERROR, message);

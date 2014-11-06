@@ -16,10 +16,6 @@
 
 It includes representation formats, storage, versionning, indexing</description>
 	
-	<properties>
-	        <mockito.version>1.8.5</mockito.version>
-	        <mockito.version>1.9.5</mockito.version>
-	</properties>
 		
 	<dependencies>
 	
@@ -40,6 +36,7 @@ It includes representation formats, storage, versionning, indexing</description>
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.metadata</artifactId>
@@ -50,6 +47,7 @@ It includes representation formats, storage, versionning, indexing</description>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.utils</artifactId>
@@ -60,17 +58,12 @@ It includes representation formats, storage, versionning, indexing</description>
 			<artifactId>maven-project</artifactId>
 			<version>2.2.1</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
 			<version>3.0.4</version>
 		</dependency>
-
-	        <dependency>
-			 <groupId>org.mockito</groupId>
-			 <artifactId>mockito-all</artifactId>
-			 <version>${mockito.version}</version>
-	        </dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -46,7 +46,7 @@ public class ComponentIndex implements Repository {
 	
 	@Override
 	public <C extends ComponentDeclaration> C getComponent(ComponentReference<C> reference) {
-		return getComponent(Versioned.any(reference));
+		return reference != null ? getComponent(Versioned.any(reference)) : null;
 	}
 
 	@Override

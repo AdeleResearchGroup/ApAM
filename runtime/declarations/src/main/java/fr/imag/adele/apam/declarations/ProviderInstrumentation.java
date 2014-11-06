@@ -15,14 +15,14 @@
 package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 
 /**
- * The declaration of a code instrumentation (injection, interception,
- * invocation, ...) that must be performed at runtime to implement the actual
- * execution semantics of the the providing end of a dependency.
+ * The declaration of a code instrumentation (injection, interception, invocation, ...) that must be performed
+ * at runtime to implement the actual execution semantics of the the providing end of a dependency.
  * 
  * @author vega
  * 
@@ -34,8 +34,7 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 	 * on intercepting the return value of a method invocation
 	 * 
 	 */
-	public static class MessageProviderMethodInterception extends
-			ProviderInstrumentation {
+	public static class MessageProviderMethodInterception extends ProviderInstrumentation {
 
 		/**
 		 * The name of the method that must be intercepted
@@ -55,18 +54,15 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 			@Override
 			protected MessageReference evaluate(CodeReflection reflection) {
 				try {
-					return new MessageReference(reflection.getMethodReturnType(
-							methodName, methodSignature, false));
+					return new MessageReference(reflection.getMethodReturnType(methodName, methodSignature, false));
 				} catch (NoSuchMethodException e) {
 					return null;
 				}
 			}
 		};
 
-		public MessageProviderMethodInterception(
-				AtomicImplementationDeclaration implementation,
-				String methodName, String methodSignature) {
-			super(implementation);
+		public MessageProviderMethodInterception(AtomicImplementationDeclaration implementation, String methodName, String methodSignature) {
+			super(implementation.getReference(), implementation.getReflection());
 
 			assert methodName != null;
 
@@ -110,25 +106,14 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 
 		@Override
 		public String toString() {
-			return "method " + methodName + ": "
-					+ getProvidedResource().getJavaType();
+			return "method " + methodName + ": " + getProvidedResource().getJavaType();
 		}
 
 	}
 
-	protected ProviderInstrumentation(
-			AtomicImplementationDeclaration implementation) {
-
-		super(implementation);
-
-		assert implementation != null;
+	protected ProviderInstrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, CodeReflection reflection) {
+		super(implementation,reflection);
 	}
-
-	/**
-	 * An unique identifier for this injection, within the scope of the
-	 * declaring implementation
-	 */
-	public abstract String getName();
 
 	/**
 	 * The type of the java resource that needs to be provided at runtime by the

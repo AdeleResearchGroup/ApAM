@@ -705,13 +705,6 @@ public class RelToResolveImpl implements RelToResolve {
 		return target.getDeclaration().getProvidedResources().contains(getTarget());
 	}
 
-	/**
-	 * Get the effective result of refining this relation by the specified
-	 * partial declaration
-	 */
-	public RelationDeclaration refinedBy(RelationDeclaration refinement) {
-		return getDeclaration() != null ? getDeclaration().refinedBy(refinement) : refinement;
-	}
 
 	@Override
 	public String toString() {

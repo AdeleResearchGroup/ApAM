@@ -103,38 +103,40 @@ public class RelationInjectionHandler extends ApformHandler {
             return;
 
         AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) declaration;
-		for (RequirerInstrumentation injection : primitive.getRequirerInstrumentation()) {
+        for (RelationDeclaration relation : primitive.getRelations()) {
+    		for (RequirerInstrumentation injection : relation.getInstrumentations()) {
 
-            /*
-             * Get the field interceptor depending on the kind of reference
-             */
+                /*
+                 * Get the field interceptor depending on the kind of reference
+                 */
 
-            InterfaceReference interfaceReference = injection.getRequiredResource().as(InterfaceReference.class);
-            MessageReference messageReference = injection.getRequiredResource().as(MessageReference.class);
-            FieldInterceptor interceptor = null;
-            try {
+                InterfaceReference interfaceReference = injection.getRequiredResource().as(InterfaceReference.class);
+                MessageReference messageReference = injection.getRequiredResource().as(MessageReference.class);
+                FieldInterceptor interceptor = null;
+                try {
 
-                if (interfaceReference != null)
-                    interceptor = new InterfaceInjectionManager(getFactory(), getInstanceManager(), this, injection);
+                    if (interfaceReference != null)
+                        interceptor = new InterfaceInjectionManager(getFactory(), getInstanceManager(), this, relation, injection);
 
-                if (messageReference != null)
-                    interceptor = new MessageInjectionManager(getFactory(), getInstanceManager(), this, injection);
+                    if (messageReference != null)
+                        interceptor = new MessageInjectionManager(getFactory(), getInstanceManager(), this, relation, injection);
 
-                if (interceptor == null)
-                    continue;
+                    if (interceptor == null)
+                        continue;
 
-            } catch (ClassNotFoundException error) {
-				throw new ConfigurationException("error injecting relation "
-						+ injection.getName() + " :"
-                        + error.getLocalizedMessage());
+                } catch (ClassNotFoundException error) {
+    				throw new ConfigurationException("error injecting relation "
+    						+ injection.getName() + " :"
+                            + error.getLocalizedMessage());
+                }
+
+                if (injection instanceof RequirerInstrumentation.InjectedField) {
+                    FieldMetadata field = getPojoMetadata().getField(injection.getName());
+                    if (field != null)
+                        getInstanceManager().register(field, interceptor);
+                }
             }
-
-            if (injection instanceof RequirerInstrumentation.InjectedField) {
-                FieldMetadata field = getPojoMetadata().getField(injection.getName());
-                if (field != null)
-                    getInstanceManager().register(field, interceptor);
-            }
-        }
+		}
 
         /*
          * Load callback into the ApamInstanceManager

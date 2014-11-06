@@ -33,9 +33,21 @@ import fr.imag.adele.apam.declarations.references.components.Versioned;
  */
 public class SpecificationDeclaration extends ComponentDeclaration {
 
+	/**
+	 * Create an empty declration
+	 */
 	public SpecificationDeclaration(String name) {
 		super(name);
 	}
+
+	
+	/**
+	 * Clone this declaration
+	 */
+	protected SpecificationDeclaration(SpecificationDeclaration original) {
+		super(original);
+	}
+
 
 	@Override
 	protected SpecificationReference generateReference() {

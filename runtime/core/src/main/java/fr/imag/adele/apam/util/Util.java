@@ -19,7 +19,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -111,29 +113,8 @@ public final class Util {
 	 * @return a string array. Never null, but can be length 0
 	 */
 	public static String[] split(String str) {
-		if ((str == null) || (str.length() == 0)) {
-			return new String[0];
-		}
-
-		str = str.trim();
-		if (str.length() == 0) {
-			return new String[0];
-		}
-
-		// It is an explicit set. Remove braces.
-		if (str.charAt(0) == '{') {
-			if (str.charAt(str.length() - 1) != '}') {
-				logger.error("Invalid string. \"}\" missing: " + str);
-			}
-			str = (str.substring(1, str.length() - 1)).trim();
-			// It was an empty set ("{}"
-			if (str.length() == 0) {
-				return new String[0];
-			}
-		}
-
-		// It is a simple set of values or a singleton
-		return stringArrayTrim(str.split(","));
+		List<String> split = splitList(str); 
+		return split.toArray(new String[split.size()]);
 	}
 
 	/**
@@ -143,11 +124,41 @@ public final class Util {
 	 * @return
 	 */
 	public static List<String> splitList(String str) {
-		return Arrays.asList(Util.split(str));
+		if (str == null || str.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		str = str.trim();
+		if (str.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// It is an explicit set. Remove braces.
+		if (str.charAt(0) == '{') {
+			if (str.charAt(str.length() - 1) != '}') {
+				logger.error("Invalid string. \"}\" missing: " + str);
+			}
+			str = (str.substring(1, str.length() - 1)).trim();
+			// It was an empty set ("{}"
+			if (str.isEmpty()) {
+				return Collections.emptyList();
+			}
+		}
+
+		String[] elements	= str.split(",");
+		List<String> result = new ArrayList<String>(elements.length);
+		
+		for (String element : elements) {
+			if (element != null &&  !element.trim().isEmpty()) {
+				result.add(element.trim());
+			}
+		}
+
+		return result;
 	}
 
 	public static Set<String> splitSet(String str) {
-		return new HashSet<String>(Arrays.asList(Util.split(str)));
+		return new HashSet<String>(Util.splitList(str));
 	}
 
 	/**
@@ -168,13 +179,6 @@ public final class Util {
 		return sVal.toString();
 	}
 
-	public static String[] stringArrayTrim(String[] strings) {
-		String[] ret = new String[strings.length];
-		for (int i = 0; i < strings.length; i++) {
-			ret[i] = strings[i].trim();
-		}
-		return ret;
-	}
 
 	/**
 	 * Transforms an array of string in a string list in the Ldap format

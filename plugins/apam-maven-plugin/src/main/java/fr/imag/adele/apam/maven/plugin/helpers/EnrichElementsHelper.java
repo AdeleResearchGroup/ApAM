@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apammavenplugin.helpers;
+package fr.imag.adele.apam.maven.plugin.helpers;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +9,12 @@ import java.util.Set;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 
-import fr.imag.adele.apam.apammavenplugin.InvalidApamMetadataException;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.InjectedPropertyPolicy;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.maven.plugin.InvalidApamMetadataException;
 
 /**
  * Helper class to add properties to an ApAM Component using its iPOJO metadata
@@ -115,7 +116,7 @@ public class EnrichElementsHelper {
 					.getType()));
 			}
 			
-			if(def.getDefaultValue()!= null) {
+			if(def.hasDefaultValue()) {
 			toAdd.addAttribute(new Attribute(ComponentParser.ATT_DEFAULT,
 					def.getDefaultValue()));
 			}
@@ -200,24 +201,17 @@ public class EnrichElementsHelper {
 							"Property definition error (type mismatch) for property "
 									+ name);
 
-				String defaultVal = subElement
-						.getAttribute(ComponentParser.ATT_DEFAULT);
-				if (defaultVal != null
-						&& !defaultVal.equals(mapAddedDefinitions.get(name)
-								.getDefaultValue()))
+				String defaultVal = subElement.getAttribute(ComponentParser.ATT_DEFAULT);
+				if (defaultVal != null	&& mapAddedDefinitions.get(name).hasDefaultValue() && !defaultVal.equals(mapAddedDefinitions.get(name).getDefaultValue()))
 					throw new InvalidApamMetadataException(
 							"Property definition error (default value mismatch) for property "
 									+ name);
 
-				String field = subElement
-						.getAttribute(ComponentParser.ATT_FIELD);
-				String callback = subElement
-						.getAttribute(ComponentParser.ATT_METHOD);
+				String field 	= subElement.getAttribute(ComponentParser.ATT_FIELD);
+				String callback = subElement.getAttribute(ComponentParser.ATT_METHOD);
 
 				element.removeElement(subElement);
-				PropertyDefinition updatedDef = new PropertyDefinition(
-						new SpecificationDeclaration("Dummy"), name, type,
-						defaultVal, field, callback, injectPolicy);
+				PropertyDefinition updatedDef = new PropertyDefinition(new ComponentReference<ComponentDeclaration>("Dummy"), name, type, defaultVal, field, callback, injectPolicy);
 
 				mapAddedDefinitions.put(name, updatedDef);
 			}

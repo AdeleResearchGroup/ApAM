@@ -27,7 +27,6 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s3.S3_2;
 
@@ -55,16 +54,23 @@ public class Dependency implements S2, ApamComponent, Runnable {
     public Instance   myInst;
     public String     name;
 
+    /*
+     * TODO migrate to new version of messages
+     * 
     public MessageProducer<M1> p1;
     public MessageProducer<M1> producerM1;
-    
+    */
     S3_2 s3ImplWindowsBedroomTry1;
     S3_2 s3ImplWindowsBedroomTry2;
     
     // Called (by Apam) each time an M3 message is available.
     public void getMyMessage (M2 m2) {
     	M1 m1 = null;
-    	p1.push(m1) ;	
+    	
+        /*
+         * TODO migrate to new version of messages
+    	p1.push(m1) ;
+    	*/	
     }
     
 	public void assertTrue (boolean test) {

@@ -56,6 +56,11 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		 * The type of the specified java field, for collections is the type of the element type
 		 */
 		String getFieldType(String fieldName) throws NoSuchFieldException;
+	
+		/**
+		 * The type of the specified java field 
+		 */
+		String getDeclaredFieldType(String fieldName) throws NoSuchFieldException;
 		
 		/**
 		 * A special type to signal an unknown field type
@@ -68,7 +73,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException;
 
 		/**
-		 * The type of of the specified single-paramterjava method
+		 * The type of of the specified single-parameter java method
 		 */
 		String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException;
 
@@ -107,10 +112,6 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	 */
 	private final CodeReflection reflection;
 
-	/**
-	 * The list of code instrumentation to perform for handling dependencies
-	 */
-	private final Set<RequirerInstrumentation> requirerInstrumentations;
 
 	/**
 	 * The list of code instrumentation to perform for handling resource
@@ -129,11 +130,28 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
 		assert reflection != null;
 
-		this.reflection = reflection;
-		this.requirerInstrumentations = new HashSet<RequirerInstrumentation>();
-		this.providerInstrumentations = new HashSet<ProviderInstrumentation>();
+		this.reflection 				= reflection;
+		this.providerInstrumentations	= new HashSet<ProviderInstrumentation>();
+		this.callbacks 					= new HashMap<Event, Set<CallbackDeclaration>>();
+	}
 
-		this.callbacks = new HashMap<Event, Set<CallbackDeclaration>>();
+	
+	/**
+	 * Clone this declaration
+	 */
+	protected AtomicImplementationDeclaration(AtomicImplementationDeclaration original) {
+		super(original);
+		
+		this.reflection 				= original.reflection;
+		this.providerInstrumentations	= new HashSet<ProviderInstrumentation>(original.providerInstrumentations);
+		
+		/*
+		 * make a deep copy of the callback map
+		 */
+		this.callbacks 					= new HashMap<Event, Set<CallbackDeclaration>>();
+		for (Map.Entry<Event,Set<CallbackDeclaration>> callbackEntry : original.callbacks.entrySet()) {
+			this.callbacks.put(callbackEntry.getKey(), new HashSet<CallbackDeclaration>(callbackEntry.getValue()));
+		}
 	}
 
 	/**
@@ -186,13 +204,6 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 		return reflection;
 	}
 
-	/**
-	 * The list of instrumentations to perform in this implementation for
-	 * handling dependencies
-	 */
-	public Set<RequirerInstrumentation> getRequirerInstrumentation() {
-		return requirerInstrumentations;
-	}
 
 	@Override
 	public String toString() {
@@ -202,12 +213,6 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 			for (Event trigger : callbacks.keySet()) {
 				ret = ret
 						.append(" " + trigger + " : " + callbacks.get(trigger));
-			}
-		}
-		if (requirerInstrumentations.size() != 0) {
-			ret = ret.append("\n    Injected fields/methods : ");
-			for (RequirerInstrumentation injection : requirerInstrumentations) {
-				ret = ret.append(" " + injection.getName());
 			}
 		}
 		if (providerInstrumentations.size() != 0) {

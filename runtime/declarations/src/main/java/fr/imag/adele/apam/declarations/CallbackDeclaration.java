@@ -28,8 +28,6 @@ import java.util.List;
  * service objects for dependencies. However we should be more precise on the type
  * of the parameters.
  * 
- * It is possible to specify a 
- * 
  */
 public class CallbackDeclaration extends Instrumentation {
 
@@ -51,7 +49,7 @@ public class CallbackDeclaration extends Instrumentation {
 	}
 	
 	public CallbackDeclaration(AtomicImplementationDeclaration implementation,String methodName, boolean disableValidation) {
-		super(implementation);
+		super(implementation.getReference(), implementation.getReflection());
 
 		assert methodName != null;
 		this.methodName = methodName;
@@ -59,14 +57,11 @@ public class CallbackDeclaration extends Instrumentation {
 		this.disableValidation = disableValidation;
 	}
 
-	/**
-	 * The component declaring this injection
-	 */
 	@Override
-	public AtomicImplementationDeclaration getImplementation() {
-		return implementation;
+	public String getName() {
+		return methodName;
 	}
-
+	
 	/**
 	 * The name of the method to call
 	 */
@@ -78,8 +73,7 @@ public class CallbackDeclaration extends Instrumentation {
 	public boolean isValidInstrumentation() {
 		try {
 
-			int parameterNumber = implementation.getReflection()
-					.getMethodParameterNumber(methodName, true);
+			int parameterNumber = reflection.getMethodParameterNumber(methodName, true);
 
 			if (parameterNumber == 0) {
 				return true;
@@ -89,8 +83,7 @@ public class CallbackDeclaration extends Instrumentation {
 				return false;
 			}
 
-			String[] types = implementation.getReflection()
-					.getMethodParameterTypes(methodName, true);
+			String[] types = reflection.getMethodParameterTypes(methodName, true);
 
 			return disableValidation || APAM_COMPONENTS.contains(types[0]);
 

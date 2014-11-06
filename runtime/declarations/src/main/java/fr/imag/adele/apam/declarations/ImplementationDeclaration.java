@@ -37,6 +37,12 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
         this.specification = specification;
     }
 
+    protected ImplementationDeclaration(ImplementationDeclaration original) {
+        super(original);
+        
+        this.specification = original.specification;
+    }
+
 	/**
 	 * Override with a narrower return type
 	 */

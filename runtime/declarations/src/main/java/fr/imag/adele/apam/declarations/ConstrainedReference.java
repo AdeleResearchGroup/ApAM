@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 
 /**
  * This class is a marker for all declarations that add constraints to a
@@ -31,8 +33,13 @@ public class ConstrainedReference {
 	/**
 	 * The reference to the target component.
 	 */
-	private final ResolvableReference resource;
+	private final ResolvableReference target;
 
+	/**
+	 * The reference to an undefined target
+	 */
+	private static final ResolvableReference UNDEFINED_TARGET = new UnknownReference(new ResourceReference("<UNDEFINDED>"));
+	
 	/**
 	 * The set of constraints that must be satisfied by the target component
 	 * implementation
@@ -57,17 +64,51 @@ public class ConstrainedReference {
 	 */
 	private final List<String> instancePreferences;
 
-	public ConstrainedReference(ResolvableReference resource) {
+	public ConstrainedReference(ResolvableReference target) {
 
-		assert resource != null;
-		this.resource = resource;
+		this.target = target != null ? target : UNDEFINED_TARGET;
 
-		this.implementationConstraints = new HashSet<String>();
-		this.instanceConstraints = new HashSet<String>();
-		this.implementationPreferences = new ArrayList<String>();
-		this.instancePreferences = new ArrayList<String>();
+		this.implementationConstraints	= new HashSet<String>();
+		this.instanceConstraints 		= new HashSet<String>();
+		this.implementationPreferences	= new ArrayList<String>();
+		this.instancePreferences 		= new ArrayList<String>();
 	}
 
+	/**
+	 * Clone this declaration
+	 */
+	public ConstrainedReference(ConstrainedReference original) {
+
+		this(original.target);
+
+		this.implementationConstraints.addAll(original.implementationConstraints);
+		this.instanceConstraints.addAll(original.instanceConstraints);
+		this.implementationPreferences.addAll(original.implementationPreferences);
+		this.instancePreferences.addAll(original.instancePreferences);
+	}
+
+	/**
+	 * Creates a new declaration that is the result of merging the original declaration with
+	 * the specified refinement.
+	 * 
+	 * Constraints and preferences are concatenated. Subclasses are responsible of determining 
+	 * the refined target
+	 */
+	protected ConstrainedReference(ResolvableReference target, ConstrainedReference original, ConstrainedReference refinement) {
+
+		this(target);
+
+		this.implementationConstraints.addAll(original.implementationConstraints);
+		this.instanceConstraints.addAll(original.instanceConstraints);
+		this.implementationPreferences.addAll(original.implementationPreferences);
+		this.instancePreferences.addAll(original.instancePreferences);
+		
+		this.implementationConstraints.addAll(refinement.implementationConstraints);
+		this.instanceConstraints.addAll(refinement.instanceConstraints);
+		this.implementationPreferences.addAll(refinement.implementationPreferences);
+		this.instancePreferences.addAll(refinement.instancePreferences);
+	}
+	
 	/**
 	 * Get the constraints that need to be satisfied by the implementation that
 	 * resolves the reference
@@ -102,7 +143,13 @@ public class ConstrainedReference {
 	 * Get the reference to the required resource
 	 */
 	public ResolvableReference getTarget() {
-		return resource;
+		return target;
 	}
 
+	/**
+	 * Whether an explicit target was specified
+	 */
+	public boolean hasTarget() {
+		return ! (target instanceof UnknownReference);
+	}
 }

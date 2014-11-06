@@ -254,11 +254,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		}
 		Component group = source;
 		while (group != null) {
-			if (group.getName().equals(dep.getCtxtSourceName())
-					// getLinkSource().getName())
-					&& source.getKind() == dep.getSourceKind()) {
+			if (dep.appliesTo(group.getDeclaration().getReference())) {
 				return dep;
 			}
+			
+			group = group.getGroup();
 		}
 		return null;
 	}
@@ -277,16 +277,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	public Set<RelationDefinition> getCtxtRelations(Component source) {
 		Set<RelationDefinition> deps = new HashSet<RelationDefinition>();
 
-		Component group;
 		for (RelationDefinition dep : ctxtDependencies.values()) {
-			if (source.getKind() == dep.getSourceKind()) {
-				continue;
-			}
-			group = source;
-			while (group != null) {
-				if (group.getName().equals(dep.getCtxtSourceName())) {
+			Component group = source;
+			boolean applies = false;
+			while (group != null && ! applies) {
+				if (dep.appliesTo(group.getDeclaration().getReference())) {
 					deps.add(dep);
+					applies = true;
 				}
+				
+				group = group.getGroup();
 			}
 		}
 		return deps;

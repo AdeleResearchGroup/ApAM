@@ -16,7 +16,6 @@ package apam.test.dependency;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s4.S4;
 
@@ -27,7 +26,10 @@ public class S2Simple implements S2, ApamComponent {
     String theFieldAttr ;
     String name;
 
+    /*
+     * TODO Migrate to new message producer style 
     MessageProducer<M1> p1;
+     */
     
     @Override
     public String getName() {

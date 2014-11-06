@@ -30,7 +30,7 @@ public class RemoteInstanceImpl implements ApformInstance {
 		this.url = url;
 		this.serviceObject = serviceObject;
 	
-		declaration = new InstanceDeclaration(Versioned.any(new RemoteMachine.RemoteImplementationReference(getFullName())),getFullName(), null);
+		declaration = new InstanceDeclaration(Versioned.any(new RemoteMachine.RemoteImplementationReference(getFullName())),getFullName());
     }
 
     @Override

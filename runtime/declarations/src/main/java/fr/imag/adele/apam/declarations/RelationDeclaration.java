@@ -24,6 +24,8 @@ import java.util.Set;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
+import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 
 /**
  * This class represents the declaration of a required resources needed by a
@@ -58,12 +60,6 @@ public class RelationDeclaration extends ConstrainedReference {
 	 * The reference to this declaration
 	 */
 	private final Reference reference;
-
-	/**
-	 * The source component for this declaration in the case of contextual
-	 * dependencies
-	 */
-	private final String sourceName;
 
 	/**
 	 * The level of abstraction where this relation can be instantiated
@@ -104,71 +100,224 @@ public class RelationDeclaration extends ConstrainedReference {
 	 */
 	protected final Map<Event, Set<CallbackDeclaration>> callbacks;
 
+
 	/**
-	 * Whether this relation is declared explicitly as an override
+	 * The resolution space to consider when resolving this relation
 	 */
-	private final boolean isOverride;
+	private final ResolvePolicy resolvePolicy;
+	
+	/**
+	 * The time at which resolution must be done
+	 */
+	private final CreationPolicy creationPolicy;
 
 	/**
 	 * Whether a resolution error must trigger a backtrack in the architecture
 	 */
 
 	private final Boolean mustHide;
+	
+	/**
+	 * Whether this is a contextual relation
+	 */
+	private final boolean isContextual;
+	
+	/**
+	 * The source component for this declaration in the case of contextual
+	 * dependencies
+	 */
+	private final String matchSource;
 
 	/**
-	 * Whether a resolution error must trigger a backtrack in the architecture
+	 * Whether this contextual relation is declared explicitly as an override
 	 */
-	private final ResolvePolicy resolvePolicy;
-	private final CreationPolicy creationPolicy;
+	private final boolean isOverride;
 
+	/**
+	 * Declares a new relation with the default policies 
+	 */
 	public RelationDeclaration(ComponentReference<?> component, String id, ResolvableReference target, boolean isMultiple) {
-		this(component, id, null, ComponentKind.INSTANCE, target,
-				ComponentKind.INSTANCE, CreationPolicy.MANUAL,
-				ResolvePolicy.EXIST, isMultiple, MissingPolicy.OPTIONAL, null,
-				false, false);
+		
+		this(component, id, ComponentKind.INSTANCE, target, ComponentKind.INSTANCE, isMultiple,
+				CreationPolicy.MANUAL, ResolvePolicy.EXIST, 
+				MissingPolicy.OPTIONAL, null, false,
+				false, null, false);
 	}
 
+	/**
+	 * Declares a new relation with the specified policies
+	 */
 	public RelationDeclaration(ComponentReference<?> component, String id,
-			String sourceName, ComponentKind sourceKind,
-			ResolvableReference target, ComponentKind targetKind,
+			ComponentKind sourceKind, ResolvableReference target, ComponentKind targetKind, boolean isMultiple,
 			CreationPolicy creationPolicy, ResolvePolicy resolvePolicy,
-			boolean isMultiple, MissingPolicy missingPolicy,
-			String missingException, boolean isOverride, Boolean mustHide) {
+			MissingPolicy missingPolicy, String missingException, Boolean mustHide) {
 
+		this(component, id, sourceKind, target, targetKind, isMultiple,
+				creationPolicy, resolvePolicy, 
+				missingPolicy, missingException, mustHide,
+				false, null, false);
+	}
+	
+	/**
+	 * Declares a new contextual relation with the specified policies
+	 * 
+	 * TODO we should think about having a another class to represent contextual relations 
+	 */
+	public RelationDeclaration(ComponentReference<?> component, String id,
+			ComponentKind sourceKind, ResolvableReference target, ComponentKind targetKind, boolean isMultiple,
+			CreationPolicy creationPolicy, ResolvePolicy resolvePolicy,
+			MissingPolicy missingPolicy, String missingException, Boolean mustHide, 
+			boolean isContextual, String matchSource, boolean isOverride) {
+	
 		super(target);
 
-		assert component != null && target != null;
+		assert component != null && getTarget() != null;
 
-		id = (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.references.Reference.class).getIdentifier() : id;
-		this.reference = new Reference(component, id);
+		id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.references.Reference.class).getIdentifier() : id;
+		this.reference 			= new Reference(component, id);
 
-		this.sourceName = sourceName;
-		this.sourceKind = sourceKind;
-		this.targetKind = targetKind;
+		this.sourceKind 		= sourceKind;
+		this.targetKind 		= targetKind;
+		
+		this.missingPolicy 		= missingPolicy;
+		this.missingException	= missingException;
 
-		this.missingPolicy = missingPolicy;
-		this.missingException = missingException;
+		this.creationPolicy 	= creationPolicy;
+		this.resolvePolicy 		= resolvePolicy;
+		this.isMultiple 		= isMultiple;
 
-		this.creationPolicy = creationPolicy;
-		this.resolvePolicy = resolvePolicy;
-		this.isMultiple = isMultiple;
+		this.mustHide 			= mustHide;
 
-		this.isOverride = isOverride;
-		this.mustHide = mustHide;
+		this.instrumentations	= new ArrayList<RequirerInstrumentation>();
+		this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
 
-		this.instrumentations = new ArrayList<RequirerInstrumentation>();
-		this.callbacks = new HashMap<Event, Set<CallbackDeclaration>>();
-
+		this.isContextual		= isContextual;
+		this.isOverride			= isOverride;
+		this.matchSource 		= matchSource;
 	}
 
-	public void addCallback(Event trigger, CallbackDeclaration callback) {
-		if (callbacks.get(trigger) == null) {
-			callbacks.put(trigger, new HashSet<CallbackDeclaration>());
+	
+	/**
+	 * Clone this declaration
+	 */
+	public RelationDeclaration(RelationDeclaration original) {
+
+		super(original);
+
+		this.reference = original.reference;
+
+		this.sourceKind = original.sourceKind;
+		this.targetKind = original.targetKind;
+		this.isMultiple	= original.isMultiple;
+
+		this.creationPolicy	= original.creationPolicy;
+		this.resolvePolicy	= original.resolvePolicy;
+		
+		this.missingPolicy 		= original.missingPolicy;
+		this.missingException	= original.missingException;
+		this.mustHide			= original.mustHide;
+
+		this.instrumentations	= new ArrayList<RequirerInstrumentation>(original.instrumentations);
+		this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
+		for (Map.Entry<Event,Set<CallbackDeclaration>>callbackEntry : original.callbacks.entrySet()) {
+			this.callbacks.put(callbackEntry.getKey(), new HashSet<CallbackDeclaration>(callbackEntry.getValue()));
 		}
-		callbacks.get(trigger).add(callback);
 
+		this.isContextual	= original.isContextual;
+		this.isOverride		= original.isOverride;
+		this.matchSource 	= original.matchSource;
 	}
 
+	/**
+	 * Creates a new declaration that is the result of merging the original declaration with
+	 * the specified refinement.
+	 * 
+	 * See {@link #refinedBy(RelationDeclaration)} and {@link #overriddenBy(RelationDeclaration)}
+	 * for a description of the merging rules
+	 */
+	private RelationDeclaration(RelationDeclaration original, RelationDeclaration refinement) {
+
+		super(target(original, refinement),original,refinement);
+
+		this.reference 			= original.reference;
+
+		this.sourceKind 		= original.sourceKind;
+		this.targetKind 		= original.targetKind;
+		this.isMultiple			= original.isMultiple;
+
+		this.creationPolicy		= original.creationPolicy == null ? refinement.creationPolicy : 
+								  refinement.isOverride() && refinement.creationPolicy != null ? refinement.creationPolicy :
+								  original.creationPolicy;
+										
+
+		this.resolvePolicy		= original.resolvePolicy == null ? refinement.resolvePolicy : 
+			  					  refinement.isOverride() && refinement.resolvePolicy != null ? refinement.resolvePolicy :
+			  					  original.resolvePolicy;
+
+		
+		this.missingPolicy 		= refinement.missingPolicy != null ? refinement.missingPolicy : original.missingPolicy;
+		this.missingException	= refinement.missingException != null ? refinement.missingException : original.missingException;
+		this.mustHide			= refinement.mustHide;
+
+		
+		this.instrumentations	= new ArrayList<RequirerInstrumentation>();
+		this.instrumentations.addAll(original.instrumentations);
+		this.instrumentations.addAll(refinement.instrumentations);
+		
+		this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
+		for (Map.Entry<Event,Set<CallbackDeclaration>>callbackEntry : original.callbacks.entrySet()) {
+			this.callbacks.put(callbackEntry.getKey(), new HashSet<CallbackDeclaration>(callbackEntry.getValue()));
+		}
+		for (Map.Entry<Event,Set<CallbackDeclaration>>callbackEntry : refinement.callbacks.entrySet()) {
+			this.callbacks.put(callbackEntry.getKey(), new HashSet<CallbackDeclaration>(callbackEntry.getValue()));
+		}
+
+		this.isContextual	= original.isContextual;
+		this.isOverride		= original.isOverride;
+		this.matchSource 	= original.matchSource;
+	}
+
+	/**
+	 * Determines the effective target of a a refinement.
+	 *
+	 * We keep the most concrete target between the original and the refinement. 
+	 * 
+	 * NOTE If the target of the original and the refinement relation are not related by a abstraction
+	 * relationship this method may give wrong results. However, we can not validate this, as this requires
+	 * the full definition of the target resources and components. We assume that this is validated at
+	 * build-time, to ensure safe execution.
+	 * 
+	 * NOTE For overriding it is not possible to refine the target, because the target of the override is
+	 * used as a matching regular expressions.
+	 */
+	private static ResolvableReference target(RelationDeclaration original, RelationDeclaration refinement) {
+		
+		if (refinement.isOverride())
+			return original.getTarget();
+		
+		if (refinement.getTarget() instanceof UnknownReference)
+			return original.getTarget();
+
+		if (original.getTarget() instanceof UnknownReference)
+			return refinement.getTarget();
+		
+		if (original.getTarget() instanceof ResourceReference && refinement.getTarget() instanceof ComponentReference)
+			return refinement.getTarget();
+
+		if (original.getTarget() instanceof ComponentReference && refinement.getTarget() instanceof ResourceReference)
+			return original.getTarget();
+
+		if (original.getTarget() instanceof ComponentReference && refinement.getTarget() instanceof ComponentReference) {
+			
+			ComponentKind originalTargetKind 	= original.getTarget().as(ComponentReference.class).getKind();
+			ComponentKind refinementTargetKind 	= refinement.getTarget().as(ComponentReference.class).getKind();
+			
+			return originalTargetKind.isMoreAbstractThan(refinementTargetKind) ? refinement.getTarget() : original.getTarget();
+		}
+		
+		return original.getTarget();
+	} 
+	
 	@Override
 	public boolean equals(Object object) {
 
@@ -202,11 +351,13 @@ public class RelationDeclaration extends ConstrainedReference {
 			if (this.targetKind != that.targetKind)
 				return false;
 
-			if (this.sourceName == null && that.sourceName != null)
+			if (this.matchSource == null && that.matchSource != null)
 				return false;
 
-			if (this.sourceName != null
-					&& !this.sourceName.equals(that.sourceName))
+			if (this.matchSource != null && that.matchSource == null)
+				return false;
+
+			if (this.matchSource != null	&& !this.matchSource.equals(that.matchSource))
 				return false;
 
 			if (!this.getTarget().equals(that.getTarget()))
@@ -220,47 +371,16 @@ public class RelationDeclaration extends ConstrainedReference {
 		return this.reference.equals(that.reference);
 	}
 
-	public Set<CallbackDeclaration> getCallback(Event trigger) {
-		return callbacks.get(trigger);
+	@Override
+	public int hashCode() {
+		return reference.hashCode();
 	}
-
+	
 	/**
 	 * The defining component
 	 */
 	public ComponentReference<?> getComponent() {
 		return reference.getDeclaringComponent();
-	}
-
-	public CreationPolicy getCreationPolicy() {
-		return creationPolicy;
-	}
-
-	/**
-	 * Get the id of the relation in the declaring component declaration
-	 */
-	public String getIdentifier() {
-		return reference.getIdentifier();
-	}
-
-	/**
-	 * Get the instrumentation metadata associated to this relation declaration
-	 */
-	public List<RequirerInstrumentation> getInstrumentations() {
-		return instrumentations;
-	}
-
-	/**
-	 * Get the exception associated with the missing policy
-	 */
-	public String getMissingException() {
-		return missingException;
-	}
-
-	/**
-	 * Get the policy associated with this relation
-	 */
-	public MissingPolicy getMissingPolicy() {
-		return missingPolicy;
 	}
 
 	/**
@@ -269,37 +389,21 @@ public class RelationDeclaration extends ConstrainedReference {
 	public Reference getReference() {
 		return reference;
 	}
-
-	public ResolvePolicy getResolvePolicy() {
-		return resolvePolicy;
+	
+	/**
+	 * Get the id of the relation in the declaring component declaration
+	 */
+	public String getIdentifier() {
+		return reference.getIdentifier();
 	}
 
 	public ComponentKind getSourceKind() {
 		return sourceKind;
 	}
 
-	/**
-	 * The source component for contextual dependencies
-	 */
-	public String getSourceName() {
-		return this.sourceName;
-	}
 
 	public ComponentKind getTargetKind() {
 		return targetKind;
-	}
-
-	@Override
-	public int hashCode() {
-		return reference.hashCode();
-	}
-
-	/**
-	 * Whether an error resolving a relation matching this policy should trigger
-	 * a backtrack in resolution
-	 */
-	public Boolean isHide() {
-		return mustHide;
 	}
 
 	/**
@@ -335,8 +439,7 @@ public class RelationDeclaration extends ConstrainedReference {
 
 		for (RequirerInstrumentation injection : getInstrumentations()) {
 
-			boolean isService = injection.getRequiredResource().as(
-					InterfaceReference.class) != null;
+			boolean isService = injection.getRequiredResource().as(InterfaceReference.class) != null;
 			oneRequiredService = isService || oneRequiredService;
 
 			if (isService && injection.acceptMultipleProviders()) {
@@ -347,6 +450,144 @@ public class RelationDeclaration extends ConstrainedReference {
 		return oneRequiredService ? supportMultiple : isMultiple;
 	}
 
+	public ResolvePolicy getResolvePolicy() {
+		return resolvePolicy;
+	}
+
+	public CreationPolicy getCreationPolicy() {
+		return creationPolicy;
+	}
+	
+	/**
+	 * Get the policy associated with this relation
+	 */
+	public MissingPolicy getMissingPolicy() {
+		return missingPolicy;
+	}
+
+	/**
+	 * Get the exception associated with the missing policy
+	 */
+	public String getMissingException() {
+		return missingException;
+	}
+
+	/**
+	 * Whether an error resolving a relation matching this policy should trigger
+	 * a backtrack in resolution
+	 */
+	public Boolean isHide() {
+		return mustHide;
+	}
+	
+	/**
+	 * Get the callbacks associated to this relation
+	 */
+	public Set<CallbackDeclaration> getCallback(Event trigger) {
+		return callbacks.get(trigger);
+	}
+
+	public void addCallback(Event trigger, CallbackDeclaration callback) {
+		if (callbacks.get(trigger) == null) {
+			callbacks.put(trigger, new HashSet<CallbackDeclaration>());
+		}
+		callbacks.get(trigger).add(callback);
+
+	}
+	
+	/**
+	 * Get the instrumentation metadata associated to this relation declaration
+	 */
+	public List<RequirerInstrumentation> getInstrumentations() {
+		return instrumentations;
+	}
+
+	/**
+	 * Computes the effective declaration that is the result of applying the specified refinement
+	 * to this declaration.
+	 * 
+	 * Refinements can be declared in members of a component or in contextual dependencies in a
+	 * composite.
+	 * 
+	 * The refinement algorithm is the following :
+	 * 
+	 * 1) The source kind and target kind must  be defined in the this declaration
+	 * 2) The target can be refined to a member of the target specified by this declaration 
+	 * 3) Constraints are concatenated (this is equivalent to a conjunction of the constraints)
+	 * 4) Preferences are concatenated
+	 * 5) Policies can be refined only if not explicitly defined in this declaration
+	 * 6) Missing policy (resolution failure) can be completely overridden in the refinement
+	 * 7) Instrumentation and callbacks are concatenated
+	 * 
+	 */
+	public RelationDeclaration refinedBy(RelationDeclaration refinement) {
+		return new RelationDeclaration(this,refinement);
+	}
+
+	/**
+	 * Whether this declaration is is a contextual declaration
+	 */
+	public boolean isContextual() {
+		return isContextual;
+	}
+
+	/**
+	 * Checks if this declaration can refine the specified declaration for refinement or override.
+	 * Matching can be based on the name of the declaring component or one of its ancestor groups
+	 * 
+	 * For refinement the name of the declaring component's group and the name of the relation must
+	 * match exactly.
+	 * 
+	 * For overrides, the contextual relation can use regular expression patterns to match the source,
+	 * the target or the name of the relation. 
+	 * 
+	 */
+	public boolean refines(ComponentReference<?>group, RelationDeclaration relation) {
+
+		/*
+		 * for contextual refinement match source and identifier exactly
+		 */
+		if (this.isContextual() && ! this.isOverride()) {
+			return 	relation.getIdentifier().equals(this.getIdentifier()) &&
+					group.getName().equals(this.matchSource);
+		}
+		
+		/*
+		 * for contextual override use regular expressions to match, if there is no
+		 * matching expression specified it matches every source
+		 */
+		if (this.isContextual() && this.isOverride()) {
+			
+			boolean sourceMatched 		= this.matchSource == null || 
+									  	  group.getName().matches(this.matchSource);
+			
+			boolean targetClassMatched	= relation.getTarget().getClass().equals(this.getTarget().getClass());
+			boolean targetMatched		= this.getTarget() instanceof UnknownReference ||
+									      (targetClassMatched && relation.getTarget().getName().matches(this.getTarget().getName()));
+			
+			return 	relation.getIdentifier().matches(this.getIdentifier()) &&
+					sourceMatched &&
+					targetMatched;
+		}
+		
+
+		/*
+		 * The usual match for refinement of abstract components is based on relation
+		 * identifiers
+		 */
+		return relation.getIdentifier().equals(this.getIdentifier());
+
+	}
+	
+	/**
+	 * Checks if this contextual relation definition applies to the specified source
+	 */
+	public boolean  appliesTo(ComponentReference<?> source) {
+		return	this.isContextual() && 
+				this.matchSource.equals(source.getName()) && 
+				this.getSourceKind() == source.getKind();
+	}
+	
 	/**
 	 * Whether this declaration is an override
 	 */
@@ -354,55 +595,29 @@ public class RelationDeclaration extends ConstrainedReference {
 		return isOverride;
 	}
 
+	
 	/**
-	 * Computes the effective declaration that is the result of applying the
-	 * specified override to this declaration.
+	 * Computes the effective declaration that is the result of applying the specified override
+	 * to this declaration.
+	 * 
+	 * Overrides can be declared in contextual dependencies in a composite.
+	 * 
+	 * The override algorithm is the following :
+	 * 
+	 * 1) The source kind and target kind must  be defined in the this declaration
+	 * 2) The target can be refined to a member of the target specified by this declaration 
+	 * 3) Constraints are concatenated (this is equivalent to a conjunction of the constraints)
+	 * 4) Preferences are concatenated
+	 * 5) Policies can be completely overridden
+	 * 6) Instrumentation and callbacks are concatenated
 	 * 
 	 */
 	public RelationDeclaration overriddenBy(RelationDeclaration override) {
-
-		assert override.isOverride()
-				&& this.getIdentifier().matches(override.getIdentifier());
-
-		RelationDeclaration effective = new RelationDeclaration(
-				this.getComponent(), this.getIdentifier(),
-				this.getSourceName(), this.getSourceKind(), this.getTarget(),
-				this.getTargetKind(),
-				override.getCreationPolicy() != null ? override
-						.getCreationPolicy() : this.getCreationPolicy(),
-				override.getResolvePolicy() != null ? override
-						.getResolvePolicy() : this.getResolvePolicy(),
-				this.isMultiple,
-				override.getMissingPolicy() != null ? override
-						.getMissingPolicy() : this.getMissingPolicy(),
-				override.getMissingException() != null ? override
-						.getMissingException() : this.getMissingException(),
-				this.isOverride, override.mustHide);
-
-		effective.getImplementationConstraints().addAll(
-				this.getImplementationConstraints());
-		effective.getImplementationConstraints().addAll(
-				override.getImplementationConstraints());
-
-		effective.getInstanceConstraints()
-				.addAll(this.getInstanceConstraints());
-		effective.getInstanceConstraints().addAll(
-				override.getInstanceConstraints());
-
-		effective.getImplementationPreferences().addAll(
-				this.getImplementationPreferences());
-		effective.getImplementationPreferences().addAll(
-				override.getImplementationPreferences());
-
-		effective.getInstancePreferences()
-				.addAll(this.getInstancePreferences());
-		effective.getInstancePreferences().addAll(
-				override.getInstancePreferences());
-
-		return effective;
-
+		assert override.isOverride();
+		return new RelationDeclaration(this,override);
 	}
 
+	
 	public String printRelationDeclaration(String indent) {
 		StringBuffer ret = new StringBuffer();
 		ret.append(indent + " relation " + getIdentifier() + " towards "
@@ -460,62 +675,6 @@ public class RelationDeclaration extends ConstrainedReference {
 
 	}
 
-	/**
-	 * Computes the effective declaration that is the result of applying the
-	 * specified refinement to this declaration.
-	 * 
-	 * TODO currently we keep the most general target definition and we loose
-	 * the target declaration of the lower level, should we add additional
-	 * constraints to represent the narrowing of the target?
-	 * 
-	 */
-	public RelationDeclaration refinedBy(RelationDeclaration refinement) {
-
-		assert this.getIdentifier().equals(refinement.getIdentifier());
-
-		RelationDeclaration effective = new RelationDeclaration(
-				refinement.getComponent(), this.getIdentifier(),
-				this.getSourceName(), this.getSourceKind(), this.getTarget(),
-				this.getTargetKind(),
-				this.getCreationPolicy() == null ? refinement
-						.getCreationPolicy() : this.getCreationPolicy(),
-				this.getResolvePolicy() == null ? refinement.getResolvePolicy()
-						: this.getResolvePolicy(), refinement.isMultiple,
-				refinement.getMissingPolicy() != null ? refinement
-						.getMissingPolicy() : this.getMissingPolicy(),
-				refinement.getMissingException() != null ? refinement
-						.getMissingException() : this.getMissingException(),
-				refinement.isOverride, refinement.mustHide);
-
-		effective.instrumentations.addAll(this.instrumentations);
-		effective.instrumentations.addAll(refinement.instrumentations);
-
-		effective.callbacks.putAll(this.callbacks);
-		effective.callbacks.putAll(refinement.callbacks);
-
-		effective.getImplementationConstraints().addAll(
-				this.getImplementationConstraints());
-		effective.getImplementationConstraints().addAll(
-				refinement.getImplementationConstraints());
-
-		effective.getInstanceConstraints()
-				.addAll(this.getInstanceConstraints());
-		effective.getInstanceConstraints().addAll(
-				refinement.getInstanceConstraints());
-
-		effective.getImplementationPreferences().addAll(
-				this.getImplementationPreferences());
-		effective.getImplementationPreferences().addAll(
-				refinement.getImplementationPreferences());
-
-		effective.getInstancePreferences()
-				.addAll(this.getInstancePreferences());
-		effective.getInstancePreferences().addAll(
-				refinement.getInstancePreferences());
-
-		return effective;
-
-	}
 
 	@Override
 	public String toString() {

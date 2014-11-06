@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
@@ -43,16 +44,34 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	 */
 	private final Set<ConstrainedReference> triggers;
 
-
+    public InstanceDeclaration(Versioned<? extends ImplementationDeclaration> implementation, String name) {
+    	this(implementation, name, new HashSet<ConstrainedReference>());
+    }
+    
     public InstanceDeclaration(Versioned<? extends ImplementationDeclaration> implementation, String name, Set<ConstrainedReference> triggers) {
     	
 		super(name);
 
 
 		assert implementation != null;
-
+		assert triggers != null;
+		
 		this.implementation = implementation;
 		this.triggers 		= triggers;
+	}
+
+	/**
+	 * Clone this declaration
+	 */
+   protected InstanceDeclaration(InstanceDeclaration original) {
+    	super(original);
+
+		this.implementation = original.implementation;
+		
+		this.triggers 		= new HashSet<ConstrainedReference>();
+		for (ConstrainedReference trigger : triggers) {
+			this.triggers.add(new ConstrainedReference(trigger));
+		}
 	}
 
 	@Override

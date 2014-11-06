@@ -15,7 +15,7 @@
 package fr.imag.adele.apam.declarations;
 
 /**
- * Defines the momentum in which the framework will lookup for an instance of a
+ * Defines the moment at which the framework will lookup for an instance of a
  * dependency
  * 
  * @author jnascimento

@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class GrantDeclaration {
@@ -22,12 +23,15 @@ public class GrantDeclaration {
 
 	private final Set<String> states;
 
-	public GrantDeclaration(RelationDeclaration.Reference relation,
-			Set<String> states) {
+	public GrantDeclaration(RelationDeclaration.Reference relation,	Set<String> states) {
 		this.relation = relation;
 		this.states = states;
 	}
 
+	public GrantDeclaration(GrantDeclaration original) {
+		this(original.relation, new HashSet<String>(original.states));
+	}
+	
 	public RelationDeclaration.Reference getRelation() {
 		return relation;
 	}

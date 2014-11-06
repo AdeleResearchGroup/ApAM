@@ -17,13 +17,9 @@ import org.apache.maven.artifact.Artifact;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.Reporter.Severity;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
@@ -92,6 +88,13 @@ public class MavenArtifactRepository implements Repository, Classpath.Entry {
 	 */
 	public List<ComponentDeclaration> getComponents() {
 		return components;
+	}
+	
+	/**
+	 * The source artifact of this repository 
+	 */
+	public Artifact getArtifact() {
+		return artifact;
 	}
 	
 	/**
@@ -198,47 +201,18 @@ public class MavenArtifactRepository implements Repository, Classpath.Entry {
 		
 		Decoder<Element> parser = new MetadataParser();
 		
-		List<SpecificationDeclaration> specifications 	= new ArrayList<SpecificationDeclaration>();
-		List<ImplementationDeclaration> implementations = new ArrayList<ImplementationDeclaration>();
-		List<CompositeDeclaration> composites 			= new ArrayList<CompositeDeclaration>();
-		List<InstanceDeclaration> instances 			= new ArrayList<InstanceDeclaration>();
-		
-		
 		for (Element element : metadata.getElements()) {
 			ComponentDeclaration declaration = parser.decode(element,reporter);
 			
 			if (declaration == null)
 				continue;
+		
+			components.add(declaration);
+			index.put(versioned(declaration));
 			
 			contents.append(declaration.getName()).append(" ");
-			
-			if (declaration instanceof SpecificationDeclaration)
-				specifications.add((SpecificationDeclaration)declaration);
-			else if (declaration instanceof CompositeDeclaration)
-				composites.add((CompositeDeclaration)declaration);
-			else if (declaration instanceof ImplementationDeclaration)
-				implementations.add((ImplementationDeclaration)declaration);
-			else if (declaration instanceof InstanceDeclaration)
-				instances.add((InstanceDeclaration)declaration);
-			
 		}
 
-		/*
-		 * add declared components in order of abstraction to ease cross-references when multiple interdependent
-		 * components are declared in the same bundle
-		 */
-		components.addAll(specifications);
-		components.addAll(implementations);
-		components.addAll(composites);
-		components.addAll(instances);
-		
-		/*
-		 * index components
-		 */
- 		for (ComponentDeclaration component : components) {
-			index.put(versioned(component));
-		}
-		
 		info(contents.toString());
 	}
 
@@ -280,7 +254,7 @@ public class MavenArtifactRepository implements Repository, Classpath.Entry {
 		 */
 		PropertyDefinition defintition = component.getPropertyDefinition(property);
 		if (defintition == null) {
-			defintition = new PropertyDefinition(component, property, type, null, null, null, null);
+			defintition = new PropertyDefinition(component.getReference(), property, type, null);
 			component.getPropertyDefinitions().add(defintition);
 		}
 

@@ -119,7 +119,7 @@ public class ApamInstanceManager extends InstanceManager implements
 		declaration = (InstanceDeclaration) configuration.get(ApamInstanceManager.ATT_DECLARATION);
 		if (isApamCreated || (declaration == null)) {
 			
-			declaration = new InstanceDeclaration(Versioned.any(getFactory().getApform().getDeclaration().getReference()), instanceName, null);
+			declaration = new InstanceDeclaration(Versioned.any(getFactory().getApform().getDeclaration().getReference()), instanceName);
 			
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();
@@ -251,7 +251,7 @@ public class ApamInstanceManager extends InstanceManager implements
 		 * specified in the source kind
 		 */
 
-		RelationDefinition relDef = getApform().getApamComponent().getRelation(injection.getRelationInjection().getRelation().getIdentifier());
+		RelationDefinition relDef = getApform().getApamComponent().getRelation(injection.getRelation().getIdentifier());
 
 		Component source = null;
 		switch (relDef.getSourceKind()) {
@@ -295,7 +295,7 @@ public class ApamInstanceManager extends InstanceManager implements
 			return false;
 		}
 
-		RelationDeclaration relation = injection.getRelationInjection().getRelation();
+		RelationDeclaration relation = injection.getRelation();
 		for (Link outgoing : ((InstanceImpl)getApform().getApamComponent()).getExistingLinks(relation.getIdentifier())) {
 			outgoing.remove();
 		}
@@ -545,7 +545,7 @@ public class ApamInstanceManager extends InstanceManager implements
 			 * perform injection update
 			 */
 			for (RelationInjectionManager injectedField : injectedFields) {
-				if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
+				if (injectedField.getRelation().getIdentifier().equals(depName)) {
 					injectedField.addTarget(destination);
 				}
 			}
@@ -571,7 +571,7 @@ public class ApamInstanceManager extends InstanceManager implements
 			 * perform injection update
 			 */
 			for (RelationInjectionManager injectedField : injectedFields) {
-				if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
+				if (injectedField.getRelation().getIdentifier().equals(depName)) {
 					injectedField.removeTarget(destination);
 				}
 			}

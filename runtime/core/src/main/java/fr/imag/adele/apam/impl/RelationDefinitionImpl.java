@@ -48,10 +48,6 @@ public class RelationDefinitionImpl implements RelationDefinition {
 	// Target type for this relation (Spec, implem, instance)
 	private final ComponentKind targetKind;
 
-	// The name of an ancestor of the link source. Contextual relation
-	// definition only. Null otherwise.
-	private final String ctxtSourceName;
-
 	// TODO // The reference to the associated component ??
 	// private final Component component;
 
@@ -128,7 +124,6 @@ public class RelationDefinitionImpl implements RelationDefinition {
 		this.sourceKind = (declaration.getSourceKind() == null) ? ComponentKind.INSTANCE : declaration.getSourceKind();
 		this.targetKind = (declaration.getTargetKind() == null) ? ComponentKind.INSTANCE : declaration.getTargetKind();
 		this.targetDefinition = declaration.getTarget();
-		this.ctxtSourceName = declaration.getSourceName();
 
 		// computing isDynamic, isWire, hasField.
 		// NOTE the relation declaration is already refined and overridden so
@@ -187,7 +182,6 @@ public class RelationDefinitionImpl implements RelationDefinition {
 		this.resolve = ResolvePolicy.EXTERNAL;
 		this.sourceKind = (sourceKind == null) ? ComponentKind.INSTANCE : sourceKind;
 		this.targetKind = (targetKind == null) ? ComponentKind.INSTANCE : targetKind;
-		this.ctxtSourceName = null;
 
 		isDynamic = false;
 		isWire = false;
@@ -216,12 +210,6 @@ public class RelationDefinitionImpl implements RelationDefinition {
 	@Override
 	public CreationPolicy getCreation() {
 		return create;
-	}
-
-	@Override
-	public String getCtxtSourceName() {
-
-		return ctxtSourceName;
 	}
 
 	public RelationDeclaration getDeclaration() {
@@ -549,8 +537,23 @@ public class RelationDefinitionImpl implements RelationDefinition {
 	// public static LinkImpl createLink ()
 
 	/**
-	 * Get the effective result of refining this relation by the specified
-	 * partial declaration
+	 * Checks if this relation can refine the specified declaration for refinement or override.
+	 * Matching can be based on the name of the declaring component or one of its ancestor groups
+	 * 
+	 */
+	public boolean refines(ComponentReference<?>group, RelationDeclaration relation) {
+		return this.declaration != null ? this.declaration.refines(group,relation) : false;
+	}
+
+	/**
+	 * Checks if this contextual relation definition applies to the specified source
+	 */
+	public boolean  appliesTo(ComponentReference<?> source) {
+		return this.declaration != null ? this.declaration.appliesTo(source) : false;
+	}
+	
+	/**
+	 * Get the effective result of refining this relation by the specified partial declaration
 	 */
 	public RelationDeclaration refinedBy(RelationDeclaration refinement) {
 		return this.declaration != null ? this.declaration.refinedBy(refinement) : refinement;

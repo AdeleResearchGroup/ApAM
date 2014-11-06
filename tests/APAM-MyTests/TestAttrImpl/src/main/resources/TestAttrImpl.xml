@@ -30,7 +30,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<constraints>
 				<implementation filter="(setint=$$locSetInt)"/>
 				<implementation filter="(c=$$S1toS2Final-String1)"/>
-				<implementation filter="(setstring=$aaaa+$location+bbbb)"/>
+<!-- 				<implementation filter="(setstring=$aaaa+$location+bbbb)"/>  -->
+				<implementation filter="(test-spec=$this$location)"/>
 				<implementation filter="(name=$$name)"/>
 				<implementation filter="(setint=$S2Simple$intSet)"/>
 <!-- 				<implementation filter="(setint=\$aaaa+$location+bbbb)"/> -->
@@ -38,12 +39,12 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</relation>
 
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
-		<property name="spec-name" value="yyy"  />
+<!--  		<property name="spec-name" value="yyy"  /> -->
 <!-- 		<property name="definition-xx" value="ttt" /> -->
 <!-- 		<property name="s1b" value="xyze=" /> -->
 <!-- 		<property name="OS" value="pas bon" /> -->
 		<property name="testEnumere" value="v2" />
-		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string" default="bidon"/>
+		<definition name="fieldAttr" field="theFieldAttr" injected="internal" type="string"/>
 <!-- 		<definition name="s1c" field="fieldAttrS1c" type="string" default="bidon"/> -->
 		<definition name="S1toS2Final-Bool" type="boolean" default="true" />
 		<definition name="S1toS2Final-String1" type="string"  />
@@ -87,13 +88,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="metaBool" type="boolean" default="$$S1toS2Final-Bool"/>
 		<definition name="metaEnumLoc" type="string" default="$aaaa+$location+bbbb" />
 		<definition name="metaEnumLocbis" type="living, kitchen, bedroom" default="$$location" />
-		<definition name="metaEnumLoc3" type="{string}" default="$aaaa+.$location+bbbb" />
+		<definition name="metaEnumLoc3" type="string" default="$aaaa+.$location+bbbb" />
 		<definition name="metaEnumSet" type="{f1, f2, f3, f4}" />
 		<definition name="dmetaStr" type="string" />
 		<property   name="dmetaStr" value="$$S1toS2Final-String1"/>
 		<definition name="dmetaS1i" type="int" />
 		<property name="dmetaS1i"  value="$$s1i"/>
-		<definition name="metaBool2" type="{boolean}" />
+		<definition name="metaBool2" type="boolean" />
 		<property name="metaBool2" value="$$S1toS2Final-Bool"/>
 		<definition name="dmetaEnumLoc" type="living, kitchen, bedroom"  />
 		<property name="dmetaEnumLoc"  value="$$location" />
@@ -116,17 +117,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="metaEnumLoc83" type="{exit, entrance, garage, bedroom}" />
 		<property name="metaEnumLoc83"  value="$S2Impl.impl.insts.S4_2$location" />
 
-		<definition name="metaLoc1" type="{string}"  />
+		<definition name="metaLoc1" type="string"  />
 		<property   name="metaLoc1"  value="$this$name" />
 		<definition name="metaLoc2" type="{string}"  />
 		<property   name="metaLoc2" value="$this.insts$name" />
-		<definition name="metaLoc3" type="{string}"  />
+		<definition name="metaLoc3" type="string"  />
 		<property   name="metaLoc3"  value="$this.spec$name" />
-		<definition name="metaLoc4" type="{string}"  />
+		<definition name="metaLoc4" type="string"  />
 		<property name="metaLoc4"  value="$this.impl$name" />
 		<definition name="metaLoc5" type="{string}"  />
 		<property name="metaLoc5" value="$this.impls$name" />
-		<definition name="metaLoc6" type="{string}" />
+		<definition name="metaLoc6" type="string" />
 		<property name="metaLoc6" value="$this.spec$name" />
 		<definition name="metaLoc7" type="{string}"  />
 		<property name="metaLoc7" value="$this.insts.impl.insts$name" />

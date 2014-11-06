@@ -43,6 +43,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.message.Message;
@@ -89,6 +90,11 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      * The associated resolver
      */
     private final ApamInstanceManager   instance;
+ 
+    /**
+     * The relation that is going to be injected
+     */
+    private final RelationDeclaration relation;
     
     /**
 	 * The relation injection managed by this relation
@@ -146,13 +152,15 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     private ApAMQueue<?> fieldBuffer;
     
     
-    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjectionHandler handler, RequirerInstrumentation injection) throws ConfigurationException {
+    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjectionHandler handler, RelationDeclaration relation,  RequirerInstrumentation injection) throws ConfigurationException {
         
         assert injection.getRequiredResource() instanceof MessageReference;
         
         this.component  = component;
         this.instance   = instance;
         this.handler	= handler;
+        
+        this.relation	= relation;
         this.injection  = injection;
         
         if (injection instanceof RequirerInstrumentation.MessageConsumerCallback) {
@@ -180,7 +188,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 
         try {
             this.messageFlavors = new Class<?>[] {this.component.loadClass(injection.getRequiredResource().getJavaType())};
-            this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getRelation().getIdentifier()+","+injection.getName()+"]";
+            this.consumerId     = NAME+"["+instance.getInstanceName()+","+relation.getIdentifier()+","+injection.getName()+"]";
             this.wires          = new HashMap<String,Wire>();
             this.buffer         = new ArrayBlockingQueue<Object>(MAX_BUFFER_SIZE);
             this.fieldBuffer	= new ApAMQueue<Object>(buffer);
@@ -196,6 +204,14 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      */
     ApformInstance getInstance() {
     	return instance.getApform();
+    }
+
+    /**
+	 * The relation injection associated to this manager
+	 */
+    @Override
+    public RelationDeclaration getRelation() {
+        return relation;
     }
     
     /**
@@ -213,9 +229,8 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	public Element getDescription() {
 
         Element consumerDescription = new Element("injection", ApamComponentFactory.APAM_NAMESPACE);
-		consumerDescription.addAttribute(new Attribute("relation", injection
-				.getRelation().getIdentifier()));
-        consumerDescription.addAttribute(new Attribute("target", injection.getRelation().getTarget().toString()));
+		consumerDescription.addAttribute(new Attribute("relation", relation.getIdentifier()));
+        consumerDescription.addAttribute(new Attribute("target", relation.getTarget().toString()));
         consumerDescription.addAttribute(new Attribute("method", injection.getName()));
         consumerDescription.addAttribute(new Attribute("type", injection.getRequiredResource().toString()));
         consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.acceptMultipleProviders())));

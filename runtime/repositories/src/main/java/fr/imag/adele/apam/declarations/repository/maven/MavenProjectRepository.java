@@ -1,16 +1,13 @@
 package fr.imag.adele.apam.declarations.repository.maven;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.ipojo.parser.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.repository.Repository;
@@ -36,18 +33,10 @@ public class MavenProjectRepository extends RepositoryChain implements Repositor
 	private final Reporter reporter;
 
 	/**
-	 * The list of components corresponding to the currently build bundle
+	 * The repository corresponding to the components built in the project
 	 */
-	private final List<ComponentDeclaration> components;
+	private final MavenArtifactRepository buildRepository;
 
-	/**
-	 * The list of components in the dependencies of the project
-	 */
-	private final List<ComponentDeclaration> dependencies;
-	
-	/**
-	 * 
-	 */
 	/**
 	 * The class path of the project
 	 */
@@ -61,13 +50,11 @@ public class MavenProjectRepository extends RepositoryChain implements Repositor
 		/*
 		 * load the main artifact
 		 */
-		MavenArtifactRepository buildRepository = new MavenArtifactRepository(project.getArtifact(),apamVersion,reporter);
+		this.buildRepository 	= new MavenArtifactRepository(project.getArtifact(),apamVersion,reporter);
 		
 		classpath.add(buildRepository);
 		addRepository(buildRepository);
 
-		this.components			= buildRepository.getComponents();
-		
 		/*
 		 * Get all COMPILE scope dependencies transitively
 		 */
@@ -95,8 +82,6 @@ public class MavenProjectRepository extends RepositoryChain implements Repositor
 		 * load the required artifacts
 		 */
 		
-		this.dependencies	= new ArrayList<ComponentDeclaration>();
-		
         for (Artifact requiredArtifact : requiredArtifacts) {
 
         	MavenArtifactRepository requiredRepository = new MavenArtifactRepository(requiredArtifact,apamVersion,reporter);
@@ -104,7 +89,6 @@ public class MavenProjectRepository extends RepositoryChain implements Repositor
         	classpath.add(requiredRepository);
         	if (includeDependencies && !requiredRepository.getComponents().isEmpty()) {
         		addRepository(requiredRepository);
-        		dependencies.addAll(requiredRepository.getComponents());
         	}
         	
         }
@@ -113,17 +97,10 @@ public class MavenProjectRepository extends RepositoryChain implements Repositor
 	/**
 	 * The list of components that are being build on this project
 	 */
-	public List<ComponentDeclaration> getComponents() {
-		return components;
+	public MavenArtifactRepository getBuildRepository() {
+		return buildRepository;
 	}
 
-	/**
-	 * The list of components in the dependencies of the project
-	 */
-	public List<ComponentDeclaration> getDependencies() {
-		return dependencies;
-	}
-	
 	/**
 	 * The class path of the project
 	 */

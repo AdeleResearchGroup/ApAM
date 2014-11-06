@@ -46,7 +46,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	private static class SystemRootInstance extends BaseApformComponent<Instance, InstanceDeclaration> implements ApformInstance {
 
 		public SystemRootInstance(Implementation rootImplementation, String name) {
-			super(new InstanceDeclaration(Versioned.any(rootImplementation.getImplDeclaration().getReference()),name, null));
+			super(new InstanceDeclaration(Versioned.any(rootImplementation.getImplDeclaration().getReference()),name));
 		}
 
 		@Override

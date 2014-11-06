@@ -48,6 +48,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
@@ -160,7 +161,14 @@ public class RemoteMachine implements ApformInstance {
 		protected RemoteImplementationDeclaration(String name, SpecificationReference specification) {
 		    super(name,Versioned.any(specification));
 		}
-	
+
+		/**
+		 * Clone declaration
+		 */
+		protected RemoteImplementationDeclaration(RemoteImplementationDeclaration original) {
+			super(original);
+		}
+		
 		@Override
 		protected ImplementationReference<?> generateReference() {
 		    return new RemoteImplementationReference(getName());
@@ -199,7 +207,7 @@ public class RemoteMachine implements ApformInstance {
 		this.isLocalhost = isLocalhost;
 		my_impl = daddy;
 		this.id = id;
-		my_declaration = new InstanceDeclaration(Versioned.any(daddy.getDeclaration().getReference()), "RemoteMachine_" + RootURL, null);
+		my_declaration = new InstanceDeclaration(Versioned.any(daddy.getDeclaration().getReference()), "RemoteMachine_" + RootURL);
 		my_declaration.setInstantiable(false);
 	
 		Apform2Apam.newInstance(this);

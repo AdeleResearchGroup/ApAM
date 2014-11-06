@@ -45,6 +45,16 @@ public class VisibilityDeclaration {
 	public VisibilityDeclaration() {
 	}
 
+	public VisibilityDeclaration(VisibilityDeclaration original) {
+		this.importImplementations	= original.importImplementations;
+		this.importInstances		= original.importInstances;
+
+		this.exportImplementations	= original.exportImplementations;
+		this.exportInstances		= original.exportInstances;
+
+		this.applicationInstances	= original.applicationInstances;
+	}
+	
 	/**
 	 * An expression that must be satisfied by all exported instances that are
 	 * available for other composites in the application

@@ -14,12 +14,12 @@
  *
  * FilterCheckHelpers.java - 7 nov. 2013
  */
-package fr.imag.adele.apam.apammavenplugin.helpers;
+package fr.imag.adele.apam.maven.plugin.helpers;
 
 import java.util.Map;
 
-import fr.imag.adele.apam.apammavenplugin.CheckObr;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.maven.plugin.validation.Validator;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 
@@ -40,7 +40,7 @@ public final class FilterCheckHelpers {
 	 */
 	public static boolean checkFilterOR(ApamFilter filt,
 			ComponentDeclaration component, Map<String, String> validAttr,
-			String f, String spec, CheckObr validator) {
+			String f, String spec, Validator validator) {
 		ApamFilter[] filters = (ApamFilter[]) filt.value;
 		for (ApamFilter filter : filters) {
 			if (!validator.checkFilter(filter, component, validAttr, f, spec)) {
@@ -57,7 +57,7 @@ public final class FilterCheckHelpers {
 	 * @param f
 	 * @param spec
 	 */
-	public static boolean checkFilterPRESENT(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec, CheckObr validator) {
+	public static boolean checkFilterPRESENT(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec, Validator validator) {
 		if (!Attribute.isFinalAttribute(filt.attr)
 				&& !validAttr.containsKey(filt.attr)) {
 			validator.error("Members of component " + spec

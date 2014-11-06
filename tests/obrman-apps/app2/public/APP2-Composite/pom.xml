@@ -33,6 +33,13 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
+	                        <configuration>
+	                           <inputAcr>
+	                               <repository>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</repository>
+	                               <repository>${basedir}/../../../repositories/app2.private.components/obr/app2.private.components-repo.xml</repository>
+	                               <repository>${basedir}/../../../repositories/public.components/obr/app-store.xml</repository>
+	                           </inputAcr>
+	                        </configuration>
 			</plugin>
 		</plugins>
 	</build>

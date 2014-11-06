@@ -23,6 +23,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- 		<relation field="s2_inv" /> -->
 		<property name="s5b" value="false" />
 		<property name="s5c" value="vals5c" />
-		<definition name="state" type="{threat, emergency, normal, ok, caCraint}" field="state" />
+		<definition name="state" type="threat, emergency, normal, ok, caCraint" field="state" />
 	</implementation>
 </apam>

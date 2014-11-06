@@ -23,7 +23,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<property name="s5-spec" value="coucous5" />
 		<definition name="s5b" type="boolean" default="true" />
 		<definition name="s5c" type="string" />
-		<definition name="state" type="{threat, emergency, normal, ok, caCraint}" />
+		<definition name="state" type="threat, emergency, normal, ok, caCraint" />
 	</specification>
 
 </apam>

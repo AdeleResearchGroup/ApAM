@@ -18,6 +18,7 @@ import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 
 /**
@@ -75,6 +76,11 @@ public interface RelationInjectionManager extends FieldInterceptor {
 		public boolean unresolve(RelationInjectionManager injection);
 		
 	} 
+
+	/**
+	 * The relation that is managed by this manager
+	 */
+	public abstract RelationDeclaration getRelation();
 	
 	/**
 	 * The relation injection that is managed by this manager

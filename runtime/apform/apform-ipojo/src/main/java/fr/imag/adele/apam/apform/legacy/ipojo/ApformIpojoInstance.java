@@ -41,10 +41,7 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
      * @param ipojoInstance
      */
     public ApformIpojoInstance(ComponentInstance ipojoInstance) {
-    	super( new InstanceDeclaration(Versioned.any(new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName())),
-    					ipojoInstance.getInstanceName(),
-    					null)
-    	);
+    	super( new InstanceDeclaration(Versioned.any(new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName())), ipojoInstance.getInstanceName()));
 
     	this.ipojoInstance = ipojoInstance;
     }

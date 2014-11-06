@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.declarations;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +46,11 @@ public abstract class ComponentDeclaration {
 	private final ComponentReference<?> reference;
 
 	/**
+	 * Whether this declaration has inherited features
+	 */
+	private final boolean isEffective;
+	
+	/**
 	 * The resources provided by this service
 	 */
 	protected final Set<ResourceReference> providedResources;
@@ -54,10 +60,6 @@ public abstract class ComponentDeclaration {
 	 */
 	private final Set<RelationDeclaration> relations;
 
-	/**
-	 * The predefined links of this service
-	 */
-	private final Set<LinkDeclaration> predefinedLinks;
 	/**
 	 * The properties describing this service provider
 	 */
@@ -87,10 +89,11 @@ public abstract class ComponentDeclaration {
 	/**
 	 * Whether the instance of this component can be shared by different clients
 	 */
-	public boolean isShared;
-	public boolean isDefinedShared;
+	private boolean isShared;
+	private boolean isDefinedShared;
 
-	protected ComponentDeclaration(String name) {
+	
+	private ComponentDeclaration(String name, boolean isEffective) {
 
 		assert name != null;
 
@@ -105,14 +108,13 @@ public abstract class ComponentDeclaration {
 		/*
 		 * declarations
 		 */
-		relations 	= new HashSet<RelationDeclaration>();
-		definitions = new ArrayList<PropertyDefinition>();
+		relations 		= new HashSet<RelationDeclaration>();
+		definitions 	= new ArrayList<PropertyDefinition>();
 
 		/*
-		 * links and property values
+		 * property values
 		 */
 		properties 		= new HashMap<String, String>();
-		predefinedLinks = new HashSet<LinkDeclaration>();
 
 		/*
 		 * Initialize default value for global properties
@@ -127,8 +129,58 @@ public abstract class ComponentDeclaration {
 		this.isDefinedSingleton 	= false;
 		this.isDefinedShared 		= false;
 
+		this.isEffective			= isEffective;
 	}
 
+	/**
+	 * The usual constructor for a new declaration
+	 */
+	protected ComponentDeclaration(String name) {
+		this(name,false);
+	}
+
+	/**
+	 * Copy constructor, creates a clone of a given component declaration, this is
+	 * used for computing effective declarations
+	 */
+	protected ComponentDeclaration(ComponentDeclaration original) {
+		
+		/*
+		 * initialize clone
+		 */
+		this(original.name, true);
+		
+		/*
+		 * provided resources
+		 */
+		this.providedResources.addAll(original.providedResources);
+
+		/*
+		 * declarations
+		 */
+		this.relations.addAll(original.relations);
+		this.definitions.addAll(original.definitions);
+
+		/*
+		 * property values
+		 */
+		this.properties.putAll(original.properties);
+		
+		/*
+		 * Initialize default value for global properties
+		 */
+		this.isInstantiable 		= original.isInstantiable;
+		this.isExclusive 			= original.isExclusive;
+		this.isSingleton 			= original.isSingleton;
+		this.isShared 				= original.isShared;
+		
+		this.isDefinedInstantiable 	= original.isDefinedInstantiable;
+		this.isDefinedExclusive 	= original.isDefinedExclusive;
+		this.isDefinedSingleton 	= original.isDefinedSingleton;
+		this.isDefinedShared 		= original.isDefinedShared;
+	}
+	
+	
 	/**
 	 * Generates a unique resource identifier to reference this declaration.
 	 * 
@@ -173,7 +225,122 @@ public abstract class ComponentDeclaration {
 	 * range of versions
 	 */
 	public abstract Versioned<?> getGroupVersioned();
+
+	/**
+	 * Whether this declaration has merged the inherited features of its group
+	 */
+	public boolean isEffective() {
+		return isEffective;
+	}
 	
+	/**
+	 * Computes the effective declaration that is the result of merging this declaration with
+	 * the definitions in its group.
+	 * 
+ 	 * @see #inheritFrom(ComponentDeclaration) for a description of the merging algorithm
+ 	 * common to all kinds of components
+	 * 
+	 */
+	public final ComponentDeclaration getEffectiveDeclaration(ComponentDeclaration group) {
+		
+		/*
+		 * First we clone this declaration, we need to use reflection because we want to create
+		 * an object of the same exact class as this, so we assume a clone constructor is defined
+		 * for each subclass of ComponentDeclaration. 
+		 */
+		try {
+			Constructor<? extends ComponentDeclaration> cloneConstructor = this.getClass().getDeclaredConstructor(this.getClass());
+			
+			ComponentDeclaration effective = cloneConstructor.newInstance(this);
+			effective.inheritFrom(group);
+			return effective;
+			
+		} catch (Exception e) {
+			/*
+			 * This should never happen, the component declaration hierarchy has been completely defined
+			 */
+			e.printStackTrace();
+			return null;
+		} 
+	}
+	
+	/**
+	 * Perform the standard inheritance of component features from the group.
+	 * 
+	 * The following elements are propagated from the group
+	 * 
+	 * 1) provided resources
+	 * 2) property and relation declarations
+	 * 3) valued properties
+	 * 
+	 * The following elements in this declaration can refine definitions in the group
+	 * 
+	 * 1) add constraints and instrumentation to relations
+	 * 2) add instrumentation to property definitions
+
+	 * Notice that this method is invoked by {@link #getEffectiveDeclaration(ComponentDeclaration)}
+	 * on a clone of the original declaration.
+	 * 
+	 * NOTE this method is intended to be redefined in subclasses to implement the specific
+	 * refinements depending on the kind of component. 
+	 */
+	protected void inheritFrom(ComponentDeclaration group) {
+		
+		if (this.getGroup() == null && group != null)
+			throw new IllegalArgumentException("Component "+ getName() +": trying to refine from invalid group "+group);
+
+		if (this.getGroup() != null && group == null)
+			throw new IllegalArgumentException("Component "+ getName() +": trying to refine from invalid null group");
+		
+		if (this.getGroup() != null && group != null && !this.getGroup().equals(group.getReference()))
+			throw new IllegalArgumentException("Component "+ getName() +": trying to refine from invalid group "+group);
+		
+		if (group == null)
+			return;
+		
+		/*
+		 *  Inherit the list of provided resources, only if an explicit list was not specified
+		 */
+		if (getProvidedResources().isEmpty())
+			this.getProvidedResources().addAll(group.getProvidedResources());
+		
+		/*
+		 * For relation definitions, verify inheritance and refinement
+		 */
+		for (RelationDeclaration relation : group.getRelations()) {
+			
+			RelationDeclaration refinement = this.getRelation(relation.getIdentifier());
+			if (refinement == null) {
+				this.getRelations().add(new RelationDeclaration(relation));
+			}
+			else {
+				this.getRelations().remove(refinement);
+				this.getRelations().add(relation.refinedBy(refinement));
+			}
+		}
+		
+		/*
+		 * For property definitions, verify inheritance and refinement
+		 */
+		for (PropertyDefinition property : group.getPropertyDefinitions()) {
+			
+			PropertyDefinition refinement = this.getPropertyDefinition(property.getName());
+			if (refinement == null) {
+				this.getPropertyDefinitions().add(property);
+			}
+			else {
+				this.getPropertyDefinitions().remove(refinement);
+				this.getPropertyDefinitions().add(property.refinedBy(refinement));
+			}
+		}
+		
+		/*
+		 * Property values in the group propagate and override this definition
+		 */
+		for (Map.Entry<String, String> property : group.getProperties().entrySet()) {
+			this.getProperties().put(property.getKey(),property.getValue());
+		}
+	}
 	
 	/**
 	 * Get the declared dependencies of this component
@@ -207,13 +374,6 @@ public abstract class ComponentDeclaration {
 		return getRelation(relation.getIdentifier());
 	}
 	
-	/**
-	 * Get the declared predefined links
-	 */
-	public Set<LinkDeclaration> getPredefinedLinks() {
-		return predefinedLinks;
-	}
-
 	/**
 	 * Get the properties describing this provider
 	 */

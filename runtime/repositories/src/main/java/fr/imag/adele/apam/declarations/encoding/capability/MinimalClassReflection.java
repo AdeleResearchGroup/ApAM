@@ -29,6 +29,11 @@ public class MinimalClassReflection implements AtomicImplementationDeclaration.C
     }
 
     @Override
+	public String getDeclaredFieldType(String fieldName) throws NoSuchFieldException {
+        throw new NoSuchFieldException("This class has no fields (not a real class, only a ClassName holder)");
+    }
+    
+    @Override
     public int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException {
         throw new NoSuchMethodException("This class has no methods (not a real class, only a ClassName holder)");
     }

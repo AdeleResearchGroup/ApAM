@@ -6,17 +6,16 @@ import java.util.Set;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CreationPolicy;
 import fr.imag.adele.apam.declarations.MissingPolicy;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
+import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 
 //import fr.imag.adele.apam.util.ApamFilter;
 
 public interface RelationDefinition {
 
 	public CreationPolicy getCreation();
-
-	// The source for composite relation definition
-	public String getCtxtSourceName();
 
 	// Get the constraints that need to be satisfied by the implementation that
 	// resolves the reference
@@ -128,4 +127,17 @@ public interface RelationDefinition {
 	// public <T extends Component> T getPrefered (Set<T> candidates) ;
 	//
 	public boolean matchRelation(Instance compoInst, RelationDefinition compoDep);
+	
+	/**
+	 * Checks if this relation can refine the specified declaration for refinement or override.
+	 * Matching can be based on the name of the declaring component or one of its ancestor groups
+	 * 
+	 */
+	public boolean refines(ComponentReference<?>group, RelationDeclaration relation);
+	
+	/**
+	 * Checks if this contextual relation definition applies to the specified source
+	 */
+	public boolean  appliesTo(ComponentReference<?> source);	
+	
 }

@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apammavenplugin;
+package fr.imag.adele.apam.maven.plugin;
 
 /**
  * @author jnascimento

@@ -62,7 +62,7 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyComposite(ComponentReference<CompositeDeclaration> implementation, String name, Map<String, String> initialProperties) {
 
-			super(new InstanceDeclaration(Versioned.any(implementation),name,null));
+			super(new InstanceDeclaration(Versioned.any(implementation),name));
 			
 			if (initialProperties != null) {
 				for (Map.Entry<String, String> property : initialProperties.entrySet()) {
@@ -214,7 +214,7 @@ public class APAMImpl implements Apam {
 		/*
 		 * Parse expected manager configuration
 		 */
-		String managerConfigurations[] = Util.stringArrayTrim(Util.split(configuration));
+		String managerConfigurations[] = Util.split(configuration);
 		
 		for (String managerConfiguration : managerConfigurations) {
 			String managerName	= managerConfiguration.trim();

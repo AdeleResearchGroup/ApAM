@@ -132,7 +132,7 @@ public class ImplementationReflection implements CodeReflection {
 	 * If the type of the specified field is one of the supported collections returns the type of the elements
 	 * in the collection, otherwise return null.
 	 * 
-	 * May return {@link CoreParser#UNDEFINED} if the type of the elements in the collection cannot be determined.
+	 * May return {@link UNKNOWN_TYPE} if the type of the elements in the collection cannot be determined.
 	 */
 	private static String getCollectionType(FieldMetadata field) {
 		String fieldType = field.getFieldType();
@@ -155,7 +155,7 @@ public class ImplementationReflection implements CodeReflection {
 	 * If the type of the specified field is one of the supported message queues returns the type of the message
 	 * data, otherwise return null.
 	 * 
-	 * May return {@link CoreParser#UNDEFINED} if the type of the data in the queue cannot be determined.
+	 * May return {@link UNKNOWN_TYPE} if the type of the data in the queue cannot be determined.
 	 */
 	private static String getMessageType(Field field) {
 		Type fieldType = field.getGenericType();
@@ -239,9 +239,45 @@ public class ImplementationReflection implements CodeReflection {
 		return className;
 	}
 
-	/**
-	 * Get the type of reference from the instrumented metadata of the field
-	 */
+    @Override
+	public String getDeclaredFieldType(String fieldName) throws NoSuchFieldException {
+		/*
+		 * Get iPojo metadata
+		 */
+		FieldMetadata fieldIPojoMetadata = null;
+		if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null)) {
+			fieldIPojoMetadata = pojoMetadata.getField(fieldName);
+		}
+
+		/*
+		 * Try to get reflection information if available,.
+		 */
+		Field fieldReflectionMetadata = null;
+		if (instrumentedCode != null) {
+			try {
+				fieldReflectionMetadata = instrumentedCode.getDeclaredField(fieldName);
+			} catch (Exception e) {
+			}
+		}
+
+		/*
+		 * Try to use reflection information
+		 */
+		if (fieldReflectionMetadata != null) {
+			return fieldReflectionMetadata.getType().getCanonicalName();
+		}
+
+		/*
+		 * Try to use iPojo metadata
+		 */
+		if (fieldIPojoMetadata != null) {
+			return fieldIPojoMetadata.getFieldType();
+		}
+
+		throw new NoSuchFieldException("unavailable field " + fieldName);
+
+    }
+    
 	@Override
 	public String getFieldType(String fieldName) throws NoSuchFieldException {
 
