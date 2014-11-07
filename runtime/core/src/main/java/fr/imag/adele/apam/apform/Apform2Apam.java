@@ -608,14 +608,19 @@ public class Apform2Apam {
 		public Component reify() {
 			
 			/*
-			 * Remove undefined properties that can have been added by iPOJO or when using directly an apform object
+			 * Remove undefined and redefined properties that can have been added by iPOJO or when using directly an apform object
 			 */
 			Implementation implementation = CST.componentBroker.getImpl(getComponent().getDeclaration().getImplementation().getName());
 			if (implementation != null) {
 				
 				Set<String> invalidProperties = new HashSet<String>();
 				for (String property : getComponent().getDeclaration().getProperties().keySet()) {
+
 					if (implementation.getPropertyDefinition(property) == null) {
+						invalidProperties.add(property);
+					}
+					
+					if (implementation.getProperty(property) != null) {
 						invalidProperties.add(property);
 					}
 				}

@@ -93,7 +93,7 @@ public class PropertyDefinition {
 	private final InjectedPropertyPolicy injected;
 
 	public PropertyDefinition(ComponentReference<?> component, String name, String type, String defaultValue) {
-		this(component, name, type, defaultValue, null, null, InjectedPropertyPolicy.INTERNAL);
+		this(component, name, type, defaultValue, null, null, InjectedPropertyPolicy.EXTERNAL);
 	}
 	
 	public PropertyDefinition(ComponentReference<?> component, String name, String type, String defaultValue, 

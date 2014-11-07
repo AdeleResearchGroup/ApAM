@@ -27,7 +27,9 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
+import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -44,8 +46,8 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 	 */
 	private static class Declaration extends ImplementationDeclaration {
 
-		protected Declaration(String name) {
-			super(name, null);
+		protected Declaration(String name, Versioned<SpecificationDeclaration> specification) {
+			super(name,specification);
 		}
 
 		/**
@@ -80,9 +82,20 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 	 */
 	private final IPojoFactory factory;
 	
-	public ApformIPojoImplementation(IPojoFactory factory) {
+	
+	public ApformIPojoImplementation(IPojoFactory factory, Versioned<SpecificationDeclaration> specification) {
 
-		super(new Declaration(factory.getName()));		
+		super(new Declaration(factory.getName(),specification));		
+
+		/*
+		 * Add a property to identify iPOJO factories
+		 */
+		
+		declaration.getPropertyDefinitions().add( new PropertyDefinition(declaration.getReference(), "ipojo.factory","boolean", null));
+		declaration.getProperties().put("ipojo.factory","true");
+		
+		declaration.getPropertyDefinitions().add( new PropertyDefinition(declaration.getReference(), "factory.name","string", null));
+		declaration.getProperties().put("factory.name", factory.getName());
 
 		/*
 		 * Add the list of provided interfaces
