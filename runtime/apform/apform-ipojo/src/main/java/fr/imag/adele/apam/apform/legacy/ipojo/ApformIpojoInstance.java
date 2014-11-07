@@ -22,7 +22,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.references.components.Versioned;
@@ -59,8 +58,7 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
          * Propagate OSGI registry properties to APAM
          */
         for (String key : reference.getPropertyKeys()) {
-            if (!Apform2Apam.isPlatformPrivateProperty(key))
-                this.declaration.getProperties().put(key, reference.getProperty(key).toString());
+        	this.declaration.getProperties().put(key, reference.getProperty(key).toString());
         }
 
     }

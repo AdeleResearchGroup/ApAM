@@ -1,11 +1,11 @@
-package fr.imag.adele.apam.declarations;
+package fr.imag.adele.apam.declarations.instrumentation;
 
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 
 /**
- * The base class of all declarations that require instrumenting (injecting,
- * intercepting, invoking, ...) the code of the implementation
+ * The base class of all declarations that require instrumenting (injecting, intercepting, invoking, ...)
+ * the code of the implementation
  * 
  * @author vega
  * 
@@ -13,8 +13,8 @@ import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 public abstract class Instrumentation {
 
 	/**
-	 * A small utility to handle lazy evaluation of values that are calculated
-	 * from the reflection information, and that remain constant afterwards.
+	 * A small utility to handle lazy evaluation of values that are calculated from the reflection information,
+	 * and that remain constant afterwards.
 	 */
 	protected abstract class Lazy<T> {
 
@@ -26,7 +26,7 @@ public abstract class Instrumentation {
 			isEvaluated = false;
 		}
 
-		protected abstract T evaluate(CodeReflection reflection);
+		protected abstract T evaluate(InstrumentedClass instrumentedClass);
 
 		public T get() {
 
@@ -34,7 +34,7 @@ public abstract class Instrumentation {
 				return value;
 			}
 
-			value = evaluate(reflection);
+			value = evaluate(instrumentedClass);
 			isEvaluated = true;
 			return value;
 		}
@@ -46,13 +46,13 @@ public abstract class Instrumentation {
 	protected final ComponentReference<AtomicImplementationDeclaration> implementation;
 	
 	/**
-	 * The code reflection associated with this instrumentation
+	 * The instrumented class associated with the implementation
 	 */
-	protected final CodeReflection reflection;
+	protected final InstrumentedClass instrumentedClass;
 
-	protected Instrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, CodeReflection reflection) {
-		this.implementation = implementation;
-		this.reflection		= reflection;
+	protected Instrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, InstrumentedClass instrumentedClass) {
+		this.implementation 	= implementation;
+		this.instrumentedClass	= instrumentedClass;
 	}
 
 	/**
@@ -63,8 +63,7 @@ public abstract class Instrumentation {
 	}
 
 	/**
-	 * An unique identifier for this injection, within the scope of the
-	 * declaring implementation
+	 * An unique identifier for this injection, within the scope of the declaring implementation
 	 */
 	public abstract String getName();
 	

@@ -68,7 +68,8 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
  * TODO currently this class has an important performance overhead, as it reacts to every event
  * in the registry by trying to match all the declared Apam specifications. A more fine-grained
  * approach will be to build a service tracker for each Apam specification with the appropriate
- * registry filter, that reacts only to meaningfull events.    
+ * registry filter, that reacts only to meaningful events.
+ *   
  * @author vega
  *
  */
@@ -290,17 +291,17 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     public void modifiedService(ServiceReference reference, Object instance) {
     	
         ApformOSGiInstance osgiInstance	= (ApformOSGiInstance) instance;
-    	Instance apamInstnstance 		= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
+    	Instance apamInstance 			= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
 
-    	if (apamInstnstance == null)
+    	if (apamInstance == null)
     		return;
     	
 
         for (String key : reference.getPropertyKeys()) {
-            if (!Apform2Apam.isPlatformPrivateProperty(key)) {
+            if (osgiInstance.getSpecification().getPropertyDefinition(key) != null) {
                 String value = reference.getProperty(key).toString();
-                if (value != apamInstnstance.getProperty(key))
-                	apamInstnstance.setProperty(key, value);
+                if (value != apamInstance.getProperty(key))
+                	apamInstance.setProperty(key, value);
             }
         }
 

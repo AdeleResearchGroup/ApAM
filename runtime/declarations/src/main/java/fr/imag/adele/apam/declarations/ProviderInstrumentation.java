@@ -14,7 +14,8 @@
  */
 package fr.imag.adele.apam.declarations;
 
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.instrumentation.Instrumentation;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
@@ -52,9 +53,9 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 		private final Lazy<MessageReference> methodReturnType = new Lazy<MessageReference>() {
 
 			@Override
-			protected MessageReference evaluate(CodeReflection reflection) {
+			protected MessageReference evaluate(InstrumentedClass instrumentedClass) {
 				try {
-					return new MessageReference(reflection.getMethodReturnType(methodName, methodSignature, false));
+					return new MessageReference(instrumentedClass.getMethodReturnType(methodName, methodSignature, false));
 				} catch (NoSuchMethodException e) {
 					return null;
 				}
@@ -62,7 +63,7 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 		};
 
 		public MessageProviderMethodInterception(AtomicImplementationDeclaration implementation, String methodName, String methodSignature) {
-			super(implementation.getReference(), implementation.getReflection());
+			super(implementation.getReference(), implementation.getImplementationClass());
 
 			assert methodName != null;
 
@@ -111,8 +112,8 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 
 	}
 
-	protected ProviderInstrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, CodeReflection reflection) {
-		super(implementation,reflection);
+	protected ProviderInstrumentation(ComponentReference<AtomicImplementationDeclaration> implementation, InstrumentedClass instrumentedClass) {
+		super(implementation,instrumentedClass);
 	}
 
 	/**

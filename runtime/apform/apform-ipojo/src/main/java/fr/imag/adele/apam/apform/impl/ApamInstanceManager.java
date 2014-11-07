@@ -47,9 +47,9 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.references.components.Versioned;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
@@ -79,9 +79,8 @@ public class ApamInstanceManager extends InstanceManager implements
 	 */
 	protected Apform apform;
 
-	public ApamInstanceManager(ApamImplementationFactory implementation,
-			boolean isApamCreated, BundleContext context,
-			HandlerManager[] handlers) {
+	public ApamInstanceManager(ApamImplementationFactory implementation, boolean isApamCreated,
+				BundleContext context, HandlerManager[] handlers) {
 
 		super(implementation, context, handlers);
 
@@ -111,8 +110,7 @@ public class ApamInstanceManager extends InstanceManager implements
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void configure(Element metadata, Dictionary configuration)
-			throws ConfigurationException {
+	public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
 
 		String instanceName = (String) configuration.get("instance.name");
 
@@ -123,27 +121,24 @@ public class ApamInstanceManager extends InstanceManager implements
 			
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();
-				if (!Apform2Apam.isPlatformPrivateProperty(property))
-					declaration.getProperties().put(property,
-							configuration.get(property).toString());
+				declaration.getProperties().put(property, configuration.get(property).toString());
 			}
 		}
 
 		/*
 		 * Create the associated Apform component
 		 * 
-		 * IMPORTANT This must be done before invoking super.configure() because
-		 * APAM handler configuration requires that the Apform be initialized.
+		 * IMPORTANT This must be done before invoking super.configure() because APAM handler configuration
+		 * requires that the Apform be initialized.
 		 * 
-		 * TODO refactor responsibilities between the Apform and the instance
-		 * manager to avoid such fragile ordering problems
+		 * TODO refactor responsibilities between the Apform and the instance manager to avoid such fragile
+		 * ordering problems
 		 */
 		apform = this.new Apform();
 
 		/*
-		 * InstanceManager.configure assumes that there is instrumented code
-		 * manipulation data, so we cannot reuse this method for APAM abstract
-		 * components. This is one of the drawbacks of trying to reuse
+		 * InstanceManager.configure assumes that there is instrumented code manipulation data, so we cannot
+		 * reuse this method for APAM abstract components. This is one of the drawbacks of trying to reuse
 		 * InstanceManager for all kind of APAM components.
 		 */
 
@@ -185,31 +180,22 @@ public class ApamInstanceManager extends InstanceManager implements
 					.getHandlerDescription("org.apache.felix.ipojo:provides");
 
 			if (configuration != null) {
-				for (PropertyDescription configurationProperty : configuration
-						.getProperties()) {
-					declaration.getProperties().put(
-							configurationProperty.getName(),
-							configurationProperty.getValue());
+				for (PropertyDescription configurationProperty : configuration.getProperties()) {
+					declaration.getProperties().put(configurationProperty.getName(),configurationProperty.getValue());
 				}
 			}
 
 			if (provides != null) {
-				for (ProvidedServiceDescription providedServiceDescription : provides
-						.getProvidedServices()) {
-					for (Object key : providedServiceDescription
-							.getProperties().keySet()) {
-						declaration.getProperties().put(
-								(String) key,
-								providedServiceDescription.getProperties()
-										.get(key).toString());
+				for (ProvidedServiceDescription providedServiceDescription : provides.getProvidedServices()) {
+					for (Object key : providedServiceDescription.getProperties().keySet()) {
+						declaration.getProperties().put((String) key,providedServiceDescription.getProperties().get(key).toString());
 					}
 				}
 			}
 		}
 
 		/*
-		 * For instances that are not created using the Apam API, register
-		 * instance with APAM on validation
+		 * For instances that are not created using the Apam API, register instance with APAM on validation
 		 */
 		if (state == ComponentInstance.VALID && !isApamCreated)
 			Apform2Apam.newInstance(getApform());
@@ -234,15 +220,13 @@ public class ApamInstanceManager extends InstanceManager implements
 		 * This instance is not actually yet managed by APAM
 		 */
 		if (getApform().getApamComponent() == null) {
-			System.err.println("resolve failure for client "
-					+ getInstanceName() + " : APAM instance unkown");
+			System.err.println("resolve failure for client " + getInstanceName() + " : APAM instance unkown");
 			return false;
 		}
 
 		Apam apam = getFactory().getApam();
 		if (apam == null) {
-			System.err.println("resolve failure for client "
-					+ getInstanceName() + " : APAM not found");
+			System.err.println("resolve failure for client " + getInstanceName() + " : APAM not found");
 			return false;
 		}
 
@@ -290,8 +274,7 @@ public class ApamInstanceManager extends InstanceManager implements
 
 		Apam apam = getFactory().getApam();
 		if (apam == null) {
-			System.err.println("unresolve failure for client "
-					+ getInstanceName() + " : APAM not found");
+			System.err.println("unresolve failure for client " + getInstanceName() + " : APAM not found");
 			return false;
 		}
 
@@ -339,7 +322,7 @@ public class ApamInstanceManager extends InstanceManager implements
 		}
 		
 		/*
-		 * egister callbacks
+		 * register callbacks
 		 */
 		for (AtomicImplementationDeclaration.Event trigger : AtomicImplementationDeclaration.Event.values()) {
 
@@ -366,8 +349,7 @@ public class ApamInstanceManager extends InstanceManager implements
 
 
 	/**
-	 * Stop the component when the remove callback is explicitly invoked by
-	 * code
+	 * Stop the component when the remove callback is explicitly invoked by code
 	 */
 	@Override
 	public void onFinally(Object pojo, Member method) {
@@ -493,9 +475,8 @@ public class ApamInstanceManager extends InstanceManager implements
 			if (pojo == null)
 				return;
 
-			PropertyInjectionHandler handler = (PropertyInjectionHandler) ApamInstanceManager.this
-					.getHandler(ApamComponentFactory.APAM_NAMESPACE + ":"
-							+ PropertyInjectionHandler.NAME);
+			PropertyInjectionHandler handler = (PropertyInjectionHandler) ApamInstanceManager.this.getHandler(
+													ApamComponentFactory.APAM_NAMESPACE + ":"+ PropertyInjectionHandler.NAME);
 
 			if (apamComponent != null) { // starting the instance
 

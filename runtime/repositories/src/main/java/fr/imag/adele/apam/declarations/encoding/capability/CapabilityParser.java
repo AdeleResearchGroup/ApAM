@@ -24,6 +24,8 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
+import fr.imag.adele.apam.declarations.instrumentation.UnloadedClassMetadata;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
@@ -108,7 +110,7 @@ public class CapabilityParser implements Decoder<Capability> {
 		        	String range 												= property(CST.REQUIRE_VERSION);
 		        	Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,range) : null;
 		        	
-		        	AtomicImplementationDeclaration.CodeReflection instrumentedClass =  new MinimalClassReflection(property(CST.PROVIDE_CLASSNAME));
+		        	InstrumentedClass instrumentedClass =  new UnloadedClassMetadata(property(CST.PROVIDE_CLASSNAME));
 		            component = new AtomicImplementationDeclaration(componentName, specificationVersion, instrumentedClass);
 		        }
 				break;

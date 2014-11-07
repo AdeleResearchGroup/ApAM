@@ -4,7 +4,7 @@ import org.apache.felix.ipojo.ConfigurationException;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.CallbackDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
 
 /**
  * This is the callback associated to the APAM component lifecycle

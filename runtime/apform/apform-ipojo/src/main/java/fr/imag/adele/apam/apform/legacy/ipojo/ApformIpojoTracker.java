@@ -431,18 +431,18 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer, Apform2Apam
         /*
          * If the service is not reified in APAM, just ignore event
          */
-        Instance inst = CST.componentBroker.getInst(ipojoInstance.getInstanceName());
-        if (inst == null)
+        Instance instance = CST.componentBroker.getInst(ipojoInstance.getInstanceName());
+        if (instance == null)
             return;
 
         /*
          * Otherwise propagate property changes to Apam
          */
         for (String key : reference.getPropertyKeys()) {
-            if (!Apform2Apam.isPlatformPrivateProperty(key)) {
+            if (instance.getImpl().getDeclaration().getPropertyDefinition(key) != null) {
                 String value = reference.getProperty(key).toString();
-                if (value != inst.getProperty(key))
-                    inst.setProperty(key, value);
+                if (value != instance.getProperty(key))
+                    instance.setProperty(key, value);
             }
         }
     }

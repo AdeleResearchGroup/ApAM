@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
@@ -635,7 +636,7 @@ public class RelationDeclaration extends ConstrainedReference {
 				&& !getCallback(Event.BIND).isEmpty()) {
 			ret.append("\n         added");
 			for (CallbackDeclaration inj : getCallback(Event.BIND)) {
-				ret.append("\n            " + inj.methodName);
+				ret.append("\n            " + inj.getMethodName());
 			}
 		}
 
@@ -643,7 +644,7 @@ public class RelationDeclaration extends ConstrainedReference {
 				&& !getCallback(Event.UNBIND).isEmpty()) {
 			ret.append("\n         removed");
 			for (CallbackDeclaration inj : getCallback(Event.UNBIND)) {
-				ret.append("\n            " + inj.methodName);
+				ret.append("\n            " + inj.getMethodName());
 			}
 		}
 

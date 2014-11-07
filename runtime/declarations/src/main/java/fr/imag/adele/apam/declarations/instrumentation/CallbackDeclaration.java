@@ -12,10 +12,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.declarations;
+package fr.imag.adele.apam.declarations.instrumentation;
 
 import java.util.Arrays;
 import java.util.List;
+
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 
 /**
  * The declaration of a method that needs to be invoked on the implementation to
@@ -34,7 +36,7 @@ public class CallbackDeclaration extends Instrumentation {
 	/**
 	 * The name of the method that must be invoked
 	 */
-	protected final String methodName;
+	private final String methodName;
 
 	private final boolean disableValidation;
 	
@@ -49,7 +51,7 @@ public class CallbackDeclaration extends Instrumentation {
 	}
 	
 	public CallbackDeclaration(AtomicImplementationDeclaration implementation,String methodName, boolean disableValidation) {
-		super(implementation.getReference(), implementation.getReflection());
+		super(implementation.getReference(), implementation.getImplementationClass());
 
 		assert methodName != null;
 		this.methodName = methodName;
@@ -73,7 +75,7 @@ public class CallbackDeclaration extends Instrumentation {
 	public boolean isValidInstrumentation() {
 		try {
 
-			int parameterNumber = reflection.getMethodParameterNumber(methodName, true);
+			int parameterNumber = instrumentedClass.getMethodParameterNumber(methodName, true);
 
 			if (parameterNumber == 0) {
 				return true;
@@ -83,7 +85,7 @@ public class CallbackDeclaration extends Instrumentation {
 				return false;
 			}
 
-			String[] types = reflection.getMethodParameterTypes(methodName, true);
+			String[] types = instrumentedClass.getMethodParameterTypes(methodName, true);
 
 			return disableValidation || APAM_COMPONENTS.contains(types[0]);
 

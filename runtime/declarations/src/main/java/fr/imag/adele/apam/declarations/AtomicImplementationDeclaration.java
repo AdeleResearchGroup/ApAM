@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.components.Versioned;
 
@@ -30,64 +32,6 @@ import fr.imag.adele.apam.declarations.references.components.Versioned;
  * 
  */
 public class AtomicImplementationDeclaration extends ImplementationDeclaration {
-
-	/**
-	 * An interface giving access to reflection data associated with this
-	 * implementation
-	 */
-	public interface CodeReflection {
-
-		/**
-		 * The name of the associated java class
-		 */
-		String getClassName();
-
-		/**
-		 * Whether the specified java field is one of the supported collections
-		 */
-		boolean isCollectionField(String fieldName) throws NoSuchFieldException;
-
-		/**
-		 * Whether the specified java field is one of the supported message queues
-		 */
-		boolean isMessageQueueField(String fieldName) throws NoSuchFieldException;
-
-		/**
-		 * The type of the specified java field, for collections is the type of the element type
-		 */
-		String getFieldType(String fieldName) throws NoSuchFieldException;
-	
-		/**
-		 * The type of the specified java field 
-		 */
-		String getDeclaredFieldType(String fieldName) throws NoSuchFieldException;
-		
-		/**
-		 * A special type to signal an unknown field type
-		 */
-		public static final String UNKNOWN_TYPE = new String("<UNKNOWN_TYPE>");
-		
-		/**
-		 * The number of parameters of the specified java method
-		 */
-		int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException;
-
-		/**
-		 * The type of of the specified single-parameter java method
-		 */
-		String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException;
-
-		/**
-		 * The list of parameter types
-		 */
-		String[] getMethodParameterTypes(String methodName,	boolean includeInherited) throws NoSuchMethodException;
-
-		/**
-		 * The type of return of the specified java method
-		 */
-		String getMethodReturnType(String methodName, String signature,	boolean includeInherited) throws NoSuchMethodException;
-
-	}
 
 	/**
 	 * The events associated to the runtime life-cycle of the component
@@ -108,9 +52,9 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	}
 
 	/**
-	 * A reference to the reflection data associated with this implementation
+	 * A reference to the class associated with this implementation
 	 */
-	private final CodeReflection reflection;
+	private final InstrumentedClass clazz;
 
 
 	/**
@@ -125,12 +69,12 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	private Map<Event, Set<CallbackDeclaration>> callbacks;
 
 
-	public AtomicImplementationDeclaration(String name, Versioned<SpecificationDeclaration> specification, CodeReflection reflection) {
+	public AtomicImplementationDeclaration(String name, Versioned<SpecificationDeclaration> specification, InstrumentedClass clazz) {
 		super(name, specification);
 
-		assert reflection != null;
+		assert clazz != null;
 
-		this.reflection 				= reflection;
+		this.clazz 						= clazz;
 		this.providerInstrumentations	= new HashSet<ProviderInstrumentation>();
 		this.callbacks 					= new HashMap<Event, Set<CallbackDeclaration>>();
 	}
@@ -142,7 +86,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	protected AtomicImplementationDeclaration(AtomicImplementationDeclaration original) {
 		super(original);
 		
-		this.reflection 				= original.reflection;
+		this.clazz 						= original.clazz;
 		this.providerInstrumentations	= new HashSet<ProviderInstrumentation>(original.providerInstrumentations);
 		
 		/*
@@ -186,7 +130,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	 * The name of the class implementing the service provider
 	 */
 	public String getClassName() {
-		return reflection.getClassName();
+		return clazz.getName();
 	}
 
 	/**
@@ -198,10 +142,10 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	}
 
 	/**
-	 * The reflection data associated with this implementation
+	 * The implementation class associated with this implementation
 	 */
-	public CodeReflection getReflection() {
-		return reflection;
+	public InstrumentedClass getImplementationClass() {
+		return clazz;
 	}
 
 

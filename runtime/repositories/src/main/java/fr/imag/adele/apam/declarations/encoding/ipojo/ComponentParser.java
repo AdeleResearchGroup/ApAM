@@ -14,8 +14,6 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
-import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
@@ -32,12 +30,14 @@ import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.Reporter;
+import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser.IntrospectionService;
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
@@ -849,7 +849,7 @@ public class ComponentParser implements Decoder<Element> {
 		} catch (Exception ignoredException) {
 		}
 
-		CodeReflection reflection = new ImplementationReflection(className, pojoMetadata, instrumentedCode);
+		InstrumentedClass instrumentedClass = new InstrumentedClassMetadata(className, pojoMetadata, instrumentedCode);
 
 		/*
 		 * load specification
@@ -858,7 +858,7 @@ public class ComponentParser implements Decoder<Element> {
         String  versionRange										= parseString(name, element, ATT_REQUIRE_VERSION, false);
         Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,versionRange) : null;
         
-        AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name, specificationVersion, reflection);
+        AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name, specificationVersion, instrumentedClass);
         
 		parseComponent(element, declaration);
 

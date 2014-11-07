@@ -9,6 +9,7 @@ import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InjectedField;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.declarations.repository.maven.Classpath;
@@ -56,13 +57,13 @@ public class AtomicComponentValidator extends ComponentValidator<AtomicImplement
 		 * validate fields are not injected several times
 		 */
 		
-		Map<RequirerInstrumentation.InjectedField,RelationDeclaration> injectedFields = new HashMap<RequirerInstrumentation.InjectedField,RelationDeclaration>();
+		Map<InjectedField,RelationDeclaration> injectedFields = new HashMap<InjectedField,RelationDeclaration>();
 		
 		for (RelationDeclaration relation : getComponent().getRelations()) {
 			for (RequirerInstrumentation instrumentation : relation.getInstrumentations()) {
-				if (instrumentation instanceof RequirerInstrumentation.InjectedField) {
+				if (instrumentation instanceof InjectedField) {
 					
-					RequirerInstrumentation.InjectedField injectedField = (RequirerInstrumentation.InjectedField) instrumentation;
+					InjectedField injectedField = (InjectedField) instrumentation;
 					if (injectedFields.containsKey(injectedField)) {
 						error("invalid relation injection " + relation.getIdentifier() + ", field "+quoted(injectedField.getName())+" is already injected in relation "+quoted(injectedFields.get(injectedField).getIdentifier()));
 					}

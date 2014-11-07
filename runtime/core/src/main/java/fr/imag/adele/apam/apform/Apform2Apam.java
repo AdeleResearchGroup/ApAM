@@ -24,12 +24,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 
 public class Apform2Apam {
@@ -584,6 +584,7 @@ public class Apform2Apam {
 	/**
 	 * Task to handle instance deployment
 	 * 
+	 * 
 	 * @author vega
 	 * 
 	 */
@@ -605,6 +606,26 @@ public class Apform2Apam {
 
 		@Override
 		public Component reify() {
+			
+			/*
+			 * Remove undefined properties that can have been added by iPOJO or when using directly an apform object
+			 */
+			Implementation implementation = CST.componentBroker.getImpl(getComponent().getDeclaration().getImplementation().getName());
+			if (implementation != null) {
+				
+				Set<String> invalidProperties = new HashSet<String>();
+				for (String property : getComponent().getDeclaration().getProperties().keySet()) {
+					if (implementation.getPropertyDefinition(property) == null) {
+						invalidProperties.add(property);
+					}
+				}
+				
+				getComponent().getDeclaration().getProperties().keySet().removeAll(invalidProperties);
+			}
+			
+			/*
+			 * add the insatnce to the broker
+			 */
 			return CST.componentBroker.addInst(null, getComponent());
 		}
 
@@ -640,19 +661,6 @@ public class Apform2Apam {
 		}
 	}
 
-
 	private static Logger logger = LoggerFactory.getLogger(Apform2Apam.class);
-
-	private static List<String> platformPrivateProperties = Arrays.asList(new String[] { Constants.SERVICE_ID, Constants.OBJECTCLASS, "factory.name", "instance.name" });
-
-
-	/**
-	 * Check if a property is a platform private information that must not be
-	 * propagated to APAM
-	 */
-	public static boolean isPlatformPrivateProperty(String key) {
-		return platformPrivateProperties.contains(key);
-	}
-
 
 }

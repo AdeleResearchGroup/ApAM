@@ -1,9 +1,9 @@
 package fr.imag.adele.apam.maven.plugin.validation;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.maven.plugin.validation.property.PrimitiveType;
 import fr.imag.adele.apam.maven.plugin.validation.property.Type;
 import fr.imag.adele.apam.util.Attribute;
@@ -43,7 +43,8 @@ public class InstrumentedPropertyValidator extends PropertyValidator {
 				error("Property " + quoted(getProperty().getName()) + " is already defined, type "+groupType+" cannot be changed");
 			}
 			
-			if (getProperty().getDefaultValue() != null) {
+			String groupDefaultValue = isPredefined ? null : groupDeclaration.getDefaultValue();
+			if (groupDefaultValue != null && getProperty().getDefaultValue() != null) {
 				error("Property " + quoted(getProperty().getName()) + " is already defined, default value cannot be changed");
 			}
 			
@@ -53,7 +54,7 @@ public class InstrumentedPropertyValidator extends PropertyValidator {
 	
 	protected void validateInstrumentation() {
 		
-		CodeReflection reflection = getComponent().getReflection();
+		InstrumentedClass instrumentedClass = getComponent().getImplementationClass();
 		
 		/*
 		 * Verify the callback method has a single parameter of a type compatible with the type of property
@@ -63,16 +64,16 @@ public class InstrumentedPropertyValidator extends PropertyValidator {
 			String method = getProperty().getCallback().trim();
 
 			try {
-				boolean hasParameter = reflection.getMethodParameterNumber(method,true) > 0;
+				boolean hasParameter = instrumentedClass.getMethodParameterNumber(method,true) > 0;
 				if (hasParameter) {
-					String parameter = reflection.getMethodParameterType(method,true);
+					String parameter = instrumentedClass.getMethodParameterType(method,true);
 					if (!getType().isAssignableTo(parameter) && !parameter.equals(String.class.getCanonicalName())) {
 						error("Property " + quoted(getProperty().getName()) + ", the specified method "+quoted(method)+" must have a parameter of type "+getType());
 					}
 				}
 			}
 			catch (NoSuchMethodException undefined) {
-				error("Property " + quoted(getProperty().getName()) + ", the specified single-parameter method "+quoted(method)+" is not defined in class "+reflection.getClassName());
+				error("Property " + quoted(getProperty().getName()) + ", the specified single-parameter method "+quoted(method)+" is not defined in class "+instrumentedClass.getName());
 			}
 		}
 
@@ -84,13 +85,13 @@ public class InstrumentedPropertyValidator extends PropertyValidator {
 			String field = getProperty().getField().trim();
 
 			try {
-				String fieldType = reflection.getDeclaredFieldType(field);
+				String fieldType = instrumentedClass.getDeclaredFieldType(field);
 				if (!getType().isAssignableTo(fieldType)) {
 					error("Property " + quoted(getProperty().getName()) + ", the specified field "+quoted(field)+" must have type "+getType());
 				}
 			}
 			catch (NoSuchFieldException undefined) {
-				error("Property " + quoted(getProperty().getName()) + ", the specified field "+quoted(field)+" is not defined in class "+reflection.getClassName());
+				error("Property " + quoted(getProperty().getName()) + ", the specified field "+quoted(field)+" is not defined in class "+instrumentedClass.getName());
 			}
 			
 		}

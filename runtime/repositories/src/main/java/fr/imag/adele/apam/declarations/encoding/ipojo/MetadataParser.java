@@ -23,11 +23,11 @@ import fr.imag.adele.apam.declarations.encoding.Decoder;
 /**
  * Parse an APAM declaration from its iPojo metadata representation.
  * 
- * Notice that this parser tries to build a representation of the metadata
- * declarations even in the presence of errors. It is up to the error handler to
- * abort parsing if necessary by throwing unrecoverable parsing exceptions. It
- * will add place holders for missing information that can be verified after
- * parsing by another tool.
+ * Notice that this parser tries to build a representation of the metadata declarations even in the presence
+ * of errors. It is up to the error handler to abort parsing if necessary by throwing unrecoverable parsing
+ * exceptions. 
+ * 
+ * It will add place holders for missing information that can be verified after parsing by another tool.
  * 
  * @author vega
  * 

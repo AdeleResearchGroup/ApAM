@@ -43,21 +43,9 @@
 		<requires field="wireAdmin" proxy="false" nullable="false" optional="true" />
 	</handler>
 
-	<handler classname="fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler" name="properties"
-		namespace="fr.imag.adele.apam">
-	</handler>
-
 	<component name="APAM" classname="fr.imag.adele.apam.impl.APAMImpl" immediate="true">
 		<provides />
 	</component>
 
-	<!-- <component name="APAMMAN" classname="fr.imag.adele.apam.impl.ApamMan" -->
-	<!-- immediate="true"> -->
-	<!-- <provides /> -->
-	<!-- <callback transition="validate" method="start" /> -->
-	<!-- <callback transition="invalidate" method="stop" /> -->
-	<!-- </component> -->
-
-	<!-- <instance name="APAMMAN-Instance" component="APAMMAN"></instance> -->
 	<instance name="APAM-Instance" component="APAM"></instance>
 </ipojo>

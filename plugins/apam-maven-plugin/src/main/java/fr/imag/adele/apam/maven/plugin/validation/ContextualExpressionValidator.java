@@ -6,11 +6,11 @@ import java.util.Set;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
@@ -295,28 +295,28 @@ public class ContextualExpressionValidator extends AbstractValidator<String,Type
 		/*
 		 *  Validate the specified method is valid
 		 */
-		CodeReflection reflection = ((AtomicImplementationDeclaration) context).getReflection();
+		InstrumentedClass instrumentedClass = ((AtomicImplementationDeclaration) context).getImplementationClass();
 
 		try {
 			/*
 			 * Verify the method has a single parameter of type Instance
 			 */
-			String parameterType  = reflection.getMethodParameterType(method,true);
+			String parameterType  = instrumentedClass.getMethodParameterType(method,true);
 			
 			if (parameterType == null) {
-				error("Invalid substitute value, method "+method+" with a single parameter is not defined in class "+reflection.getClassName());
+				error("Invalid substitute value, method "+method+" with a single parameter is not defined in class "+instrumentedClass.getName());
 				return null;
 			}
 			
 			if (!ComponentKind.INSTANCE.isAssignableTo(parameterType)) {
-				error("Invalid substitute value, method "+method+" with a single Instance parameter is not defined in class "+reflection.getClassName());
+				error("Invalid substitute value, method "+method+" with a single Instance parameter is not defined in class "+instrumentedClass.getName());
 				return null;
 			}
 
 			/*
 			 * Verify the method return type is one of the supported property primitive types
 			 */
-			String  returnType = reflection.getMethodReturnType(method, null,true);
+			String  returnType = instrumentedClass.getMethodReturnType(method, null,true);
 			if (returnType == null) {
 				error("Invalid substitute value, method "+method+"does not return a value");
 				return null;
@@ -341,7 +341,7 @@ public class ContextualExpressionValidator extends AbstractValidator<String,Type
 			return null;
 			
 		} catch (NoSuchMethodException exc) {
-			error("Invalid substitute value, method "+method+" with a single parameter is not defined in class "+reflection.getClassName());
+			error("Invalid substitute value, method "+method+" with a single parameter is not defined in class "+instrumentedClass.getName());
 			return null;
 		}
 		

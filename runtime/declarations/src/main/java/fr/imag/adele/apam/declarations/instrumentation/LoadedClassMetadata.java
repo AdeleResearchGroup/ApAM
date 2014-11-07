@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.declarations.encoding.ipojo;
+package fr.imag.adele.apam.declarations.instrumentation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -14,42 +14,24 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.felix.ipojo.parser.FieldMetadata;
-import org.apache.felix.ipojo.parser.MethodMetadata;
-import org.apache.felix.ipojo.parser.PojoMetadata;
 
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 
 /**
  * A utility class to obtain information about declared fields and methods.
  * 
- * It tries to use java reflection metadata if available, otherwise it fall
- * backs to use the iPojo metadata
- * 
  * @author vega
  * 
  */
-public class ImplementationReflection implements CodeReflection {
+public class LoadedClassMetadata implements InstrumentedClass {
 
 	/**
-	 * The iPojo generated metadata
+	 * The loaded class
 	 */
-	private final PojoMetadata pojoMetadata;
+	private final Class<?> loadedClass;
 
-	/**
-	 * The name of the instrumented class
-	 */
-	private final String className;
-
-	/**
-	 * The optional reflection information
-	 */
-	private final Class<?> instrumentedCode;
-
-	public ImplementationReflection(String className, PojoMetadata pojoMetadata, Class<?> instrumentedCode) {
-		this.className = className;
-		this.pojoMetadata = pojoMetadata;
-		this.instrumentedCode = instrumentedCode;
+	public LoadedClassMetadata(Class<?> loadedClass) {
+		this.loadedClass = loadedClass;
 	}
 
 	/**
@@ -129,29 +111,6 @@ public class ImplementationReflection implements CodeReflection {
 	}
 
 	/**
-	 * If the type of the specified field is one of the supported collections returns the type of the elements
-	 * in the collection, otherwise return null.
-	 * 
-	 * May return {@link UNKNOWN_TYPE} if the type of the elements in the collection cannot be determined.
-	 */
-	private static String getCollectionType(FieldMetadata field) {
-		String fieldType = field.getFieldType();
-
-		if (fieldType.endsWith("[]")) {
-			int index = fieldType.indexOf('[');
-			return boxed(fieldType.substring(0, index));
-		}
-
-		for (Class<?> supportedCollection : supportedCollections) {
-			if (supportedCollection.getCanonicalName().equals(fieldType)) {
-				return UNKNOWN_TYPE;
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * If the type of the specified field is one of the supported message queues returns the type of the message
 	 * data, otherwise return null.
 	 * 
@@ -182,17 +141,6 @@ public class ImplementationReflection implements CodeReflection {
 
 	}
 
-	private static String getMessageType(FieldMetadata field) {
-		String fieldType = field.getFieldType();
-
-		for (Class<?> supportedMessage : supportedMessageQueues) {
-			if (supportedMessage.getCanonicalName().equals(fieldType)) {
-				return UNKNOWN_TYPE;
-			}
-		}
-
-		return null;
-	}
 
 	/**
 	 * Utility method to get the raw class of a possibly parameterized type
@@ -235,29 +183,20 @@ public class ImplementationReflection implements CodeReflection {
 	}
 
 	@Override
-	public String getClassName() {
-		return className;
+	public String getName() {
+		return loadedClass.getCanonicalName();
 	}
 
     @Override
 	public String getDeclaredFieldType(String fieldName) throws NoSuchFieldException {
-		/*
-		 * Get iPojo metadata
-		 */
-		FieldMetadata fieldIPojoMetadata = null;
-		if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null)) {
-			fieldIPojoMetadata = pojoMetadata.getField(fieldName);
-		}
 
 		/*
 		 * Try to get reflection information if available,.
 		 */
 		Field fieldReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			try {
-				fieldReflectionMetadata = instrumentedCode.getDeclaredField(fieldName);
-			} catch (Exception e) {
-			}
+		try {
+			fieldReflectionMetadata = loadedClass.getDeclaredField(fieldName);
+		} catch (Exception e) {
 		}
 
 		/*
@@ -267,37 +206,20 @@ public class ImplementationReflection implements CodeReflection {
 			return fieldReflectionMetadata.getType().getCanonicalName();
 		}
 
-		/*
-		 * Try to use iPojo metadata
-		 */
-		if (fieldIPojoMetadata != null) {
-			return fieldIPojoMetadata.getFieldType();
-		}
 
 		throw new NoSuchFieldException("unavailable field " + fieldName);
-
     }
     
 	@Override
 	public String getFieldType(String fieldName) throws NoSuchFieldException {
 
 		/*
-		 * Get iPojo metadata
-		 */
-		FieldMetadata fieldIPojoMetadata = null;
-		if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null)) {
-			fieldIPojoMetadata = pojoMetadata.getField(fieldName);
-		}
-
-		/*
 		 * Try to get reflection information if available,.
 		 */
 		Field fieldReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			try {
-				fieldReflectionMetadata = instrumentedCode.getDeclaredField(fieldName);
-			} catch (Exception e) {
-			}
+		try {
+			fieldReflectionMetadata = loadedClass.getDeclaredField(fieldName);
+		} catch (Exception e) {
 		}
 
 		/*
@@ -328,32 +250,6 @@ public class ImplementationReflection implements CodeReflection {
 
 		}
 
-		/*
-		 * Try to use iPojo metadata, less precise specially for generics
-		 */
-		if (fieldIPojoMetadata != null) {
-
-			/*
-			 * Verify if it is a collection
-			 */
-			String collectionType = getCollectionType(fieldIPojoMetadata);
-			if (collectionType != null) {
-				return collectionType;
-			}
-
-			/*
-			 * Verify if it is a message
-			 */
-			String messageType = getMessageType(fieldIPojoMetadata);
-			if (messageType != null) {
-				return messageType;
-			}
-
-			/*
-			 * Otherwise we just return the raw type
-			 */
-			return fieldIPojoMetadata.getFieldType();
-		}
 
 		throw new NoSuchFieldException("unavailable field " + fieldName);
 
@@ -362,21 +258,13 @@ public class ImplementationReflection implements CodeReflection {
 	@Override
 	public int getMethodParameterNumber(String methodName, boolean includeInherited) throws NoSuchMethodException {
 
-		if (pojoMetadata != null) {
-			for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-				return method.getMethodArguments().length;
+		for (Method method : includeInherited ? loadedClass.getMethods() : loadedClass.getDeclaredMethods()) {
+
+			if (!method.getName().equals(methodName)) {
+				continue;
 			}
-		}
 
-		if (instrumentedCode != null) {
-			for (Method method : includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
-
-				if (!method.getName().equals(methodName)) {
-					continue;
-				}
-
-				return method.getParameterTypes().length;
-			}
+			return method.getParameterTypes().length;
 		}
 
 		throw new NoSuchMethodException("unavailable metadata for method " + methodName);
@@ -385,41 +273,23 @@ public class ImplementationReflection implements CodeReflection {
 	@Override
 	public String getMethodParameterType(String methodName, boolean includeInherited) throws NoSuchMethodException {
 
-		MethodMetadata methodIPojoMetadata = null;
-		if (pojoMetadata != null) {
-			for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-
-				String arguments[] = method.getMethodArguments();
-				boolean match = (1 == arguments.length);
-				if (match) {
-					methodIPojoMetadata = method;
-				}
-			}
-		}
-
 		Method methodReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			for (Method method : includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
+		for (Method method : includeInherited ? loadedClass.getMethods() : loadedClass.getDeclaredMethods()) {
 
-				if (!method.getName().equals(methodName)) {
-					continue;
-				}
+			if (!method.getName().equals(methodName)) {
+				continue;
+			}
 
-				Class<?> parameters[] = method.getParameterTypes();
-				boolean match = (1 == parameters.length);
+			Class<?> parameters[] = method.getParameterTypes();
+			boolean match = (1 == parameters.length);
 
-				if (match) {
-					methodReflectionMetadata = method;
-				}
+			if (match) {
+				methodReflectionMetadata = method;
 			}
 		}
 
 		if (methodReflectionMetadata != null) {
 			return boxed(methodReflectionMetadata.getParameterTypes()[0].getCanonicalName());
-		}
-
-		if (methodIPojoMetadata != null) {
-			return boxed(methodIPojoMetadata.getMethodArguments()[0]);
 		}
 
 		throw new NoSuchMethodException("unavailable metadata for method " + methodName);
@@ -431,30 +301,17 @@ public class ImplementationReflection implements CodeReflection {
 
 		List<String> signature = new ArrayList<String>();
 
-		if (pojoMetadata != null) {
-			for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
+		for (Method method : includeInherited ? loadedClass.getMethods() : loadedClass.getDeclaredMethods()) {
 
-				for (String argument : method.getMethodArguments()) {
-					signature.add(boxed(argument));
-				}
-
-				return signature.toArray(new String[0]);
+			if (!method.getName().equals(methodName)) {
+				continue;
 			}
-		}
 
-		if (instrumentedCode != null) {
-			for (Method method : includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
-
-				if (!method.getName().equals(methodName)) {
-					continue;
-				}
-
-				for (Class<?> parameterType : method.getParameterTypes()) {
-					signature.add(boxed(parameterType.getCanonicalName()));
-				}
-
-				return signature.toArray(new String[0]);
+			for (Class<?> parameterType : method.getParameterTypes()) {
+				signature.add(boxed(parameterType.getCanonicalName()));
 			}
+
+			return signature.toArray(new String[0]);
 		}
 
 		throw new NoSuchMethodException("unavailable metadata for method " + methodName);
@@ -463,68 +320,37 @@ public class ImplementationReflection implements CodeReflection {
 	@Override
 	public String getMethodReturnType(String methodName, String methodSignature, boolean includeInherited) throws NoSuchMethodException {
 
-		MethodMetadata methodIPojoMetadata = null;
-		if (pojoMetadata != null) {
-			for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-
-				if (methodSignature == null) {
-					methodIPojoMetadata = method;
-					break;
-				}
-
-				String signature[] = methodSignature.split(",");
-				String arguments[] = method.getMethodArguments();
-				boolean match = (signature.length == arguments.length);
-
-				for (int i = 0; match && i < signature.length; i++) {
-					if (!signature[i].equals(arguments[i])) {
-						match = false;
-					}
-				}
-
-				if (match) {
-					methodIPojoMetadata = method;
-					break;
-				}
-			}
-		}
 
 		Method methodReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			for (Method method : includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
+		for (Method method : includeInherited ? loadedClass.getMethods() : loadedClass.getDeclaredMethods()) {
 
-				if (!method.getName().equals(methodName)) {
-					continue;
+			if (!method.getName().equals(methodName)) {
+				continue;
+			}
+
+			if (methodSignature == null) {
+				methodReflectionMetadata = method;
+				break;
+			}
+
+			String signature[] = methodSignature.split(",");
+			Class<?> parameters[] = method.getParameterTypes();
+			boolean match = (signature.length == parameters.length);
+
+			for (int i = 0; match && i < signature.length; i++) {
+				if (!signature[i].equals(parameters[i].getCanonicalName())) {
+					match = false;
 				}
+			}
 
-				if (methodSignature == null) {
-					methodReflectionMetadata = method;
-					break;
-				}
-
-				String signature[] = methodSignature.split(",");
-				Class<?> parameters[] = method.getParameterTypes();
-				boolean match = (signature.length == parameters.length);
-
-				for (int i = 0; match && i < signature.length; i++) {
-					if (!FieldMetadata.getReflectionType(signature[i]).equals(parameters[i].getName())) {
-						match = false;
-					}
-				}
-
-				if (match) {
-					methodReflectionMetadata = method;
-					break;
-				}
+			if (match) {
+				methodReflectionMetadata = method;
+				break;
 			}
 		}
 
 		if (methodReflectionMetadata != null) {
 			return boxed(methodReflectionMetadata.getReturnType().getCanonicalName());
-		}
-
-		if (methodIPojoMetadata != null) {
-			return boxed(methodIPojoMetadata.getMethodReturn());
 		}
 
 		throw new NoSuchMethodException("unavailable metadata for method " + methodName + "(" + methodSignature != null ? methodSignature : "" + ")");
@@ -538,27 +364,13 @@ public class ImplementationReflection implements CodeReflection {
 		 * Try to get reflection information if available,.
 		 */
 		Field fieldReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			try {
-				fieldReflectionMetadata = instrumentedCode.getDeclaredField(fieldName);
-			} catch (Exception ignored) {
-			}
-		}
-
-		/*
-		 * Get iPojo metadata
-		 */
-		FieldMetadata fieldIPojoMetadata = null;
-		if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null)) {
-			fieldIPojoMetadata = pojoMetadata.getField(fieldName);
+		try {
+			fieldReflectionMetadata = loadedClass.getDeclaredField(fieldName);
+		} catch (Exception ignored) {
 		}
 
 		if (fieldReflectionMetadata != null) {
 			return getCollectionType(fieldReflectionMetadata) != null;
-		}
-
-		if (fieldIPojoMetadata != null) {
-			return getCollectionType(fieldIPojoMetadata) != null;
 		}
 
 		throw new NoSuchFieldException("unavailable metadata for field " + fieldName);
@@ -570,27 +382,13 @@ public class ImplementationReflection implements CodeReflection {
 		 * Try to get reflection information if available,.
 		 */
 		Field fieldReflectionMetadata = null;
-		if (instrumentedCode != null) {
-			try {
-				fieldReflectionMetadata = instrumentedCode.getDeclaredField(fieldName);
-			} catch (Exception ignored) {
-			}
-		}
-
-		/*
-		 * Get iPojo metadata
-		 */
-		FieldMetadata fieldIPojoMetadata = null;
-		if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null)) {
-			fieldIPojoMetadata = pojoMetadata.getField(fieldName);
+		try {
+			fieldReflectionMetadata = loadedClass.getDeclaredField(fieldName);
+		} catch (Exception ignored) {
 		}
 
 		if (fieldReflectionMetadata != null) {
 			return getMessageType(fieldReflectionMetadata) != null;
-		}
-
-		if (fieldIPojoMetadata != null) {
-			return getMessageType(fieldIPojoMetadata) != null;
 		}
 
 		throw new NoSuchFieldException("unavailable metadata for field " + fieldName);

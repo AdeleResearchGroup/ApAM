@@ -28,10 +28,11 @@ import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.apform.impl.RelationCallback;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InjectedField;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 
@@ -130,7 +131,7 @@ public class RelationInjectionHandler extends ApformHandler {
                             + error.getLocalizedMessage());
                 }
 
-                if (injection instanceof RequirerInstrumentation.InjectedField) {
+                if (injection instanceof InjectedField) {
                     FieldMetadata field = getPojoMetadata().getField(injection.getName());
                     if (field != null)
                         getInstanceManager().register(field, interceptor);
@@ -199,8 +200,7 @@ public class RelationInjectionHandler extends ApformHandler {
 
     @Override
     public String toString() {
-        return "APAM Injection manager for "
-                + getInstanceManager().getInstanceName();
+        return "APAM Injection manager for " + getInstanceManager().getInstanceName();
     }
 
 }
