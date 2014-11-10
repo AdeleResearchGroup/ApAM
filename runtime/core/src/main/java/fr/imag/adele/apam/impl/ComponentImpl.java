@@ -232,7 +232,6 @@ implements Component, Comparable<Component> {
 	public void finishInitialize(Map<String, String> initialProperties) {
 		initializeRelations();
 		initializeProperties(initialProperties);
-		initializeResources();
 	}
 
 	/**
@@ -966,29 +965,69 @@ implements Component, Comparable<Component> {
 	}
 	
 	/**
-	 * to be called once the Apam entity is fully initialized. 
-	 * Computes all its attributes, including inheritance.
-	 * Checks if initial properties are consistent with the declarations.
+	 * To be called once the Apam entity is fully initialized.
+	 * 
+	 * Computes all its attributes, including inheritance. Checks if initial properties are consistent with the
+	 * declarations.
+	 * 
+	 * NOTE this method is also called when the owner changes, to force recalculation of substitutions that depend
+	 * on the current owner.
 	 */
 	private void initializeProperties(Map<String, String> initialProperties) {
+
+
+		Component group = getGroup();
+
 		/*
-		 * get the initial attributes from declaration and override it with the initial properties
+		 * Currently the instance declaration may include invalid properties. 
+		 * 
+		 * For declared instances this should not happen as the declaration is validated at build-time. For dynamically
+		 * created instances (using the APAM API or the apform API directly) this should be validated by this method.
+		 * 
+		 * However, there are many properties added by the iPOJO apform layer that need to be ignored, so we simply 
+		 * silently ignore all invalid properties.
+		 * 
+		 * TODO We should be able to distinguish properties specified by the user that must be validated, from properties
+		 * used internally by the iPOJO apform.
 		 */
-		ComponentImpl group = (ComponentImpl) getGroup();
-		Map<String, String> props = new HashMap<String, String>(getDeclaration().getProperties());
+		Set<String> invalidDeclaredProperties = new HashSet<String>();
+		for (String property : getDeclaration().getProperties().keySet()) {
+
+			boolean isDefined =	getDeclaration().isDefined(property) ||
+								(group != null && group.getPropertyDefinition(property) != null);
+			
+			if (!isDefined) {
+				invalidDeclaredProperties.add(property);
+			}
+			
+			if (group != null && group.getProperty(property) != null) {
+				invalidDeclaredProperties.add(property);
+			}
+		}
+			
+		getDeclaration().getProperties().keySet().removeAll(invalidDeclaredProperties);
+		
+		/*
+		 * Merge initial and declared properties.
+		 *  
+		 */
+		Map<String, String> fullInitialProperties = new HashMap<String, String>(getDeclaration().getProperties());
 		if (initialProperties != null) {
-			if (group == null) {
-				props.putAll(initialProperties);
-			} 
-			/*
-			 *  Remove the inherited attributes to avoid checkAttrType error; they will be added later.
-			 *  Systematic in case of changeOwner
-			 */
-			else {
-				for (Map.Entry<String, String> entry : initialProperties.entrySet()) {
-					//The group has that attribute with the same value => ignore that attr, it will added later, and avoid error messages.
-					if (!(group.getProperty(entry.getKey())!= null && group.getProperty(entry.getKey()).equals(entry.getValue())))
-						props.put(entry.getKey(), entry.getValue());
+			fullInitialProperties.putAll(initialProperties);
+			fullInitialProperties.remove("instance.name");
+		}
+
+		/*
+		 * NOTE  In the case of change owner, the initial properties include inherited values from the group,
+		 * we ignore them to avoid false error messages, they will be added later by the normal inheritance
+		 * mechanism
+		 * 
+		 * TODO Distinguish the case of change owner from a real initialization 
+		 */
+		if (initialProperties != null && group !=null) {
+			for (Map.Entry<String, String> initialProperty : initialProperties.entrySet()) {
+				if (group.getProperty(initialProperty.getKey()) != null && group.getProperty(initialProperty.getKey()).equals(initialProperty.getValue())) {
+					fullInitialProperties.remove(initialProperty.getKey());
 				}
 			}
 		}
@@ -999,13 +1038,13 @@ implements Component, Comparable<Component> {
 		/*
 		 *  First add the valid attributes.
 		 */
-		for (Map.Entry<String, String> entry : props.entrySet()) {
+		for (Map.Entry<String, String> initialProperty : fullInitialProperties.entrySet()) {
 			
-			PropertyDefinition def = validDef(entry.getKey(), true);
+			PropertyDefinition def = validDef(initialProperty.getKey(), true);
 			if (def != null) {
-				Object val = Attribute.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
+				Object val = Attribute.checkAttrType(initialProperty.getKey(), initialProperty.getValue(), def.getType());
 				if (val != null) {
-					put(entry.getKey(), val);
+					put(initialProperty.getKey(), val);
 				}
 			}
 		}
@@ -1016,7 +1055,7 @@ implements Component, Comparable<Component> {
 		if (group != null) {
 			for (String attr : group.getAllProperties().keySet()) {
 				if (get(attr) == null) {
-					put(attr, group.get(attr));
+					put(attr, ((ComponentImpl)group).get(attr));
 				}
 			}
 		}
@@ -1072,23 +1111,8 @@ implements Component, Comparable<Component> {
 		 */
 		for (Map.Entry<String, Object> entry : this.entrySet()) {
 			for (Component member : getMembers()) {
-				((ComponentImpl) member).propagate(entry.getKey(),
-						entry.getValue());
+				((ComponentImpl) member).propagate(entry.getKey(), entry.getValue());
 			}
-		}
-	}
-
-	/**
-	 * Add the group resources into the actual resources
-	 */
-	private void initializeResources() {
-		Set<ResourceReference> resources = getDeclaration().getProvidedResources();
-		Component group = this.getGroup();
-		while (group != null) {
-			if (group.getDeclaration().getProvidedResources() != null) {
-				resources.addAll(group.getDeclaration().getProvidedResources());
-			}
-			group = group.getGroup();
 		}
 	}
 

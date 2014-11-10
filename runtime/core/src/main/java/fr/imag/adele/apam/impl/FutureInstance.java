@@ -148,9 +148,9 @@ public class FutureInstance {
 		/*
 		 * Try to instantiate the specified implementation.
 		 * 
-		 * TODO BUG We are initializing the properties of the instance, but we
-		 * lost the relation overrides. We need to modify the API to allow
-		 * specifying explicitly an instance declaration for
+		 * TODO BUG We are initializing the properties of the instance, but we lost the relation overrides.
+		 * 
+		 * We need to modify the API to allow specifying explicitly an instance declaration for 
 		 * Implementation.createInstance.
 		 */
 		isTriggered = true;

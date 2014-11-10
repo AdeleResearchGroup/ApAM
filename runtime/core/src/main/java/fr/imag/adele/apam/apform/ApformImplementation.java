@@ -41,6 +41,9 @@ public interface ApformImplementation extends ApformComponent {
 	 * 
 	 * This method is called by APAM when a new instance is created by the
 	 * resolver or directly by API
+	 * 
+	 * TODO We should explicitly request an optional instance name, instead of passing it in the
+	 * properties, or explicitly allow to initialize predefined properties
 	 */
 	public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration;
 

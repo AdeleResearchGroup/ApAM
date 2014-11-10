@@ -106,6 +106,7 @@ public abstract class ApamImplementationFactory extends ApamComponentFactory {
 		 * 
 		 * NOTE this method is called when an instance is created by the APAM platform (explicitly
 		 * by the API or implicitly by a relation resolution)
+		 * 
 		 */
 	    @Override
 		public ApformInstance createInstance(Map<String, String> initialproperties)	throws InvalidConfiguration {

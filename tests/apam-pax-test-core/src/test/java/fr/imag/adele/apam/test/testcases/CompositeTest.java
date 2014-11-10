@@ -31,6 +31,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -914,18 +915,18 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void compositeWithMainImplem_tct034() {
 
-		InstanceCreator creator = new InstanceCreator("compositeWithMainImplem_tct034");
-		creator.start();
-		try {
-			Thread.sleep(500);
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		CompositeType compo = (CompositeType) waitForComponentByName(null,"compositeWithMainImplem_tct034");
+		Component created = null;
+		
+		if (compo != null) {
+			created = compo.createInstance(null, null);
 		}
+		
 		auxListInstances();
 
 		Assert.assertTrue(
 				"Composite should be created when main implem in another bundle",
-				creator.created != null);
+				created != null);
 	}
 
 	class InstanceCreator extends Thread {
@@ -940,11 +941,6 @@ public class CompositeTest extends ExtensionAbstract {
 
 		@Override
 		public void run() {
-			CompositeType compo = (CompositeType) waitForComponentByName(null,
-					myCompositeName);			
-			if (compo != null) {
-				created = compo.createInstance(null, null);
-			}
 		}
 	}
 }
