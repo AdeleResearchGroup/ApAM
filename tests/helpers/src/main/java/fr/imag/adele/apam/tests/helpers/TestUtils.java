@@ -157,24 +157,6 @@ public abstract class TestUtils {
 			}
 			sleep += waitPeriod;
 		}
-		boolean foundAPAM = false;
-		while (sleep < timeout && !foundAPAM) {
-			try {
-				Thread.sleep(waitPeriod);
-			} catch (Exception exc) {
-				exc.printStackTrace();
-			}
-			sleep += waitPeriod;
-			if (CST.apamResolver != null) {
-				if (CST.apamResolver.findInstByName(null, "APAM-Instance") != null) {
-					// && CST.apamResolver.findInstByName(null,
-					// "OSGiMan-Instance") != null
-					// && CST.apamResolver.findInstByName(null,
-					// "ConflictManager-Instance") != null)
-					foundAPAM = true;
-				}
-			}
-		}
 	}
 
 	protected Component waitForComponentByName(Component client,
