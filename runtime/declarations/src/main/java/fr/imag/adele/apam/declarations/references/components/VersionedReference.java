@@ -23,7 +23,7 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
  * @author vega
  * 
  */
-public class Versioned<C extends ComponentDeclaration> {
+public class VersionedReference<C extends ComponentDeclaration> {
 	
 	private final ComponentReference<C>	component;
 	private final String 				range;
@@ -31,18 +31,18 @@ public class Versioned<C extends ComponentDeclaration> {
 	/**
 	 * Get a reference to any version of the specified component
 	 */
-	public static final <C extends ComponentDeclaration, R extends ComponentReference<C>> Versioned<C> any(R component) {
-		return new Versioned<C>(component,null);
+	public static final <C extends ComponentDeclaration, R extends ComponentReference<C>> VersionedReference<C> any(R component) {
+		return new VersionedReference<C>(component,null);
 	}
 
 	/**
 	 * Get a reference to some version of the specified component in the specified range
 	 */
-	public static final  <C extends ComponentDeclaration, R extends ComponentReference<C>> Versioned<C> range(R component,String range) {
-		return new Versioned<C>(component,range);
+	public static final  <C extends ComponentDeclaration, R extends ComponentReference<C>> VersionedReference<C> range(R component,String range) {
+		return new VersionedReference<C>(component,range);
 	}
 
-	private Versioned(ComponentReference<C> component, String range) {
+	private VersionedReference(ComponentReference<C> component, String range) {
 		this.component	= component;
 		this.range 		= range;
 	}
@@ -79,11 +79,11 @@ public class Versioned<C extends ComponentDeclaration> {
 			return true;
 		}
 
-		if (!(object instanceof Versioned)) {
+		if (!(object instanceof VersionedReference)) {
 			return false;
 		}
 
-		Versioned<?> that = (Versioned<?>) object;
+		VersionedReference<?> that = (VersionedReference<?>) object;
 		
 		return this.component.equals(that.component) &&
 			   this.range != null ? that.range != null && this.range.equals(that.range) : that.range == null;

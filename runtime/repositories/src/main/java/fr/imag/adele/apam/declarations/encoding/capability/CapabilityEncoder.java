@@ -22,7 +22,7 @@ import fr.imag.adele.apam.declarations.encoding.Encoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
@@ -68,7 +68,7 @@ public class CapabilityEncoder implements Encoder<Capability> {
 		 * 
 		 * TODO We should unify the group references for all kind of components 
 		 */
-        Versioned<?> group = component.getGroupVersioned();
+        VersionedReference<?> group = component.getGroupVersioned();
         if(group != null) {
         	
         	switch(group.getComponent().getKind()) {
@@ -421,7 +421,7 @@ public class CapabilityEncoder implements Encoder<Capability> {
 	/**
 	 * Creates a new requirement to represent a component reference
 	 */
-	public static Requirement requirement(Versioned<?> reference) {
+	public static Requirement requirement(VersionedReference<?> reference) {
 		return new ComponentRequirement(reference);
 	}
 	
@@ -433,10 +433,10 @@ public class CapabilityEncoder implements Encoder<Capability> {
 	 */
 	private static class ComponentRequirement implements Requirement {
 
-		private final Versioned<?> 	reference;
+		private final VersionedReference<?> 	reference;
 		private final String 		filter;
 		
-		public ComponentRequirement(Versioned<?> reference) {
+		public ComponentRequirement(VersionedReference<?> reference) {
 			
 			this.reference	= reference;
 			

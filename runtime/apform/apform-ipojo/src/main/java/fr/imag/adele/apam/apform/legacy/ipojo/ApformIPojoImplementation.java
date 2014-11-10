@@ -29,7 +29,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -46,7 +46,7 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 	 */
 	private static class Declaration extends ImplementationDeclaration {
 
-		protected Declaration(String name, Versioned<SpecificationDeclaration> specification) {
+		protected Declaration(String name, VersionedReference<SpecificationDeclaration> specification) {
 			super(name,specification);
 		}
 
@@ -83,7 +83,7 @@ public class ApformIPojoImplementation extends BaseApformComponent<Implementatio
 	private final IPojoFactory factory;
 	
 	
-	public ApformIPojoImplementation(IPojoFactory factory, Versioned<SpecificationDeclaration> specification) {
+	public ApformIPojoImplementation(IPojoFactory factory, VersionedReference<SpecificationDeclaration> specification) {
 
 		super(new Declaration(factory.getName(),specification));		
 

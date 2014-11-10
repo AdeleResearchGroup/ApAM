@@ -47,7 +47,7 @@ import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Util;
@@ -62,7 +62,7 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyComposite(ComponentReference<CompositeDeclaration> implementation, String name, Map<String, String> initialProperties) {
 
-			super(new InstanceDeclaration(Versioned.any(implementation),name));
+			super(new InstanceDeclaration(VersionedReference.any(implementation),name));
 			
 			if (initialProperties != null) {
 				for (Map.Entry<String, String> property : initialProperties.entrySet()) {
@@ -99,7 +99,7 @@ public class APAMImpl implements Apam {
 
 		public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String, String> properties) {
 
-			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? Versioned.any(new SpecificationReference(specificationName)) : null, new ComponentReference<ComponentDeclaration>(mainName)));
+			super(new CompositeDeclaration(name, specificationName != null && !specificationName.trim().isEmpty() ? VersionedReference.any(new SpecificationReference(specificationName)) : null, new ComponentReference<ComponentDeclaration>(mainName)));
 			
 			if (properties != null) {
 				declaration.getProperties().putAll(properties);

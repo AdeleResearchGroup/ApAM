@@ -22,7 +22,7 @@ import java.util.Set;
 import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * This class represents the declaration of a java implementation of a service
@@ -69,7 +69,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 	private Map<Event, Set<CallbackDeclaration>> callbacks;
 
 
-	public AtomicImplementationDeclaration(String name, Versioned<SpecificationDeclaration> specification, InstrumentedClass clazz) {
+	public AtomicImplementationDeclaration(String name, VersionedReference<SpecificationDeclaration> specification, InstrumentedClass clazz) {
 		super(name, specification);
 
 		assert clazz != null;

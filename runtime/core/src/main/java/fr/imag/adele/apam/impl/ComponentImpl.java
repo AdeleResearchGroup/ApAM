@@ -648,8 +648,18 @@ implements Component, Comparable<Component> {
 
 	@Override
 	public Set<ResourceReference> getProvidedResources() {
-		return Collections.unmodifiableSet(this.getDeclaration()
-				.getProvidedResources());
+		Set<ResourceReference> provided = new HashSet<ResourceReference>();
+		
+		/*
+		 * add all provided resources declared at all levels of abstraction
+		 */
+		Component ancestor = this;
+		while (ancestor != null) {
+			provided.addAll(ancestor.getDeclaration().getProvidedResources());
+			ancestor = ancestor.getGroup();
+		}
+		
+		return Collections.unmodifiableSet(provided);
 	}
 
 	// Set<ResourceReference> allResources = new HashSet<ResourceReference> () ;

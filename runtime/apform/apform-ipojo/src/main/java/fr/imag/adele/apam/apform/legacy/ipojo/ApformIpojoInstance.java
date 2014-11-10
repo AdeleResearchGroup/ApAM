@@ -24,7 +24,7 @@ import org.osgi.framework.ServiceReference;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 
 public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
@@ -40,7 +40,7 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
      * @param ipojoInstance
      */
     public ApformIpojoInstance(ComponentInstance ipojoInstance) {
-    	super( new InstanceDeclaration(Versioned.any(new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName())), ipojoInstance.getInstanceName()));
+    	super( new InstanceDeclaration(VersionedReference.any(new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName())), ipojoInstance.getInstanceName()));
 
     	this.ipojoInstance = ipojoInstance;
     }

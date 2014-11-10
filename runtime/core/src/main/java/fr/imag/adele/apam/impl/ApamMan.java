@@ -146,7 +146,7 @@ public class ApamMan implements RelationManager {
 			if (relToResolve.getTargetKind() == ComponentKind.SPECIFICATION) {
 				Set<Specification> specs = new HashSet<Specification>();
 				for (Specification spec : CST.componentBroker.getSpecs()) {
-					if (spec.getDeclaration().getProvidedResources().contains((relToResolve.getTarget()))) {
+					if (spec.getProvidedResources().contains(relToResolve.getTarget())) {
 						specs.add(spec);
 					}
 				}
@@ -159,7 +159,7 @@ public class ApamMan implements RelationManager {
 			 */
 			impls = new HashSet<Implementation>();
 			for (Implementation impl : CST.componentBroker.getImpls()) {
-				if (impl.getDeclaration().getProvidedResources().contains((relToResolve.getTarget()))) {
+				if (impl.getProvidedResources().contains((relToResolve.getTarget()))) {
 					impls.add(impl);
 				}
 			}

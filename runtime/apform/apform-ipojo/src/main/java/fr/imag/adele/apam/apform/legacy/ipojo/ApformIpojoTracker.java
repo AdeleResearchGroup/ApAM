@@ -58,7 +58,7 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
@@ -299,7 +299,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
      */
     public void factoryBound(IPojoFactory factory, Specification specification) {
         if (specification != null &&  CST.componentBroker.getImpl(factory.getName()) == null) {
-        	Versioned<SpecificationDeclaration> specificationReference = specification != null ? Versioned.any(specification.getApformSpec().getDeclaration().getReference()) : null;
+        	VersionedReference<SpecificationDeclaration> specificationReference = specification != null ? VersionedReference.any(specification.getApformSpec().getDeclaration().getReference()) : null;
         	ApformImplementation implementation = new ApformIPojoImplementation((IPojoFactory) factory, specificationReference);
             Apform2Apam.newImplementation(implementation);
         }

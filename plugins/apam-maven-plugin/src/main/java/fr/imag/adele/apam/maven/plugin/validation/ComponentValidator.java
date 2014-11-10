@@ -9,7 +9,7 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
@@ -87,7 +87,7 @@ public abstract class ComponentValidator<D extends ComponentDeclaration> extends
 		/*
 		 * Validate the group is available
 		 */
-        Versioned<?> groupReference = component.getGroupVersioned();
+        VersionedReference<?> groupReference = component.getGroupVersioned();
         if(groupReference != null && getGroup() == null) {
         	error("group "+groupReference.getName()+" with version "+groupReference.getRange()+" is not available in dependencies or ACR!");
         }

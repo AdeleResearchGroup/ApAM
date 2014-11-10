@@ -5,7 +5,7 @@ import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
@@ -67,7 +67,7 @@ public abstract class AbstractValidator<D,R> {
 	/**
 	 * Get a version of a component from the current validation context
 	 */
-	protected ComponentDeclaration getComponent(Versioned<?> reference, boolean effective) {
+	protected ComponentDeclaration getComponent(VersionedReference<?> reference, boolean effective) {
 		return context.getComponent(reference, effective);
 	}
 

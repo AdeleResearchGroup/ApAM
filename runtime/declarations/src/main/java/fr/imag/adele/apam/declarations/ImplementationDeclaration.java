@@ -16,7 +16,7 @@ package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * This class represents all the common declarations for an implementation of a
@@ -30,9 +30,9 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	/**
 	 * The specification implemented by this implementation
 	 */
-	private final Versioned<SpecificationDeclaration> specification;
+	private final VersionedReference<SpecificationDeclaration> specification;
 
-    public ImplementationDeclaration(String name, Versioned<SpecificationDeclaration> specification) {
+    public ImplementationDeclaration(String name, VersionedReference<SpecificationDeclaration> specification) {
         super(name);
         this.specification = specification;
     }
@@ -59,7 +59,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 	}
 	
 	@Override
-	public Versioned<SpecificationDeclaration> getGroupVersioned() {
+	public VersionedReference<SpecificationDeclaration> getGroupVersioned() {
 		return specification;
 	}
 

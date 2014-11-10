@@ -21,7 +21,7 @@ import java.util.Set;
 
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * This class represents the declaration of a composite implementation
@@ -82,7 +82,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final List<RelationPromotion> promotions;
 
-	public CompositeDeclaration(String name, Versioned<SpecificationDeclaration> specification, ComponentReference<?> mainComponent) {
+	public CompositeDeclaration(String name, VersionedReference<SpecificationDeclaration> specification, ComponentReference<?> mainComponent) {
 		super(name, specification);
 
 		this.mainComponent 		= mainComponent;

@@ -2,7 +2,7 @@ package fr.imag.adele.apam.declarations.repository;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 
 /**
@@ -31,6 +31,6 @@ public interface Repository {
 	 * Get the component declaration associated to the specified reference. If there are several versions of 
 	 * the component, selects an arbitrary one among the specified range.
 	 */
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> reference);
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> reference);
 	
 }

@@ -33,7 +33,7 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.encoding.capability.CapabilityEncoder;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 import fr.imag.adele.apam.declarations.repository.maven.MavenArtifactRepository;
 import fr.imag.adele.apam.declarations.repository.maven.MavenProjectRepository;
@@ -85,7 +85,7 @@ public class ApamComponentRepositoryBuilder {
 		 */
 		CapabilityEncoder encoder 				= new CapabilityEncoder();
 		Set<ComponentReference<?>> processed	= new HashSet<ComponentReference<?>>();
-		Set<Versioned<?>> referenced			= new HashSet<Versioned<?>>();
+		Set<VersionedReference<?>> referenced			= new HashSet<VersionedReference<?>>();
 
 		for (ComponentDeclaration component : buildRepository.getComponents()) {
 			
@@ -161,7 +161,7 @@ public class ApamComponentRepositoryBuilder {
 				if (component instanceof ImplementationDeclaration) {
 					for (RelationDeclaration relation : component.getRelations()) {
 						if (relation.getTarget().as(SpecificationReference.class) != null) {
-							referenced.add(Versioned.any(relation.getTarget().as(SpecificationReference.class)));
+							referenced.add(VersionedReference.any(relation.getTarget().as(SpecificationReference.class)));
 						}
 					}
 				}
@@ -173,7 +173,7 @@ public class ApamComponentRepositoryBuilder {
 		 * Generate requirement for referenced components. In this way we can use the OBR resolver to install
 		 * transitive dependencies 
 		 */
-		for (Versioned<?> reference : referenced) {
+		for (VersionedReference<?> reference : referenced) {
 			result.append(manager.getHelper().writeRequirement(CapabilityEncoder.requirement(reference))).append("\n");
 		}
 

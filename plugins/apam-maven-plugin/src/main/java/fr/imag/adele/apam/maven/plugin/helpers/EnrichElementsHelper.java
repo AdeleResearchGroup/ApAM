@@ -151,7 +151,7 @@ public class EnrichElementsHelper {
 			element.addElement(prop);
 		}
 
-		// addProperty("apam.version", "Versioned",
+		// addProperty("apam.version", "VersionedReference",
 		// ApamMavenProperties.mavenVersion.replace('-', '.'), element);
 
 	}

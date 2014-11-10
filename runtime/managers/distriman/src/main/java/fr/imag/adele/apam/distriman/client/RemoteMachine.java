@@ -53,7 +53,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.discovery.ApamMachineFactoryImpl;
@@ -159,7 +159,7 @@ public class RemoteMachine implements ApformInstance {
     private static class RemoteImplementationDeclaration extends ImplementationDeclaration {
 
 		protected RemoteImplementationDeclaration(String name, SpecificationReference specification) {
-		    super(name,Versioned.any(specification));
+		    super(name,VersionedReference.any(specification));
 		}
 
 		/**
@@ -207,7 +207,7 @@ public class RemoteMachine implements ApformInstance {
 		this.isLocalhost = isLocalhost;
 		my_impl = daddy;
 		this.id = id;
-		my_declaration = new InstanceDeclaration(Versioned.any(daddy.getDeclaration().getReference()), "RemoteMachine_" + RootURL);
+		my_declaration = new InstanceDeclaration(VersionedReference.any(daddy.getDeclaration().getReference()), "RemoteMachine_" + RootURL);
 		my_declaration.setInstantiable(false);
 	
 		Apform2Apam.newInstance(this);

@@ -6,7 +6,7 @@ import java.util.List;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.repository.ComponentIndex;
 import fr.imag.adele.apam.declarations.repository.Repository;
@@ -65,7 +65,7 @@ public class ValidationContext implements Repository {
 	}
 
 	@Override
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> reference) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> reference) {
 		return getComponent(reference,false);
 	}
 	
@@ -76,7 +76,7 @@ public class ValidationContext implements Repository {
 	 * Optionally, it is possible to request an effective declaration, that inherit all features from its group
 	 */
 	public <C extends ComponentDeclaration> C getComponent(ComponentReference<C> reference, boolean effective) {
-		return reference != null ? getComponent(Versioned.any(reference),effective) : null;
+		return reference != null ? getComponent(VersionedReference.any(reference),effective) : null;
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class ValidationContext implements Repository {
 	 * 
 	 * Optionally, it is possible to request an effective declaration, that inherit all features from its group
 	 */
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> reference, boolean effective) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> reference, boolean effective) {
 		
 		if (reference == null)
 			return null;

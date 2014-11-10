@@ -7,7 +7,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * Represents an apam machine
@@ -30,7 +30,7 @@ public class RemoteInstanceImpl implements ApformInstance {
 		this.url = url;
 		this.serviceObject = serviceObject;
 	
-		declaration = new InstanceDeclaration(Versioned.any(new RemoteMachine.RemoteImplementationReference(getFullName())),getFullName());
+		declaration = new InstanceDeclaration(VersionedReference.any(new RemoteMachine.RemoteImplementationReference(getFullName())),getFullName());
     }
 
     @Override

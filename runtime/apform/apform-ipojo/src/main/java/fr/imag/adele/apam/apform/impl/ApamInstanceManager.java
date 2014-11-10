@@ -50,7 +50,7 @@ import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -117,7 +117,7 @@ public class ApamInstanceManager extends InstanceManager implements
 		declaration = (InstanceDeclaration) configuration.get(ApamInstanceManager.ATT_DECLARATION);
 		if (isApamCreated || (declaration == null)) {
 			
-			declaration = new InstanceDeclaration(Versioned.any(getFactory().getApform().getDeclaration().getReference()), instanceName);
+			declaration = new InstanceDeclaration(VersionedReference.any(getFactory().getApform().getDeclaration().getReference()), instanceName);
 			
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();

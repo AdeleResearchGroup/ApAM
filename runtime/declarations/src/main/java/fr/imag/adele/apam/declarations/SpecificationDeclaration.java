@@ -16,7 +16,7 @@ package fr.imag.adele.apam.declarations;
 
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 
 /**
@@ -70,7 +70,7 @@ public class SpecificationDeclaration extends ComponentDeclaration {
 	}
 
 	@Override
-	public Versioned<ComponentDeclaration> getGroupVersioned() {
+	public VersionedReference<ComponentDeclaration> getGroupVersioned() {
 		return null;
 	}
 	

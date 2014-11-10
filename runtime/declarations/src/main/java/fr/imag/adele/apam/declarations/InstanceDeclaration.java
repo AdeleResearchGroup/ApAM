@@ -20,7 +20,7 @@ import java.util.Set;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.components.InstanceReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * The declaration of an instance.
@@ -37,18 +37,18 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	/**
 	 * A reference to the implementation
 	 */
-	private final Versioned<? extends ImplementationDeclaration> implementation;
+	private final VersionedReference<? extends ImplementationDeclaration> implementation;
 
 	/**
 	 * The list of triggers that must be met to start this instance
 	 */
 	private final Set<ConstrainedReference> triggers;
 
-    public InstanceDeclaration(Versioned<? extends ImplementationDeclaration> implementation, String name) {
+    public InstanceDeclaration(VersionedReference<? extends ImplementationDeclaration> implementation, String name) {
     	this(implementation, name, new HashSet<ConstrainedReference>());
     }
     
-    public InstanceDeclaration(Versioned<? extends ImplementationDeclaration> implementation, String name, Set<ConstrainedReference> triggers) {
+    public InstanceDeclaration(VersionedReference<? extends ImplementationDeclaration> implementation, String name, Set<ConstrainedReference> triggers) {
     	
 		super(name);
 
@@ -90,7 +90,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	}
 	
 	@Override
-	public Versioned<? extends ImplementationDeclaration> getGroupVersioned() {
+	public VersionedReference<? extends ImplementationDeclaration> getGroupVersioned() {
 		return implementation;
 	}
 

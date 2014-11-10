@@ -23,7 +23,7 @@ import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.repository.ComponentIndex;
 import fr.imag.adele.apam.declarations.repository.Repository;
 
@@ -114,7 +114,7 @@ public class MavenArtifactRepository implements Repository, Classpath.Entry {
 	}
 
 	@Override
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> reference) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> reference) {
 		return index.getComponent(reference);
 	}
 

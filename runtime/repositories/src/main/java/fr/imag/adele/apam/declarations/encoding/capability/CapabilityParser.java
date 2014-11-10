@@ -30,7 +30,7 @@ import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
@@ -98,7 +98,7 @@ public class CapabilityParser implements Decoder<Capability> {
                	 
 		        	SpecificationReference specification 						= reference(CST.PROVIDE_SPECIFICATION, ComponentKind.SPECIFICATION);
 		        	String range 												= property(CST.REQUIRE_VERSION);
-		        	Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,range) : null;
+		        	VersionedReference<SpecificationDeclaration> specificationVersion	= specification != null ? VersionedReference.range(specification,range) : null;
 
 		        	ComponentReference<?> main = reference(CST.APAM_MAIN_COMPONENT,ComponentKind.COMPONENT);
 
@@ -108,7 +108,7 @@ public class CapabilityParser implements Decoder<Capability> {
 
 		        	SpecificationReference specification						= reference(CST.PROVIDE_SPECIFICATION, ComponentKind.SPECIFICATION);
 		        	String range 												= property(CST.REQUIRE_VERSION);
-		        	Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,range) : null;
+		        	VersionedReference<SpecificationDeclaration> specificationVersion	= specification != null ? VersionedReference.range(specification,range) : null;
 		        	
 		        	InstrumentedClass instrumentedClass =  new UnloadedClassMetadata(property(CST.PROVIDE_CLASSNAME));
 		            component = new AtomicImplementationDeclaration(componentName, specificationVersion, instrumentedClass);
@@ -117,7 +117,7 @@ public class CapabilityParser implements Decoder<Capability> {
 			case INSTANCE:
 	            ImplementationReference<ImplementationDeclaration> implementation 	= reference(CST.IMPLNAME,ComponentKind.IMPLEMENTATION);
 	        	String range 														= property(CST.REQUIRE_VERSION);
-	           	Versioned<ImplementationDeclaration> implementationVersion			= Versioned.range(implementation,range);
+	           	VersionedReference<ImplementationDeclaration> implementationVersion			= VersionedReference.range(implementation,range);
 
 	        	component = new InstanceDeclaration(implementationVersion, componentName);
 				break;

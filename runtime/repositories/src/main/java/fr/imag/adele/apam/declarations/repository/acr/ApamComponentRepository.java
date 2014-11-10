@@ -18,7 +18,7 @@ import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.capability.CapabilityParser;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.repository.ComponentIndex;
 import fr.imag.adele.apam.declarations.repository.Repository;
 
@@ -83,7 +83,7 @@ public class ApamComponentRepository implements Repository {
 	/**
 	 * Get the OBR filter corresponding to a given version range specification
 	 */
-	public static String filter(Versioned<?> referenceRange) throws ParseException {
+	public static String filter(VersionedReference<?> referenceRange) throws ParseException {
         
 		String name		= referenceRange.getName();
 		String range	= referenceRange.getRange();
@@ -105,10 +105,10 @@ public class ApamComponentRepository implements Repository {
 	        if(rangeSeparator != -1) {
 
 	        	if ( !range.startsWith("(") && !range.startsWith("["))
-	            	throw new ParseException("Versioned range does not start with a correct  delimiter",1);
+	            	throw new ParseException("VersionedReference range does not start with a correct  delimiter",1);
 	            	
 	        	if ( !range.endsWith(")") && !range.endsWith("]"))
-	        		throw new ParseException("Versioned range does not end with a correct  delimiter",range.length());
+	        		throw new ParseException("VersionedReference range does not end with a correct  delimiter",range.length());
 
 	        	String start 	= range.substring(1,rangeSeparator).trim();
 	        	String end		= range.substring(rangeSeparator+1,range.length()-1).trim();
@@ -155,11 +155,11 @@ public class ApamComponentRepository implements Repository {
     
 	@Override
 	public <C extends ComponentDeclaration> C getComponent(ComponentReference<C> reference) {
-		return reference != null? getComponent(Versioned.any(reference)) : null;
+		return reference != null? getComponent(VersionedReference.any(reference)) : null;
 	}
 
 	@Override
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> referenceRange) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> referenceRange) {
 		
 		/*
 		 * Try to find a cached component declaration
@@ -185,7 +185,7 @@ public class ApamComponentRepository implements Repository {
      * Loads in the cache all declarations found in resources of ACR that contain the specified 
      * component version.
      */
-	private void loadResources(Versioned<?> referenceRange) throws Exception {
+	private void loadResources(VersionedReference<?> referenceRange) throws Exception {
 
 		
         info("loading resources containing apam-component : "+referenceRange.getName()+", version range :"+referenceRange.getRange());

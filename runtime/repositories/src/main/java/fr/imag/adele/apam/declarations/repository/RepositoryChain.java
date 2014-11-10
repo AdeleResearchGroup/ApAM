@@ -5,7 +5,7 @@ import java.util.List;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * This class implements a repository that aggregates results from other repositories, by using
@@ -47,7 +47,7 @@ public class RepositoryChain implements Repository {
 	}
 
 	@Override
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> reference) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> reference) {
 		for (Repository delegate : delegates) {
 			C component = delegate.getComponent(reference);
 			if (component != null)

@@ -13,7 +13,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 
 /**
  * This class handle a collection of {@link ComponentDeclaration component declarations} indexed by name
@@ -46,12 +46,12 @@ public class ComponentIndex implements Repository {
 	
 	@Override
 	public <C extends ComponentDeclaration> C getComponent(ComponentReference<C> reference) {
-		return reference != null ? getComponent(Versioned.any(reference)) : null;
+		return reference != null ? getComponent(VersionedReference.any(reference)) : null;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <C extends ComponentDeclaration> C getComponent(Versioned<C> referenceRange) {
+	public <C extends ComponentDeclaration> C getComponent(VersionedReference<C> referenceRange) {
 		ConcurrentNavigableMap<Version,WeakReference<ComponentDeclaration>> revisions = index.get(referenceRange.getComponent());
 		return revisions != null ? (C) select(range(revisions,referenceRange.getRange()),referenceRange.getComponent().getKind()) : null;
 	}

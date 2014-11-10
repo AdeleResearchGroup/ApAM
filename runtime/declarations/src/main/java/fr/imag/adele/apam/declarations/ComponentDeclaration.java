@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 
 /**
@@ -224,7 +224,7 @@ public abstract class ComponentDeclaration {
 	 * Get the reference to the parent group of this declaration, including the specific
 	 * range of versions
 	 */
-	public abstract Versioned<?> getGroupVersioned();
+	public abstract VersionedReference<?> getGroupVersioned();
 
 	/**
 	 * Whether this declaration has merged the inherited features of its group

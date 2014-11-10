@@ -43,7 +43,7 @@ import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.ImplementationReference;
 import fr.imag.adele.apam.declarations.references.components.InstanceReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
-import fr.imag.adele.apam.declarations.references.components.Versioned;
+import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
@@ -465,7 +465,7 @@ public class ComponentParser implements Decoder<Element> {
 
 		SpecificationReference specification 						= parseSpecificationReference(name, element, ATT_SPECIFICATION, false);
         String  versionRange 										= parseString(name, element, ATT_REQUIRE_VERSION, false);
-        Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,versionRange) : null;
+        VersionedReference<SpecificationDeclaration> specificationVersion	= specification != null ? VersionedReference.range(specification,versionRange) : null;
 		
         ComponentReference<?> implementation 	= parseAnyComponentReference(name, element, ATT_MAIN_IMPLEMENTATION, false);
 
@@ -592,7 +592,7 @@ public class ComponentParser implements Decoder<Element> {
 		
 		ImplementationReference<ImplementationDeclaration> implementation 	= parseImplementationReference(name, element, ATT_IMPLEMENTATION, true);
         String  range 														= parseString(name, element, ATT_REQUIRE_VERSION, false);
-    	Versioned<ImplementationDeclaration> implementationVersion 			= Versioned.range(implementation,range);
+    	VersionedReference<ImplementationDeclaration> implementationVersion 			= VersionedReference.range(implementation,range);
 
 		/*
 		 * look for optional trigger declarations
@@ -856,7 +856,7 @@ public class ComponentParser implements Decoder<Element> {
 		 */
 		SpecificationReference specification						= parseSpecificationReference(name, element, ATT_SPECIFICATION, false);
         String  versionRange										= parseString(name, element, ATT_REQUIRE_VERSION, false);
-        Versioned<SpecificationDeclaration> specificationVersion	= specification != null ? Versioned.range(specification,versionRange) : null;
+        VersionedReference<SpecificationDeclaration> specificationVersion	= specification != null ? VersionedReference.range(specification,versionRange) : null;
         
         AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name, specificationVersion, instrumentedClass);
         
