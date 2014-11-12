@@ -22,8 +22,6 @@ import java.util.Set;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
-import fr.imag.adele.apam.message.MessageProducer;
-import fr.imag.adele.apam.message.MessageConsumer;
 import fr.imag.adele.apam.test.s2.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s3.S3_2;
@@ -47,16 +45,25 @@ public class S2Impl implements S2, ApamComponent {
     M1 m1 ;
     M2 m2;
 
-    MessageProducer<M1> p1;
-    MessageProducer<M2> p2;
-
-    MessageProducer<M1> producerM3;
     
     public String getT2 (String param) {
-    	p1.push(m1) ;
+    	fireM1Message(m1) ;
     	Map <String, Object> props = new HashMap <String, Object> () ;
-    	p2.push(m2, props) ;
+    	fireM2Message(m2, props) ;
     	return "ok" ;
+    }
+    
+    private M1 fireM1Message(M1 message) {
+    	return message;
+    }
+
+    /**
+     * TODO Accept wrapped Message in push method
+     * 
+     * Message<M2>
+     */
+    private M2 fireM2Message(M2 message, Map <String, Object> properties) {
+    	return message;
     }
     
     @Override

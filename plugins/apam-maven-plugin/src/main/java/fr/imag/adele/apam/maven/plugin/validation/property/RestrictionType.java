@@ -28,6 +28,10 @@ public abstract class RestrictionType implements Type {
 		return name;
 	}
 
+	public Type getBaseType() {
+		return baseType;
+	}
+	
 	/**
 	 * Determines if the value is accepted for this restriction
 	 */
@@ -41,7 +45,8 @@ public abstract class RestrictionType implements Type {
 
 	@Override
 	public Object value(String value) {
-		return baseType.value(value);
+		Object converted = baseType.value(value); 
+		return converted != null && isAccepted(converted) ? converted : null;
 	}
 
 	@Override

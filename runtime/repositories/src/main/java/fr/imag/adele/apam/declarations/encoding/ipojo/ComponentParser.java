@@ -876,21 +876,20 @@ public class ComponentParser implements Decoder<Element> {
 
 			if (methodName.indexOf("(") != -1 && methodName.endsWith(")")) {
 				methodSignature = methodName.substring(methodName.indexOf("(") + 1, methodName.length() - 1);
-				methodName = methodName.substring(0, methodName.indexOf("(") - 1);
+				methodName = methodName.substring(0, methodName.indexOf("("));
 			}
 
 			ProviderInstrumentation instrumentation = new ProviderInstrumentation.MessageProviderMethodInterception(declaration, methodName, methodSignature);
 
 			if (!instrumentation.isValidInstrumentation()) {
-				errorHandler.report(Severity.ERROR, name + " : the specified method \"" + ATT_PUSH + "\" in \"" + ATT_PUSH + "\" is invalid or not found");
+				errorHandler.report(Severity.ERROR, name + " : the specified method \"" + instrumentation.getName() + "\" in \"" + ATT_PUSH + "\" is invalid or not found");
 			}
 
 			declaration.getProviderInstrumentation().add(instrumentation);
 		}
 
 		/*
-		 * Verify that at least one method is intercepted for each declared
-		 * produced message.
+		 * Verify that at least one method is intercepted for each declared produced message.
 		 */
 		for (MessageReference message : declaration.getProvidedResources(MessageReference.class)) {
 
@@ -917,12 +916,10 @@ public class ComponentParser implements Decoder<Element> {
 			}
 
 			/*
-			 * If we could determine the method types and there was no injection
-			 * then signal error
+			 * If we could determine the method types and there was no injection then signal error
 			 * 
-			 * NOTE Notice that some errors will not be detected at build time
-			 * since all the reflection information is not available, and
-			 * validation must be delayed until run time
+			 * NOTE Notice that some errors will not be detected at build time since all the reflection information
+			 * is not available, and validation must be delayed until run time
 			 */
 			if (!declared || (defined && !injected)) {
 				errorHandler.report(Severity.ERROR, "Apam component " + name + ": " + " message of type " + message.getJavaType() + " is not produced by any push method");
@@ -933,30 +930,23 @@ public class ComponentParser implements Decoder<Element> {
 		/*
 		 * if not explicitly provided, get all the implemented interfaces.
 		 */
-		if (declaration.getProvidedResources().isEmpty() && (pojoMetadata != null)) {
+		if (declaration.getProvidedResources(InterfaceReference.class).isEmpty() && (pojoMetadata != null)) {
 			for (String implementedInterface : pojoMetadata.getInterfaces()) {
 				declaration.getProvidedResources().add(new InterfaceReference(implementedInterface));
 			}
 		}
 
 		/*
-		 * If not explicitly provided, get all produced messages from the
-		 * declared intercepted methods
+		 * If not explicitly provided, get all produced messages from the declared intercepted methods
 		 */
-		Set<MessageReference> declaredMessages = declaration.getProvidedResources(MessageReference.class);
-		for (ProviderInstrumentation providerInstrumentation : declaration.getProviderInstrumentation()) {
+		if (declaration.getProvidedResources(MessageReference.class).isEmpty()) {
+			for (ProviderInstrumentation providerInstrumentation : declaration.getProviderInstrumentation()) {
+				MessageReference instrumentedMessage = providerInstrumentation.getProvidedResource().as(MessageReference.class);
+				if (instrumentedMessage != null) {
+					declaration.getProvidedResources().add(instrumentedMessage);
+				}
 
-			MessageReference instrumentedMessage = providerInstrumentation.getProvidedResource().as(MessageReference.class);
-
-			if (instrumentedMessage == null) {
-				continue;
 			}
-
-			if (declaredMessages.contains(instrumentedMessage)) {
-				continue;
-			}
-
-			declaration.getProvidedResources().add(instrumentedMessage);
 		}
 
 		/*

@@ -208,9 +208,9 @@ public class PropertyValidator extends AbstractValidator<PropertyDefinition,Void
 	/**
 	 * Initializes the internal state of the validator
 	 */
-	protected void initializeState(PropertyDefinition property, Type propertType) {
+	protected void initializeState(PropertyDefinition property, Type propertyType) {
 		this.property		= property;
-		this.propertyType	= typeParser.parse(getProperty().getType());
+		this.propertyType	= propertyType;
 	}	
 	
 	protected PropertyDefinition getProperty() {

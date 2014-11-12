@@ -14,20 +14,31 @@
  */
 package apam.test.compile;
 
+import java.util.Queue;
+
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.test.s2.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
+import fr.imag.adele.apam.test.s3.S3_2;
 import fr.imag.adele.apam.test.s4.S4;
 
 public class S2Simple implements S2, ApamComponent {
 
     S3_1 fieldS3;
+    S3_2 fieldS3Impl;
     S4   s4;
 
     String name;
     String state ;
 
+    Queue<M1>  messagesM1;
+    
+    @SuppressWarnings("unused")
+	private void getM1(M1 message) {
+    	System.out.println("pushed "+message);	
+    }
+    
     @Override
     public String getName() {
         return name;

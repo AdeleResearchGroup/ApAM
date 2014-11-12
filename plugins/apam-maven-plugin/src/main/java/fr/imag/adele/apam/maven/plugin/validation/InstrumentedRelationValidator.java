@@ -8,6 +8,7 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.InjectedField;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
@@ -43,14 +44,25 @@ public class InstrumentedRelationValidator extends RelationValidator {
 		 * validate instrumented fields and methods
 		 */
 		for (RequirerInstrumentation instrumentation : getRelation().getInstrumentations()) {
-			
-			if (instrumentation.getRequiredResource() instanceof UnknownReference) {
-				continue;
+
+			/*
+			 * validate multiplicity for interface injection
+			 * 
+			 */
+			if ( instrumentation instanceof InjectedField && getRelation().isMultiple() != instrumentation.acceptMultipleProviders()) {
+				if (instrumentation.getRequiredResource().as(InterfaceReference.class) != null) {
+					error("Invalid relation " + quoted(getRelation().getIdentifier()) + ", the multiplicity of field "+instrumentation.getName()+ " must be "+getRelation().isMultiple());
+				}
 			}
+			
 			
 			/*
 			 * validate the required resource matches the target kind
 			 */
+
+			if (instrumentation.getRequiredResource() instanceof UnknownReference) {
+				continue;
+			}
 			
 			if (getTargetKind().isAssignableTo(instrumentation.getRequiredResource().getJavaType())) {
 				continue;
@@ -64,6 +76,7 @@ public class InstrumentedRelationValidator extends RelationValidator {
 			if (getTargetKind().equals(ComponentKind.INSTANCE)) {
 				allowedType = allowedType + " or one of its provided resources "+Util.list(getTargetProvidedResources(),true);
 			}
+			
 			error("Invalid relation " + quoted(getRelation().getIdentifier()) + ", the type of field or method "+instrumentation.getName()+ " must be "+allowedType);
 			
 		}

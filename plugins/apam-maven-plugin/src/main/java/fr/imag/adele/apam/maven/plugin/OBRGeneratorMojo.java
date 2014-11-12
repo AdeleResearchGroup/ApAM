@@ -46,6 +46,7 @@ import org.apache.felix.utils.log.Logger;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.osgi.framework.Bundle;
@@ -320,11 +321,11 @@ public class OBRGeneratorMojo extends ManipulatorMojo  {
 			 * Abort if there are errors
 			 */
 			if (parsingResult.hasErrors()) {
-				throw new MojoExecutionException("Invalid xml Apam Metadata syntax.");
+				throw new MojoFailureException("Invalid xml Apam Metadata syntax.");
 			}
 			
 			if (validatorResult.hasErrors()) {
-				throw new MojoExecutionException("Invalid Apam component declaration");
+				throw new MojoFailureException("Invalid Apam component declaration");
 			}
 			
 			/*
@@ -337,7 +338,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo  {
             String obrProjectContent	= builder.build(context,projectRepository,generatorResult);
 
 			if (generatorResult.hasErrors()) {
-				throw new MojoExecutionException("Error generating ACR metadata");
+				throw new MojoFailureException("Error generating ACR metadata");
 			}
 
 			/*

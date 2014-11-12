@@ -41,14 +41,14 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 	/**
 	 * The contextual dependencies validator
 	 */
-	private final RelationValidator contextaulRelationValidator;
+	private final RelationValidator contextuallRelationValidator;
 	
 	public CompositeValidator(ValidationContext context, Classpath classpath) {
 		super(context, classpath);
 		
 		this.typeParser						= new TypeParser();
 		this.instanceValidator				= new InstanceValidator(this);
-		this.contextaulRelationValidator	= new RelationValidator(this);
+		this.contextuallRelationValidator	= new RelationValidator(this);
 	}
 
 	/**
@@ -247,17 +247,6 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 		Set<String> grantedStates = new HashSet<String>();
 		
 		for (GrantDeclaration grantDeclaration : ownDeclaration.getGrants()) {
-			ComponentDeclaration granted	= getComponent(grantDeclaration.getRelation().getDeclaringComponent(),true);
-
-			// Check that the granted component exists
-			if (granted == null) {
-				error("invalid grant expression, unknown component "+grantDeclaration.getRelation().getDeclaringComponent().getName()+ " in grant expression "+grantDeclaration);
-			}
-
-			// Check that the component is a singleton
-			if (granted.isDefinedSingleton()  && ! granted.isSingleton()) {
-				warning("invalid grant expression, component "+grantDeclaration.getRelation().getDeclaringComponent().getName()+ " is not a singleton "+grantDeclaration);
-			}
 
 			// Check that grant state values are valid
 			for (String grantState : grantDeclaration.getStates()) {
@@ -271,8 +260,20 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 				
 				grantedStates.add(grantState);
 			}
-			
 
+			// Check that the granted component exists
+			ComponentDeclaration granted	= getComponent(grantDeclaration.getRelation().getDeclaringComponent(),true);
+
+			if (granted == null) {
+				error("invalid grant expression, unknown component "+grantDeclaration.getRelation().getDeclaringComponent().getName()+ " in grant expression "+grantDeclaration);
+				continue;
+			}
+			
+			// Check that the component is a singleton
+			if (granted.isDefinedSingleton()  && ! granted.isSingleton()) {
+				warning("invalid grant expression, component "+grantDeclaration.getRelation().getDeclaringComponent().getName()+ " is not a singleton "+grantDeclaration);
+			}
+			
 			// Check that the relation exists and has as target the OWN resource
 			// OWN is a specification or an implem but the granted relation can be anything
 			
@@ -328,8 +329,8 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 	}
 	
 	/**
-	 * Cannot check if the component relation is valid. Only checks that the
-	 * composite relation is declared, and that the component is known.
+	 * Cannot check if the component relation is valid. Only checks that the composite relation is declared,
+	 * and that the component is known.
 	 *
 	 * @param composite
 	 */
@@ -342,9 +343,9 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 				error("invalid promotion, the source component "+ promotion.getContentRelation().getDeclaringComponent() +" is unknown");
 			}
 			
-			RelationDeclaration promotedRelation = source.getRelation(promotion.getContentRelation());
+			RelationDeclaration promotedRelation = source != null ? source.getRelation(promotion.getContentRelation()) : null;
 			// Check if the dependencies are compatible
-			if (promotedRelation == null) {
+			if (source != null && promotedRelation == null) {
 				error("invalid promotion, the promoted relation "+ quoted(promotion.getContentRelation().getIdentifier()) +" is not defined in component "+source.getName());
 				continue;
 			}
@@ -355,10 +356,8 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 				continue;
 			}
 
-			// Both the composite and the component have a relation with the
-			// right id.
-			// Check if the targets are compatible
-			if (!matchPromotion(promotedRelation, compositeRelation)) {
+			// Both the composite and the component have a relation with the right id. Check if the targets are compatible
+			if (promotedRelation != null && compositeRelation != null && !matchPromotion(promotedRelation, compositeRelation)) {
 				error("invalid promotion, the promoted relation "+ quoted(promotion.getContentRelation().getIdentifier()) +
 					  " does not match the composite relation "	+ quoted(promotion.getCompositeRelation().getIdentifier()));
 			}
@@ -397,11 +396,11 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 	private void validateContextualRelations() {
 		
 		for (RelationDeclaration contextual : getComposite().getContextualDependencies()) {
-			validate(contextual,contextaulRelationValidator);
+			validate(contextual,contextuallRelationValidator);
 		}
 		
 		for (RelationDeclaration override : getComposite().getOverridenDependencies()) {
-			validate(override,contextaulRelationValidator);
+			validate(override,contextuallRelationValidator);
 		}
 		
 	}

@@ -9,6 +9,7 @@ import fr.imag.adele.apam.declarations.references.Reference;
 import fr.imag.adele.apam.declarations.references.ResolvableReference;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.maven.plugin.validation.property.CollectionType;
 import fr.imag.adele.apam.maven.plugin.validation.property.Type;
 import fr.imag.adele.apam.maven.plugin.validation.property.TypeParser;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -186,12 +187,14 @@ public class ConstrainedReferenceValidator<R extends ConstrainedReference> exten
 			return;
 
 		Type propertyType 	= property != null ? getType(property) : null;
-		
+
 		if (expressionValidator.isContextualExpression(value)) {
 			
 			/*
 			 * If the value is a substitution expression try to parse and type it.  Verify the type of the
 			 * expression is comparable to the type of the property
+			 * 
+			 * TODO We need to validate what are the automatic conversions performed by the filter at runtime 
 			 */
 			Type expressionType	= validate(value,expressionValidator);
 			
@@ -204,10 +207,27 @@ public class ConstrainedReferenceValidator<R extends ConstrainedReference> exten
 		else {
 
 			/*
+			 * Operators involving sets perform automatic conversion of the property to a collection 
+			 */
+			if (operation == ApamFilter.SUBSET || operation == ApamFilter.SUPERSET) {
+				if (propertyType != null && !(propertyType instanceof CollectionType)) {
+					propertyType = new CollectionType(propertyType, false);
+				} 
+			}
+			
+			/*
+			 * If the property is a collection, the equality operator is overloaded to mean set containment
+			 */
+			if (operation == ApamFilter.EQUAL && propertyType != null && propertyType instanceof CollectionType) {
+				propertyType = ((CollectionType)propertyType).getElementType();
+			}
+
+			
+			/*
 			 * For normal values, just validates the literal is accepted by the type
 			 */
 			if (propertyType != null && propertyType.value(value) == null) {
-				error(message+", invalid filter "+quoted(filter.toString())+", the property "+quoted(propertyName)+ " has type "+propertyType+" and the value "+quoted(value)+" is not valid");
+				error(message+", invalid filter "+quoted(filter.toString())+", the value "+quoted(value)+" is not valid for the expected type "+quoted(propertyType.getName()));
 			}
 		}
 

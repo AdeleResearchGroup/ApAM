@@ -36,14 +36,14 @@
 		instantiable="false" shared="false" />
 	<specification name="S2Compile3" instantiable="false"
 		shared="false" />
-	<specification name="S2Compile4" interfaces="{apam.test.compile.S2, AB}"
-		messages="apam.test.M1, apam.Test.M2" singleton="false" />
+	<specification name="S2Compile4" interfaces="{fr.imag.adele.apam.test.s2.S2}"
+		messages="apam.test.compile.M1, apam.test.compile.M2" singleton="false" />
 	<specification name="S2Compile5" instantiable="false"
 		shared="false" />
 
-	<specification name="S2Compile" singleton="false"
-		instantiable="false" shared="false" interfaces="apam.test.compile.S2"
-		messages="{M1, M2}">
+	<specification name="S2Compile"
+		instantiable="false" shared="false" interfaces="fr.imag.adele.apam.test.s2.S2"
+		messages="{apam.test.compile.M1, apam.test.compile.M2}">
 
 		<definition name="test-spec" type="string" />
 		<property name="test-spec" value="coucou" />
@@ -54,17 +54,20 @@
 
 		<!-- composite state. Implemented in S2Impl -->
 		<definition name="houseState"
-			type="{empty, night, vacation, emergency, threat}"  default="busy" />
+			type="empty, night, vacation, emergency, threat" />
 
 		<relation specification="S4Compile" name="dzepS4" />
-		<relation interface="apam.test.s4.S4" />
+		<relation interface="fr.imag.adele.apam.test.s4.S4" />
+		
+		<!-- TODO  THIS DOES NOT COMPILE 
 		<relation interface="example.S4" name="xxx" />
 		<relation interface="example.S3" name="yyy" />
 		<relation message="example.DataType2" name="yy" />
+		 -->
 	</specification>
 
 	<specification name="S3Compile" shared="false"
-		interfaces="[apam.test.s3.S3_1,apam.test.s3.S3_2]">
+		interfaces="fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2">
 		<definition name="test-deux" type="string" />
 		<property name="test-deux" value="coucous3" />
 		<definition name="bS3"  type="string" />
@@ -90,79 +93,85 @@
 	<implementation name="S2ImplCompile0" specification="S2Compile"
 		singleton="false" instantiable="false" shared="false"
 		classname="apam.test.compile.S2Impl" />
+		
 	<implementation name="S2ImplCompile2" specification="S2Compile"
-		singleton="true" instantiable="false" shared="false"
-		classname="apam.test.compile.S2Impl" messages="{M1, M2}"
-		interfaces="{apam.test.compile.S2, A.B}" />
+		singleton="false" instantiable="false" shared="false"
+		classname="apam.test.compile.S2Impl" messages="{apam.test.compile.M1, apam.test.compile.M2}"
+		push="fireM1Message,fireM2Message"/>
+	<!-- TODO DOES NOT COMPILE  
+		singleton="true" instantiable="false" shared="false" 
+		interfaces="{S2ImplCompile2}" />
+	-->		
+		
 	<implementation name="S2ImplCompile3" specification="S2Compile"
-		singleton="false" instantiable="true" shared="false"
-		classname="apam.test.compile.S2Impl" interfaces="{apam.test.compile.S2, A.B}" />
+		singleton="false" instantiable="false" shared="false"
+		classname="apam.test.compile.S2Impl" interfaces="{fr.imag.adele.apam.test.s2.S2}" />
+		
 	<implementation name="S2ImplCompile4" specification="S2Compile"
-		singleton="false" instantiable="false" shared="true"
-		classname="apam.test.compile.S2Impl" interfaces="apam.test.compile.S2" />
+		singleton="false" instantiable="false" shared="false"
+		classname="apam.test.compile.S2Impl" interfaces="fr.imag.adele.apam.test.s2.S2" />
 
 	<implementation name="S2ImplCompile6" classname="apam.test.compile.S2Simple" />
-	<implementation name="S2ImplCompile7" interfaces="[apam.test.compile.S2]"
+	<implementation name="S2ImplCompile7" interfaces="fr.imag.adele.apam.test.s2.S2"
 		classname="apam.test.compile.S2Simple" specification="S2Compile"
 		singleton="false" />
-	<implementation name="S2ImplCompile8" interfaces="apam.test.compile.S2"
+	<implementation name="S2ImplCompile8" interfaces="fr.imag.adele.apam.test.s2.S2"
 		classname="apam.test.compile.S2Simple" specification="S2Compile"
 		singleton="false" instantiable="false" />
-	<implementation name="S2ImplCompile9" interfaces="apam.test.compile.S2"
+	<implementation name="S2ImplCompile9" interfaces="fr.imag.adele.apam.test.s2.S2"
 		classname="apam.test.compile.S2Simple" specification="S2Compile"
 		singleton="false" instantiable="false" shared="false" />  <!-- all possible characteristics -->
 
 
 
 	<implementation name="S2ImplCompile" classname="apam.test.compile.S2Impl"
-		specification="S2Compile" interfaces="{apam.test.compile.S2}">
+		specification="S2Compile" interfaces="{fr.imag.adele.apam.test.s2.S2}">
 
 		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />
 		<definition name="b" type="boolean" default="true" />
 		<definition name="c" type="string" />
 
-		<relation specification="S3Compile" name="specS3" fail="wait"
-			exception="fr.imag. ….failedException">
+		<relation specification="S3Compile" name="specS3" fail="wait">
+			<!-- TODO DOES NOT COMPILE  exception="fr.imag. ….failedException" -->
 			<interface field="s3s" />
 			<interface field="s3_2" />
 		</relation>
-		<relation specification="S3Compile" fail="wait"
-			exception="fr.imag. ….failedException">
+		<relation specification="S3Compile" fail="wait">
+			<!-- TODO DOES NOT COMPILE  exception="fr.imag. ….failedException">  -->
 			<interface field="s3s2" />
 		</relation>
 
-		<relation field="s4_1" exception="fr.imag. ….failedException" />
+		<relation field="s4_1" fail="exception" />
 		<relation field="s4_2" />
 		<relation message="apam.test.compile.M2" field="fM2" />
-		<relation message="getT2" />
+		<relation push="getT2" multiple="true"/>
 		<ipojo:requires field="apam" />
 	</implementation>
 
 
-	<implementation name="S2SimpleCompile" interfaces="apam.test.compile.S2"
+	<implementation name="S2SimpleCompile" interfaces="fr.imag.adele.apam.test.s2.S2"
 		classname="apam.test.compile.S2Simple" specification="S2Compile"
 		singleton="false" instantiable="false" shared="false">  <!-- all possible characteristics -->
 
 		<!-- The state for composites -->
 		<definition name="houseState" field="state" injected="internal"
-			type="{empty, night, vacation, emergency, threat}" default="night" />
+			type="empty, night, vacation, emergency, threat"/>
 
 		<definition name="location" type="exit, entrance, garage, bedroom" />
-		<property name="shared" value="false" />
-		<relation message="getM1" />
-		<relation specification="S3Compile" name="S3Id" multiple="true"> <!-- added="newT" removed="removedT" -->
+		<relation push="getM1" multiple="true"/>
+		<relation specification="S3Compile" name="S3Id" multiple="false"> <!-- added="newT" removed="removedT" -->
 			<interface field="fieldS3" />
-			<message pull="getAlsoM1" />
+			<message pull="messagesM1" />
 			<!-- <interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
 				<instance filter="(&amp;(testEnum*>v1 ,v2, v3)(x=6))" />
 				<instance filter="(&amp;(testEnum=v1)(x=6))" />
-				<instance filter="(&amp;(testEnum=wxcv)(x=6))" />
-				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" />
-				<instance filter="(&amp;(testEnum*>v1,toto)(x=6))" />
+				<instance filter="(&amp;(testEnum=v3)(x=6))" />
+				<instance filter="(&amp;(testEnum*&gt;v1,v5)(x=6))" />
+				<instance filter="(&amp;(testEnum*>v1,v4)(x=6))" />
 
-				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" />
+				<instance filter="(&amp;(testEnum*&gt;v1,v3)(x=6))" />
 				<instance filter="(&amp;(A2=8)(MyBool=false))" />
 			</constraints>
 			<preferences>
@@ -172,14 +181,14 @@
 		</relation>
 
 		<relation implementation="S3Impl" name="S3Id2">
-			<interface field="fieldS3" />
+			<interface field="fieldS3Impl" />
 			<preferences></preferences>
 			<constraints>
 				<instance filter="(S3Impl-Attr=good)" />
 			</constraints>
 		</relation>
 
-		<relation interface="apam.test.s4.S4" field="s4" name="s4Id">
+		<relation interface="fr.imag.adele.apam.test.s4.S4" field="s4" name="s4Id">
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
 				<instance filter="(SCccOPE=GLOBAL)" />
@@ -206,7 +215,7 @@
 
 
 	<composite name="ContentComposite" specification="S2Compile"
-		main="S2ImplCompile">
+		main="S2ImplCompile" singleton="true">
 		<relation specification="S4" name="compoS4" />
 
 		<contentMngt>
@@ -214,18 +223,11 @@
 				<property name="S3Impl-Attr" value="val" />
 				<relation specification="S4Compile" fail="exception"
 					exception="fr.imag.adele.apam.test.s2Impl.MyException">
-					<constraints>
-						<implementation filter="(propre=true)" />
-						<implementation filter="(xxx=ok)" />
-					</constraints>
-					<preferences>
-						<implementation filter="(xxx=yy)" />  <!-- Invalid filter -->
-					</preferences>
 				</relation>
 				<trigger>
-					<specification name="la spec qui declenche le demmarage"> <!-- Not valid unknown spec -->
+					<specification name="S2"> <!-- Not valid unknown spec -->
 						<constraints>
-							<constraint filter="la condition de demarrage" /> <!-- Not valid filter syntax -->
+							<constraint filter="(spec-name=S2)" /> <!-- Not valid filter syntax -->
 						</constraints>
 					</specification>
 				</trigger>
@@ -233,20 +235,15 @@
 
 			<import implementation="(b=true)" instance="false" />
 			<export implementation="true" instance="true" />
-			<export implementation="((c)" /> 							<!-- Invalid filter -->
+			<export implementation="(c=*)" /> 							
 			<exportApp instance="(yyy=tt)" /> 	<!-- cannot be checked -->
 
 
-			<own specification="S4" property="location" value="living, bedroom, kitchen">
+			<own specification="S4" property="locationSingle" value="exit , bedroom, entrance">
 				<grant implementation="S2Impl" relation="S4_1" when="threat" />
-				<grant implementation="S2Simple" relation="S4" when="threat" />
-				<grant implementation="S3" relation="S4Compile" when="night, vacation" />
-				<grant implementation="S3XXX" relation="S4Compile" when=" {night, empty}" />
-				<grant implementation="S2Impl" relation="S4_2" when="{bedroom}" />
+				<grant implementation="S2Impl" relation="S4_2" when="emergency" />
 			</own>
-			<own specification="S2" property="location" value="living" />
-			<own specification="S2l" property="b" value="true" />
-			<own specification="S3" property="c" value="ok" />
+			<own specification="S3" />
 
 			<state implementation="S2SimpleCompile" property="houseState" />
 			<!-- <state implementation="S2ww" property="house" /> -->
@@ -254,17 +251,11 @@
 			<!-- type="{empty, night, vacation, emergency, threat}" value="empty" 
 				/> -->
 
-			<promote implementation="S2Impl" relation="S4" to="compoS4" />
-			<promote implementation="S2Impl" relation="S4_1" to="compoS4" />  		<!-- wrong component -->
-			<promote implementation="S2Impl" relation="S3Mult" to="compoS4" />  		<!-- wrong component -->
-			<promote implementation="S2Impl" relation="S4_1" to="compoxxx" />  		<!-- wrong component -->
-			<promote implementation="S3Impl" relation="S4Compile" to="wrongDep" /> 	<!-- wrong composite dep -->
-			<promote implementation="S3Impl" relation="S4Compile" to="compoS4" />
-			<promote implementation="S3XX" relation="S4Compile" to="compoS4" />  		<!-- wrong component -->
-			<promote implementation="S3Impl" relation="S4Compile" to="wrongDep" /> 	<!-- wrong composite dep -->
+			<promote implementation="S2Impl" relation="S4_1" to="compoS4" />  		
+			<promote implementation="S3Impl" relation="s4" to="compoS4" />
 
 			<override specification="Spec_A*" creation="eager" fail="exception"
-				exception="CompositerelationException">
+				exception="java.lang.IllegalArgumentException">
 				<constraints>
 					<implementation filter="(apam-composite=true)" />
 				</constraints>
@@ -292,7 +283,6 @@
 	</apam-instance>
 
 	<apam-instance name="InstS2Impl" implementation="S3Impl">
-		<property name="shared" value="false" /> <!-- wrong -->
 	</apam-instance>
 	<apam-instance implementation="S2ImplCompile" name="S2CompoCompile2">
 		<relation specification="S3Compile" name="S3Compile" />

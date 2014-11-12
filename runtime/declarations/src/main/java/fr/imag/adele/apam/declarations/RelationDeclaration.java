@@ -410,10 +410,12 @@ public class RelationDeclaration extends ConstrainedReference {
 	/**
 	 * The multiplicity of a relation.
 	 * 
-	 * If this is an abstract declaration in specifications or composites, it
-	 * must be explicitly defined.
+	 * If this is an abstract declaration in specifications or composites, it must be explicitly
+	 * defined. Otherwise it is inferred from the needs of the declared instrumentation.
 	 * 
-	 * Otherwise it is inferred from the needs of the declared instrumentation.
+	 * TODO Perhaps this method should return the actually declared value of the multiplicity, and
+	 * the override by instrumentation must be performed by the semantic level validation.
+	 *   
 	 */
 	public boolean isMultiple() {
 

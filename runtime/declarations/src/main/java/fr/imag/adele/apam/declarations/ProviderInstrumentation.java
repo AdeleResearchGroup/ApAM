@@ -49,6 +49,8 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 
 		/**
 		 * The return type of the specified method
+		 * 
+		 * TODO handle the case of wrapped messages, using directly Message<Data>
 		 */
 		private final Lazy<MessageReference> methodReturnType = new Lazy<MessageReference>() {
 

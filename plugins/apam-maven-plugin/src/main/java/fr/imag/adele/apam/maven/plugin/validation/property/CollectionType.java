@@ -36,6 +36,10 @@ public class CollectionType implements Type {
 		return name;
 	}
 
+	public Type getElementType() {
+		return elementType;
+	}
+	
 	@Override
 	public boolean isValue(Object value) {
 		
