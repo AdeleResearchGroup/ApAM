@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.felix.ipojo.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +51,6 @@ import fr.imag.adele.apam.declarations.references.components.InstanceReference;
 import fr.imag.adele.apam.declarations.references.components.SpecificationReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
-import fr.imag.adele.apam.util.ApamFilter;
 
 public class ApamResolverImpl implements ApamResolver {
 
@@ -672,7 +670,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 			if (!relToResolve.matchRelationConstraints(inst)) {
 				logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints");
-				((ComponentImpl) inst).unregister();
+				((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst);
 				return null ;
 			}
 

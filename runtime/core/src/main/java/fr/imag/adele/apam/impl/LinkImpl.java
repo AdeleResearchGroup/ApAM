@@ -28,6 +28,7 @@ public class LinkImpl implements Link {
 	private final boolean hasConstraints;
 	private final boolean isPromotion;
 	private final RelToResolve relToResolve;
+	private boolean disposed;
 
 	// private final String depName; // field name for atomic dep; spec name for
 	// complex dep, dest type for
@@ -53,6 +54,7 @@ public class LinkImpl implements Link {
 		this.hasConstraints = hasConstraints;
 		relToResolve = dep;
 		this.isPromotion = isPromotion;
+		this.disposed = false;
 		// this.isWire = dep.isWire();
 		// this.isInjected = dep.isInjected();
 		// this.depName = dep.getIdentifier();
@@ -141,6 +143,20 @@ public class LinkImpl implements Link {
 	
 	@Override
 	public void remove() {
+		
+		/*
+		 * Avoid duplicate remove, this may happen because the same link is referenced by the source
+		 * and the destination, and both may try to remove the link simultaneously or in nested
+		 * reentrant calls
+		 */
+		synchronized (this) {
+			
+			if (disposed)
+				return;
+			
+			disposed = true;
+		}
+		
 		source.removeLink(this);
 		destination.removeInvLink(this);
 

@@ -176,11 +176,5 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 		 * TODO What to do with implementations that reference this
 		 * specification in its dependencies?
 		 */
-
-		/*
-		 * remove from broker
-		 */
-		// ((ComponentBrokerImpl)CST.componentBroker).remove(this);
-
 	}
 }

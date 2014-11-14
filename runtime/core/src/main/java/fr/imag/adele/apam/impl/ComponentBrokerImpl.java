@@ -76,46 +76,43 @@ public class ComponentBrokerImpl implements ComponentBroker {
 
 	public void disappearedComponent(Component component) {
 		try {
-			/*
-			 * in case it is an Apam unregister that produced the disappear,
-			 * first check if it exists in Apam ...
-			 */
-			if (component instanceof Specification) {
-				if (!specifications.remove(component)) {
-					return;
-				}
-				((SpecificationImpl) component).unregister();
+			
+			Set<? extends Component> collection = null;
+			
+			switch (component.getKind()) {
+				case IMPLEMENTATION:
+					collection = implementations;
+					break;
+				case INSTANCE:
+					collection = instances;
+					break;
+				case SPECIFICATION:
+					collection = specifications;
+					break;
+				default:
+					break;
+			}
+
+			if (collection == null) {
 				return;
 			}
-			if (component instanceof Implementation) {
-				if (!implementations.remove(component)) {
-					return;
-				}
-				if (component instanceof CompositeType) {
-					((CompositeTypeImpl) component).unregister();
-					return;
-				}
-				((ImplementationImpl) component).unregister();
-				return;
-			}
-			if (component instanceof Instance) {
-				if (!instances.remove(component)) {
-					return;
-				}
-				if (component instanceof Composite) {
-					((CompositeImpl) component).unregister();
-					return;
-				}
-				((InstanceImpl) component).unregister();
-				return;
-			}
-			logger.debug("Unknown component " + component + " cannot delete");
-		} finally {
 
 			/*
-			 * Notify managers
+			 * First remove from the collection, so that is no longer visible for resolution
 			 */
-			ApamManagers.notifyRemovedFromApam(component);
+			boolean exists = collection.remove(component);
+					
+			/*
+			 * Remove the component from the model and notify managers
+			 */
+			if (exists) {
+				((ComponentImpl)component).unregister();
+				ApamManagers.notifyRemovedFromApam(component);
+			}
+			
+		}
+		catch (Exception unexpected) {
+			
 		}
 	}
 
@@ -124,11 +121,12 @@ public class ComponentBrokerImpl implements ComponentBroker {
 	 * ASM.
 	 */
 	public void disappearedComponent(String componentName) {
+		
 		Component component = getComponent(componentName);
 		if (component == null) {
-			// previous remove of the factory removed instances
 			return;
 		}
+		
 		disappearedComponent(component);
 	}
 

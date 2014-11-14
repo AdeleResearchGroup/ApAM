@@ -201,7 +201,6 @@ public class ApamInstanceManager extends InstanceManager implements
 			Apform2Apam.newInstance(getApform());
 
 		if (state == ComponentInstance.INVALID)
-			// Apform2Apam.vanishInstance(getInstanceName());
 			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(getInstanceName());
 	}
 

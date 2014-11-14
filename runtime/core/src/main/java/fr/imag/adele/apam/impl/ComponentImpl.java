@@ -1170,6 +1170,7 @@ implements Component, Comparable<Component> {
 	public void setInstantiateFails (boolean doNotTryToInstantiate) {
 		instantiateFails = doNotTryToInstantiate ;
 	}
+	
 	/**
 	 * Whether the component is shared
 	 */

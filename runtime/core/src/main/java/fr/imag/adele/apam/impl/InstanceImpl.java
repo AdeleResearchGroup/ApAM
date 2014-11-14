@@ -201,15 +201,15 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		finishInitialize(initialproperties);
 
 		/*
-		 * Add to broker
-		 */
-		((ComponentBrokerImpl) CST.componentBroker).add(this);
-
-		/*
 		 * Bind to the underlying execution platform instance
 		 */
 		getApformInst().setApamComponent(this);
 
+		/*
+		 * Add to broker
+		 */
+		((ComponentBrokerImpl) CST.componentBroker).add(this);
+		
 		/*
 		 * Notify managers
 		 */
@@ -281,13 +281,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		for (Link wire : links) {
 			((LinkImpl) wire).remove();
 		}
-
-		// /*
-		// * Notify managers
-		// */
-		// ApamManagers.notifyRemovedFromApam(this);
-		//
-		//
 
 	}
 

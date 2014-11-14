@@ -198,9 +198,25 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			setInstantiateFails(false);
 			return instance;
 		} catch (InvalidConfiguration configurationError) {
-			
+
+			/*
+			 * TODO this should be done in method register, we should try to have some form
+			 * of atomic registration that includes registration and addition in the broker
+			 */
 			if (instance != null) {
-				((InstanceImpl) instance).unregister();
+				if (CST.componentBroker.getComponent(instance.getName()) != null) {
+					/*
+					 * If creation failed after broker registration, undo registration 
+					 */
+					((ComponentBrokerImpl) CST.componentBroker).disappearedComponent(instance);
+				}
+				else {
+					
+					/* 
+					 * The instance was partially created, just undo registration
+					 */
+					((ComponentImpl)instance).unregister();
+				}
 			}
 			
 			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM " + configurationError.getMessage());
@@ -422,7 +438,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 * remove all existing instances
 		 */
 		for (Instance inst : instances) {
-			// ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
 			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst);
 		}
 
