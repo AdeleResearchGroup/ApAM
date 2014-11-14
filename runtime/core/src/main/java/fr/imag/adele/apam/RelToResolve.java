@@ -74,10 +74,10 @@ public interface RelToResolve {
 
 	public ResolvePolicy getResolve();
 
-	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion);
+	public <T extends Component> Resolved<T> getResolved(Resolved<T> candidates, boolean isPromotion);
 
 	// Ex in Util
-	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion);
+	public <T extends Component> Resolved<T> getResolved(Set<T> candidates, boolean isPromotion);
 
 	// Type of source
 	public ComponentKind getSourceKind();

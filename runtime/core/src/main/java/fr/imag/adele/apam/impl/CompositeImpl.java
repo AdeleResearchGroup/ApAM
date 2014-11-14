@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ContextualManager;
@@ -76,12 +75,12 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
 	// ==== initialisations ==
 	/**
-	 * NOTE We can not directly initialize the field because the constructor may
-	 * throw an exception, so we need to make an static block to be able to
-	 * catch the exception. The root composite bootstraps the system, so
-	 * normally we SHOULD always be able to create it; if there is an exception,
-	 * that means there is some bug an we can not normally continue so we throw
-	 * a class initialization exception.
+	 * NOTE We can not directly initialize the field because the constructor may throw an exception, so we need
+	 * to make an static block to be able to catch the exception.
+	 * 
+	 * The root composite bootstraps the system, so normally we SHOULD always be able to create it; if there
+	 * is an exception, that means there is some bug and we cannot normally continue, so we throw a class
+	 * initialization exception.
 	 */
 	static {
 		Composite bootstrap = null;
@@ -273,66 +272,19 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	@Override
 	public void register(Map<String, String> initialProperties) throws InvalidConfiguration {
 
-		// true if Abstract composite or unused main instance
-		boolean registerMain = false;
-
 		/*
-		 * Initialize the contained instances. The main instance will be eagerly
-		 * created and the other components will be lazily instantiated. It is
-		 * also possible to specify an unused external main instance in the
-		 * configuration properties.
+		 * Initialize the contained instances. The main instance will be eagerly created and the
+		 * other components will be lazily instantiated.
 		 * 
-		 * Attribute A_MAIN_INSTANCE is set when a running unused instance makes
-		 * its first resolution: it become the main instance of a new default
-		 * composite
+		 * TODO should there be a way to specify the properties of the main instance?
 		 */
-		if (initialProperties != null && initialProperties.get(CST.APAM_MAIN_INSTANCE) != null) {
-			mainInst = CST.componentBroker.getInst(initialProperties.remove(CST.APAM_MAIN_INSTANCE));
-			if (mainInst.isUsed()) {
-				throw new InvalidConfiguration("Error creating composite : already used main instance " + mainInst);
-			}
-
-			assert !mainInst.isUsed();
-		} else {
-			/*
-			 * Abstract composites do not have main instance.
-			 * 
-			 * TODO should there be a way to specify the properties of the main
-			 * instance?
-			 */
-			if ((ImplementationImpl) getMainImpl() != null) {
-				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, null);
-			}
-		}
-
-		// If not an abstract composite
-		if (mainInst != null) {
-			/*
-			 * If the main instance is external, it is already registered but we
-			 * need to remove it from the root composite and add it to this
-			 */
-			if (mainInst.isUsed()) {
-				registerMain = true;
-			} else {
-				((InstanceImpl) mainInst).setOwner(this);
-			}
-
-			/*
-			 * main instance is never shared
-			 * 
-			 * NOTE Produces an error when an instance is automatically added to
-			 * a composite application
-			 * 
-			 * 
-			 * mainInst.getDeclaration().setShared(false) ; ((InstanceImpl)
-			 * mainInst).put(CST.SHARED, CST.V_FALSE);
-			 */
+		if ((ImplementationImpl) getMainImpl() != null) {
+			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, null);
 		}
 
 		/*
-		 * Opposite reference from the enclosing composite. Notice that root
-		 * application are sons of the all root composite, but their father
-		 * reference is null.
+		 * Opposite reference from the enclosing composite. Notice that root application are sons
+		 * of the all root composite, but their father reference is null.
 		 */
 		((CompositeImpl) getComposite()).addSon(this);
 
@@ -347,10 +299,9 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		super.register(initialProperties);
 
 		/*
-		 * After composite is registered, register main instance that was
-		 * eagerly created
+		 * After composite is registered, register main instance that was eagerly created
 		 */
-		if (registerMain) {
+		if (mainInst != null) {
 			((InstanceImpl) mainInst).register(null);
 		}
 	}
@@ -394,11 +345,12 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	@Override
 	public void setOwner(Composite owner) {
 
-		assert (isUsed() && owner == rootComposite) || (!isUsed() && owner != null);
-
 		CompositeImpl previousOwner = (CompositeImpl) getComposite();
+		if (owner == previousOwner) {
+			return;
+		}
+		
 		super.setOwner(owner);
-
 		previousOwner.removeSon(this);
 
 		this.father = owner;

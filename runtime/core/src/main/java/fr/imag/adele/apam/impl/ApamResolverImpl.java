@@ -15,10 +15,8 @@
 package fr.imag.adele.apam.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -34,7 +32,6 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.RelToResolve;
 import fr.imag.adele.apam.RelationDefinition;
 import fr.imag.adele.apam.RelationManager;
@@ -228,293 +225,159 @@ public class ApamResolverImpl implements ApamResolver {
 		return (Instance) findByName(client, new InstanceReference(instName), ComponentKind.INSTANCE);
 	}
 
-	// /**
-	// * Before to resolve an implementation (i.e. to select one of its
-	// instance),
-	// * this method is called to know which managers are involved, and what are
-	// * the constraints and preferences set by the managers to this resolution.
-	// *
-	// * @param compTypeFrom
-	// * : the origin of this resolution.
-	// * @param impl
-	// * : the implementation to resolve.
-	// * @param constraints
-	// * : the constraints added by the managers. A (empty) set must be
-	// * provided as parameter.
-	// * @param preferences
-	// * : the preferences added by the managers. A (empty) list must
-	// * be provided as parameter.
-	// * @return : the managers that will be called for that resolution.
-	// */
-	// private List<RelationManager> computeSelectionPath(Component source,
-	// RelToResolve relToResolve) {
-	//
-	// /*
-	// * Get the list of external managers.
-	// *
-	// * NOTE Notice that we invoke getSelctionPath on all managers (even if
-	// resolve policy
-	// * is specified EXTERNAL. In this way, managers can influence resolution,
-	// by adding
-	// * constraints, even if they do not perform resolution themselves.
-	// *
-	// */
-	// List<RelationManager> externalPath = new ArrayList<RelationManager>();
-	// for (RelationManager relationManager :
-	// ApamManagers.getRelationManagers()) {
-	// relationManager.getSelectionPath(source, relToResolve, externalPath);
-	// }
-	//
-	// /*
-	// * Get the list of all managers, core and external
-	// */
-	// List<RelationManager> selectionPath = new ArrayList<RelationManager>();
-	//
-	// selectionPath.add(0, apam.getApamMan());
-	// selectionPath.add(0, apam.getUpdateMan());
-	//
-	//
-	// /*
-	// * If resolve = exist or internal, only predefined managers must be called
-	// */
-	//
-	// boolean resolveExternal = relToResolve.getResolve() ==
-	// ResolvePolicy.EXTERNAL ;
-	// if (resolveExternal) {
-	// selectionPath.addAll(externalPath);
-	// }
-	//
-	// return selectionPath;
-	// }
 
 	@Override
 	public Specification findSpecByName(Component client, String specName) {
 		return (Specification) findByName(client, new SpecificationReference(specName), ComponentKind.SPECIFICATION);
 	}
 
-	// if the instance is unused, it will become the main instance of a new
-	// composite.
-	private Composite getClientComposite(Instance mainInst) {
+	/**
+	 * Get the subset of the links of a composite that can satisfy a promotion for the specified source and relation
+	 * inside the composite.
+	 * 
+	 * NOTE IMPORTANT this method may trigger resolution of the composite's relation 
+	 */
+	@SuppressWarnings("unchecked")
+	private <T extends Component> Resolved<T> getPromotionCandidates(Instance source, RelToResolve relation, RelationDefinition compositeRelation) {
 
-		if (mainInst.equals(CompositeImpl.getRootInstance())) {
-			return CompositeImpl.getRootInstance();
-		}
-
-		if (mainInst.isUsed()) { // || (mainInst instanceof Composite)
-			return mainInst.getComposite();
-		}
-
-		/*
-		 * We are resolving a reference from an unused client instance. We
-		 * automatically build a new composite to create a context of execution.
-		 * This allows to use Apam without requiring the explicit definition of
-		 * composites, just instantiating any implementation.
-		 */
-
-		Implementation mainComponent = mainInst.getImpl();
-		String applicationName = mainComponent.getName() + "_Appli";
-		// SpecificationReference specification =
-		// mainComponent.getImplDeclaration().getSpecification();
-		Set<ManagerModel> models = new HashSet<ManagerModel>();
-
-		logger.debug("creating a dummy root composite type " + applicationName + " to contain unused " + mainInst);
-
-		CompositeType application = apam.createCompositeType(null,
-				// applicationName, specification != null ? specification.getName() :
-				// null, mainComponent.getName(),
-				applicationName, null, mainComponent.getName(), models, null);
-
-		/*
-		 * Create an instance of the application with the specified main
-		 */
-		Map<String, String> initialProperties = new HashMap<String, String>();
-		initialProperties.put(CST.APAM_MAIN_INSTANCE, mainInst.getName());
-		return (Composite) application.createInstance(null, initialProperties);
-	}
-
-	//	/**
-	//	 * Only instance have a well-defined and unique enclosing composite (type
-	//	 * and instance). Promotion control will apply only on sources that are
-	//	 * instances; but for relations, targetType can be any component. We will
-	//	 * look for a relation at the composite level, that matches the target
-	//	 * (target and targetType), whatever the Id, composite rel cardinality must
-	//	 * be multiple if the relation is multiple. If so, it is a promotion. The
-	//	 * composite relation is resolved, then the source relation is resolved as a
-	//	 * subset of the composite rel. The client becomes the embedding composite;
-	//	 * visibility and scope become the one of the embedding composite
-	//	 * 
-	//	 * Note that is more than one composite relation matches the source
-	//	 * relation, one arbitrarily is selected. To closely control promotions, use
-	//	 * the tag "promotion" in the composite relation definition.
-	//	 * 
-	//	 * 
-	//	 * @param client
-	//	 * @param relDef
-	//	 *            definition
-	//	 * @return the composite relation from the composite.
-	//	 */
-	//	private RelationDefinition getPromotionRel(Instance client, RelationDefinition relDef) {
-	//		// if (relation.getIdentifier() == null) // Not a relation
-	//		// return null;
-	//
-	//		Composite composite = client.getComposite();
-	//
-	//		// if (composite.getDeclaration() == null) {
-	//		// return null;
-	//		// }
-	//
-	//		// look if a promotion is explicitly declared for that client component
-	//		// <promotion implementation="A" relation="clientDep" to="compoDep" />
-	//		// <promotion specification="SA" relation="clientDep" to="compoDep" />
-	//		for (RelationPromotion promo : composite.getCompType().getCompoDeclaration().getPromotions()) {
-	//			if (!promo.getContentRelation().getIdentifier().equals(relDef.getName())) {
-	//				continue; // this promotion is not about our relation (not
-	//				// "clientDep")
-	//			}
-	//
-	//			String sourceName = promo.getContentRelation().getDeclaringComponent().getName();
-	//			// sourceName = "SA" or "A"
-	//			if (sourceName.equals(client.getImpl().getName()) || sourceName.equals(client.getSpec().getName())) {
-	//				// We found the right promotion from client side.
-	//				// Look for the corresponding composite relation "compoDep"
-	//				String toName = promo.getCompositeRelation().getIdentifier();
-	//				RelationDefinition foundPromo = composite.getCompType().getRelation(toName);
-	//				// if (compoDep.getIdentifier().equals(toName)) {
-	//				// We found the composite side. It is an explicit promotion. It
-	//				// should match.
-	//				if (foundPromo.matchRelation(client, foundPromo)) {
-	//					return foundPromo;
-	//				}
-	//				logger.error("Promotion is invalid. relation " + promo.getContentRelation().getIdentifier() + " of component " + sourceName + " does not match the composite relation " + foundPromo);
-	//				return null;
-	//			}
-	//		}
-	//
-	//		// Look if a relation, defined in the composite, matches the current
-	//		// relation
-	//		// Do no check composite
-	//		Component group = composite;
-	//		while (group != null) {
-	//			for (RelationDefinition compoDep : group.getLocalRelations()) {
-	//				if (relDef.matchRelation(client, compoDep)) {
-	//					return compoDep;
-	//				}
-	//			}
-	//			group = group.getGroup();
-	//		}
-	//		return null;
-	//	}
-
-	private Resolved<?> checkImplicitPromotion(Instance client, RelationDefinition relDef, Resolved<?> resolved, RelToResolve relToResolve, Composite composite, Component source) {
-
-		// Look if a relation, defined in the composite, matches the current
-		// relation
-		// Do no check composite
-		Component group = composite;
+		Set<Component> candidates = source.getComposite().getLinkDests(compositeRelation.getName());
 		
-		RelToResolve relToResolveIntrinsic = new RelToResolveImpl(client,relDef);
-		
-		while (group != null) {
-			for (RelationDefinition compoDep : group.getLocalRelations()) {
-				if (relDef.matchRelation(client, compoDep)) {
-					resolved = resolvePromotion(compoDep, resolved, relToResolveIntrinsic, composite, source);
-				}
-			}
-			group = group.getGroup();
-		}
-		return resolved;
-	}
-
-	private Resolved<?> checkExplicitPromotion(Instance client, RelationDefinition relDef, Resolved<?> resolved, RelToResolve relToResolve, Composite composite, Component source) {
-		boolean isExplicitPromotion = false;
-
-		// look if a promotion is explicitly declared for that client component
-		// <promotion implementation="A" relation="clientDep" to="compoDep" />
-		// <promotion specification="SA" relation="clientDep" to="compoDep" />
-		for (RelationPromotion promo : composite.getCompType().getCompoDeclaration().getPromotions()) {
-			if (!promo.getContentRelation().getIdentifier().equals(relDef.getName())) {
-				continue; // this promotion is not about our relation (not
-				// "clientDep")
-			}
-
-			String sourceName = promo.getContentRelation().getDeclaringComponent().getName();
-			// sourceName = "SA" or "A"
-			if (sourceName.equals(client.getImpl().getName()) || sourceName.equals(client.getSpec().getName())) {
-				// We found the right promotion from client side.
-				// Look for the corresponding composite relation "compoDep"
-				String toName = promo.getCompositeRelation().getIdentifier();
-				RelationDefinition foundPromo = composite.getCompType().getRelation(toName);
-				isExplicitPromotion = true;
-				// if (compoDep.getIdentifier().equals(toName)) {
-				// We found the composite side. It is an explicit promotion.
-				// It should match.
-				if (foundPromo.matchRelation(client, foundPromo)) {
-					resolved = resolvePromotion(foundPromo, resolved, relToResolve, composite, source);
-				} else {
-					logger.error("Promotion is invalid. relation " + promo.getContentRelation().getIdentifier() + " of component " + sourceName + " does not match the composite relation " + foundPromo);
-				}
-			}
-		}
-		if (isExplicitPromotion) {
-			if (resolved == null) {
-				resolved = new Resolved<Component>(null, false);
-			}
-			return resolved;
-		} else {
-			return null;
-		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Resolved<?> resolvePromotion(RelationDefinition promotionRelation, Resolved<?> resolved, RelToResolve relToResolve, Composite compo, Component source) {
-		// if it is a promotion, get the composite relation targets.
-		boolean promoHasConstraints = false;
-		boolean isPromotion = false;
-
-		if (promotionRelation != null) {
-			// Check existing links
-			isPromotion = true;
-			promoHasConstraints = promotionRelation.hasConstraints();
-			if (promotionRelation.isMultiple()) {
-				if (resolved == null) {
-					resolved = new Resolved<Component>(compo.getLinkDests(promotionRelation.getName()));
-				} else {
-					resolved = resolved.merge(new Resolved(compo.getLinkDests(promotionRelation.getName())));
-				}
-
-			} else {
-				resolved = new Resolved<Component>(compo.getLinkDest(promotionRelation.getName()));
-			}
-
-			// Maybe the composite did not resolved that relation so far.
-			if (resolved.isEmpty()) {
-				resolved = resolveLink(compo, promotionRelation);
-			}
-
-			// Select the sub-set that matches the dep constraints. No
-			// source visibility control (null).
-			// Adds the manager constraints and compute filters
-			if (resolved != null && !resolved.isEmpty()) {
-				// computeSelectionPath(source, rel);
-				resolved = relToResolve.getResolved(resolved, true);
-			}
-
-		}
-
 		/*
-		 * It is resolved.
+		 * It there is no candidates, force resolution of the composite's relation
 		 */
-		if (resolved != null) {
-			if (resolved.singletonResolved != null) {
-				source.createLink(resolved.singletonResolved, relToResolve, relToResolve.hasConstraints() || promoHasConstraints, isPromotion);
-				return resolved;
+		if (candidates.isEmpty()) {
+			resolveLink(source.getComposite(), compositeRelation);
+			candidates = source.getComposite().getLinkDests(compositeRelation.getName());
+		}
+		
+		/*
+		 * Select the candidates that match the relation constraints
+		 */
+		return (Resolved<T>) relation.getResolved(candidates,true);
+	}
+
+	/**
+	 * Look if a promotion is explicitly declared for the specified client and relation, and returns the result
+	 * of promoting the relation
+	 * 
+	 */
+	private <T extends Component> Resolved<T> checkExplicitPromotion(Instance client, RelToResolve relation) {
+		
+		Resolved<T> promotionResult	= null;
+		
+		search:
+		for (RelationPromotion promotion : client.getComposite().getCompType().getCompoDeclaration().getPromotions()) {
+			
+			/*
+			 * check if the relation to resolve matches the identifier of the promoted relation
+			 */
+			if (!promotion.getContentRelation().getIdentifier().equals(relation.getName())) {
+				continue; 
 			}
-			for (Object target : resolved.setResolved) {
-				source.createLink((Component) target, relToResolve, relToResolve.hasConstraints() || promoHasConstraints, isPromotion);
+
+			/*
+			 * check if the source of the promoted relation matches the client (or one of its ancestor groups) 
+			 */
+			String source 		= promotion.getContentRelation().getDeclaringComponent().getName();
+			Component matching 	= null;
+			Component ancestor	= client;
+			
+			while (matching == null && ancestor != null) {
+				if (ancestor.getName().equals(source)) {
+					matching = ancestor;
+				}
+				
+				ancestor = ancestor.getGroup();
+			}
+			
+			/*
+			 * If we find a matching explicit promotion try to resolve using the matched composite relation
+			 */
+			if (matching != null) {
+				
+				RelationDefinition compositeRelation	= client.getComposite().getRelation(promotion.getCompositeRelation().getIdentifier());
+				
+				/*
+				 * Validate the source's and composite's relations are compatible.
+				 * 
+				 * NOTE This is already validated at build time, but we do the tests again at runtime
+				 */
+				if (!relation.getRelationDefinition().matchRelation(client,compositeRelation)) {
+					logger.error("Promotion is invalid. relation " + relation.getName() + " of component " + client.getName() + " does not match the composite relation " + compositeRelation);
+					continue search;
+				}
+					
+				Resolved<T> candidates = getPromotionCandidates(client, relation, compositeRelation);
+				if (candidates != null && !candidates.isEmpty()) {
+
+					/*
+					 * Create the promotion links and return
+					 */
+					updateModel(client, relation, candidates, relation.hasConstraints() || compositeRelation.hasConstraints(), true);
+					
+					/*
+					 * NOTE IMPORTAN SPECIAL CASE for relations with cardinality multiple, we allow merging the result of
+					 * several promotions
+					 */
+					if (relation.isMultiple()) {
+						promotionResult = candidates.merge(promotionResult);
+						continue search;
+					}
+					else {
+						promotionResult = candidates;
+						break search;
+					}
+
+				}
 			}
 		}
-		return resolved;
+		
+		
+		return promotionResult;
 	}
+
+	/**
+	 * Look if a relation defined in the composite matches implicitly the specified relation, and tries to perform
+	 * an implicit promotion
+	 */
+	private <T extends Component> Resolved<T> checkImplicitPromotion(Instance client, RelToResolve relation) {
+
+		Resolved<T> promotionResult	= null;
+
+		search:
+		for (RelationDefinition compositeRelation : client.getComposite().getRelations()) {
+
+			if (!relation.getRelationDefinition().matchRelation(client,compositeRelation)) {
+				continue search;
+			}
+			
+			Resolved<T> candidates = getPromotionCandidates(client, relation, compositeRelation);
+			if (candidates != null && !candidates.isEmpty()) {
+
+				/*
+				 * Create the promotion links and return
+				 */
+				updateModel(client, relation, candidates, relation.hasConstraints() || compositeRelation.hasConstraints(), true);
+				
+				/*
+				 * NOTE IMPORTAN SPECIAL CASE for relations with cardinality multiple, we allow merging the result of
+				 * several promotions
+				 */
+				if (relation.isMultiple()) {
+					promotionResult = candidates.merge(promotionResult);
+					continue search;
+				}
+				else {
+					promotionResult = candidates;
+					break search;
+				}
+
+			}
+		}
+		return promotionResult;
+	}
+
+
 
 	/**
 	 * Performs a complete resolution of the relation, or resolution.
@@ -533,7 +396,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            MessageReference (dataTypeName))
 	 * @return the component(s) if resolved, null otherwise
 	 */
-	private Resolved<?> resolveByManagers(RelToResolve relToResolve) {
+	private <T extends Component> Resolved<T> resolveByManagers(RelToResolve relToResolve) {
 
 		/*
 		 * Get the list of external managers.
@@ -582,7 +445,7 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info("Resolving " + relToResolve);
 		}
 
-		Resolved<?> res ;
+		Resolved<T> res ;
 		String mess = "";
 
 		for (RelationManager manager : selectionPath) {
@@ -606,9 +469,11 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
-	private Resolved<?> resolveOneManager (RelationManager manager, RelToResolve relToResolve, String mess) {
+	@SuppressWarnings("unchecked")
+	private <T extends Component> Resolved<T> resolveOneManager (RelationManager manager, RelToResolve relToResolve, String mess) {
 
-		Resolved<?> resolved = manager.resolve(relToResolve);
+		Resolved<T> resolved = (Resolved<T>) manager.resolve(relToResolve);
+		
         logger.debug("resolveOneManager(...), manager resolve returns "+(resolved==null?null:resolved.toString()));
 		if (resolved == null || resolved.isEmpty()) {
 			return null;
@@ -678,9 +543,9 @@ public class ApamResolverImpl implements ApamResolver {
 			if (relToResolve.isMultiple()) {
 				Set<Instance> insts = new HashSet<Instance>();
 				insts.add(inst);
-				return new Resolved<Instance>(insts);
+				return (Resolved<T>) new Resolved<Instance>(insts);
 			} else {
-				return new Resolved<Instance>(inst);
+				return (Resolved<T>) new Resolved<Instance>(inst);
 			}
 		} //end instantiating	
 
@@ -786,36 +651,77 @@ public class ApamResolverImpl implements ApamResolver {
 			return null;
 		}
 
-		Composite compo = null;
-		if (source instanceof Instance && rel.isRelation()) {
-			compo = getClientComposite((Instance) source);
+
+		/*
+		 *  Creates an relToResolve only considering the relation. Not completely initialized.
+		 */
+		RelToResolve relToResolve	= new RelToResolveImpl(source, rel);
+		Resolved<Component> resolved 		= null;
+
+		/*
+		 * If the source is an instance, verify if there is explicit promotions declared in the composite
+		 * 
+		 *  TODO When an explicit promotion is declared, we perform resolution inside the composite if the
+		 *  promotion fails. This is not very intuitive but is more resilient, to discuss which is the good
+		 *  specification.
+		 */
+		if (source instanceof Instance) {
+			resolved = checkExplicitPromotion((Instance) source, relToResolve);
 		}
 
-		// creates an relToResolve only considering the relation. Not completely
-		// initialized.
-		RelToResolve relToResolve = new RelToResolveImpl(source, rel);
-		// Invoke managers for resolution, add mng constraints and compute
-		// relToResolve
-
-		Resolved<?> resolved = null; //new Resolved<Component>(null,false);
-
-		if (compo != null && source instanceof Instance) {
-			resolved = checkExplicitPromotion((Instance) source, rel, resolved, relToResolve, compo, source);
-		}
-
+		/*
+		 * If the source is not an instance or there is no explicit promotion, delegate to managers
+		 */
 		if (resolved == null) {
-			//			resolved = null;
+
+			/*
+			 * Delegate resolution to managers and update the model
+			 */
 			resolved = this.resolveByManagers(relToResolve);
-			resolved = resolvePromotion(null, resolved, relToResolve, compo, source);
-			if (compo != null && source instanceof Instance) {
-				resolved = checkImplicitPromotion((Instance) source, rel, resolved, relToResolve, compo, source);
+			if (resolved != null) {
+				updateModel(source, relToResolve, resolved, relToResolve.hasConstraints(),false);
 			}
-			//			return resolveLinkEmpty(rel, resolved, relToResolve, source);
-			//
-			//		} else {
+			
+			/*
+			 * As a last resort try implicit promotion
+			 * 
+			 * NOTE Notice that we recreate the relation to resolve from the declarations, to be sure
+			 * that we ignore all constraints that could be added by the managers during the first try
+			 */
+			if (resolved == null && source instanceof Instance) {
+				resolved = checkImplicitPromotion((Instance) source,new RelToResolveImpl(source,rel));
+			}
+			else if (resolved != null && source instanceof Instance && relToResolve.isMultiple()) {
+				/*
+				 * TODO For relations with cardinality multiple, we try to merge all available targets,
+				 * so we merge the managers' result with the implicit promotions. This is not very intuitive
+				 * but is more resilient, to discuss which is the good specification.
+				 */
+				resolved = resolved.merge(checkImplicitPromotion((Instance) source, relToResolve));
+			}
 		}
 
 		return handleFailure(relToResolve,resolved);
+	}
+
+
+	/**
+	 * Updates the model to create all the links corresponding to the resolution result
+	 */
+	private void updateModel(Component source, RelToResolve relation, Resolved<?> resolutionResult, boolean hasConstraints, boolean isPromotion) {
+		
+		if (resolutionResult == null || resolutionResult.isEmpty()) {
+			return;
+		}
+		
+		if (resolutionResult.singletonResolved != null) {
+			source.createLink(resolutionResult.singletonResolved, relation, hasConstraints, isPromotion);
+		}
+		else {
+			for (Component target : resolutionResult.setResolved) {
+				source.createLink(target, relation, hasConstraints, isPromotion);
+			}
+		}
 	}
 
 	private Resolved<?> handleFailure(RelToResolve relToResolve, Resolved<?> result) {

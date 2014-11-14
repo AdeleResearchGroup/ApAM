@@ -79,6 +79,4 @@ public interface Instance extends Component {
 	 */
 	public boolean isSharable();
 
-	public boolean isUsed();
-
 }

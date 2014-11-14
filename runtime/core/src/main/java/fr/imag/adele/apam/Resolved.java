@@ -65,7 +65,7 @@ public class Resolved<T extends Component> {
 			merged.add(singletonResolved);
 		}
 
-		if (that.singletonResolved != null) {
+		if (that != null && that.singletonResolved != null) {
 			merged.add(that.singletonResolved);
 		}
 
@@ -73,7 +73,7 @@ public class Resolved<T extends Component> {
 			merged.addAll(setResolved);
 		}
 
-		if (that.setResolved != null) {
+		if (that != null && that.setResolved != null) {
 			merged.addAll(that.setResolved);
 		}
 

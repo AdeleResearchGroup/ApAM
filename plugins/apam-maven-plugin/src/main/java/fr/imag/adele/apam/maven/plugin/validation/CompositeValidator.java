@@ -343,7 +343,7 @@ public class CompositeValidator extends ComponentValidator<CompositeDeclaration>
 				error("invalid promotion, the source component "+ promotion.getContentRelation().getDeclaringComponent() +" is unknown");
 			}
 			
-			RelationDeclaration promotedRelation = source != null ? source.getRelation(promotion.getContentRelation()) : null;
+			RelationDeclaration promotedRelation = source != null ? source.getRelation(promotion.getContentRelation().getIdentifier()) : null;
 			// Check if the dependencies are compatible
 			if (source != null && promotedRelation == null) {
 				error("invalid promotion, the promoted relation "+ quoted(promotion.getContentRelation().getIdentifier()) +" is not defined in component "+source.getName());

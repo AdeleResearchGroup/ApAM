@@ -127,7 +127,6 @@ public class RelToResolveImpl implements RelToResolve {
 	 * instances
 	 */
 	private List<String> mngInstancePreferences = new ArrayList<String>();
-
 	private List<ApamFilter> allInstancePreferenceFilters = new ArrayList<ApamFilter>();
 
 	/*
@@ -166,7 +165,6 @@ public class RelToResolveImpl implements RelToResolve {
 				allImplementationConstraintFilters.add(f);
 			}
 		}
-		// mngImplementationConstraints = null ;
 
 		for (String c : mngInstanceConstraints) {
 			f = ApamFilter.newInstanceApam(c, linkSource);
@@ -174,7 +172,6 @@ public class RelToResolveImpl implements RelToResolve {
 				allInstanceConstraintFilters.add(f);
 			}
 		}
-		// mngInstanceConstraints.clear();
 
 		for (String c : mngImplementationPreferences) {
 			f = ApamFilter.newInstanceApam(c, linkSource);
@@ -182,7 +179,6 @@ public class RelToResolveImpl implements RelToResolve {
 				allImplementationPreferenceFilters.add(f);
 			}
 		}
-		// mngImplementationPreferences.clear();
 
 		for (String c : mngInstancePreferences) {
 			f = ApamFilter.newInstanceApam(c, linkSource);
@@ -190,63 +186,11 @@ public class RelToResolveImpl implements RelToResolve {
 				allInstancePreferenceFilters.add(f);
 			}
 		}
-		// mngInstancePreferences.clear();
 
 		/*
 		 * intrinsic constraints. To recompute only if they have substitutions.
 		 */
 		reComputeSubstFilters();
-//		if (!getImplementationConstraints().isEmpty()) {
-//			if (!((RelationDefinitionImpl) relationDefinition).isStaticImplemConstraints()) {
-//				for (String c : relationDefinition.getImplementationConstraints()) {
-//					f = ApamFilter.newInstanceApam(c, linkSource);
-//					if (f != null) {
-//						allImplementationConstraintFilters.add(f);
-//					}
-//				}
-//			} else {
-//				allImplementationConstraintFilters.addAll(((RelationDefinitionImpl) relationDefinition).getImplementationConstraintFilters());
-//			}
-//		}
-//
-//		if (!getInstanceConstraints().isEmpty()) {
-//			if (!((RelationDefinitionImpl) relationDefinition).isStaticInstConstraints()) {
-//				for (String c : relationDefinition.getInstanceConstraints()) {
-//					f = ApamFilter.newInstanceApam(c, linkSource);
-//					if (f != null) {
-//						allInstanceConstraintFilters.add(f);
-//					}
-//				}
-//			} else {
-//				allInstanceConstraintFilters.addAll(((RelationDefinitionImpl) relationDefinition).getInstanceConstraintFilters());
-//			}
-//		}
-//
-//		if (!getImplementationPreferences().isEmpty()) {
-//			if (!((RelationDefinitionImpl) relationDefinition).isStaticImplemPreferences()) {
-//				for (String c : relationDefinition.getImplementationPreferences()) {
-//					f = ApamFilter.newInstanceApam(c, linkSource);
-//					if (f != null) {
-//						allImplementationPreferenceFilters.add(f);
-//					}
-//				}
-//			} else {
-//				allImplementationPreferenceFilters.addAll(((RelationDefinitionImpl) relationDefinition).getImplementationpreferencfeFilters());
-//			}
-//		}
-//
-//		if (!getInstancePreferences().isEmpty()) {
-//			if (!((RelationDefinitionImpl) relationDefinition).isStaticInstPreferences()) {
-//				for (String c : relationDefinition.getInstancePreferences()) {
-//					f = ApamFilter.newInstanceApam(c, linkSource);
-//					if (f != null) {
-//						allInstancePreferenceFilters.add(f);
-//					}
-//				}
-//			} else {
-//				allInstancePreferenceFilters.addAll(((RelationDefinitionImpl) relationDefinition).getInstancePreferenceFilters());
-//			}
-//		}
 
 	}
 
@@ -506,13 +450,16 @@ public class RelToResolveImpl implements RelToResolve {
 	}
 
 	@Override
-	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion) {
+	public <T extends Component> Resolved<T> getResolved(Resolved<T> candidates, boolean isPromotion) {
 		if (candidates.singletonResolved != null) {
 			if (candidates.singletonResolved.matchRelationConstraints(this)) {
 				return candidates;
 			}
-			return null;
-		} else {
+			else {
+				return null;
+			}
+		} 
+		else {
 			return getResolved(candidates.setResolved, isPromotion);
 		}
 	}
@@ -523,14 +470,9 @@ public class RelToResolveImpl implements RelToResolve {
 	 * preferences. Suppose the candidates are of the right kind ! Visibility is
 	 * checked is source is provided
 	 * 
-	 * @param <T>
-	 * @param candidates
-	 * @param constraints
-	 * @return
 	 */
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) {
+	public <T extends Component> Resolved<T> getResolved(Set<T> candidates, boolean isPromotion) {
 
 		if (candidates == null || candidates.isEmpty()) {
 			return null;
@@ -541,33 +483,23 @@ public class RelToResolveImpl implements RelToResolve {
 			return null;
 		}
 
-		Set<Component> ret = new HashSet<Component>();
-		if (isPromotion) {
-			// In case of promotion we do no check the visibility (source is
-			// inside the composite, candidate outside; only the constraints
-			for (Component c : candidates) {
-				if (c.matchRelationConstraints(this)) {
-					ret.add(c);
-				}
-			}
-		} else {
-			for (Component c : candidates) {
-				if (getLinkSource().canSee(c) && c.matchRelationConstraints(this)) {
-					ret.add(c);
-				}
+		Set<T> matching = new HashSet<T>();
+		for (T candidate : candidates) {
+			if ((isPromotion || getLinkSource().canSee(candidate)) && candidate.matchRelationConstraints(this)) {
+				matching.add(candidate);
 			}
 		}
 
-		if (ret.isEmpty()) {
+		if (matching.isEmpty()) {
 			return null;
 		}
 
 		if (isMultiple()) {
-			return new Resolved(ret);
+			return new Resolved<T>(matching);
 		}
 
 		// look for preferences
-		return new Resolved(getPrefered(ret));
+		return new Resolved<T>(getPrefered(matching));
 	}
 
 	@Override

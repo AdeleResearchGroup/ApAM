@@ -39,8 +39,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	/**
 	 * This class represents the Apam root instance.
 	 * 
-	 * This is an APAM concept without mapping at the execution platform level,
-	 * we build an special apform object to represent it.
+	 * This is an APAM concept without mapping at the execution platform level, we build an special
+	 * apform object to represent it.
 	 * 
 	 */
 	private static class SystemRootInstance extends BaseApformComponent<Instance, InstanceDeclaration> implements ApformInstance {
@@ -110,24 +110,25 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	}
 
 	/**
-	 * This is an special constructor only used for the root instance of the
-	 * system
+	 * This is an special constructor only used for the root instance of the system
 	 */
 	protected InstanceImpl(Implementation rootImplementation, String name) throws InvalidConfiguration {
 		super(new SystemRootInstance(rootImplementation, name));
 
-		myImpl = rootImplementation;
-		// WARNING: this is a trick to have a dummy root instance, both an
-		// instance and its composite.
+		/*
+		 * NOTE the root instance is automatically registered in the Apam model in a ad-hoc way that allows
+		 * bootstraping the system
+		 */
+		myImpl 		= rootImplementation;
+		((ImplementationImpl) rootImplementation).addInst(this);
+
+		put(CST.NAME,name);
+		
+		/*
+		 * The top level of the hierarchy is closed by a self-loop
+		 */
 		myComposite = (Composite) this;
 
-		/*
-		 * NOTE the root instance is automatically registered in Apam in a
-		 * specific way that allows bootstraping the system
-		 */
-		if (rootImplementation == CompositeTypeImpl.getRootCompositeType()) {
-			((ImplementationImpl) getImpl()).addInst(this);
-		}
 	}
 
 	@Override
@@ -182,11 +183,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	}
 
 	@Override
-	public final boolean isUsed() {
-		return !((CompositeImpl) getComposite()).isSystemRoot();
-	}
-
-	@Override
 	public void register(Map<String, String> initialproperties) throws InvalidConfiguration {
 
 		/*
@@ -222,12 +218,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	 */
 	public void setOwner(Composite owner) {
 
-		CompositeImpl oldOwner = (CompositeImpl) getComposite();
-		if (owner == oldOwner) {
+		CompositeImpl previousOwner = (CompositeImpl) getComposite();
+		if (owner == previousOwner) {
 			return;
 		}
 
-		oldOwner.removeInst(this);
+		previousOwner.removeInst(this);
 		this.myComposite = owner;
 		((CompositeImpl) owner).addContainInst(this);
 

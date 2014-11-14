@@ -50,8 +50,7 @@ import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.Visible;
 
-public abstract class ComponentImpl extends ConcurrentHashMap<String, Object>
-implements Component, Comparable<Component> {
+public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
 	/**
 	 * An exception that can be thrown in the case of problems while creating a
@@ -97,16 +96,14 @@ implements Component, Comparable<Component> {
 
 	// Set of Dependencies
 	private Map<String, RelationDefinition> relDef = new HashMap<String, RelationDefinition>();
-	protected final Set<Link> links = Collections
-			.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+	
+	protected final Set<Link> links 	= Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
 
-	protected final Set<Link> invlinks = Collections
-			.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+	protected final Set<Link> invlinks 	= Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
 
 	public ComponentImpl(ApformComponent apform) throws InvalidConfiguration {
 		if (apform == null) {
-			throw new InvalidConfiguration(
-					"Null apform instance while creating component");
+			throw new InvalidConfiguration("Null apform instance while creating component");
 		}
 
 		this.apform = apform;
@@ -193,18 +190,6 @@ implements Component, Comparable<Component> {
 		links.add(link);
 		((ComponentImpl) to).invlinks.add(link);
 		getApformComponent().setLink(to, depName);
-
-		/*
-		 * if "to" is an instance in the unused pull, move it to the from composite.
-		 */
-		if (this instanceof Instance && to instanceof Instance
-				&& !((Instance) to).isUsed()) {
-			((InstanceImpl) to).setOwner(((Instance) this).getComposite());
-		}
-
-		// TODO What to do if it is a link towards an unused implem or spec ?
-		// Nothing ?
-		// TODO Does isUsed (and shared) limited to the wires ?
 
 		// Notify Dynamic managers that a new link has been created
 		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
