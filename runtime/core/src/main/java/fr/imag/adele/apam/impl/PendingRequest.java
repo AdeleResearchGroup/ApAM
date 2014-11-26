@@ -34,9 +34,20 @@ import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 
 /**
- * This class is used to represent the pending requests that are waiting for
- * resolution.
+ * This is the base class that is used to represent the pending requests that need to
+ * be resolved.
  * 
+ * There are two cases :
+ * 
+ * 1) Blocked requests, in which a thread is waiting for resolution to happen
+ * 2) Dynamic requests, in which resolution is performed asynchronously 
+ * 
+ * Most of the code is common for both cases, however blocked request are short-lived
+ * objects that exist only for the duration of the unsatisfied condition, while dynamic
+ * request are long-standing objects that must be asynchronously updated.
+ * 
+ * TODO perhaps we should have different classes to represent these two kinds of requests
+ * and move the common code into an abstract superclass.
  * 
  */
 public class PendingRequest extends Apform2Apam.PendingThread {
@@ -49,7 +60,7 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	/**
 	 * The relation to resolve
 	 */
-	protected final RelationDefinition relDef;
+	protected final RelationDefinition relation;
 
 	/**
 	 * The composite in which context the resolution will be performed
@@ -67,12 +78,13 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	private Resolved<?> resolution;
 
 	/**
-	 * Whether this request is being resolved in some thread
+	 * Whether this request has been disposed, this happen for instance when the
+	 * source component is removed
 	 */
-	private boolean isResolving = false;
-
+	private boolean isDisposed = false;
+	
 	/**
-	 * Whether the thread that created this request is blocked
+	 * Whether the thread that created this request is blocked waiting for resolution
 	 */
 	private boolean isBlocked = false;
 
@@ -81,51 +93,6 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	 */
 	private List<StackTraceElement> stack;
 	
-	/**
-	 * Whether this request has been disposed, this happen for instance when the
-	 * source component is removed
-	 */
-	private boolean isDisposed = false;
-
-	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
-
-	/**
-	 * The request that is being resolved by the current thread
-	 */
-	public static PendingRequest current() {
-		return current.get();
-	}
-
-	/**
-	 * Whether the current thread is performing a resolution retry
-	 */
-	public static boolean isRetry() {
-		return current() != null;
-	}
-
-	/**
-	 * The stack of the request executing in the context of the current thread.
-	 * 
-	 */
-	private static List<StackTraceElement> getCurrentStack() {
-
-		List<StackTraceElement> stack = new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
-
-		/*
-		 * Remove APAM implementtaion frameworks from the top of the stack, to increase the readability
-		 * of the stack trace
-		 */
-		Iterator<StackTraceElement> frames = stack.iterator();
-		while (frames.hasNext()) {
-			if (frames.next().getClassName().startsWith(PendingRequest.class.getPackage().getName())) {
-				frames.remove();
-				continue;
-			}
-
-			break;
-		}
-		return stack;
-	}
 
 	/**
 	 * Builds a new pending request reification
@@ -138,70 +105,15 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 
 		this.source = source;
 		this.context = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootAllComposites();
-		this.relDef = relDef;
+		this.relation = relDef;
 
 		this.resolution = null;
 	}
 
+	
 	@Override
 	public String getCondition() {
-		return relDef.toString();
-	}
-
-	private synchronized void beginResolve() {
-		current.set(this);
-		isResolving = true;
-		resolution = null;
-	}
-
-	/**
-	 * Block the current thread until a component satisfying the request is
-	 * available.
-	 * 
-	 * Resolution must be retried by another thread, and when successful it will
-	 * notify this object to unblock the waiting thread.
-	 * 
-	 */
-	public void block() {
-		synchronized (this) {
-			try {
-				/*
-				 * wait for resolution
-				 */
-
-				isBlocked = true;
-				stack = getCurrentStack();
-
-				while (!isResolved()) {
-					this.wait();
-				}
-
-				isBlocked = false;
-				stack = null;
-			} catch (InterruptedException ignored) {
-			}
-		}
-	}
-	
-	/**
-	 * The stack trace for blocked requests
-	 */
-	public List<StackTraceElement> getStack() {
-		return stack;
-	}
-
-
-	public synchronized void dispose() {
-		isDisposed = true;
-		this.notifyAll();
-	}
-
-	private synchronized void endResolve(Resolved<?> resolverResult) {
-		isResolving = false;
-		resolution = resolverResult;
-		current.set(null);
-
-		this.notifyAll();
+		return "resolution of "+relation.toString();
 	}
 
 	/**
@@ -212,52 +124,171 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	}
 
 	/**
-	 * The relation that needs resolution
+	 * The source of the relation
 	 */
-	public RelationDefinition getRelation() {
-		return relDef;
+	public Component getSource() {
+		return source;
 	}
 
 	/**
-	 * The result of the resolution
+	 * The relation that needs resolution
+	 */
+	public RelationDefinition getRelation() {
+		return relation;
+	}
+
+	/**
+	 * Pending requests may be generated for exactly the same source and target in different threads, so
+	 * we force reference equality.
+	 * 
+	 * TODO For dynamic request it makes sense to have semantic equality based on the source and the relation,
+	 * one more reason to consider splitting this class 
+	 */
+	@Override
+	public final boolean equals(Object object) {
+		return this == object;
+	}
+
+	@Override
+	public final int hashCode() {
+		return super.hashCode();
+	}
+	
+	/**
+	 * The result of the last resolution of this request
 	 */
 	public synchronized Resolved<?> getResolution() {
 		return resolution;
 	}
 
-	public Component getSource() {
-		return source;
+	/**
+	 * Whether this dynamic request is already being resolved by the another thread
+	 */
+	private boolean isResolving = false;
+
+	/**
+	 * Resolves the request when context changes may have satisfied the request. 
+	 */
+	public void resolve() {
+		
+		/*
+		 * If a thread is blocked waiting for resolution of this request, we simply notify it to
+		 * let it retry resolution.
+		 * 
+		 * TODO IMPORTANT there is an implicit invariant in this class that a blocked request can only
+		 * be used by the thread that created it, we should do this explicit and change API accordingly
+		 */
+		synchronized (this) {
+			if (this.isBlocked) {
+				this.notifyAll();
+				return;
+			}
+		}
+
+		/*
+		 * Otherwise, this is dynamic request an we resolve it in the context of the current thread.
+		 * 
+		 * NOTE is the responsibility of the caller to invoke this method in the appropriate thread to
+		 * implement the intended dynamic update policy. Notice that this method may block or throw
+		 * exceptions, as a side effect of resolution, that impact the calling thread.
+		 */
+
+		synchronized (this) {
+			if (this.isResolving) {
+				return;
+			}
+			
+			this.isResolving = true;
+		}
+		
+		/*
+		 * IMPORTANT Notice that resolution is performed outside synchronized blocks
+		 */
+		Resolved<?> result = resolver.resolveLink(source, relation);
+		
+		synchronized (this) {
+			this.resolution		= result;
+			this.isResolving	= false;
+		}
+
 	}
 
+	/**
+	 * Block the current thread until a component satisfying the request is available.
+	 * 
+	 */
+	public void block() {
+		synchronized (this) {
+			try {
+
+				/*
+				 * If this is a retry of an already blocked request, we do not block again
+				 */
+				if (this.isRetry()) {
+					return;
+				}
+				
+				/*
+				 * wait for some event to signal a change in the environment
+				 */
+
+				isBlocked = true;
+				stack = getCurrentStack();
+
+				while (!isResolved()) {
+					this.wait();
+					
+					/*
+					 * try to perform resolution again
+					 */
+					retry();
+				}
+
+				isBlocked = false;
+				stack = null;
+			} catch (InterruptedException ignored) {
+			}
+		}
+	}
+	
+	
 	/**
 	 * Whether this request was resolved by the last resolution retry
 	 */
 	private boolean isResolved() {
 		return resolution != null || isDisposed;
 	}
-
+	
 	/**
-	 * Decides whether the specified component could potentially resolve this
-	 * request.
+	 * The stack trace for blocked requests
+	 */
+	public List<StackTraceElement> getStack() {
+		return stack;
+	}
+	
+	public synchronized void dispose() {
+		isDisposed = true;
+		this.notifyAll();
+	}
+	
+	/**
+	 * Decides whether the specified component could potentially resolve this request.
 	 * 
-	 * This is used as a hint to avoid unnecessarily retrying a resolution that
-	 * is not concerned with an event.
+	 * This is used as a hint to avoid unnecessarily retrying a resolution that is not concerned with an
+	 * event.
 	 * 
-	 * TODO Currently we avoid forcing a resolution that will instantiate an
-	 * implementation we should specify the expected behavior.
+	 * TODO Currently we avoid forcing a resolution in cases where instantiating an implementation could
+	 * satisfy the pending request, we should better specify the expected behavior.
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
 
 		/*
 		 * Check if the candidate kind matches the target kind of the relation.
-		 * Consider the special case for instantiable implementations that can
-		 * satisfy an instance relation
+		 * 
+		 * TODO Consider the special case for instantiable implementations that can satisfy an instance
+		 * relation
 		 */
-		boolean matchKind = relDef.getTargetKind().equals(candidate.getKind());
-		/*
-		 * || (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
-		 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
-		 */
+		boolean matchKind = relation.getTargetKind().equals(candidate.getKind());
 
 		if (!matchKind) {
 			return false;
@@ -268,13 +299,13 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 		 */
 		boolean matchTarget = false;
 
-		if (relDef.getTarget() instanceof ComponentReference<?>) {
-			Component target = CST.componentBroker.getComponent(relDef.getTarget().getName());
+		if (relation.getTarget() instanceof ComponentReference<?>) {
+			Component target = CST.componentBroker.getComponent(relation.getTarget().getName());
 			matchTarget = (target != null) && (target.isAncestorOf(candidate) || target.equals(candidate));
 		}
 
-		if (relDef.getTarget() instanceof ResourceReference) {
-			matchTarget = candidate.getProvidedResources().contains(relDef.getTarget());
+		if (relation.getTarget() instanceof ResourceReference) {
+			matchTarget = candidate.getProvidedResources().contains(relation.getTarget());
 		}
 
 		if (!matchTarget) {
@@ -282,13 +313,13 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 		}
 
 		/*
-		 * Check visibility
+		 * Check visibility, including potential promotions
 		 */
 		if (source instanceof Instance) {
 
 			boolean promotion = false;
 			for (RelationDefinition compoDep : ((Instance) source).getComposite().getCompType().getLocalRelations()) {
-				if (relDef.matchRelation((Instance) source, compoDep)) {
+				if (relation.matchRelation((Instance) source, compoDep)) {
 					promotion = true;
 				}
 			}
@@ -303,14 +334,9 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 		/*
 		 * Special validations for target instances
 		 */
-		if (relDef.getTargetKind().equals(ComponentKind.INSTANCE)) {
+		if (relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
 
 			boolean valid = ((candidate instanceof Instance) && ((Instance) candidate).isSharable());
-			/*
-			 * || ( (candidate instanceof Implementation) && ((Implementation)
-			 * candidate).isInstantiable());
-			 */
-
 			if (!valid) {
 				return false;
 			}
@@ -321,9 +347,6 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 		 * If this request has blocked the creating thread we should retry the
 		 * resolution to unblock it.
 		 * 
-		 * Otherwise we verify if this request has not been already resolved by
-		 * this candidate (possibly in another thread) to avoid unnecessary
-		 * resolves.
 		 */
 
 		synchronized (this) {
@@ -332,72 +355,116 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 			}
 		}
 
-		Set<Link> resolutions = ((ComponentImpl) source).getExistingLinks(relDef.getName());
+		/*
+		 * Otherwise it is an asynchronous dynamic request and we verify if this request has not been
+		 * already resolved (possibly in another thread) to avoid invoking the resolver unnecessarily. 
+		 */
+		
+		Set<Link> resolutions = ((ComponentImpl) source).getExistingLinks(relation.getName());
 
 		/*
 		 * For single-valued relations we just verify there is some resolution
 		 */
-		if (!relDef.isMultiple()) {
+		if (!relation.isMultiple()) {
 			return resolutions.isEmpty();
 		}
 
 		/*
-		 * For multi-valued relations we check if the candidate is already a
-		 * resolution
+		 * For multi-valued relations we check if the candidate has already been added
 		 */
 
-		/*
-		 * boolean instantiatedCandidate =
-		 * (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
-		 * candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
-		 */
 		for (Link resolution : resolutions) {
-
-			/*
-			 * if (instantiatedCandidate && (resolution.getDestination()
-			 * instanceof Instance) &&
-			 * ((Instance)resolution.getDestination()).getImpl
-			 * ().equals(candidate) ) return false;
-			 */
 			if (resolution.getDestination().equals(candidate)) {
 				return false;
 			}
-
 		}
 
 		return true;
 	}
+	
 
 	/**
-	 * Tries to resolve the request and wakes up the blocked thread
+	 * The request that is blocked in the current thread.
+	 * 
+	 * Notice that several request may be be blocked in the same thread, nested in the stack, so this
+	 * variable only references the one at the top of the stack.
 	 */
-	public void resolve() {
+	private static ThreadLocal<PendingRequest> blockedRequest = new ThreadLocal<PendingRequest>();
 
-		/*
-		 * avoid multiple concurrent resolutions
-		 */
-		synchronized (this) {
-			if (isResolving) {
-				return;
-			}
-		}
-
-		/*
-		 * try to resolve.
-		 * 
-		 * IMPORTANT resolution is performed outside synchronization, as it may
-		 * block in case of deployment. Notice also that the result is
-		 * temporarily confined to the stack before notifying pending threads.
-		 */
-
-		Resolved<?> resolverResult = null;
-
+	/**
+	 * Whether the current thread is performing a reevaluation for this request.
+	 * 
+	 * NOTE notice that in this case we use semantic equality between requests, as the resolver is not
+	 * aware that is retrying a previously blocked request it will create a new request.
+	 * 
+	 * TODO this should be better handled by the failure resolution manager 
+	 */
+	private boolean isRetry() {
+		
+		PendingRequest current = blockedRequest.get();
+		
+		return	current != null &&
+				current.relation.getName().equals(this.relation.getName()) &&
+				current.source.equals(this.source) &&
+				current.context.equals(this.context);
+	}
+	
+	/**
+	 * Invoke the resolver again for this request.
+	 * 
+	 * NOTE notice that we catch all exceptions that the resolution may be thrown as a side effect, and we 
+	 * simply consider that the reevaluation did not succeed.
+	 */
+	private void retry() {
+		
+		PendingRequest previous 	= beginResolution();
+		Resolved<?> resolverResult 	= null;
 		try {
-			beginResolve();
-			resolverResult = resolver.resolveLink(source, relDef);
-		} finally {
-			endResolve(resolverResult);
+			resolverResult = resolver.resolveLink(source, relation);
+		} 
+		catch (Exception ignoredFailure) {
+		}
+		finally {
+			endResolution(previous,resolverResult);
 		}
 	}
 
+	private synchronized PendingRequest beginResolution() {
+		
+		PendingRequest previous = blockedRequest.get();
+		blockedRequest.set(this);
+		resolution 		= null;
+		
+		return previous;
+	}
+
+	private synchronized void endResolution(PendingRequest previous, Resolved<?> resolverResult) {
+		blockedRequest.set(previous);
+		resolution 		= resolverResult;
+	}
+	
+	/**
+	 * The stack of the request executing in the context of the current thread.
+	 * 
+	 */
+	private static List<StackTraceElement> getCurrentStack() {
+
+		List<StackTraceElement> stack = new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
+
+		/*
+		 * Remove all internal APAM implementation frameworks from the top of the stack, to increase 
+		 * the readability of the stack trace
+		 */
+		Iterator<StackTraceElement> frames = stack.iterator();
+		while (frames.hasNext()) {
+			if (frames.next().getClassName().startsWith(PendingRequest.class.getPackage().getName())) {
+				frames.remove();
+				continue;
+			}
+
+			break;
+		}
+		return stack;
+	}
+	
 }

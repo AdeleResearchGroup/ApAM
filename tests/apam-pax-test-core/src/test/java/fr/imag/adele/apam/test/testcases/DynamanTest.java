@@ -249,7 +249,6 @@ public class DynamanTest extends ExtensionAbstract {
 		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 
 		addon.add(systemPackage("javax.xml.parsers"));
-		addon.add(0, packApamConflictManager());
 		return addon;
 	}
 

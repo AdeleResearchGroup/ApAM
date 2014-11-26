@@ -14,9 +14,11 @@
  */
 package fr.imag.adele.apam;
 
+import fr.imag.adele.apam.declarations.MissingPolicy;
+
 /**
- * The exception that is thrown to signal error s in resolution when the failure
- * policy is MissingPolicy.EXCEPTION
+ * The exception that is thrown to signal errors in resolution when the failure policy
+ * is {@link MissingPolicy#EXCEPTION}
  * 
  * @author vega
  * 

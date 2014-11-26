@@ -301,7 +301,7 @@ public class DynaMan implements DynamicManager, PropertyManager {
 				 * we reduce the priority of the request to avoid starvation of other dynamic
 				 * request expecting the same target
 				 */
-				if ( request.getResolution() != null && candidate instanceof Instance) {
+				if (request.getResolution() != null && candidate instanceof Instance) {
 					if (!((Instance)candidate).isSharable())
 						reducePriorityDynamicRequest(request);
 				}
@@ -393,6 +393,13 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
 
+		/*
+		 * Try to dispose all dynamic requests
+		 */
+		for (PendingRequest request : getDynamicRequests()) {
+			request.dispose();
+		}
+		
 		this.apam = null;
 	}
 

@@ -152,11 +152,11 @@ public abstract class ExtensionAbstract extends TestUtils {
 	}
 
 	protected CompositeOption packApamConflictManager() {
-		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
+		CompositeOption apamConflictManagerConfig = new DefaultCompositeOption(
 				mavenBundle("fr.imag.adele.apam", "manager.conflict")
 						.versionAsInProject());
 
-		return apamObrmanConfig;
+		return apamConflictManagerConfig;
 	}
 
 	protected CompositeOption packApamCore() {

@@ -636,9 +636,7 @@ public class ContentManager {
 	 */
 	public void addGrantConstraints(RelToResolve relation) {
 
-		PendingRequest request = PendingRequest.isRetry() ? 
-				PendingRequest.current() : 
-				new PendingRequest(CST.apamResolver,relation.getLinkSource(),relation.getRelationDefinition());
+		PendingRequest request = new PendingRequest(CST.apamResolver,relation.getLinkSource(),relation.getRelationDefinition());
 
 		for (OwnedComponentDeclaration ownedDeclaration : getOwned()) {
 
@@ -655,6 +653,8 @@ public class ContentManager {
 				}
 			}
 		}
+		
+		request.dispose();
 
 	}
 

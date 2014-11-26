@@ -30,11 +30,12 @@ import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.apform.Apform2Apam.PendingThread;
+import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 
 /**
- * This class handles failure when a dependency is missing and the resolution
- * process fails to find a solution.
+ * This class handles failure when a dependency is missing and the resolution process fails
+ * to find a solution.
  * 
  * @author vega
  * 
@@ -67,8 +68,15 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	}
 
 	/**
-	 * A filter for pending request, that can be used to request a resolution for a subset
-	 * of the waiting request satisfying a condition.
+	 * Get the list of threads blocked waiting for a resolution
+	 */
+	public final List<? extends PendingThread> getWaitingThreads() {
+		return getWaitingRequests();
+	}
+	
+	/**
+	 * A filter that can be used to request a resolution for a subset of the waiting requests 
+	 * satisfying a condition.
 	 * 
 	 * This may be useful to avoid retrying all the request when a condition is met, but only
 	 * the requests that are impacted by the event.
@@ -79,11 +87,11 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	}
 	
 	/**
-	 * Try to resolve all the requests that are potentially satisfied by a given
-	 * component. This may happen when a new component is created, or some property
-	 * has changed that may satisfy a pending request.
+	 * Try to resolve all the waiting requests that are potentially satisfied by a given component.
 	 * 
-	 * Only consider request sat
+	 * This may happen when a new component is created, or some property has changed that makes true
+	 * the constraints of a waiting request.
+	 * 
 	 */
 	public void resolveWaitingRequests(Scope scope, Component candidate) {
 		for (PendingRequest request : getWaitingRequests()) {
@@ -116,56 +124,94 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	}
 
 	/**
-	 * If this manager is invoked it means that the specified relationship could
-	 * not be resolved, so we have to apply the specified dynamic policy.
+	 * If this manager is invoked it means that the specified relationship could not be resolved, so we have
+	 * to apply the specified failure policy.
 	 */
 	@Override
 	public Resolved<?> resolve(RelToResolve relToResolve) {
 
 		/*
-		 * If no policy is specified for the relationship just ignore it.
-		 */
-		if (relToResolve.getMissingPolicy() == null) {
-			return null;
-		}
-
-		/*
-		 * In case of retry of a waiting or eager request we simply return to
-		 * avoid blocking or killing the unrelated thread that triggered the
-		 * recalculation
-		 */
-		if (PendingRequest.isRetry()) {
-			return null;
-		}
-
-		/*
 		 * Apply failure policies
 		 */
-		switch (relToResolve.getMissingPolicy()) {
-		case OPTIONAL: {
-			return null;
-		}
-
-		case EXCEPTION: {
-			throwMissingException(relToResolve.getLinkSource(), relToResolve);
-		}
-
-		case WAIT: {
-
-			/*
-			 * schedule request
-			 */
-			PendingRequest request = new PendingRequest(CST.apamResolver, relToResolve.getLinkSource(), relToResolve.getRelationDefinition());
-
-			addWaitingRequests(request);
-			request.block();
-			removeWaitingRequests(request);
-
-			return request.getResolution();
-		}
+		
+		MissingPolicy policy = relToResolve.getMissingPolicy() != null ? relToResolve.getMissingPolicy() : MissingPolicy.OPTIONAL;
+		
+		switch (policy) {
+			case OPTIONAL: {
+				return null;
+			}
+	
+			case EXCEPTION: {
+				throwMissingException(relToResolve.getLinkSource(), relToResolve);
+			}
+	
+			case WAIT: {
+	
+				PendingRequest request = new PendingRequest(CST.apamResolver, relToResolve.getLinkSource(), relToResolve.getRelationDefinition());
+	
+				addWaitingRequest(request);
+				request.block();
+				removeWaitingRequest(request);
+	
+				return request.getResolution();
+			}
 		}
 
 		return null;
+	}
+
+	@Override
+	public void addedComponent(Component component) {
+		resolveWaitingRequests(component);
+	}
+
+	@Override
+	public void removedComponent(Component component) {
+		for (PendingRequest request : getWaitingRequests()) {
+			if (request.getSource().equals(component)) {
+				request.dispose();
+			}
+		}
+
+	}
+
+	private void propertyChanged(Component component, String property) {
+		resolveWaitingRequests(component);
+	}
+
+	@Override
+	public void attributeRemoved(Component component, String attr, String oldValue) {
+		propertyChanged(component, attr);
+	}
+
+	@Override
+	public void attributeAdded(Component component, String attr, String newValue) {
+		propertyChanged(component, attr);
+	}
+
+	@Override
+	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
+		propertyChanged(component, attr);
+	}
+
+	@Override
+	public void addedLink(Link link) {
+	}
+
+	@Override
+	public void removedLink(Link link) {
+
+		/*
+		 * If the target of the wire is a non sharable instance, the released
+		 * instance can potentially be used by a pending requests.
+		 */
+		if (link.getDestination() instanceof Instance) {
+			Instance candidate = (Instance) link.getDestination();
+
+			if ((!candidate.isShared()) && candidate.isSharable()) {
+				resolveWaitingRequests(candidate);
+			}
+		}
 	}
 
 	/**
@@ -195,69 +241,14 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		 */
 		for (PendingRequest request : getWaitingRequests()) {
 			request.dispose();
+			removeWaitingRequest(request);
 		}
 	}
-
-	@Override
-	public void addedComponent(Component component) {
-		resolveWaitingRequests(component);
-	}
-
-	@Override
-	public void removedComponent(Component component) {
-		for (PendingRequest request : getWaitingRequests()) {
-			if (request.getSource().equals(component)) {
-				request.dispose();
-			}
-		}
-
-	}
-
-	private void propertyChanged(Component component, String property) {
-		resolveWaitingRequests(component);
-	}
-
-	@Override
-	public void attributeRemoved(Component component, String attr, String oldValue) {
-		propertyChanged(component, attr);
-	}
-
-	@Override
-	public void addedLink(Link link) {
-	}
-
-	@Override
-	public void attributeAdded(Component component, String attr, String newValue) {
-		propertyChanged(component, attr);
-	}
-
-	@Override
-	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
-		propertyChanged(component, attr);
-	}
-
-
-	@Override
-	public void removedLink(Link link) {
-
-		/*
-		 * If the target of the wire is a non sharable instance, the released
-		 * instance can potentially be used by a pending requests.
-		 */
-		if (link.getDestination() instanceof Instance) {
-			Instance candidate = (Instance) link.getDestination();
-
-			if ((!candidate.isShared()) && candidate.isSharable()) {
-				resolveWaitingRequests(candidate);
-			}
-		}
-	}
-
 
 	/**
 	 * Add a new pending request in the waiting list
 	 */
-	private void addWaitingRequests(PendingRequest request) {
+	private void addWaitingRequest(PendingRequest request) {
 		synchronized (waitingResolutions) {
 			waitingResolutions.add(request);
 		}
@@ -266,7 +257,7 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 	/**
 	 * Remove a pending request from the waiting list
 	 */
-	private void removeWaitingRequests(PendingRequest request) {
+	private void removeWaitingRequest(PendingRequest request) {
 
 		synchronized (waitingResolutions) {
 			waitingResolutions.remove(request);
@@ -282,24 +273,15 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 		}
 	}
 
-	/**
-	 * Get the list of threads blocked waiting for a resolution
-	 */
-	public final List<? extends PendingThread> getWaitingThreads() {
-		return getWaitingRequests();
-	}
 
 
 	/**
-	 * Hack to throw a checked exception from inside the framework without
-	 * wrapping it.
+	 * Hack to throw a checked exception from inside the framework without wrapping it.
 	 * 
-	 * When the formal type parameter E is replaced by the actual type argument
-	 * RuntimeException the erased signature of this method seems to throw an
-	 * unchecked exception, however we throw the original exception.
+	 * When the formal type parameter E is replaced by the actual type argument RuntimeException the erased
+	 * signature of this method seems to throw an unchecked exception, however we throw the original exception.
 	 * 
-	 * Currently at runtime the specified cast is a NOOP, this may not work
-	 * depending on the used JVM
+	 * Currently at runtime the specified cast is a NOOP, this may not work depending on the used JVM
 	 */
 	@SuppressWarnings("unchecked")
 	private static <E extends Exception> void doThrow(Exception e) throws E {
@@ -321,26 +303,21 @@ public class FailedResolutionManager implements RelationManager, DynamicManager,
 			}
 
 			/*
-			 * Try to find the component declaring the relation that specified
-			 * the Exception to throw
+			 * Try to find the component declaring the relation that specified the Exception 
+			 * to throw
 			 * 
-			 * TODO BUG : the class should be loaded using the bundle context of
-			 * the component where the relation is declared. This can be either
-			 * the specification, or the implementation of the source component,
-			 * or a composite in the case of contextual dependencies. The
-			 * current implementation may not handle every case.
+			 * TODO BUG : the class should be loaded using the bundle context of the component where the relation
+			 * is declared. This can be either the specification, or the implementation of the source component,
+			 * or a composite in the case of contextual dependencies.
 			 * 
-			 * The best solution is to modify relationDeclaration to load the
-			 * exception class, but this is not possible at compile time, so we
-			 * can not change the signature of
-			 * relationDeclaration.getMissingException.
+			 * The current implementation may not handle every case. The best solution is to modify relationDeclaration
+			 * to load the exception class, but this is not possible at compile time, so we can not change the signature
+			 * of relationDeclaration.getMissingException.
 			 * 
-			 * A possible solution is to move this method to relationDeclaration
-			 * and make it work only at runtime, but we need to consider merge
-			 * of contextual dependencies and use the correct bundle context.
+			 * A possible solution is to move this method to relationDeclaration and make it work only at runtime, but we
+			 * need to consider merge of contextual dependencies and use the correct bundle context.
 			 * 
-			 * Evaluate changes to relationDeclaration, relation,
-			 * CoreMetadataParser and computeEffectiverelation
+			 * Evaluate changes to relationDeclaration, relation, CoreMetadataParser and computeEffectiverelation
 			 */
 			Component declaringComponent = source;
 			while (declaringComponent != null) {
