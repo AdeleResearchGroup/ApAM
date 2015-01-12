@@ -17,8 +17,8 @@ package fr.imag.adele.apam.declarations.encoding.ipojo;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
+import fr.imag.adele.apam.declarations.tools.Reporter;
 
 /**
  * Parse an APAM declaration from its iPojo metadata representation.

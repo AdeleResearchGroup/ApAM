@@ -27,8 +27,6 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.encoding.capability.CapabilityEncoder;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
@@ -37,6 +35,8 @@ import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.repository.acr.ApamComponentRepository;
 import fr.imag.adele.apam.declarations.repository.maven.MavenArtifactRepository;
 import fr.imag.adele.apam.declarations.repository.maven.MavenProjectRepository;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 import fr.imag.adele.apam.maven.plugin.validation.ValidationContext;
 
 /**

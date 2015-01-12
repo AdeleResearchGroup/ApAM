@@ -2,14 +2,14 @@ package fr.imag.adele.apam.maven.plugin.validation;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.declarations.repository.maven.Classpath;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 import fr.imag.adele.apam.util.ApamFilter;
 
 

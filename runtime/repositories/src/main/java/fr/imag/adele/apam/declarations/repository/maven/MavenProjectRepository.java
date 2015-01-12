@@ -8,10 +8,10 @@ import org.apache.felix.ipojo.parser.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 
-import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.repository.Repository;
 import fr.imag.adele.apam.declarations.repository.RepositoryChain;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 
 /**
  * This class represents a component repository backed-up by the iPOJO metadata available in

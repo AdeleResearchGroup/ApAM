@@ -18,14 +18,14 @@ import org.apache.maven.artifact.Artifact;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
-import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
 import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.repository.ComponentIndex;
 import fr.imag.adele.apam.declarations.repository.Repository;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 
 /**
  * This class represents a component repository backed-up by the iPOJO metadata available in

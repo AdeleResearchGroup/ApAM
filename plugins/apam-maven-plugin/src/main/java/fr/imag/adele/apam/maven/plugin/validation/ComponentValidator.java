@@ -8,13 +8,13 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.references.components.VersionedReference;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
 import fr.imag.adele.apam.declarations.repository.maven.Classpath;
+import fr.imag.adele.apam.declarations.tools.Reporter;
 import fr.imag.adele.apam.util.Util;
 
 /**

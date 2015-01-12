@@ -19,9 +19,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.ComponentParser;
 import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
@@ -35,6 +33,8 @@ import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 import fr.imag.adele.apam.util.Attribute;
 
 /**

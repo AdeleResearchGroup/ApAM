@@ -46,13 +46,13 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.encoding.Decoder;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser;
 import fr.imag.adele.apam.declarations.encoding.ipojo.MetadataParser.IntrospectionService;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
+import fr.imag.adele.apam.declarations.tools.Reporter;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 

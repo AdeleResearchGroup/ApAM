@@ -16,8 +16,8 @@ package fr.imag.adele.apam.maven.plugin.validation;
 
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.Reporter;
 import fr.imag.adele.apam.declarations.repository.maven.Classpath;
+import fr.imag.adele.apam.declarations.tools.Reporter;
 
 /**
  * This class perform a full component validation, including validation against

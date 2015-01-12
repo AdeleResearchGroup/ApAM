@@ -29,8 +29,6 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationPromotion;
-import fr.imag.adele.apam.declarations.Reporter;
-import fr.imag.adele.apam.declarations.Reporter.Severity;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvePolicy;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
@@ -49,6 +47,8 @@ import fr.imag.adele.apam.declarations.references.resources.MessageReference;
 import fr.imag.adele.apam.declarations.references.resources.PackageReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
+import fr.imag.adele.apam.declarations.tools.Reporter;
+import fr.imag.adele.apam.declarations.tools.Reporter.Severity;
 
 public class ComponentParser implements Decoder<Element> {
 
