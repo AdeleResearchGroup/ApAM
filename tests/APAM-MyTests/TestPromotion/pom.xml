@@ -26,16 +26,10 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-bundle</goal>
-						</goals>
+
 						<configuration>
 							<metadata>src/main/resources/TestPromotion.xml</metadata>
 						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

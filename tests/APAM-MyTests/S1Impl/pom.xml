@@ -31,13 +31,7 @@
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
 <!-- 				<version>${project.version}</version> -->
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
+
 				<configuration>
 					<metadata>src/main/resources/S1Impl.xml</metadata>
 					<!-- <noLocalObr>false</noLocalObr> <dependencyObrList> <param>file:/F:/Maven/.m2/repository.xml</param> 
