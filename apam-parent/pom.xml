@@ -60,7 +60,7 @@
 
         <!-- ipojo version -->
         <ipojo.metadata.version>1.6.0</ipojo.metadata.version>
-        <ipojo.version>1.11.2</ipojo.version>
+        <ipojo.version>1.12.1</ipojo.version>
         <ipojo.plugin.version>1.11.2</ipojo.plugin.version>
 
         <!-- Test dependencies version -->
@@ -312,6 +312,11 @@
                 <version>${osgi.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.bundlerepository</artifactId>
                 <version>${felix.bundlerepository.version}</version>
@@ -324,11 +329,6 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>${felix.osgi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.osgi.compendium</artifactId>
                 <version>${felix.osgi.version}</version>
             </dependency>
             <dependency>
