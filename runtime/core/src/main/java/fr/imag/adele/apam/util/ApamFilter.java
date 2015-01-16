@@ -741,13 +741,13 @@ public class ApamFilter /* implements Filter */{
 				switch (operation) {
 				case APPROX:
 				case EQUAL: {
-					return ((Version) value1).compareTo(converted) == 0;
+					return ((Version) value1).compareTo((Version)converted) == 0;
 				}
 				case GREATER: {
-					return ((Version) value1).compareTo(converted) >= 0;
+					return ((Version) value1).compareTo((Version)converted) >= 0;
 				}
 				case LESS: {
-					return ((Version) value1).compareTo(converted) <= 0;
+					return ((Version) value1).compareTo((Version)converted) <= 0;
 				}
 				}
 			} else {

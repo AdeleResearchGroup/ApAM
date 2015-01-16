@@ -163,19 +163,19 @@ public class ApamInstanceDeclaration extends ApamComponentFactory {
      * A class to dynamically track the iPOJO builder implementation.
      *
      */
-    private class BuilderTracker extends ServiceTracker {
+    private class BuilderTracker extends ServiceTracker<DeclarationBuilderService,DeclarationBuilderService> {
 
         public BuilderTracker(BundleContext apamContext) {
         	super(apamContext,DeclarationBuilderService.class.getName(),null);
         }
 
         @Override
-        public Object addingService(ServiceReference reference) {
+        public DeclarationBuilderService addingService(ServiceReference<DeclarationBuilderService> reference) {
 
             if (iPojoInstance != null)
                 return null;
 
-           	DeclarationBuilderService builder 	=  (DeclarationBuilderService) super.addingService(reference);
+           	DeclarationBuilderService builder 	=  super.addingService(reference);
 
             /*
              * Create the iPOJo instance declaration as soon as the builder is available.

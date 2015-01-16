@@ -47,7 +47,6 @@ public class ApamCompositeFactory extends ApamImplementationFactory  {
     public ApamCompositeFactory(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
 
-        @SuppressWarnings("unchecked")
         Enumeration<String> paths = context.getBundle().getEntryPaths("/");
         while (paths.hasMoreElements()) {
         	

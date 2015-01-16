@@ -52,7 +52,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     /**
      * The osgi service reference represented by this object
      */
-    private final ServiceReference		reference;
+    private final ServiceReference<?>	reference;
     
 	/**
 	 * The bundle  that registered the instance
@@ -74,7 +74,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
      * 
      * @param ipojoInstance
      */
-    public ApformOSGiInstance(Specification specification, ServiceReference reference) {
+    public ApformOSGiInstance(Specification specification, ServiceReference<?> reference) {
 
         super(new InstanceDeclaration(VersionedReference.any(generateImplementationName(specification,reference)), generateInstanceName(specification,reference)));
         
@@ -101,7 +101,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     /**
      * The underlying OSGi service reference
      */
-    public ServiceReference getServiceReference() {
+    public ServiceReference<?> getServiceReference() {
     	return reference;
     }
 
@@ -160,7 +160,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     /**
      * Generate the uniques name of the implementation associated with this instance in Apam
      */
-    private static ImplementationReference<?> generateImplementationName(Specification specification, ServiceReference reference) {
+    private static ImplementationReference<?> generateImplementationName(Specification specification, ServiceReference<?> reference) {
     	String bundle = reference.getBundle().getSymbolicName();
     	
     	if (bundle == null)
@@ -172,7 +172,7 @@ public class ApformOSGiInstance extends BaseApformComponent<Instance,InstanceDec
     /**
      * Generate the name of the instance in APAM
      */
-    private static String generateInstanceName(Specification specification, ServiceReference reference) {
+    private static String generateInstanceName(Specification specification, ServiceReference<?> reference) {
     	return generateImplementationName(specification,reference).getName()+"-"+reference.getProperty(Constants.SERVICE_ID);
     }
 

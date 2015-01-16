@@ -53,7 +53,6 @@ public class ApamInstall {
 	public static Set<String> getAllComponentNames(Bundle bundle) {
 		Set<String> componentNames = new HashSet<String>();
 
-		@SuppressWarnings("unchecked")
 		Dictionary<String, String> headers = bundle.getHeaders();
 		String iPOJO_components = headers.get("iPOJO-Components");
 

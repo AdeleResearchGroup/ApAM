@@ -78,7 +78,7 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 @Provides(specifications={DynamicManager.class})
 @Instantiate(name = "OSGiMan-Instance")
 
-public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
+public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer<Object,Set<ApformOSGiInstance>> {
 
 
 	/**
@@ -90,12 +90,12 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     /**
      * The instances service tracker.
      */
-    private ServiceTracker      instancesServiceTracker;
+    private ServiceTracker<Object,Set<ApformOSGiInstance>>	instancesServiceTracker;
 
     /**
      * The bundle context associated with this manager
      */
-    private final BundleContext context;
+    private final BundleContext 	context;
 
 
 	@Override
@@ -114,7 +114,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     	Filter filter;
 		try {
 			filter = context.createFilter("(" + Constants.OBJECTCLASS + "=*)");
-	        instancesServiceTracker = new ServiceTracker(context,filter, this);
+	        instancesServiceTracker = new ServiceTracker<Object,Set<ApformOSGiInstance>>(context,filter, this);
 	        instancesServiceTracker.open(true);
 		} catch (InvalidSyntaxException ignored) {
 		}
@@ -147,7 +147,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 	/**
 	 * Whether the service is a possible candidate to be matched to APAM specifications
 	 */
-	private static boolean isMatchable(ServiceReference reference) {
+	private static boolean isMatchable(ServiceReference<?> reference) {
 		
         /*
          * ignore services that are iPojo, these are treated separately
@@ -171,7 +171,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 	/**
 	 * Whether the service matches the specification
 	 */
-	private static boolean matches(Specification specification, ServiceReference reference) {
+	private static boolean matches(Specification specification, ServiceReference<?> reference) {
 		
     	Set<InterfaceReference> providedServices = new HashSet<InterfaceReference>();
 		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
@@ -184,7 +184,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     /**
      * Find all specifications matching the osgi service
      */
-    private Set<Specification> getMatchingSpecifications(ServiceReference reference) {
+    private Set<Specification> getMatchingSpecifications(ServiceReference<?> reference) {
     	
 
 		Set<Specification> matches	= new HashSet<Specification>();
@@ -206,7 +206,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
      * Notice that we return apform objects that ARE NOT reified in Apam, this can be used
      * to decide if the instance has already be created or not. 
      */
-    private Set<ApformOSGiInstance> getMatchingInstances(ServiceReference reference) {
+    private Set<ApformOSGiInstance> getMatchingInstances(ServiceReference<?> reference) {
 
 		Set<Specification> specifications 	= getMatchingSpecifications(reference);
 		Set<ApformOSGiInstance> instances	= new HashSet<ApformOSGiInstance>();
@@ -219,7 +219,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     }
     
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Set<ApformOSGiInstance> addingService(ServiceReference<Object> reference) {
 
         /*
          * Ignore events while APAM is not available
@@ -255,19 +255,16 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     	/*
     	 * Track all services to be sure to be informed when they are unregistered 
     	 */
-        return reference;
+        return instances;
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object tracked) {
+    public void removedService(ServiceReference<Object> reference, Set<ApformOSGiInstance> instances) {
 
     	/*
     	 * Destroy all Apam instances created, and garbage-collect implementations
     	 * if needed.
     	 */
-        Set<ApformOSGiInstance> instances = getMatchingInstances(reference);
-        if (instances.isEmpty())
-            return;
 
     	for(ApformOSGiInstance instance : instances) {
 
@@ -288,22 +285,23 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object instance) {
+    public void modifiedService(ServiceReference<Object> reference, Set<ApformOSGiInstance> instances) {
     	
-        ApformOSGiInstance osgiInstance	= (ApformOSGiInstance) instance;
-    	Instance apamInstance 			= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
-
-    	if (apamInstance == null)
-    		return;
-    	
-
-        for (String key : reference.getPropertyKeys()) {
-            if (osgiInstance.getSpecification().getPropertyDefinition(key) != null) {
-                String value = reference.getProperty(key).toString();
-                if (value != apamInstance.getProperty(key))
-                	apamInstance.setProperty(key, value);
+    	for(ApformOSGiInstance instance : instances) {
+    		Instance apamInstance = CST.componentBroker.getInst(instance.getDeclaration().getName());
+    		
+    		if (apamInstance == null)
+    			continue;
+    		
+            for (String key : reference.getPropertyKeys()) {
+                if (instance.getSpecification().getPropertyDefinition(key) != null) {
+                    String value = reference.getProperty(key).toString();
+                    if (value != apamInstance.getProperty(key))
+                    	apamInstance.setProperty(key, value);
+                }
             }
-        }
+    		
+    	}
 
     }
         
@@ -332,7 +330,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 		
 		String filterText = filter.toString();
 		
-		ServiceReference[] matchedServices = null;
+		ServiceReference<?> matchedServices[] = null;
 		try {
 			matchedServices = context.getAllServiceReferences(null,filterText);
 		} catch (InvalidSyntaxException e) {
@@ -341,7 +339,7 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer {
 		if (matchedServices == null)
 			return;
 			
-		for (ServiceReference reference : matchedServices)  {
+		for (ServiceReference<?> reference : matchedServices)  {
 			
 			if (!isMatchable(reference))
 				continue;

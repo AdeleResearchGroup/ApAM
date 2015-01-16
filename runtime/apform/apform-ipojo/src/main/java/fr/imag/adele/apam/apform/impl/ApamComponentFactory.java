@@ -77,7 +77,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
 	/**
      * A dynamic reference to the APAM platform
      */
-    protected final ServiceTracker apamTracker;
+    protected final ServiceTracker<Apam,Apam> apamTracker;
     
     /**
      * The corresponding component declaration
@@ -506,7 +506,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      * @author vega
      *
      */
-    class ApamTracker extends ServiceTracker {
+    class ApamTracker extends ServiceTracker<Apam,Apam> {
 
         private boolean bound;
 
@@ -516,13 +516,13 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
         }
 
         @Override
-        public Object addingService(ServiceReference reference) {
+        public Apam addingService(ServiceReference<Apam> reference) {
             if (bound)
                 return null;
 
 
             this.bound = true;
-            Apam apam = (Apam) this.context.getService(reference);
+            Apam apam = this.context.getService(reference);
             bindToApam(apam);
 
             return apam;
@@ -530,9 +530,9 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
 
 
         @Override
-        public void removedService(ServiceReference reference, Object service) {
+        public void removedService(ServiceReference<Apam> reference, Apam service) {
 
-            unbindFromApam((Apam) service);
+            unbindFromApam(service);
             this.context.ungetService(reference);
 
             this.bound = false;

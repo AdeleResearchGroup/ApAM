@@ -16,6 +16,7 @@ package fr.imag.adele.apam.apform.legacy.ipojo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,7 +75,7 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 @org.apache.felix.ipojo.annotations.Component(name = "ApformIpojoTracker" , immediate=true)
 @Instantiate(name = "ApformIpojoTracker-Instance")
 
-public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform, ServiceTrackerCustomizer,  QueueListener {
+public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform, ServiceTrackerCustomizer<Object,Object>,  QueueListener {
 
     /**
      * The reference to the APAM platform
@@ -91,7 +92,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
     /**
      * The instances service tracker.
      */
-    private ServiceTracker      instancesServiceTracker;
+    private ServiceTracker<Object,Object>      instancesServiceTracker;
 
     /**
      * The bundle context associated with this tracker
@@ -139,7 +140,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
 
         try {
             Filter filter = context.createFilter("(instance.name=*)");
-            instancesServiceTracker = new ServiceTracker(context, filter, this);
+            instancesServiceTracker = new ServiceTracker<Object,Object>(context, filter, this);
             instancesServiceTracker.open();
 
 
@@ -173,10 +174,9 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
 			/*
 			 * Get the registered factories and bind all factories matching the specification
 			 */
-			ServiceReference[] factoryReferences = searchFactories(null);
-			for (ServiceReference factoryReference : factoryReferences != null ? factoryReferences : new ServiceReference[0]) {
+			for (ServiceReference<Factory> factoryReference : searchFactories(null)) {
 				
-				Factory factory = (Factory) context.getService(factoryReference);
+				Factory factory = context.getService(factoryReference);
 				
 				if (factory != null && isEligible(factory) && matchingScore((IPojoFactory)factory, specification) > 0) {
 					factoryBound((IPojoFactory)factory,specification);
@@ -192,8 +192,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
 		 */
 		if ((component instanceof Implementation) && (component.getProperty("ipojo.factory") != null)) {
 			
-			ServiceReference[] trackedReferences = instancesServiceTracker.getServiceReferences();
-			for (ServiceReference serviceReference : trackedReferences != null ? trackedReferences : new ServiceReference[0]) {
+			for (ServiceReference<Object> serviceReference : optional(instancesServiceTracker.getServiceReferences()) ) {
 
 				Object factoryName = serviceReference.getProperty("factory.name");
 				if ( factoryName != null && component.getName().equals(factoryName)) {
@@ -208,6 +207,14 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
 		
 	}
     
+	/**
+	 * Utility method to avoid testing null returns
+	 */
+	@SuppressWarnings("unchecked")
+	private static <S> ServiceReference<S> [] optional(ServiceReference<S> references[]) {
+		return references != null ? references :new ServiceReference[0];	
+	}
+	
 	/**
 	 * Determines if the specification is a possible candidate to be matched to an iPOJO factory
 	 */
@@ -320,10 +327,10 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
      * Search OSGI for all registered iPOJO factories, optionally a filter for the name can
      * be specified
      */
-    private ServiceReference[] searchFactories(String name) {
+    private Collection<ServiceReference<Factory>> searchFactories(String name) {
         try {
             String nameFilter = name != null ? "(factory.name=" + name + ")" : null;
-            return context.getServiceReferences(Factory.class.getName(),nameFilter);
+            return context.getServiceReferences(Factory.class,nameFilter);
         } catch (InvalidSyntaxException ignored) {
         	return null;
         }
@@ -332,7 +339,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
     /**
      * Callback to handle instance binding
      */
-    public boolean instanceBound(ServiceReference reference, ComponentInstance ipojoInstance) {
+    public boolean instanceBound(ServiceReference<?> reference, ComponentInstance ipojoInstance) {
         /*
          * ignore handler instances
          */
@@ -379,7 +386,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
     }
 
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(ServiceReference<Object> reference) {
 
         /*
          * Ignore events while APAM is not available
@@ -402,7 +409,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object service) {
+    public void removedService(ServiceReference<Object> reference, Object service) {
 
         /*
          * This should never happen, but there seems to be some bug in the service tracker
@@ -428,7 +435,7 @@ public class ApformIpojoTracker implements DynamicManager, Apform2Apam.Platform,
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
+    public void modifiedService(ServiceReference<Object> reference, Object service) {
 
         if (!(service instanceof Pojo))
             return;

@@ -16,11 +16,12 @@ package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -112,7 +113,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * gets unresolved.
 	 * 
 	 */
-    private ServiceRegistration consumer;
+    private ServiceRegistration<?> consumer;
 
     /**
      * The list of connected producers, indexed by producer identification
@@ -375,7 +376,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
              * Register the consumer on the first resolution
              */
             if (targetServices.isEmpty()) {
-                Properties properties = new Properties();
+                Dictionary<String,Object> properties = new Hashtable<String,Object>();
                 properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
                 properties.put("service.pid",consumerId);
                 
@@ -394,7 +395,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         }
 
     }
-
+    
     /*
 	 * (non-Javadoc)
 	 * 

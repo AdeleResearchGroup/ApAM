@@ -50,7 +50,7 @@ public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDe
      * 
      * @param ipojoInstance
      */
-    public ApformIpojoInstance(ComponentInstance ipojoInstance, ServiceReference reference) {
+    public ApformIpojoInstance(ComponentInstance ipojoInstance, ServiceReference<?> reference) {
     	
         this(ipojoInstance);
 
