@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.ComponentBroker;
 import fr.imag.adele.apam.Composite;
@@ -228,8 +229,40 @@ public class ComponentBrokerImpl implements ComponentBroker {
 			((InstanceImpl) instance).register(null);
 			return instance;
 
-		} catch (InvalidConfiguration configurationError) {
-			logger.error("Error adding instance: exception in APAM registration", configurationError);
+		} catch (Exception instantiationError) {
+			
+			/*
+			 * TODO START CLONE
+			 * 
+			 * This is a clone of exactly the same code in Implementation.createInstance, we should unify treatment
+			 */
+			
+			/*
+			 * TODO this should be done in method register, we should try to have some form
+			 * of atomic registration that includes registration and addition in the broker
+			 */
+			if (instance != null) {
+				if (CST.componentBroker.getComponent(instance.getName()) != null) {
+					/*
+					 * If creation failed after broker registration, undo registration 
+					 */
+					((ComponentBrokerImpl) CST.componentBroker).disappearedComponent(instance);
+				}
+				else {
+					
+					/* 
+					 * The instance was partially created, just undo registration
+					 */
+					((ComponentImpl)instance).unregister();
+				}
+			}
+			
+			
+			/*
+			 * TODO END CLONE
+			 */
+			
+			logger.error("Error adding instance: exception registering instance in APAM ",instantiationError);
 		}
 
 		return null;

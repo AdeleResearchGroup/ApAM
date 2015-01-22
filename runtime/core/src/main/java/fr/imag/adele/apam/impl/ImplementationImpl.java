@@ -197,7 +197,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			((InstanceImpl) instance).register(initialProperties);
 			setInstantiateFails(false);
 			return instance;
-		} catch (InvalidConfiguration configurationError) {
+		} catch (Exception instantiationError) {
 
 			/*
 			 * TODO this should be done in method register, we should try to have some form
@@ -219,7 +219,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 				}
 			}
 			
-			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM " + configurationError.getMessage());
+			logger.error("Error instantiating implementation " + this.getName() + ": exception registering instance in APAM ", instantiationError);
 			//to avoid trying again when attempting a resolution.
 			setInstantiateFails(true);
 		}
