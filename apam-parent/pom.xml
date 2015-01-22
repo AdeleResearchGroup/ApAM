@@ -39,7 +39,7 @@
 
         <!-- java compilation version -->
         <compiler.plugin.version>3.1</compiler.plugin.version>
-        <java.version>1.7</java.version>
+        <java.version>1.6</java.version>
         <javadoc.plugin.version>2.9</javadoc.plugin.version>
         <source.plugin.version>2.1.2</source.plugin.version>
 
