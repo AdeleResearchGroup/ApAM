@@ -32,7 +32,7 @@ public class FutureInstance {
 	private final Map<String, String> properties;
 	private final List<RelToResolve> triggers;
 
-	private boolean isTriggered;
+	private boolean isInstantiated;
 
 	public FutureInstance(Composite owner, InstanceDeclaration declaration) throws InvalidConfiguration {
 
@@ -40,7 +40,7 @@ public class FutureInstance {
 		this.implementation = CST.apamResolver.findImplByName(owner.getMainInst(), declaration.getImplementation().getName());
 		this.name = declaration.getName();
 		this.properties = declaration.getProperties();
-		this.isTriggered = false;
+		this.isInstantiated = false;
 
 		/*
 		 * Verify that the implementation exists
@@ -70,30 +70,42 @@ public class FutureInstance {
 	}
 
 	/**
-	 * Verifies whether all triggering conditions are satisfied, and in that
-	 * case instantiate the instance in the APAM state
+	 * Whether this future instance has already been instantiated
+	 * 
+	 * TODO NOTE currently we only try to instantiate the instance once. If the created instance is destroyed
+	 * later, we will not try to create it again. We need to specify the expected semantics in this case.
 	 */
-	public void checkInstatiation() {
+	public synchronized boolean isInstantiated() {
+		return isInstantiated;
+	}
+
+	/**
+	 * Verifies whether all triggering conditions are satisfied
+	 */
+	public boolean isInstantiable() {
 
 		/*
-		 * Verify if this instance has already been triggered, to avoid nested
-		 * triggers
+		 * Verify if this instance has already been triggered, to avoid nested trigger evaluation
 		 */
 		if (isInstantiated()) {
-			return;
+			return true;
 		}
 
 		/*
 		 * evaluate all triggering conditions
+		 * 
+		 * NOTE notice that evaluation of the triggering condition of a future instance may be performed
+		 * in parallel by several threads. Currently we do not try to optimize this situation, however we
+		 * synchronize the actual instantiation.
 		 */
 		boolean satisfied = true;
-		for (RelToResolve trigger : triggers) {
+		EVALUATE_CONDITIONS : for (RelToResolve trigger : triggers) {
 
 			/*
 			 * evaluate the specified trigger
 			 */
-			boolean satisfiedTrigger = false;
-			for (Instance candidate : owner.getContainInsts()) {
+			boolean matchingCandidate = false;
+			SEARCH_MATCHING_CANDIDATE : for (Instance candidate : owner.getContainInsts()) {
 
 				/*
 				 * ignore non matching candidates
@@ -120,30 +132,47 @@ public class FutureInstance {
 				/*
 				 * Stop evaluation at first match
 				 */
-				satisfiedTrigger = true;
-				break;
+				matchingCandidate = true;
+				break SEARCH_MATCHING_CANDIDATE;
 			}
 
 			/*
 			 * stop at the first unsatisfied trigger
 			 */
-			if (!satisfiedTrigger) {
+			if (!matchingCandidate) {
 				satisfied = false;
-				break;
+				break EVALUATE_CONDITIONS;
 
 			}
 		}
 
+		return satisfied;
+	}
+
+	/**
+	 * Instantiate the corresponding instance
+	 */
+	public void instantiate() {
+
 		/*
-		 * If some trigger is not satisfied, just keep waiting fort all
-		 * conditions to be satisfied
+		 * If some trigger is not satisfied, just keep waiting for all conditions to be satisfied
 		 */
-		if (!satisfied) {
+		if (!isInstantiable()) {
 			return;
 		}
 
-		String instanceName = owner.isSingleton() ? this.name : owner.getName() + ":" + this.name;
-		properties.put("instance.name", instanceName);
+		/*
+		 * synchronize to avoid multiple simultaneous instantiations, we optimistically assume that
+		 * instantiation will succeed if the triggers are satisfied
+		 */
+		synchronized (this) {
+			if (isInstantiated) {
+				return;
+			}
+			
+			isInstantiated = true;
+		}
+		
 
 		/*
 		 * Try to instantiate the specified implementation.
@@ -152,10 +181,27 @@ public class FutureInstance {
 		 * 
 		 * We need to modify the API to allow specifying explicitly an instance declaration for 
 		 * Implementation.createInstance.
+		 * 
+		 * NOTE notice that we perform instantiation outside any synchronization, because it may block
+		 * waiting for dependencies
 		 */
-		isTriggered = true;
-		implementation.createInstance(owner, properties);
-
+		
+		Instance instance = null;
+		
+		try {
+			String instanceName = owner.isSingleton() ? this.name : owner.getName() + ":" + this.name;
+			properties.put("instance.name", instanceName);
+			instance = implementation.createInstance(owner, properties);
+		}
+		catch (Exception unrecoverableError ) {
+		}
+		
+		/*
+		 * check the actual outcome of the instantiation
+		 */
+		synchronized (this) {
+			isInstantiated = (instance != null);
+		}
 	}
 
 	/**
@@ -163,13 +209,6 @@ public class FutureInstance {
 	 */
 	public Composite getOwner() {
 		return owner;
-	}
-
-	/**
-	 * Whether this future instance has already bee instantiated
-	 */
-	public boolean isInstantiated() {
-		return isTriggered;
 	}
 
 }

@@ -185,14 +185,17 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 			}
 		}
 
+
 		/*
-		 * Otherwise, this is dynamic request an we resolve it in the context of the current thread.
+		 * Otherwise, this is dynamic request an we resolve it in the context of the current thread. If
+		 * the request is already being resolved by another thread, there is nothing to do.
+		 * 
 		 * 
 		 * NOTE is the responsibility of the caller to invoke this method in the appropriate thread to
 		 * implement the intended dynamic update policy. Notice that this method may block or throw
 		 * exceptions, as a side effect of resolution, that impact the calling thread.
 		 */
-
+		
 		synchronized (this) {
 			if (this.isResolving) {
 				return;
@@ -200,10 +203,14 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 			
 			this.isResolving = true;
 		}
+
+		
 		
 		/*
-		 * IMPORTANT Notice that resolution is performed outside synchronized blocks
+		 * IMPORTANT NOTE Notice that we must invoke the resolved outside any synchronized block to avoid
+		 * potential deadlocks
 		 */
+
 		Resolved<?> result = resolver.resolveLink(source, relation);
 		
 		synchronized (this) {

@@ -16,6 +16,8 @@ package fr.imag.adele.apam.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,12 +67,118 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	private final List<PendingRequest> dynamicDependencies;
 
 	/**
+	 * The task executor. We use a pool of a threads to handle resolutions and instantiations
+	 * that may block
+	 */
+	private final Executor taskExecutor = Executors.newCachedThreadPool();
+	
+	/**
+	 * The task in charge of performing dynamic resolution 
+	 */
+	private class ResolutionTask implements Runnable {
+	
+		private final PendingRequest 	request;
+		private final Component 		candidate;
+		
+		public ResolutionTask(PendingRequest request, Component candidate) {
+			this.request 	= request;
+			this.candidate	= candidate;
+		}
+
+		@Override
+		public void run() {
+			
+			/*
+			 * perform resolution
+			 */
+			try {
+				request.resolve();
+			}
+			catch (Exception resolutionException) {
+				/*
+				 * TODO currently if the relation is marked as dynamic/eager and fail exception, we
+				 * simply ignore exceptions if they are thrown in asynchronous resolutions.
+				 * We need to better specify the expected behavior.
+				 */
+				return;
+			}
+			
+			
+			/*
+			 * If the relation is marked as dynamic/eager and optional, we simply ignore unsuccessful 
+			 * asynchronous resolutions.
+			 */
+			if (request.getResolution() == null) {
+				return;
+			}
+			
+			/*
+			 * If the target is a non sharable instance, and the resolution was successful,  we reduce
+			 * the priority of the request to avoid starvation of other dynamic request expecting the
+			 * same target
+			 */
+			if (candidate != null && candidate instanceof Instance && request.getResolution() != null) {
+				if (!((Instance)candidate).isSharable())
+					reducePriorityDynamicRequest(request);
+			}
+		}
+	}
+	
+	/**
+	 * The task in charge of instantiating declared future instances
+	 */
+	private class InstantiationTask implements Runnable {
+		
+		private final FutureInstance 	instantiableFutureInstance;
+		
+		public InstantiationTask(FutureInstance instantiableFutureInstance) {
+			this.instantiableFutureInstance 	= instantiableFutureInstance;
+		}
+
+		@Override
+		public void run() {
+			
+			/*
+			 * Try to instantiate triggered instance
+			 * 
+			 */
+			instantiableFutureInstance.instantiate();
+
+			/*
+			 * Put the request back in the pending list, if it did not succeed 
+			 */
+			if (!instantiableFutureInstance.isInstantiated()) {
+				addFutureInstance(instantiableFutureInstance);
+			}
+		}
+	}
+	
+	/**
 	 * The dynamic manager handle all request concerned with dynamic management
 	 * of links
 	 */
 	public DynaMan() {
 		dynamicDependencies = new ArrayList<PendingRequest>();
 		futureInstances = new ArrayList<FutureInstance>();
+	}
+
+	/**
+	 * Dynamic manager identifier
+	 */
+	@Override
+	public String getName() {
+		return CST.DYNAMAN;
+	}
+
+	/**
+	 * Schedule resolution of all the requests that are potentially satisfied by a given component
+	 */
+	private void resolveDynamicRequests(Component candidate) {
+		for (PendingRequest request : getDynamicRequests()) {
+			if (request.isSatisfiedBy(candidate)) {
+				taskExecutor.execute(new ResolutionTask(request, candidate));
+			}	
+		}
 	}
 
 	/**
@@ -82,6 +190,15 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		}
 	}
 
+	/**
+	 * Remove a dynamic request
+	 */
+	private void removeDynamicRequest(PendingRequest request) {
+		synchronized (dynamicDependencies) {
+			dynamicDependencies.remove(request);
+		}
+	}
+	
 	/**
 	 * Reduce the priority of a request
 	 */
@@ -104,13 +221,123 @@ public class DynaMan implements DynamicManager, PropertyManager {
 				PendingRequest request = new PendingRequest(CST.apamResolver, component, relDef);
 				addDynamicRequest(request);
 
+				/*
+				 * In casez of eager relationships, schedule initial resolution
+				 */
 				if (relDef.getCreation() == CreationPolicy.EAGER) {
-					request.resolve();
+					taskExecutor.execute(new ResolutionTask(request, null));
 				}
 			}
 		}
 	}
 
+	/**
+	 * Get a thread-safe (stack confined) copy of the dynamic requests
+	 */
+	private List<PendingRequest> getDynamicRequests() {
+		synchronized (dynamicDependencies) {
+			return new ArrayList<PendingRequest>(dynamicDependencies);
+		}
+	}
+
+	/**
+	 * Add a new future Instance
+	 */
+	private void addFutureInstance(FutureInstance request) {
+		synchronized (futureInstances) {
+			futureInstances.add(request);
+		}
+	}
+
+	/**
+	 * Remove a dynamic request
+	 */
+	private void removeFutureInstance(FutureInstance request) {
+		synchronized (futureInstances) {
+			futureInstances.remove(request);
+		}
+	}
+
+	/**
+	 * Verifies if the triggering conditions of pending future instances defined in the specified 
+	 * composite are satisfied
+	 */
+	private void resolveFutureInstances(Composite context) {
+
+
+		/*
+		 * Take a snapshot of future instances that can be instantiated in the updated context
+		 * 
+		 * IMPORTANT  Notice that we remove the request from the list of future instances, so that we
+		 * are sure* that there is a single thread handling a given pending instantiation request
+		 * 
+		 */
+
+		List<FutureInstance> instantiableFutureInstances = new ArrayList<FutureInstance>();
+		synchronized (futureInstances) {
+
+			for (FutureInstance futureInstance : futureInstances) {
+				if (futureInstance.getOwner().equals(context) && futureInstance.isInstantiable()) {
+					instantiableFutureInstances.add(futureInstance);
+				}
+			}
+
+			futureInstances.removeAll(instantiableFutureInstances);
+		}
+		
+		/*
+		 * Schedule instantiation of triggered instances
+		 * 
+		 */
+		for (FutureInstance instantiableFutureInstance : instantiableFutureInstances) {
+			taskExecutor.execute(new InstantiationTask(instantiableFutureInstance));
+		}
+
+	}
+	
+	/**
+	 * Updates the list of future instances when a new composite is managed
+	 */
+	private void addFutureInstances(Composite composite) {
+
+		/*
+		 * Create the future instance corresponding to the declared start sentences 
+		 */
+		for (InstanceDeclaration instanceDeclaration : composite.getCompType().getCompoDeclaration().getInstanceDeclarations()) {
+			try {
+				addFutureInstance( new FutureInstance(composite, instanceDeclaration));
+			} catch (InvalidConfiguration error) {
+				logger.error("Error managing dynmaic instances for composite " + composite.getName(), error);
+			}
+		}
+
+		/*
+		 * Evaluate the the triggering conditions in the initial configuration
+		 */
+		resolveFutureInstances(composite);
+	}
+	
+	/**
+	 * Get a thread-safe (stack confined) copy of the dynamic requests
+	 */
+	private List<FutureInstance> getFutureInstances() {
+		synchronized (futureInstances) {
+			return new ArrayList<FutureInstance>(futureInstances);
+		}
+	}
+
+	/**
+	 * Reevaluate all dynamic relationships and instantiations impacted by changes in the
+	 * specified component
+	 */
+	private void propagateComponentChange(Component component) {
+		
+		resolveDynamicRequests(component);
+		if (component instanceof Instance) {
+			resolveFutureInstances(((Instance)component).getComposite());
+		}
+	}
+	
 	@Override
 	public void addedComponent(Component component) {
 
@@ -127,46 +354,13 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		 * Verify if the new component satisfies some pending requests or the
 		 * triggering condition of future instances
 		 */
-		resolveDynamicRequests(component);
-		resolveFutureInstances(component);
+		propagateComponentChange(component);
 	}
 
 	@Override
 	public void addedLink(Link link) {
 	}
 
-	/**
-	 * Add a new future Instance
-	 */
-	private void addFutureInstance(FutureInstance request) {
-		synchronized (futureInstances) {
-			futureInstances.add(request);
-		}
-	}
-
-	/**
-	 * Updates the list of future instances when a new composite is managed
-	 */
-	private void addFutureInstances(Composite composite) {
-		for (InstanceDeclaration instanceDeclaration : composite.getCompType().getCompoDeclaration().getInstanceDeclarations()) {
-			try {
-
-				/*
-				 * Create the future instance request and evaluate triggering
-				 * conditions in the initial configuration
-				 */
-				FutureInstance request = new FutureInstance(composite, instanceDeclaration);
-				request.checkInstatiation();
-
-				if (!request.isInstantiated()) {
-					addFutureInstance(request);
-				}
-
-			} catch (InvalidConfiguration error) {
-				logger.error("Error managing dynmaic instances for composite " + composite.getName(), error);
-			}
-		}
-	}
 
 	@Override
 	public void attributeAdded(Component component, String attr, String newValue) {
@@ -183,30 +377,12 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		propertyChanged(component, attr);
 	}
 
-	/**
-	 * Get a thread-safe (stack confined) copy of the dynamic requests
-	 */
-	private List<PendingRequest> getDynamicRequests() {
-		synchronized (dynamicDependencies) {
-			return new ArrayList<PendingRequest>(dynamicDependencies);
-		}
-	}
-
-	/**
-	 * Get a thread-safe (stack confined) copy of the dynamic requests
-	 */
-	private List<FutureInstance> getFutureInstances() {
-		synchronized (futureInstances) {
-			return new ArrayList<FutureInstance>(futureInstances);
-		}
-	}
-
-	/**
-	 * Dynamic manager identifier
-	 */
-	@Override
-	public String getName() {
-		return CST.DYNAMAN;
+	private void propertyChanged(Component component, String property) {
+		/*
+		 * Verify if the updated component satisfies some pending requests or
+		 * the triggering condition of future instances
+		 */
+		propagateComponentChange(component);
 	}
 
 	public void ownershipChanged(Instance instance) {
@@ -214,19 +390,9 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		 * Verify if the component in the new context satisfies some pending
 		 * requests or the triggering condition of future instances
 		 */
-		resolveDynamicRequests(instance);
-		resolveFutureInstances(instance);
+		propagateComponentChange(instance);
 	}
-
-	private void propertyChanged(Component component, String property) {
-		/*
-		 * Verify if the updated component satisfies some pending requests or
-		 * the triggering condition of future instances
-		 */
-		resolveDynamicRequests(component);
-		resolveFutureInstances(component);
-	}
-
+	
 	@Override
 	public void removedComponent(Component component) {
 
@@ -268,110 +434,6 @@ public class DynaMan implements DynamicManager, PropertyManager {
 		}
 	}
 
-	/**
-	 * Remove a dynamic request
-	 */
-	private void removeDynamicRequest(PendingRequest request) {
-		synchronized (dynamicDependencies) {
-			dynamicDependencies.remove(request);
-		}
-	}
-
-	/**
-	 * Remove a dynamic request
-	 */
-	private void removeFutureInstance(FutureInstance request) {
-		synchronized (futureInstances) {
-			futureInstances.remove(request);
-		}
-	}
-
-	/**
-	 * Try to resolve all the requests that are potentially satisfied by a given
-	 * component
-	 */
-	private void resolveDynamicRequests(Component candidate) {
-		for (PendingRequest request : getDynamicRequests()) {
-			if (request.isSatisfiedBy(candidate)) {
-
-				request.resolve();
-				
-				/*
-				 * If the target is a non sharable instance, and the resolution was successful, 
-				 * we reduce the priority of the request to avoid starvation of other dynamic
-				 * request expecting the same target
-				 */
-				if (request.getResolution() != null && candidate instanceof Instance) {
-					if (!((Instance)candidate).isSharable())
-						reducePriorityDynamicRequest(request);
-				}
-
-			}	
-		}
-	}
-
-	/**
-	 * Verifies if the triggering conditions of pending future instances are
-	 * satisfied
-	 */
-	private void resolveFutureInstances(Component component) {
-
-		/*
-		 * Future instances are triggered when a matching instance is added to
-		 * the composite where the future is declared
-		 */
-		if (!(component instanceof Instance)) {
-			return;
-		}
-
-		Instance candidate = (Instance) component;
-
-		/*
-		 * Iterate over all pending future instances
-		 * 
-		 * IMPORTANT Notice that this iteration is synchronized so we do not
-		 * have concurrent accesses over the list of future instances. However,
-		 * we must carefully handle the case of nested invocations of this
-		 * method (because instantiation of a dynamic instance may trigger other
-		 * pending instances)
-		 */
-
-		synchronized (futureInstances) {
-
-			List<FutureInstance> processed = new ArrayList<FutureInstance>();
-			while (!futureInstances.isEmpty()) {
-
-				/*
-				 * Take the first pending instance from the list, notice that we
-				 * remove it so that we are sure that there is only a single
-				 * invocation (in case of nested invocations) of this method
-				 * handling a given pending instance
-				 */
-				FutureInstance futureInstance = futureInstances.remove(0);
-
-				/*
-				 * Evaluate triggering conditions and instantiate if satisfied
-				 */
-				if (futureInstance.getOwner().equals(candidate.getComposite())) {
-					futureInstance.checkInstatiation();
-				}
-
-				processed.add(futureInstance);
-			}
-
-			/*
-			 * Put back in the list all the processed requests that were not
-			 * triggered
-			 */
-			while (!processed.isEmpty()) {
-				FutureInstance processedInstance = processed.remove(0);
-				if (!processedInstance.isInstantiated()) {
-					futureInstances.add(processedInstance);
-				}
-			}
-		}
-
-	}
 
 	/**
 	 * This method is automatically invoked when the manager is validated, so we
