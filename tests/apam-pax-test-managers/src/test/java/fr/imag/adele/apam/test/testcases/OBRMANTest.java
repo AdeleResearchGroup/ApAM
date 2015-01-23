@@ -361,6 +361,7 @@ public class OBRMANTest extends ExtensionAbstract {
 				"CompositeSequenceStartwithOK_tct037");
 		
 		compo.createInstance(null, null);
+		apam.waitForIt(1*1000);
 		
 		Implementation implOK = CST.componentBroker.getImpl("ImplemOK");
 		Assert.assertNotNull("ImplemOK should have been installed" , implOK );
@@ -379,7 +380,8 @@ public class OBRMANTest extends ExtensionAbstract {
 				"CompositeSequenceStartwithFail_tct038");
 		
 		compo.createInstance(null, null);
-		
+		apam.waitForIt(1*1000);
+
 		Implementation implOK = CST.componentBroker.getImpl("ImplemOK");
 		Assert.assertNotNull("ImplemOK should have been installed" , implOK );
 		Assert.assertNotNull("An Instance of ImplemOK should have been created" , implOK.getInst() );

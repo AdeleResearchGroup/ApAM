@@ -303,12 +303,12 @@ public class ConflictManTest extends ExtensionAbstract {
 
 		ThreadWrapper_grant thread = new ThreadWrapper_grant(worker1);
 
+		manager.printTools();
+		
 		System.out.println(">Init : night !");
 		thread.setDaemon(true);
 		thread.start();
 
-		apam.waitForIt(1000);
-		manager.printTools();
 		Assert.assertTrue(
 				"As the JackHammer is not granted(night), the worker resolution should fails -> thread should be waiting",
 				thread.isAlive());

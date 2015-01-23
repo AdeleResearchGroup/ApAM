@@ -307,7 +307,7 @@ public class DynaMan implements DynamicManager, PropertyManager {
 			try {
 				addFutureInstance( new FutureInstance(composite, instanceDeclaration));
 			} catch (InvalidConfiguration error) {
-				logger.error("Error managing dynmaic instances for composite " + composite.getName(), error);
+				logger.error("Error managing dynamic instances for composite " + composite.getName(), error);
 			}
 		}
 

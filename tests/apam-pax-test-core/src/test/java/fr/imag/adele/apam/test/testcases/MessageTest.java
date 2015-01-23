@@ -37,6 +37,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.msg.device.EletronicMsg;
 import fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ConsumerImpl01;
 import fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl;
+import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 class AsynchronousSender {
@@ -387,8 +388,10 @@ public class MessageTest extends ExtensionAbstract {
 		M1ProducerImpl m1ProdImpl = (M1ProducerImpl) producer
 				.getServiceObject();
 
+		apam.waitForIt(1*1000);
+		
 		m1ProdImpl.pushMessage("message 1");
-
+		
 		Assert.assertTrue(
 				String.format(
 						"In this use case where the consumer was started before the producer, after producer sends 1 message, the consumer received %d messages instead of 1 ",

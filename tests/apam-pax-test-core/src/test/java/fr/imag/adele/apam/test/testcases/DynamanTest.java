@@ -93,8 +93,6 @@ public class DynamanTest extends ExtensionAbstract {
 		Composite compositeInstance = (Composite) composite.createInstance(
 				null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
 		Implementation trigger = waitForImplByName(null,
 				"group-a-start-trigger");
 
@@ -106,10 +104,11 @@ public class DynamanTest extends ExtensionAbstract {
 
 		Assert.assertTrue(triggerInstance != null);
 
+		apam.waitForIt(1*1000);
+		
 		List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
 				.getImplDeclaration()).getClassName());
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		auxListInstances("INSTANCE-t2-");
 
@@ -130,8 +129,6 @@ public class DynamanTest extends ExtensionAbstract {
 		Composite compositeInstance = (Composite) composite.createInstance(
 				null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
 		Implementation trigger = waitForImplByName(null,
 				"group-a-start-trigger");
 
@@ -143,10 +140,11 @@ public class DynamanTest extends ExtensionAbstract {
 
 		Assert.assertTrue(triggerInstance != null);
 
+		apam.waitForIt(1*1000);
+		
 		List<Instance> instancesOfB = auxLookForInstanceOf(((AtomicImplementationDeclaration) triggered
 				.getImplDeclaration()).getClassName());
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		auxListInstances("INSTANCE-t2-");
 
@@ -177,8 +175,7 @@ public class DynamanTest extends ExtensionAbstract {
 				"Although, the test failed to instantiate the composite"),
 				instanceComposite != null && mainInstance != null);
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		apam.waitForIt(1*1000);
 
 		auxListInstances("instances existing after the test-");
 
@@ -225,7 +222,7 @@ public class DynamanTest extends ExtensionAbstract {
 				"Although, the test failed to instantiate the composite"),
 				instanceComposite != null && mainInstance != null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(1*1000);
 
 		auxListInstances("instances existing after the test-");
 
