@@ -237,7 +237,8 @@ public class Substitute {
 	}
 
 	public static boolean isSubstitution(Object value) {
-		return ((value instanceof String) && !((String) value).isEmpty() && (((String) value).charAt(0) == '$' || ((String) value).charAt(0) == '@'));
+		return ((value instanceof String) && !((String) value).trim().isEmpty() && 
+				(((String) value).trim().charAt(0) == '$' || ((String) value).trim().charAt(0) == '@' || ((String) value).trim().charAt(0) == '\\'));
 	}
 
 	/**

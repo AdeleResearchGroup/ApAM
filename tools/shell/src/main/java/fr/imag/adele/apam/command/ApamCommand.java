@@ -62,6 +62,7 @@ import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.util.Substitute;
 
 //import org.apache.felix.ipojo.annotations.Component;
 
@@ -753,22 +754,24 @@ public class ApamCommand {
      * @param properties
      *            the properties
      */
-    private void printProperties(PrintWriter out, String indent,
-	    ComponentImpl comp) {
-	Map<String, Object> properties = comp.getAllProperties();
-	out.println(indent + "Properties : ");
-	for (String key : properties.keySet()) {
-	    out.print(indent + "   " + key + " = " + comp.getProperty(key));
-	    Object value = properties.get(key);
-	    if ((value instanceof String)
-		    && (((String) value).charAt(0) == '$'
-			    || ((String) value).charAt(0) == '@' || ((String) value)
-			    .charAt(0) == '\\')) {
-		out.print(" (" + value + ")");
-	    }
-	    out.println();
-	}
+    private void printProperties(PrintWriter out, String indent, ComponentImpl comp) {
+		Map<String, Object> properties = comp.getAllProperties();
+		out.println(indent + "Properties : ");
+		for (String key : properties.keySet()) {
+		    out.print(indent + "   " + key + " = " + comp.getProperty(key));
+		    
+		    /*
+		     * display original expression in case of substitution
+		     */
+		    Object value = properties.get(key);
+		    if (value != null && Substitute.isSubstitution(value)) {
+		    	out.print(" (" + ((String) value).trim() + ")");
+		    }
+		    
+		    out.println();
+		}
     }
+    
 
     /**
      * Prints the specification.
