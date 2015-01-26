@@ -139,7 +139,7 @@ public class Visible {
 		// Check if the target is visible to other components in the same
 		// application
 		String applicationExports = target.getComposite().getCompType().getCompoDeclaration().getVisibility().getApplicationInstances();
-		if (matchVisibilityExpression(applicationExports, target, target.getComposite().getCompType())) {
+		if (matchVisibilityExpression(applicationExports, target, target.getComposite())) {
 			return target.getAppliComposite().equals(source.getAppliComposite());
 		}
 
@@ -191,7 +191,7 @@ public class Visible {
 
 		// Check if the target is exported by its owning composite
 		String exports = target.getComposite().getCompType().getCompoDeclaration().getVisibility().getExportInstances();
-		if (matchVisibilityExpression(exports, target, target.getComposite().getCompType())) {
+		if (matchVisibilityExpression(exports, target, target.getComposite())) {
 			return true;
 		}
 

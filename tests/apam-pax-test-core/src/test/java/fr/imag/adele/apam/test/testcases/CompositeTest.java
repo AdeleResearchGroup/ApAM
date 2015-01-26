@@ -405,30 +405,14 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeContentMngtExportGlobalEverythingInstance_tc050() {
 
-		CompositeType appCompositeType = (CompositeType) waitForImplByName(
-				null, "composite-a");
+		CompositeType cta = (CompositeType) waitForImplByName(null,"composite-a-export-global-everything");
 
-		Composite appCompositeA = (Composite) appCompositeType.createInstance(
-				null, null);
-
-		CompositeType appCompositeTypeC = (CompositeType) waitForImplByName(
-				null, "composite-c");
-
-		Composite appCompositeC = (Composite) appCompositeTypeC.createInstance(
-				null, null);
-
-		CompositeType cta = (CompositeType) waitForImplByName(null,
-				"composite-a-export-global-everything");
-
-		CompositeType ctb = (CompositeType) waitForImplByName(null,
-				"composite-b");
+		CompositeType ctb = (CompositeType) waitForImplByName(null,"composite-b");
 
 		Implementation ia = waitForImplByName(null, "group-a");
 
-		Composite composite_a = (Composite) cta.createInstance(appCompositeA,
-				null);
-		Composite composite_b = (Composite) ctb.createInstance(appCompositeC,
-				null);
+		Composite composite_a = (Composite) cta.createInstance(null,null);
+		Composite composite_b = (Composite) ctb.createInstance(null,null);
 
 		Instance instanceApp1 = ia.createInstance(composite_a, null);
 
@@ -454,6 +438,69 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}
 
+	@Test
+	public void CompositeContentMngtExportGlobalDynamicInstance() {
+
+		Implementation ia = waitForImplByName(null, "group-a");
+		
+		/*
+		 * create application A
+		 */
+		CompositeType cta 		= (CompositeType) waitForImplByName(null,"composite-a-export-dynamic");
+		Composite composite_a	= (Composite) cta.createInstance(null,Collections.singletonMap("instance.name", "A"));
+		Instance source_in_a 	= ia.createInstance(composite_a, Collections.singletonMap("instance.name", "source_in_a"));
+		S3GroupAImpl ga_in_a 	= (S3GroupAImpl) source_in_a.getServiceObject();
+		
+		/*
+		 * Force resolution of an instance internally in A
+		 */
+		ga_in_a.getElement();
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+
+		/*
+		 * export the target of the resolution
+		 */
+		composite_a.setProperty("composite-dynamic-property", source_in_a.getLinkDest("element").getName());
+		
+		/*
+		 * create application B
+		 */
+		CompositeType ctb 		= (CompositeType) waitForImplByName(null,"composite-b");
+		Composite composite_b 	= (Composite) ctb.createInstance(null,Collections.singletonMap("instance.name", "B"));
+
+		
+		/*
+		 * create an instance in B and try to get it resolved against the exported content of A, it should be exported
+		 */
+		Instance source_in_b 	= ia.createInstance(composite_b, Collections.singletonMap("instance.name", "source_in_b"));
+		S3GroupAImpl ga_in_b 	= (S3GroupAImpl) source_in_b.getServiceObject();
+		ga_in_b.getElement();
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+
+		String message = "Consider composites A and B. If A declares that dynamically export everything globally, its instances should be visible/injected in B";
+		Assert.assertTrue(message, ga_in_a.getElement() == ga_in_b.getElement());
+		
+		/*
+		 * change dynamically the export condition
+		 */
+		composite_a.setProperty("composite-dynamic-property", "none");
+		
+		/*
+		 * break previous resolution
+		 */
+		source_in_b.getLink("element").remove();
+		
+		/*
+		 * try to resolve again, must not see the contents of A
+		 */
+		ga_in_b.getElement();
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+
+		message = "Consider composites A and B. If A declares that dynamically export nothing globally, its instances should not be visible/injected in B";
+		Assert.assertTrue(message, ga_in_a.getElement() != ga_in_b.getElement());
+
+	}
+	
 	@Test
 	public void CompositeContentMngtImportNothingImplementation_tc035() {
 

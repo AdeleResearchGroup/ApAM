@@ -163,6 +163,13 @@
 		</contentMngt>
 	</composite>
 
+	<composite name="composite-a-export-dynamic" main="group-a">
+		<definition name="composite-dynamic-property" type="String"/>
+		<contentMngt>
+			<export instance="(name=$this$composite-dynamic-property)" />
+		</contentMngt>
+	</composite>
+
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
 			<override name=".*" specification="eletronic-device-private"
