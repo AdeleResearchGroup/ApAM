@@ -75,13 +75,6 @@
                 <artifactId>org.apache.servicemix.bundles.junit</artifactId>
                 <version>4.9_2</version>
             </dependency>
-            <!-- Felix and OSGi dependecies -->
-
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.framework</artifactId>
-                <version>4.2.0</version>
-            </dependency>
 
             <!-- OSGi and iPOJO Helpers -->
             <dependency>

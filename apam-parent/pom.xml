@@ -51,7 +51,7 @@
 
         <!-- felix osgi -->
         <osgi.version>4.3.1</osgi.version>
-        <felix.osgi.version>1.4.0</felix.osgi.version>
+        <felix.osgi.version>4.2.1</felix.osgi.version>
         <bundle.plugin.version>2.3.7</bundle.plugin.version>
         <gogo.version>0.10.0</gogo.version>
 
@@ -318,18 +318,18 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>${felix.osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.bundlerepository</artifactId>
                 <version>${felix.bundlerepository.version}</version>
             </dependency>
             <dependency>
-		<groupId>org.apache.felix</groupId>
-		<artifactId>org.apache.felix.utils</artifactId>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.utils</artifactId>
                 <version>${felix.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <version>${felix.osgi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>

@@ -41,13 +41,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework
-			</artifactId>
-<!-- 			<version>1.4.0</version> -->
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S5</artifactId>
 			<version>${project.version}</version>
