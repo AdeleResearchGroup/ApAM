@@ -16,6 +16,7 @@ package fr.imag.adele.apam.test.testcases;
 
 //import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.systemPackage;
+import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.options.BootDelegationOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
@@ -210,6 +212,14 @@ public class FailureTest extends ExtensionAbstract {
 				.getProperty(
 					org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES));
 
+	System.err
+	.println("system boot delegation:"
+		+ context
+			.getBundle(0)
+			.getBundleContext()
+			.getProperty(
+				org.osgi.framework.Constants.FRAMEWORK_BOOTDELEGATION));
+	
 	Implementation group_a = waitForImplByName(null,
 		"group-a-fail-exception-native");
 
@@ -282,6 +292,7 @@ public class FailureTest extends ExtensionAbstract {
 	List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 
 	addon.add(systemPackage("javax.xml.parsers"));
+	addon.add(bootDelegationPackage("javax.xml.parsers"));
 	addon.add(0, packApamConflictManager());
 	return addon;
     }
