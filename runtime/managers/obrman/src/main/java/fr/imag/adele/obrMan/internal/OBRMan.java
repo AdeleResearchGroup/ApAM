@@ -254,7 +254,7 @@ public class OBRMan implements ContextualManager, DeploymentManager, RelationMan
 
 	@Override
 	public String getName() {
-		return CST.OBRMAN;
+		return "OBRMAN";
 	}
 
 	/**

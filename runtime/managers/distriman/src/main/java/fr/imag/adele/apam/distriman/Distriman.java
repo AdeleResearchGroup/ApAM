@@ -84,7 +84,7 @@ public class Distriman implements DistrimanIface, RelationManager {
 
 	@Override
 	public String getName() {
-		return CST.DISTRIMAN;
+		return "DISTRIMAN";
 	}
 
 	@Override

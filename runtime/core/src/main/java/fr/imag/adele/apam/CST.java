@@ -114,17 +114,11 @@ public class CST {
 
 	public static final String[] finalRelations = { REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE, REL_SPEC, REL_IMPL, REL_INST, REL_IMPLS, REL_INSTS };
 
-	// Managers
-	// TODO : Some of these are optional manager that should not be there
-	// (distriman, obrman for instance)
-	public static final String APAMMAN = "APAMMAN";
+	// Internal Managers
+	public static final String APAMMAN 		= "APAMMAN";
+	public static final String DYNAMAN 		= "DYNAMAN";
+	public static final String UPDATEMAN 	= "UPDATEMAN";
 
-	public static final String CONFMAN = "CONFMAN";
-	public static final String DYNAMAN = "DYNAMAN";
-	public static final String DISTRIMAN = "DISTRIMAN";
-	public static final String OBRMAN = "OBRMAN";
-	public static final String UPDATEMAN = "UPDATEMAN";
-	public static final String HISTMAN = "HISTMAN";
 	// The entry point in the ASM : its broker
 	public static ComponentBroker componentBroker = null;
 

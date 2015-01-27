@@ -314,7 +314,7 @@ public class HistMan implements ContextualManager, PropertyManager, DynamicManag
 
 	@Override
 	public String getName() {
-		return CST.HISTMAN;
+		return "HISTMAN";
 	}
 
 
