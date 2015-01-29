@@ -26,7 +26,7 @@ APAM (APplication Abstract Machine) is a runtime platform to support execution o
 ```
 ### Automated Test reports 
 
-[Check Report in Cloudbees](https://apam.ci.cloudbees.com/job/APAMUnitTest/)
+[Check Report in Cloudbees](https://apam.ci.cloudbees.com/job/APAM%20complete/)
 
 ## Apam Metadata Validators
 
