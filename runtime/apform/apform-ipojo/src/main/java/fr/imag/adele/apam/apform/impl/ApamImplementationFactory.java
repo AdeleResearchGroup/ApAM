@@ -4,12 +4,14 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.felix.ipojo.ConfigurationException;
+import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.IPojoContext;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -109,18 +111,14 @@ public abstract class ApamImplementationFactory extends ApamComponentFactory {
 		 * 
 		 */
 	    @Override
-		public ApformInstance createInstance(Map<String, String> initialproperties)	throws InvalidConfiguration {
+		public ApformInstance createInstance(Map<String, String> initialProperties)	throws InvalidConfiguration {
 	        try {
 
 	            ApamInstanceManager instance = null;
 
 	            try {
 	            	beginApamCreation();
-	                Properties configuration = new Properties();
-	                if (initialproperties != null)
-	                    configuration.putAll(initialproperties);
-	                
-	                instance = (ApamInstanceManager) createComponentInstance(configuration);
+	                instance = (ApamInstanceManager) createComponentInstance(initializeConfiguration(initialProperties));
 	            } finally {
 	            	endApamCreation();
 	            }
@@ -139,14 +137,9 @@ public abstract class ApamImplementationFactory extends ApamComponentFactory {
 		 * in APAM that are not the result of a resolution.
 		 */
 		@Override
-		public ApformInstance addDiscoveredInstance(Map<String,Object> configuration) throws InvalidConfiguration, UnsupportedOperationException {
+		public ApformInstance addDiscoveredInstance(Map<String,Object> initialProperties) throws InvalidConfiguration, UnsupportedOperationException {
 			try {
-
-				Properties properties = new Properties();
-				if (configuration != null)
-					properties.putAll(configuration);
-
-				ApamInstanceManager instance = (ApamInstanceManager) createComponentInstance(properties);
+				ApamInstanceManager instance = (ApamInstanceManager) createComponentInstance(initializeConfiguration(initialProperties));
 				return instance.getApform();
 
 			} catch (Exception cause) {
@@ -154,6 +147,29 @@ public abstract class ApamImplementationFactory extends ApamComponentFactory {
 			}
 		}	    
 	    
+		/**
+		 * Handle special properties initialized in the configuration
+		 */
+		private Properties initializeConfiguration(Map<String,?> initialProperties) {
+			
+			Properties configuration = new Properties();
+			
+			if (initialProperties == null)
+				return configuration;
+			
+			configuration.putAll(initialProperties);
+			
+			/*
+			 * Get the name of the component from the initial properties, and translate to
+			 * the iPOJO convention
+			 */
+			Object name = configuration.remove(CST.NAME);
+			if (name != null) {
+				configuration.put(Factory.INSTANCE_NAME_PROPERTY, name);
+			}
+			
+			return configuration;
+		}
 	}
 	
 }

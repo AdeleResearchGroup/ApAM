@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.test.testcases;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,11 +33,11 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyTypeBooleanChangeNotificationSwitch;
@@ -70,6 +71,25 @@ public class PropertyTest extends ExtensionAbstract {
 
 		List<Option> addon = super.config(mapOfRequiredArtifacts, false);
 		return addon;
+	}
+
+	@Test
+	public void PropertyPredefinedName() {
+		
+		
+		Implementation implementation 	= waitForImplByName(null, "SamsungSwitch");
+		String name						= "test-instance-name";
+		Instance instance 				= implementation.createInstance(null,Collections.singletonMap("name",name));
+		
+		auxListProperties("\t", instance);
+
+		String message = "";
+
+		message = "Initializing component's name using property";
+
+		Assert.assertEquals(message, instance.getName(), name);
+		Assert.assertEquals(message, instance.getProperty(CST.NAME), name);
+		
 	}
 
 	@Test
