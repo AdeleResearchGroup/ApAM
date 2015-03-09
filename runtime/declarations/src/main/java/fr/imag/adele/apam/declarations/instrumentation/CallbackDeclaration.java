@@ -20,15 +20,15 @@ import java.util.List;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 
 /**
- * The declaration of a method that needs to be invoked on the implementation to
- * notify an APAM event (component and dependencies lifecycle).
+ * The declaration of a method that needs to be invoked on the implementation to notify an APAM event
+ * (component and dependencies lifecycle).
  * 
- * Currently all the supported callbacks take a single parameter of type
- * fr.imag.adele.apam.Component.
+ * Currently all the supported callbacks take a single parameter of type fr.imag.adele.apam.Component
+ * or one of its known sub-types. Currently we also allow to disable parameter validation to allow 
+ * injecting service objects for dependencies.
  * 
- * TODO currently we also allow to disable parameter validation to allow injecting
- * service objects for dependencies. However we should be more precise on the type
- * of the parameters.
+ * NOTE Notice that this is a coarse-grained validation used during parsing at both compile-time and 
+ * runtime. Most precise validations can be performed by compile-time tools.
  * 
  */
 public class CallbackDeclaration extends Instrumentation {
@@ -75,18 +75,16 @@ public class CallbackDeclaration extends Instrumentation {
 	public boolean isValidInstrumentation() {
 		try {
 
-			int parameterNumber = instrumentedClass.getMethodParameterNumber(methodName, true);
+			String[] types = instrumentedClass.getMethodParameterTypes(methodName, true);
 
-			if (parameterNumber == 0) {
+			if (types.length == 0) {
 				return true;
 			}
 
-			if (parameterNumber > 1) {
+			if (types.length > 1) {
 				return false;
 			}
-
-			String[] types = instrumentedClass.getMethodParameterTypes(methodName, true);
-
+			
 			return disableValidation || APAM_COMPONENTS.contains(types[0]);
 
 		} catch (NoSuchMethodException e) {

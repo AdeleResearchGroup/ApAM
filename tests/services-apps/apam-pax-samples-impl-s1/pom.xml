@@ -33,6 +33,31 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>invalid</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>fr.imag.adele.apam</groupId>
+						<artifactId>apam-maven-plugin</artifactId>
+		                <extensions>true</extensions>
+						<executions>
+							<execution>
+								<goals>
+									<goal>apam-bundle</goal>
+								</goals>
+								<configuration>
+									<metadata>src/main/resources/invalid-metadata.xml</metadata>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>

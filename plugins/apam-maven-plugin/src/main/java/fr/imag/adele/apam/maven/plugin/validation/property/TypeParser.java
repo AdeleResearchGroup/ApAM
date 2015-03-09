@@ -122,6 +122,18 @@ public class TypeParser {
 			}
 		}
 		
+		/*
+		 * check the predefined bottom and top types
+		 */
+		
+		if (type.equalsIgnoreCase(Type.ANY.getName())) {
+			return Type.ANY;
+		}
+
+		if (type.equalsIgnoreCase(Type.NONE.getName())) {
+			return Type.NONE;
+		}
+		
 		return null;
 	}
 	

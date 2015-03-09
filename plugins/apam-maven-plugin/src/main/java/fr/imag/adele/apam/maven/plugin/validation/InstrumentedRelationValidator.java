@@ -8,7 +8,9 @@ import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.instrumentation.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.instrumentation.InjectedField;
+import fr.imag.adele.apam.declarations.instrumentation.InstrumentedClass;
 import fr.imag.adele.apam.declarations.references.resources.InterfaceReference;
 import fr.imag.adele.apam.declarations.references.resources.ResourceReference;
 import fr.imag.adele.apam.declarations.references.resources.UnknownReference;
@@ -26,17 +28,48 @@ public class InstrumentedRelationValidator extends RelationValidator {
 	 */
 	protected void validateInstrumentation() {
 		
+		InstrumentedClass instrumentedClass = getComponent().getImplementationClass();
 
 		/*
-		 * validate callback parameters
+		 * validate callback parameter's type exactly matches the target kind 
 		 */
 		for (RelationDeclaration.Event event : RelationDeclaration.Event.values()) {
-			if (getRelation().getCallback(event) != null) {
+			
+			Set<CallbackDeclaration> callbacks = getRelation().getCallback(event);
+			if ( callbacks != null) {
 				
-				/*
-				 * TODO validate the parameter corresponds to the target kind, and in case of  instance service
-				 * injection it is in the allowed references
-				 */
+				for (CallbackDeclaration callback : callbacks) {
+					
+					try {
+						String parameterTypes[] = instrumentedClass.getMethodParameterTypes(callback.getMethodName(), true);
+						
+						if (parameterTypes.length == 0)
+							continue;
+						
+						if (parameterTypes.length > 1) {
+							error("Invalid callback for relation " + quoted(getRelation().getIdentifier()) + ", method "+callback.getName()+ " must have a single parameter");
+						}
+
+						InterfaceReference serviceType = new InterfaceReference(parameterTypes[0]);
+
+						if (getTargetKind().isAssignableTo(serviceType.getJavaType())) {
+							continue;
+						}
+						
+						if (getTargetKind().equals(ComponentKind.INSTANCE) && getTargetProvidedResources().contains(serviceType)) {
+							continue;
+						}
+						
+						String allowedType = getTargetKind().toString();
+						if (getTargetKind().equals(ComponentKind.INSTANCE)) {
+							allowedType = allowedType + " or one of the following resources "+Util.list(getTargetProvidedResources(),true);
+						}
+						
+						error("Invalid callback for relation " + quoted(getRelation().getIdentifier()) + ", method "+callback.getName()+ " must have a single parameter of type "+allowedType);
+						
+					} catch (Exception ignored) {
+					}
+				}
 			}
 		}
 
