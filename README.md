@@ -58,9 +58,11 @@ Please suffix ApamCore with version number (using previous release number or lat
 
 * ApAM 0.0.9 [details](https://github.com/AdeleResearchGroup/ApAM/milestones/0.0.9) (currently under development)
 	* To be defined
-	* 
+	 
 * ApAM 0.0.8 - Porn Panda
 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?q=milestone%3A0.0.8+is%3Aclosed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.8/apam-basic-distribution-0.0.8.zip)
+	* Support for java 8
+	* Migration to the latest supported version of iPOJO (1.12.1)
 	* Apam Maven Plugin : complete refactoring to enhance compile-time validation
 	* dynamic resolution : complete refactoring to better handle asynchrony, and avoid deadlocks
 	* Instance removal : better support to dynamically remove instances
