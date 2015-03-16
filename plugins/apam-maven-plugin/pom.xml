@@ -6,7 +6,7 @@
     <parent>
         <artifactId>apam-parent</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
-        <version>0.0.8-SNAPSHOT</version>
+        <version>0.0.8</version>
     </parent>
 
 	<artifactId>apam-maven-plugin</artifactId>
@@ -186,6 +186,10 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+  <scm>
+    <tag>apam-project-0.0.8</tag>
+  </scm>
 </project>
 
 

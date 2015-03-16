@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-parent</artifactId>
-		<version>0.0.8-SNAPSHOT</version>
+		<version>0.0.8</version>
 	</parent>
 
 	<artifactId>apam-distributions</artifactId>
@@ -49,4 +49,8 @@
       </plugin>
     </plugins>
   </build>
+
+  <scm>
+    <tag>apam-project-0.0.8</tag>
+  </scm>
 </project>
