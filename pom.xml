@@ -17,6 +17,11 @@
     </parent>
 
 
+    <scm>
+        <developerConnection>scm:git:https://github.com/AdeleResearchGroup/ApAM.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
 	<artifactId>apam-project</artifactId>
 	<packaging>pom</packaging>
 	<name>ApAM Project</name>
