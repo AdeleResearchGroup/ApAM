@@ -18,7 +18,7 @@
     </encoder>
   </appender>
   
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
 	<appender-ref ref="TEST_LOG"/>
   </root>

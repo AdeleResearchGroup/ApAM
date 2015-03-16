@@ -3,6 +3,9 @@ package fr.imag.adele.apam.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -10,8 +13,11 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.impl.ImplementationImpl;
 
 public class Visible {
+
+	private static Logger logger = LoggerFactory.getLogger(Visible.class);
 
 	/**
 	 * returns true if Component source can establish a wire or link towards
@@ -155,12 +161,14 @@ public class Visible {
 		assert source != null && target != null && !target.getInCompositeType().isEmpty();
 
 		if (target.getInCompositeType().contains(source)) {
+			logger.debug("Imlplementation is visible " + target + ". It is deployed in" + source);
 			return true;
 		}
 
 		// First check if target can be imported (borrowed) from source
 		String imports = source.getCompoDeclaration().getVisibility().getImportImplementations();
 		if (!matchVisibilityExpression(imports, target, source)) {
+			logger.debug("Imlplementation is not visible " + target + ". Doesn't match imports from " + source+ " :"+imports);
 			return false;
 		}
 
@@ -168,10 +176,12 @@ public class Visible {
 		for (CompositeType deployingTarget : target.getInCompositeType()) {
 			String exports = deployingTarget.getCompoDeclaration().getVisibility().getExportImplementations();
 			if (matchVisibilityExpression(exports, target, deployingTarget)) {
+				logger.debug("Imlplementation is visible " + target + ". It is exported from " + deployingTarget);
 				return true;
 			}
 		}
 
+		logger.debug("Imlplementation is not visible " + target + ". Doesn't match exports from " + target.getInCompositeType());
 		return false;
 	}
 
