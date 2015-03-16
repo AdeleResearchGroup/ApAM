@@ -13,13 +13,13 @@
 
     <groupId>fr.imag.adele.apam</groupId>
     <artifactId>apam-parent</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
     <name>ApAM Parent Project</name>
 
     <scm>
         <developerConnection>scm:git:https://github.com/AdeleResearchGroup/ApAM.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>apam-parent-0.0.8</tag>
     </scm>
 
     <!-- <scm> <connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection>
