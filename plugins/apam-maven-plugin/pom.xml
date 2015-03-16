@@ -10,6 +10,7 @@
     </parent>
 
 	<artifactId>apam-maven-plugin</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>ApAM Maven Plugin (Maven Mojo)</name>
@@ -186,10 +187,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-  <scm>
-    <tag>apam-project-0.0.8</tag>
-  </scm>
 </project>
 
 

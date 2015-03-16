@@ -19,6 +19,7 @@
 
 
 	<artifactId>apam-plugins</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -27,8 +28,4 @@
 	 
 	<description>Plugins to manage ApAM projects</description>
 	<name>Plugins for ApAM development</name>
-
-  <scm>
-    <tag>apam-project-0.0.8</tag>
-  </scm>
 </project>

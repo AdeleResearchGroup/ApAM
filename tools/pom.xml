@@ -6,6 +6,7 @@
     <version>0.0.8</version>
   </parent>
   <artifactId>apam-tools</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
   	<module>shell</module>
@@ -15,8 +16,4 @@
       	<!-- <module>apam-display</module> -->
   </modules>
   <name>Tools projects for ApAM</name>
-
-  <scm>
-    <tag>apam-project-0.0.8</tag>
-  </scm>
 </project>

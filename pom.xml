@@ -19,10 +19,11 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/AdeleResearchGroup/ApAM.git</developerConnection>
-        <tag>apam-project-0.0.8</tag>
+        <tag>HEAD</tag>
     </scm>
 
 	<artifactId>apam-project</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ApAM Project</name>
 

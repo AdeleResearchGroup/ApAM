@@ -25,6 +25,7 @@
 	</parent>
 
 	<artifactId>apam-distributions</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
 	<name>ApAM Distributions Reactor</name>
 	<packaging>pom</packaging>
 
@@ -49,8 +50,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <scm>
-    <tag>apam-project-0.0.8</tag>
-  </scm>
 </project>

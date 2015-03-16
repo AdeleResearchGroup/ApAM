@@ -19,6 +19,7 @@
 
 
 	<artifactId>apam-runtime</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ApAM Runtime</name>
 
@@ -30,9 +31,4 @@
 		<module>managers</module>
 		<module>repositories</module>
 	</modules>
-	 
-
-  <scm>
-    <tag>apam-project-0.0.8</tag>
-  </scm>
 </project>
