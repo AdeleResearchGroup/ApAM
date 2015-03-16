@@ -63,7 +63,7 @@ Please suffix ApamCore with version number (using previous release number or lat
 [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?q=milestone%3A0.0.8+is%3Aclosed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.8/apam-basic-distribution-0.0.8.zip)
 	* Apam Maven Plugin : complete refactoring to enhance compile-time validation
 	* dynamic resolution : complete refactoring to better handle asynchrony, and avoid deadlocks
-	*
+	* Instance removal : better support to dynamically remove instances
 * ApAM 0.0.7 - Ornery Orangutan [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.7/apam-basic-distribution-0.0.7.zip)
 	* Instance lifecycle
 		* Instances can self-destroy or be destroyed calling the onRemove callback
