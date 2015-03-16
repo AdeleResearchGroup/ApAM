@@ -56,9 +56,14 @@ Please suffix ApamCore with version number (using previous release number or lat
 
 ## Changelog
 
-* ApAM 0.0.8 [details](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=7&page=1&state=open) (currently under development)
+* ApAM 0.0.9 [details](https://github.com/AdeleResearchGroup/ApAM/milestones/0.0.9) (currently under development)
 	* To be defined
-
+	* 
+* ApAM 0.0.8 - Porn Panda
+[bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?q=milestone%3A0.0.8+is%3Aclosed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.8/apam-basic-distribution-0.0.8.zip)
+	* Apam Maven Plugin : complete refactoring to enhance compile-time validation
+	* dynamic resolution : complete refactoring to better handle asynchrony, and avoid deadlocks
+	*
 * ApAM 0.0.7 - Ornery Orangutan [bugfix](https://github.com/AdeleResearchGroup/ApAM/issues?milestone=6&page=1&state=closed) [download](http://repository-apam.forge.cloudbees.com/release/repository/fr/imag/adele/apam/apam-basic-distribution/0.0.7/apam-basic-distribution-0.0.7.zip)
 	* Instance lifecycle
 		* Instances can self-destroy or be destroyed calling the onRemove callback
