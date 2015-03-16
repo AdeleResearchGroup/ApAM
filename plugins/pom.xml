@@ -14,12 +14,11 @@
 	<parent>
 		<artifactId>apam-parent</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.8</version>
+		<version>0.0.9-SNAPSHOT</version>
 	</parent>
 
 
 	<artifactId>apam-plugins</artifactId>
-  <version>0.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
