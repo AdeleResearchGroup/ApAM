@@ -161,14 +161,13 @@ public class Visible {
 		assert source != null && target != null && !target.getInCompositeType().isEmpty();
 
 		if (target.getInCompositeType().contains(source)) {
-			logger.debug("Imlplementation is visible " + target + ". It is deployed in" + source);
 			return true;
 		}
 
 		// First check if target can be imported (borrowed) from source
 		String imports = source.getCompoDeclaration().getVisibility().getImportImplementations();
 		if (!matchVisibilityExpression(imports, target, source)) {
-			logger.debug("Imlplementation is not visible " + target + ". Doesn't match imports from " + source+ " :"+imports);
+			logger.warn("Imlplementation is not visible " + target + ". Doesn't match imports from " + source+ " :"+imports);
 			return false;
 		}
 
@@ -176,12 +175,11 @@ public class Visible {
 		for (CompositeType deployingTarget : target.getInCompositeType()) {
 			String exports = deployingTarget.getCompoDeclaration().getVisibility().getExportImplementations();
 			if (matchVisibilityExpression(exports, target, deployingTarget)) {
-				logger.debug("Imlplementation is visible " + target + ". It is exported from " + deployingTarget);
 				return true;
 			}
 		}
 
-		logger.debug("Imlplementation is not visible " + target + ". Doesn't match exports from " + target.getInCompositeType());
+		logger.warn("Imlplementation is not visible " + target + ". Doesn't match exports from " + target.getInCompositeType());
 		return false;
 	}
 
