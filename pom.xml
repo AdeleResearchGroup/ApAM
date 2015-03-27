@@ -14,6 +14,7 @@
         <artifactId>apam-parent</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
         <version>0.0.9-SNAPSHOT</version>
+        <relativePath>apam-parent</relativePath>
     </parent>
 
 
@@ -59,8 +60,9 @@
         <profile>
             <id>local</id>
             <modules>
-                <module>runtime</module>
-                <module>plugins</module>
+               <module>apam-parent</module>
+               <module>runtime</module>
+               <module>plugins</module>
             </modules>
         </profile>
 		<profile>
@@ -69,6 +71,7 @@
 				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
 			</properties>
 			<modules>
+               <module>apam-parent</module>
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
@@ -80,6 +83,7 @@
 		<profile>
 			<id>release</id>
 			<modules>
+               			<module>apam-parent</module>
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
@@ -102,6 +106,7 @@
 				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/release/repository/</remote.obr.url>
 			</properties>
 			<modules>
+               			<module>apam-parent</module>
 				<module>runtime</module>
 				<module>plugins</module>
 				<module>tools</module>
