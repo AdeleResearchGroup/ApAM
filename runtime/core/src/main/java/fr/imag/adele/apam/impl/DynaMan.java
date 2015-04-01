@@ -91,17 +91,7 @@ public class DynaMan implements DynamicManager, PropertyManager {
 			/*
 			 * perform resolution
 			 */
-			try {
-				request.resolve();
-			}
-			catch (Exception resolutionException) {
-				/*
-				 * TODO currently if the relation is marked as dynamic/eager and fail exception, we
-				 * simply ignore exceptions if they are thrown in asynchronous resolutions.
-				 * We need to better specify the expected behavior.
-				 */
-				return;
-			}
+			request.resolve();
 			
 			
 			/*

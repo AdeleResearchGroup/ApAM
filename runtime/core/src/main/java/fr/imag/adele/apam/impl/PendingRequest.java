@@ -172,11 +172,13 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	public void resolve() {
 		
 		/*
-		 * If a thread is blocked waiting for resolution of this request, we simply notify it to
-		 * let it retry resolution.
+		 * If a thread is blocked waiting for resolution of this request, we simply notify it to let it retry 
+		 * resolution if needed.
 		 * 
-		 * TODO IMPORTANT there is an implicit invariant in this class that a blocked request can only
-		 * be used by the thread that created it, we should do this explicit and change API accordingly
+		 * TODO There is an important invariant that a blocked request is owned by a single thread. This is no clear
+		 * in this class, as it is also used for dynamic requests that are "pending" to be recalculated, but that are
+		 * not blocking a thread. We should consider separating the two different classes to represent the different
+		 * concepts.
 		 */
 		synchronized (this) {
 			if (this.isBlocked) {
@@ -187,18 +189,21 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 
 
 		/*
-		 * Otherwise, this is dynamic request an we resolve it in the context of the current thread. If
-		 * the request is already being resolved by another thread, there is nothing to do.
+		 * Otherwise, this is dynamic request an we resolve it in the context of the current thread. If the request is
+		 * already being resolved by another thread, we wait to avoid concurrent invocations of the resolver.
 		 * 
 		 * 
-		 * NOTE is the responsibility of the caller to invoke this method in the appropriate thread to
-		 * implement the intended dynamic update policy. Notice that this method may block or throw
-		 * exceptions, as a side effect of resolution, that impact the calling thread.
+		 * NOTE is the responsibility of the caller to invoke this method in the appropriate thread to implement the
+		 * intended dynamic update policy. Notice that this method may block or throw exceptions (as a side effect of
+		 * resolution) that may impact the calling thread.
 		 */
 		
 		synchronized (this) {
-			if (this.isResolving) {
-				return;
+			try {
+				while (this.isResolving && ! this.isDisposed) {
+					this.wait();
+				}
+			} catch (InterruptedException e) {
 			}
 			
 			this.isResolving = true;
@@ -207,15 +212,31 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 		
 		
 		/*
-		 * IMPORTANT NOTE Notice that we must invoke the resolved outside any synchronized block to avoid
+		 * IMPORTANT NOTE Notice that we must invoke the resolution outside any synchronized block to avoid
 		 * potential deadlocks
 		 */
-
-		Resolved<?> result = resolver.resolveLink(source, relation);
 		
+		Resolved<?> result = null;
+		
+		try {
+			 result= resolver.resolveLink(source, relation);
+		}
+		catch (Exception resolutionException) {
+			/*
+			 * TODO currently if the relation is marked as dynamic/eager and fail exception, we simply ignore
+			 * all exceptions if they are thrown in asynchronous resolutions. We need to better specify the
+			 * expected behavior.
+			 */
+		}
+		
+		/*
+		 * register the result of the resolution
+		 */
 		synchronized (this) {
 			this.resolution		= result;
 			this.isResolving	= false;
+			
+			this.notifyAll();
 		}
 
 	}
@@ -225,44 +246,78 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	 * 
 	 */
 	public void block() {
-		synchronized (this) {
-			try {
-
-				/*
-				 * If this is a retry of an already blocked request, we do not block again
-				 */
-				if (this.isRetry()) {
-					return;
-				}
-				
-				/*
-				 * wait for some event to signal a change in the environment
-				 */
-
-				isBlocked = true;
-				stack = getCurrentStack();
-
-				while (!isResolved()) {
-					this.wait();
-					
-					/*
-					 * try to perform resolution again
-					 */
-					retry();
-				}
-
-				isBlocked = false;
-				stack = null;
-			} catch (InterruptedException ignored) {
-			}
+		
+		/*
+		 * If it is a retry of this blocked request, we do not block again.
+		 * 
+		 * IMPORTANT This can only happen in case of a unsuccessful retry. In that case we simply 
+		 * return and the failure handler will simply ignore the result. 
+		 * 
+		 * The stack should look like this :
+		 * 
+		 *     +--------------------------+
+		 *     + this.block()             + <- Unsuccessful retry
+		 *     +--------------------------+
+		 *     + FailureManager.resolve() +
+		 *     +--------------------------+
+		 *     + Resolver.resolveLink()   +
+		 *     +--------------------------+
+		 *     + this.retry()             +
+		 *     +--------------------------+
+		 *     + this.block()             + <- Blocked request
+		 *     +--------------------------+
+		 *     + FailureManager.resolve() +
+		 *     +--------------------------+
+		 *     
+		 *     
+		 * Control will go back to the previous invocation of this method in the stack, that will
+		 * block again until a new event signal the need for another retry.
+		 * 
+		 */
+		if (this.isRetry()) {
+			return;
 		}
+		
+		/*
+		 * Mark this request as blocked
+		 */
+		synchronized (this) {
+			isBlocked = true;
+			stack = getCurrentStack();
+		}
+
+		/*
+		 * wait for some event that signals a change in the environment that may unblock this resolution,
+		 * and try to resolve again
+		 */
+
+		while (!isResolved()) {
+
+			synchronized (this) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+				}
+			} 
+			
+			retry();
+		}
+
+		/*
+		 * Mark the request as resolved
+		 */
+		synchronized (this) {
+			isBlocked = false;
+			stack = null;
+		}
+				
 	}
 	
 	
 	/**
 	 * Whether this request was resolved by the last resolution retry
 	 */
-	private boolean isResolved() {
+	private synchronized boolean isResolved() {
 		return resolution != null || isDisposed;
 	}
 	
@@ -417,10 +472,23 @@ public class PendingRequest extends Apform2Apam.PendingThread {
 	}
 	
 	/**
-	 * Invoke the resolver again for this request.
+	 * Invoke the resolver again for this request. 
 	 * 
-	 * NOTE notice that we catch all exceptions that the resolution may be thrown as a side effect, and we 
-	 * simply consider that the reevaluation did not succeed.
+	 * IMPORTANT Notice that this method is only used for blocked requests, and can only  be invoked in the
+	 * context of the blocked thread owning this request.
+	 * 
+	 * TODO There is an important invariant that a blocked request is owned by a single thread. This is no clear
+	 * in this class, as it is also used for dynamic requests that are "pending" to be recalculated, but that are
+	 * not blocking a thread. We should consider separating the two different classes to represent the different
+	 * concepts.
+	 * 
+	 * Notice that we catch all exceptions that the resolution may be thrown as a side effect, and we simply
+	 * consider that the reevaluation did not succeed. 
+	 * 
+	 * Notice also that resolution is performed without synchronization on this request object, and all context
+	 * is kept confined to the stack or thread local fields. This is because resolution may block as a side 
+	 * effect and event processing concerning this request must be able to proceed, simply signaling that a new
+	 * retry must be tempted, if the current one is unsuccessful.
 	 */
 	private void retry() {
 		
