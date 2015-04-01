@@ -14,7 +14,7 @@
 
 		<!-- Dependencies version -->
 
-		<apam.version>0.0.8-SNAPSHOT</apam.version>
+		<apam.version>0.0.8</apam.version>
 
 		<!-- java compilation version -->
 		<compiler.plugin.version>2.5.1</compiler.plugin.version>

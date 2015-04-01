@@ -13,7 +13,7 @@
 
     <groupId>fr.imag.adele.apam</groupId>
     <artifactId>apam-parent</artifactId>
-    <version>0.0.9-SNAPSHOT</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
     <name>ApAM Parent Project</name>
 

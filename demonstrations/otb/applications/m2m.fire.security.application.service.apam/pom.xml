@@ -45,7 +45,7 @@
 
 		<!-- Dependencies version -->
 
-		<apam.version>0.0.8-SNAPSHOT</apam.version>
+		<apam.version>0.0.8</apam.version>
 
 		
 		<!-- ipojo compilation version -->

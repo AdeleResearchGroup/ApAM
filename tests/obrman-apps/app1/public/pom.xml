@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>app1.obrman.test</artifactId>
 		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
-		<version>0.0.8-SNAPSHOT</version>
+		<version>0.0.8</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
     <groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
