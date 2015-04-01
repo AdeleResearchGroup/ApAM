@@ -23,6 +23,7 @@
                                 org.apache.felix:maven-bundle-plugin:install,
                                 fr.imag.adele.apam:apam-maven-plugin:install
                             </install>
+							<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>                            
                         </phases>
                         <!-- END SNIPPET: bundle-lifecycle -->
                     </lifecycle>
