@@ -78,8 +78,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	private static final long serialVersionUID = 1L;
 
-	protected static Logger logger = LoggerFactory
-			.getLogger(ComponentImpl.class);
+	protected static Logger logger = LoggerFactory.getLogger(ComponentImpl.class);
+	
 	private final ApformComponent apform;
 
 	private final ComponentDeclaration declaration;

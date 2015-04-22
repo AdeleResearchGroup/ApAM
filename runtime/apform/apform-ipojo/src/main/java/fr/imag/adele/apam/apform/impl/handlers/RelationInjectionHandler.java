@@ -150,7 +150,7 @@ public class RelationInjectionHandler extends ApformHandler {
         			continue;
         		
         		for (CallbackDeclaration callback : callbacks) {
-        			getInstanceManager().addCallback(new RelationCallback(getInstanceManager(),relation,trigger,callback));
+        			getInstanceManager().addCallback(new RelationCallback(getInstanceManager().getApform(),relation,trigger,callback));
 				}
         	}
 		}

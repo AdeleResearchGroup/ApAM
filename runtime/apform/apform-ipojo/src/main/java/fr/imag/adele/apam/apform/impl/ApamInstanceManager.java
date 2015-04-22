@@ -56,8 +56,7 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
-public class ApamInstanceManager extends InstanceManager implements
-		RelationInjectionManager.Resolver, MethodInterceptor {
+public class ApamInstanceManager extends InstanceManager implements	RelationInjectionManager.Resolver, MethodInterceptor {
 
 	/**
 	 * The property used to configure this instance with its declaration
@@ -94,13 +93,17 @@ public class ApamInstanceManager extends InstanceManager implements
 
 	@Override
 	public Object getPojoObject() {
+		
 		if (getFactory().hasInstrumentedCode())
 			return super.getPojoObject();
 
+		/*
+		 * abstract APAM instances (for example composites) have no associated service object
+		 */
 		return null;
 	}
 
-	public ApformInstance getApform() {
+	public ApamInstanceManager.Apform getApform() {
 		return apform;
 	}
 
@@ -197,11 +200,12 @@ public class ApamInstanceManager extends InstanceManager implements
 		/*
 		 * For instances that are not created using the Apam API, register instance with APAM on validation
 		 */
-		if (state == ComponentInstance.VALID && !isApamCreated)
-			Apform2Apam.newInstance(getApform());
+		if (state == ComponentInstance.VALID)
+			getApform().validated();
 
 		if (state == ComponentInstance.INVALID)
-			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(getInstanceName());
+			getApform().invalidated();
+
 	}
 
 	/**
@@ -332,7 +336,7 @@ public class ApamInstanceManager extends InstanceManager implements
 
 			for (CallbackDeclaration callbackDeclaration : callbacks) {
 				
-				LifecycleCallback callback = new LifecycleCallback(this, trigger, callbackDeclaration);
+				LifecycleCallback callback = new LifecycleCallback(this.apform, trigger, callbackDeclaration);
 				addCallback(callback);
 				
 				/*
@@ -412,7 +416,30 @@ public class ApamInstanceManager extends InstanceManager implements
 	}
 
 	/**
-	 * This class represents the mediator between APAM and this instance manager
+	 * This class represents the mediator between an APAM component and this iPOJO instance manager.
+	 * 
+	 * It keeps synchronized the APAM architectural layer (in terms of component instances and links) and the execution layer
+	 * (in terms of iPOJO managers, java service provider objects and references).
+	 * 
+	 * Modifications at the architecture layer are synchronously propagated into the execution, by the injection performed by
+	 * the different handlers associated to the iPOJO manager.
+	 * 
+	 * Actions performed at the execution layer (for example, referencing an injected filed) are propagated synchronously to the 
+	 * architecture layer (for example, to perform relation resolution), and may block application threads.
+	 * 
+	 * Modifications performed at the OSGi or iPOJO layer without passing by the APAM layer (for example, component invalidation,
+	 * component reconfiguration, or bundle stopping) are asynchronously reflected into the architecture layer, trying to avoid 
+	 * blocking platform threads. 
+	 * 
+	 * APAM components are mapped to valid iPOJO components. When an iPOJO component becomes invalid, its corresponding component
+	 * in APAM is destroyed. However, because this mapping is done asynchronously, we need to carefully consider some intermediate
+	 * states in the code. 
+	 * 
+	 * NOTE TODO currently when the APAM component is destroyed its corresponding IPOJO component is disposed. Then an iPOJO component
+	 * that becomes invalid will be disposed as a side-effect. This is a result of the mismatch between the life-cycle of iPOJO and
+	 * APAM, that makes difficult to reuse iPOJO handlers directly on APAM components. We should review the integration of APAM
+	 * with iPOJO. 
+	 * 
 	 */
 	public class Apform extends	BaseApformComponent<Instance, InstanceDeclaration> implements ApformInstance {
 
@@ -447,12 +474,57 @@ public class ApamInstanceManager extends InstanceManager implements
 
 		}
 
-		public InstanceManager getManager() {
+		/**
+		 * Get the associated iPOJO component
+		 */
+		public ApamInstanceManager getManager() {
 			return ApamInstanceManager.this;
+		} 
+
+		/**
+		 * Updates the APAM layer when the corresponding IPOJO component is validated
+		 */
+		private void validated() {
+			/*
+			 * For instances that are not created using the Apam API, register instance with APAM on validation
+			 */
+			if (! ApamInstanceManager.this.isApamCreated)
+				Apform2Apam.newInstance(this);
+			
 		}
+		
+		/**
+		 * The service object associated to the component last time that it was valid. 
+		 */
+		private Object lastValidServiceObject;
+		
+		/**
+		 * Updates the APAM layer when the corresponding IPOJO component is invalidated
+		 * 
+		 * NOTE notice that we keep track of the last valid service object on invalidation, rather than validation,
+		 * because this avoids unnecessarily object instantiation.
+		 */
+		private void invalidated() {
+			Object[] pojoObjects	= ApamInstanceManager.this.getPojoObjects();
+			lastValidServiceObject 	= pojoObjects != null && pojoObjects.length > 0 ? pojoObjects[0] : null ; 
+			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(getDeclaration().getName());
+		}
+
 
 		@Override
 		public Object getServiceObject() {
+			
+			/*
+			 * For APAM instances whose corresponding iPOJO component is invalid we need to use the cached service object.
+			 * 
+			 * This can only happen because the APAM instance is asynchronously synchronized with the iPOJO instance, and
+			 * so an APAM component can still used by other components or callbacks, even if the iPOJO instance is no longer
+			 * valid  
+			 * 
+			 */
+			if (getManager().getState() != ComponentInstance.VALID)
+				return lastValidServiceObject;
+			
 			return ApamInstanceManager.this.getPojoObject();
 		}
 
@@ -465,14 +537,6 @@ public class ApamInstanceManager extends InstanceManager implements
 			Instance previousComponent = this.apamComponent;
 			super.setApamComponent(apamComponent);
 
-			/*
-			 * Invoke the execution platform instance callback on the pojo
-			 * object
-			 */
-
-			Object pojo = getServiceObject();
-			if (pojo == null)
-				return;
 
 			PropertyInjectionHandler handler = (PropertyInjectionHandler) ApamInstanceManager.this.getHandler(
 													ApamComponentFactory.APAM_NAMESPACE + ":"+ PropertyInjectionHandler.NAME);
@@ -498,6 +562,11 @@ public class ApamInstanceManager extends InstanceManager implements
 
 				ApamInstanceManager.this.dispose();
 
+				/*
+				 * avoid keeping a reference to the service object
+				 */
+				lastValidServiceObject = null;
+				
 				return;
 			}
 
@@ -530,16 +599,7 @@ public class ApamInstanceManager extends InstanceManager implements
 				}
 			}
 
-			/*
-			 * perform callback bind
-			 */
-
-			Object pojo = getServiceObject();
-			if (pojo == null)
-				return true;
-
 			fireCallbacks(RelationDeclaration.Event.BIND, depName, destination);
-
 			return true;
 		}
 
@@ -556,16 +616,7 @@ public class ApamInstanceManager extends InstanceManager implements
 				}
 			}
 
-			/*
-			 * perform callback unbind
-			 */
-
-			Object pojo = getServiceObject();
-			if (pojo == null)
-				return true;
-
 			fireCallbacks(RelationDeclaration.Event.UNBIND, depName,destination);
-
 			return true;
 		}
 
@@ -579,7 +630,12 @@ public class ApamInstanceManager extends InstanceManager implements
 			fireCallbacks(attr, super.getApamComponent().getPropertyObject(attr));
 		}
 
+		
 		private void fireCallbacks(AtomicImplementationDeclaration.Event event, Instance component, boolean ignoreException) throws InvalidConfiguration {
+			
+			if (getServiceObject() == null)
+				return;
+			
 			for (LifecycleCallback callback : lifeCycleCallbacks) {
 				try {
 					if (callback.isTriggeredBy(event))
@@ -600,6 +656,10 @@ public class ApamInstanceManager extends InstanceManager implements
 		}
 
 		private void fireCallbacks(String attr, Object value)   {
+
+			if (getServiceObject() == null)
+				return;
+			
 			for (PropertyCallback callback : propertyCallbacks) {
 				try {
 					if (callback.isTriggeredBy(attr))
@@ -611,6 +671,10 @@ public class ApamInstanceManager extends InstanceManager implements
 		}
 
 		private void fireCallbacks(RelationDeclaration.Event event,	String relationName, Component target)  {
+
+			if (getServiceObject() == null)
+				return;
+
 			for (RelationCallback callback : relationCallbacks) {
 				try {
 					if (callback.isTriggeredBy(relationName, event))

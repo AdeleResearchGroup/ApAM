@@ -20,7 +20,7 @@ public class PropertyCallback extends InstanceCallback<Object> {
 
     private final PropertyDefinition property;
 
-    public PropertyCallback(ApamInstanceManager instance, PropertyDefinition property) throws ConfigurationException {
+    public PropertyCallback(ApamInstanceManager.Apform instance, PropertyDefinition property) throws ConfigurationException {
 		super(instance,property.getCallback());
 		
 		this.property = property;

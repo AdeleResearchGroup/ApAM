@@ -262,24 +262,11 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer<Object,
     public void removedService(ServiceReference<Object> reference, Set<ApformOSGiInstance> instances) {
 
     	/*
-    	 * Destroy all Apam instances created, and garbage-collect implementations
-    	 * if needed.
+    	 * Destroy all Apam instances created
     	 */
 
     	for(ApformOSGiInstance instance : instances) {
-
-    		Instance apamInstance = CST.componentBroker.getInst(instance.getDeclaration().getName());
-    		
-    		if (apamInstance == null)
-    			continue;
-    		
-    		Implementation apamImplementation = apamInstance.getImpl();
-    		
-    		if (apamInstance != null)
-    			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(apamInstance);
-    		
-    		if (apamImplementation.getInsts().isEmpty())
-    			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(apamImplementation);
+   			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(instance.getDeclaration().getName());
     	}
 
     }
@@ -361,6 +348,20 @@ public class OSGiMan implements DynamicManager, ServiceTrackerCustomizer<Object,
 
 	@Override
 	public void removedComponent(Component component) {
+		
+		/*
+		 * Garbage-collect implementation after there is no more instances 
+		 */
+		if ((component instanceof Instance) && (component.getApformComponent() instanceof ApformOSGiInstance)) {
+			
+			Instance instance 				= (Instance) component;
+			Implementation implementation 	= instance.getImpl();
+
+			if (implementation.getInsts().isEmpty())
+				((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(implementation.getName());
+
+		}
+
 	}
 
 	@Override

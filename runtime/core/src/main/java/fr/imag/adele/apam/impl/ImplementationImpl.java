@@ -208,7 +208,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 					/*
 					 * If creation failed after broker registration, undo registration 
 					 */
-					((ComponentBrokerImpl) CST.componentBroker).disappearedComponent(instance);
+					((ComponentBrokerImpl) CST.componentBroker).disappearedComponent(instance.getName());
 				}
 				else {
 					
@@ -438,7 +438,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 * remove all existing instances
 		 */
 		for (Instance inst : instances) {
-			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst);
+			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst.getName());
 		}
 
 		// Do not remove inverse links, in case threads are still here.

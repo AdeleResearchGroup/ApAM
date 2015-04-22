@@ -70,7 +70,7 @@ public class DynaMan implements DynamicManager, PropertyManager {
 	 * The task executor. We use a pool of a threads to handle resolutions and instantiations
 	 * that may block
 	 */
-	private final Executor taskExecutor = Executors.newCachedThreadPool();
+	private final Executor taskExecutor = Executors.newCachedThreadPool(new ThreadPoolFactory("dynaman", Executors.defaultThreadFactory()));
 	
 	/**
 	 * The task in charge of performing dynamic resolution 
