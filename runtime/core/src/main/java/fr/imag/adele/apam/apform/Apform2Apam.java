@@ -24,12 +24,14 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.references.components.ComponentReference;
+import fr.imag.adele.apam.impl.ThreadPoolFactory;
 
 public class Apform2Apam {
 
@@ -401,7 +403,7 @@ public class Apform2Apam {
 	 * The event executor. We use a pool of a threads to handle notification to
 	 * APAM of underlying platform events, without blocking the platform thread.
 	 */
-	static private final Executor executor = Executors.newCachedThreadPool();
+	static private final Executor executor = Executors.newCachedThreadPool(new ThreadPoolFactory("registration", Executors.defaultThreadFactory()));
 
 
 	/**

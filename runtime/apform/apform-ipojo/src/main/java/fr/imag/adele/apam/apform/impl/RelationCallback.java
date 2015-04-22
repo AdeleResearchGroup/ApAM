@@ -21,7 +21,7 @@ public class RelationCallback extends InstanceCallback<Component> {
     private final RelationDeclaration 		relation;
     private final RelationDeclaration.Event trigger;
 
-	public RelationCallback(ApamInstanceManager instance, RelationDeclaration relation, RelationDeclaration.Event trigger, CallbackDeclaration callback) throws ConfigurationException {
+	public RelationCallback(ApamInstanceManager.Apform instance, RelationDeclaration relation, RelationDeclaration.Event trigger, CallbackDeclaration callback) throws ConfigurationException {
 		super(instance,callback.getMethodName());
 		
 		this.relation		= relation;

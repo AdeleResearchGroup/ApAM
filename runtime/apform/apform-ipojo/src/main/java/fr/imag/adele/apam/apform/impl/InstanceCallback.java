@@ -26,7 +26,7 @@ public abstract class InstanceCallback<T> extends Callback {
 	/**
 	 * The associated Apam component instance to be injected
 	 */
-	protected final ApamInstanceManager instance;
+	protected final ApamInstanceManager.Apform instance;
 
 	/**
 	 * Whether invocation requires an argument
@@ -39,9 +39,9 @@ public abstract class InstanceCallback<T> extends Callback {
     protected Class<?> argumentType;
     
     
-	protected InstanceCallback(ApamInstanceManager instance, String method) throws ConfigurationException {
+	protected InstanceCallback(ApamInstanceManager.Apform instance, String method) throws ConfigurationException {
 		
-		super(method,(String[])null,false,instance);
+		super(method,(String[])null,false,instance.getManager());
 		
 		this.instance	= instance;
 	}
@@ -67,10 +67,10 @@ public abstract class InstanceCallback<T> extends Callback {
 		 * reflection to search for methods.
 		 */
 		
-		Method[] candidates = instance.getClazz().getDeclaredMethods();
+		Method[] candidates = instance.getManager().getClazz().getDeclaredMethods();
         int match = searchMethod(candidates);
         if (match == -1) {
-        	candidates = instance.getClazz().getMethods();
+        	candidates = instance.getManager().getClazz().getMethods();
         	match = searchMethod(candidates);
         }
         
@@ -183,7 +183,7 @@ public abstract class InstanceCallback<T> extends Callback {
 
         Object actualArgument = requiresArgument ? argumentType.isInstance(argument) ? argument : cast(argument): null; 
 
-		return call(requiresArgument ? new Object[] {actualArgument} : new Object[0]);
+		return call(instance.getServiceObject(), requiresArgument ? new Object[] {actualArgument} : new Object[0]);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public abstract class InstanceCallback<T> extends Callback {
 	 */
 	public MethodMetadata getMethodMetadata() {
 		
-		PojoMetadata metadata 	= instance.getFactory().getPojoMetadata();
+		PojoMetadata metadata 	= instance.getManager().getFactory().getPojoMetadata();
 		String[] arguments		= requiresArgument ? new String[] {m_methodObj.getParameterTypes()[0].getCanonicalName()}: new String[0];
 		
 		return metadata.getMethod(m_methodObj.getName(),arguments);

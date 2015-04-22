@@ -15,7 +15,7 @@ public class LifecycleCallback extends InstanceCallback<Instance> {
 
     private final AtomicImplementationDeclaration.Event trigger;
 
-	public LifecycleCallback(ApamInstanceManager instance, AtomicImplementationDeclaration.Event trigger, CallbackDeclaration declaration) throws ConfigurationException {
+	public LifecycleCallback(ApamInstanceManager.Apform instance, AtomicImplementationDeclaration.Event trigger, CallbackDeclaration declaration) throws ConfigurationException {
 		super(instance,declaration.getMethodName());
 		
 		this.trigger		= trigger;

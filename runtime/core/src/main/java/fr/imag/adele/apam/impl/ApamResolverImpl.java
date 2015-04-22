@@ -535,7 +535,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 			if (!relToResolve.matchRelationConstraints(inst)) {
 				logger.debug(mess + " Instantiated instance " + inst + " does not match the constraints");
-				((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst);
+				((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(inst.getName());
 				return null ;
 			}
 

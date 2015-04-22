@@ -126,7 +126,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 			}
 
 			if (definition.getCallback() != null) {
-				getInstanceManager().addCallback(new PropertyCallback(getInstanceManager(), definition));
+				getInstanceManager().addCallback(new PropertyCallback(getInstanceManager().getApform(), definition));
 			}
 		}
 	}

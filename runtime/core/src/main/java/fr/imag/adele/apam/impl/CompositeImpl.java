@@ -402,11 +402,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		CompositeImpl.composites.remove(getName());
 
 		/*
-		 * Notify managers and remove the instance from the broker
-		 * 
-		 * TODO perhaps we should notify managers before actually destroying the
-		 * composite hierarchy, this will need a refactoring of the superclass
-		 * to allow a more fine control of unregistration.
+		 * unbind from the graph of instances
 		 */
 		super.unregister();
 	}

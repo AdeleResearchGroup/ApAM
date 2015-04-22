@@ -233,6 +233,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	Bundle bc = s1.getContext().getBundle();
 	bc.stop();
 
+	apam.waitForIt(2000);
+	
 	Assert.assertTrue(
 		"The remove method declared in <callback> tag should have been called during the bundle stop",
 		s1.getIsOnRemoveCallbackCalled());

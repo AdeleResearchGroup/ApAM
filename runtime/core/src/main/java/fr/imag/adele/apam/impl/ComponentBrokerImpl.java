@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.apache.felix.ipojo.Pojo;
 import org.osgi.framework.BundleException;
@@ -75,7 +77,42 @@ public class ComponentBrokerImpl implements ComponentBroker {
 
 	private final Set<Instance> instances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
-	public void disappearedComponent(Component component) {
+	/**
+	 * The task executor. We use a pool of a threads to handle component removal,as this may block as a side-efect and may cause deadlocks
+	 * specially at platform shutdown.
+	 */
+	private final Executor executor = Executors.newCachedThreadPool(new ThreadPoolFactory("unregistration", Executors.defaultThreadFactory()));
+	
+	/**
+	 * The task in charge of performing asynchronous removal 
+	 */
+	private class UnregisterTask implements Runnable {
+	
+		private final Component 		component;
+		
+		public UnregisterTask(Component component) {
+			this.component	= component;
+		}
+
+		@Override
+		public void run() {
+			
+			/*
+			 * Remove the component from the model and notify managers
+			 * 
+			 * TODO perhaps we should notify managers before actually destroying the component
+			 * graph, this will have implications as navigation in the manager may recreate 
+			 * deleted edges and have other side-effects
+			 */
+			((ComponentImpl)component).unregister();
+			ApamManagers.notifyRemovedFromApam(component);
+		}
+	}
+	
+	/**
+	 * Asynchronously destroy a component
+	 */
+	private void disappearedComponent(Component component) {
 		try {
 			
 			Set<? extends Component> collection = null;
@@ -105,10 +142,13 @@ public class ComponentBrokerImpl implements ComponentBroker {
 					
 			/*
 			 * Remove the component from the model and notify managers
+			 * 
+			 * TODO perhaps we should notify managers before actually destroying the component
+			 * graph, this will have implications as navigation in the manager may recreate 
+			 * deleted edges and have other side-effects
 			 */
 			if (exists) {
-				((ComponentImpl)component).unregister();
-				ApamManagers.notifyRemovedFromApam(component);
+				executor.execute(new UnregisterTask(component));
 			}
 			
 		}
