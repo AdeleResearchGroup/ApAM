@@ -515,14 +515,14 @@ public class ApamInstanceManager extends InstanceManager implements	RelationInje
 		public Object getServiceObject() {
 			
 			/*
-			 * For APAM instances whose corresponding iPOJO component is invalid we need to use the cached service object.
+			 * For APAM instances whose corresponding iPOJO component is stopped we need to use the cached service object.
 			 * 
-			 * This can only happen because the APAM instance is asynchronously synchronized with the iPOJO instance, and
-			 * so an APAM component can still used by other components or callbacks, even if the iPOJO instance is no longer
-			 * valid  
+			 * This can only happen because the APAM instance is asynchronously updated with the iPOJO instance, and
+			 * so an APAM component can still used by other components or callbacks, even if the iPOJO instance is no
+			 * longer started  
 			 * 
 			 */
-			if (getManager().getState() != ComponentInstance.VALID)
+			if (! getManager().isStarted())
 				return lastValidServiceObject;
 			
 			return ApamInstanceManager.this.getPojoObject();
