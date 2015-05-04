@@ -104,6 +104,8 @@ public interface ComponentBroker {
 	 */
 	public Component getComponent(String name);
 
+	public boolean contains(Component component);
+	
 	public Implementation getImpl(String implName);
 
 	public Set<Implementation> getImpls();

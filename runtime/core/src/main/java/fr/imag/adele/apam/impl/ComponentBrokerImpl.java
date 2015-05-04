@@ -410,6 +410,22 @@ public class ComponentBrokerImpl implements ComponentBroker {
 		return null;
 	}
 
+	public boolean contains(Component component) {
+
+		switch (component.getDeclaration().getKind()) {
+			case SPECIFICATION:
+				return specifications.contains(component);
+			case IMPLEMENTATION:
+				return implementations.contains(component);
+			case INSTANCE:
+				return instances.contains(component);
+			default:
+				return false;
+		}
+		
+	}
+	
+
 	@Override
 	public Implementation getImpl(String name) {
 
