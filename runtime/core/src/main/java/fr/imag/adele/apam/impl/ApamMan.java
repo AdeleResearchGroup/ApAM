@@ -112,7 +112,7 @@ public class ApamMan implements RelationManager {
 			if (relToResolve.getTargetKind() == ComponentKind.SPECIFICATION) {
 				return new Resolved<Specification>(spec);
 			}
-			impls = spec.getImpls();
+			impls = registered(spec.getImpls());
 		} else if (relToResolve.getTarget() instanceof ImplementationReference) {
 			Implementation impl = CST.componentBroker.getImpl(name);
 			if (impl == null) {
@@ -189,7 +189,7 @@ public class ApamMan implements RelationManager {
 
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Implementation impl : impls) {
-			for (Instance inst : impl.getInsts()) {
+			for (Instance inst : registered(impl.getInsts())) {
 				if (inst.isSharable() && source.canSee(inst) && inst.matchRelationConstraints(relToResolve)) {
 					if (fast) {
 						return new Resolved<Instance>(inst);
@@ -237,7 +237,21 @@ public class ApamMan implements RelationManager {
 		return null ;
 	}
 
-
+	/**
+	 * Takes a set of components and filter out those that are not registered in the component broker
+	 */
+	public <T extends Component> Set<T> registered(Set<T> components) {
+		Set<T> registered = new HashSet<T>();
+		
+		for (T component : components) {
+			if (CST.componentBroker.contains(component)) {
+				registered.add(component);
+			}
+		}
+		
+		return registered;
+	}
+	
 	/**
 	 * If some bundle are starting, they may contain the solution (especially during the starting phase)
 	 * Just way a short while to let these bundles complete their starting phase.
